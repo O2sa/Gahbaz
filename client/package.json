@@ -48,7 +48,8 @@
     "react-router-dom": "^6.14.0",
     "redux": "4.2.1",
     "simplebar-react": "^2.4.3",
-    "source-map-explorer": "^2.5.3"
+    "source-map-explorer": "^2.5.3",
+    "dotenv": ""
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",
