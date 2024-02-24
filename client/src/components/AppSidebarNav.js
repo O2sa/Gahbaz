@@ -39,8 +39,8 @@ export const AppSidebarNav = ({ items }) => {
 
   const navGroup = (item, index) => {
     const { component, name, icon, to, ...rest } = item
-    console.log(location.pathname.startsWith(to))
-
+    // console.log(location.pathname.startsWith(to))
+    // console.log(location.pathname)
     const Component = component
     return (
       <Component
@@ -56,6 +56,10 @@ export const AppSidebarNav = ({ items }) => {
       </Component>
     )
   }
+  // console.log('navbar items:',
+  //   items &&
+  //     items.map((item, index) => (item.items ? navGroup(item, index) : navItem(item, index))),
+  // )
 
   return (
     <React.Fragment>

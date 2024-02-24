@@ -20,8 +20,8 @@ import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 const adminNavs = [
   {
     component: CNavItem,
-    name: 'لوحة التح',
-    to: '/dashboard',
+    name: 'لوحة التحكم',
+    to: '.',
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
     // badge: {
     //   color: 'info',
@@ -31,13 +31,19 @@ const adminNavs = [
   {
     component: CNavItem,
     name: 'ادارة المستخدمين',
-    to: '/admin/users',
+    to: 'usersManagement',
     icon: <CIcon icon={cilDrop} customClassName="nav-icon" />,
   },
   {
     component: CNavItem,
-    name: 'الفصل الحالي',
-    to: '/admin/currentterm',
+    name: 'الفصول الدراسية',
+    to: '/semesters',
+    icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
+  },
+  {
+    component: CNavItem,
+    name: 'إدارة الكليات',
+    to: '/collages',
     icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
   },
   {
@@ -128,7 +134,8 @@ const studentNavs = [
   },
 ]
 export default function getNavs() {
-  const UserRole = localStorage.getItem('user')
+  // const UserRole = localStorage.getItem('user')
+  const UserRole = 'admin'
   if (UserRole == 'admin') {
     return adminNavs
   } else if (UserRole == 'teacher') {

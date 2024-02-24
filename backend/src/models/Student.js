@@ -15,7 +15,6 @@ const StudentSchema = new mongoose.Schema({
   },
   comingSemester: {
     type: Number,
-    required: true,
     default: 0,
   },
   semesters:[{ type: mongoose.Schema.ObjectId, ref: "Semester" }]

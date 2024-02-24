@@ -14,25 +14,25 @@ import 'simplebar/dist/simplebar.min.css'
 
 // sidebar nav config
 import getNavs from '../_nav'
+import { updateSidebarState } from 'src/dataLogic/CollageManagementSlice.mjs'
 
-const AppSidebar = () => {
-  const dispatch = useDispatch()
-  const unfoldable = useSelector((state) => state.sidebarUnfoldable)
-  const sidebarShow = useSelector((state) => state.sidebarShow)
-  console.log(getNavs())
+const AppSidebar = ({sidebarShow, stateChange}) => {
+  // const dispatch = useDispatch()
+  // const sidebarShow = useSelector((state) => state.sidebarStates.sidebarShow)
+  // console.log(getNavs())
 
   return (
     <CSidebar
       position="fixed"
-      unfoldable={unfoldable}
-      visible={sidebarShow}
+      unfoldable={sidebarShow.sidebarUnfoldable}
+      visible={sidebarShow.sidebarShow}
       onVisibleChange={(visible) => {
-        dispatch({ type: 'set', sidebarShow: visible })
+        stateChange({sidebarShow: visible })
       }}
     >
       <CSidebarBrand className="d-none d-md-flex" to="/">
-        {/* <CIcon className="sidebar-brand-full" icon={logoNegative} height={35} /> */}
-        {/* <CIcon className="sidebar-brand-narrow" icon={sygnet} height={35} /> */}
+        <CIcon className="sidebar-brand-full" icon={logoNegative} height={35} />
+        <CIcon className="sidebar-brand-narrow" icon={sygnet} height={35} />
       </CSidebarBrand>
       <CSidebarNav>
         <SimpleBar>
@@ -41,7 +41,7 @@ const AppSidebar = () => {
       </CSidebarNav>
       <CSidebarToggler
         className="d-none d-lg-flex"
-        onClick={() => dispatch({ type: 'set', sidebarUnfoldable: !unfoldable })}
+        onClick={() => stateChange({  sidebarUnfoldable: !sidebarShow.sidebarUnfoldable })}
       />
     </CSidebar>
   )

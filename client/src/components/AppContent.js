@@ -6,15 +6,6 @@ import { CContainer, CSpinner } from '@coreui/react'
 import getRoutes from '../routes'
 
 const AppContent = () => {
-  // let navigate = useNavigate()
-  // useEffect(() => {
-  //   const User =
-  //     localStorage.getItem('user') !== 'undefined'
-  //       ? JSON.parse(localStorage.getItem('user'))
-  //       : localStorage.clear()
-
-  //   if (!User) navigate('/login')
-  // }, [])
   const routes = getRoutes()
   console.log(routes)
   return (
@@ -34,7 +25,7 @@ const AppContent = () => {
               )
             )
           })}
-          <Route path="/" element={<Navigate to="dashboard" replace />} />
+          {/* <Route path="/" element={<Navigate to="dashboard" replace />} /> */}
         </Routes>
       </Suspense>
     </CContainer>

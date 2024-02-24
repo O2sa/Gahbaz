@@ -21,10 +21,14 @@ const SemesterSchema = new Schema({
     type: Date,
     required: [true, "Please provide end date"],
   },
-  status: {
-    type: String,
-    enum: ['to-do','in-progress', 'done',],
-    default: 'to-do',
+  // status: {
+  //   type: String,
+  //   enum: ["to-do", "in-progress", "done"],
+  //   default: "to-do",
+  // },
+  completed: {
+    type: Boolean,
+    default: false,
   },
 });
 

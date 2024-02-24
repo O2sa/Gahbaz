@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const CourseTemp = require("./CourseTemp");
+const Subject = require("./Subject");
 
 const gradeSchema = new mongoose.Schema({
   user: {
@@ -14,10 +14,6 @@ const gradeSchema = new mongoose.Schema({
 });
 
 const CourseSchema = new mongoose.Schema({
-  teacher: {
-    type: mongoose.Schema.ObjectId,
-    ref: "Teacher",
-  },
   studentsGrades: [
     {
       user: {
@@ -31,6 +27,55 @@ const CourseSchema = new mongoose.Schema({
       },
     },
   ],
+  willLearn: [
+    {
+      type: String,
+    },
+  ],
+  requirements: [
+    {
+      type: String,
+    },
+  ],
+  sections: {
+    type: mongoose.Schema.ObjectId,
+    ref: "Section",
+  },
 });
 
-module.exports = CourseTemp.discriminator("Course", CourseSchema);
+module.exports = Subject.discriminator("Course", CourseSchema);
+
+const SectionSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, "Please provide name"],
+    minlength: 4,
+    maxlength: 50,
+  },
+  lessons: { type: mongoose.Schema.ObjectId, ref: "Lesson" },
+});
+
+const lesson = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, "Please provide name"],
+    minlength: 4,
+    maxlength: 50,
+  },
+  description: {
+    type: String,
+  },
+  video: {
+    type: String,
+  },
+  notes: {
+    type: String,
+  },
+  file: {
+    type: String,
+  },
+});
+
+
+module.exports = mongoose.model("Lesson", lesson);
+module.exports = mongoose.model("Section", SectionSchema);

@@ -48,6 +48,7 @@ import {
   CBadge,
   CWidgetStatsF,
 } from '@coreui/react'
+
 import {
   cibCcAmex,
   cibCcApplePay,
@@ -71,6 +72,7 @@ import {
   cilUserFemale,
   cilChartPie,
 } from '@coreui/icons'
+
 import EditableTable from 'src/mycomponents/editableTable'
 
 // console.log(SumGrade(StudentData.grades[0].courses))
