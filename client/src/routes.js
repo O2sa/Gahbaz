@@ -1,4 +1,5 @@
 import React from 'react'
+import { Route } from 'react-router-dom'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
@@ -52,7 +53,28 @@ const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 
 //Admin
 const ManageUsers = React.lazy(() => import('./admin/users'))
-const CurrentTerm = React.lazy(() => import('./admin/CurrentTerm'))
+// const Collages = React.lazy(() => import('./admin/Collages'))
+// import Collages from './stories/screens/Collages'
+import CollageInfo from './stories/screens/CollageInfo'
+import { loader as collagesLoader } from './stories/screens/Collages'
+import AboutCollage from './stories/SpecialComponents/AboutCollage'
+import { AddField } from './stories/screens/AddField'
+import { TabsBody } from './stories/Tabs/TabsBody'
+import CardsGroup from './stories/SpecialComponents/CardsGroup'
+import AboutField from './stories/SpecialComponents/AboutField'
+import { AddSubject } from './stories/screens/AddSubject'
+import { SemesterTemplateDetails } from './stories/SpecialComponents/SemesterTemplateDetails'
+import { SemestersTemplate } from './stories/SpecialComponents/SemestersTemplate'
+import Semesters from './stories/screens/Semesters'
+import { Semesters as CurrentSemesters } from './stories/SpecialComponents/Semesters'
+import { CurrentSemester } from './stories/screens/CurrentSemester'
+import { Course } from './stories/screens/Course'
+import { CreateCourse } from './stories/screens/CreateCourse'
+import { EditCourseInfo } from './stories/SpecialComponents/EditCourseInfo'
+import { EditCourseSection } from './stories/SpecialComponents/EditCourseSection'
+import { EditCourseSections, EditSectionTitle } from './stories/SpecialComponents/EditCourseSections'
+const Collages = React.lazy(() => import('./stories/screens/Collages'))
+const FieldInfo = React.lazy(() => import('./stories/screens/FieldInfo'))
 const adminSetting = React.lazy(() => import('./admin/test'))
 const adminDashboard = React.lazy(() => import('./admin/Dashboard'))
 
@@ -65,14 +87,146 @@ const studentDash = React.lazy(() => import('./student/Dashboard'))
 const teacherCourses = React.lazy(() => import('./teacher/courses'))
 
 const adminRoutes = [
-  { path: '/', exact: true, name: 'الرئيسية' },
-  { path: '/dashboard', name: 'اللوحة', element: adminDashboard },
-  { path: '/theme', name: 'ثيم', element: Colors, exact: true },
-  { path: '/theme/colors', name: 'الوان', element: Colors },
-  { path: '/admin/users', name: 'الوان', element: ManageUsers },
-  { path: '/admin/currentterm', name: 'الوان', element: CurrentTerm },
-  { path: '/admin/test', name: 'الوان', element: adminSetting },
-  { path: '/theme/typography', name: 'تبوجرافي', element: Typography },
+  { index: true, name: 'لوحة التحكم', element: <Dashboard /> },
+  { path: 'usersManagement', name: 'إدارة المستخدمين', element: <ManageUsers /> },
+  {
+    path: 'collages',
+    name: 'إدارة الكليات',
+    element: <Collages />,
+    // loader: collagesLoader,
+    childern: [],
+  },
+  {
+    path: 'collages/:id',
+    name: 'إدارة الكليات',
+    element: <CollageInfo />,
+    children: [
+      {
+        // path: 'about',
+        index: true,
+        name: 'About Collage',
+        element: <AboutCollage />,
+      },
+      {
+        path: 'fields',
+        name: 'collage fields',
+        element: (
+          <>
+            {' '}
+            <TabsBody addModel={AddField} label={'إضافة تخصص'} title={'التخصصات'} />,
+            <CardsGroup editModel={AddField} collection={'fields'} />
+          </>
+        ),
+      },
+      {
+        path: 'subjects',
+        name: 'collage subjects',
+        element: (
+          <>
+            {' '}
+            <TabsBody addModel={AddSubject} label={'تعديل'} title={'التخصصات'} />
+            <div className="mt-5">
+              <CardsGroup editModel={AddSubject} collection={'subjects'} />{' '}
+            </div>
+          </>
+        ),
+      },
+    ],
+  },
+  {
+    path: 'collages/:id/fields/:id',
+    name: 'إدارة الكليات',
+    element: <FieldInfo />,
+    children: [
+      {
+        // path: 'about',
+        index: true,
+        name: 'About Collage',
+        element: <AboutField />,
+      },
+      {
+        path: 'semesterTemplates',
+        name: 'collage fields',
+        element: (
+          <>
+            {' '}
+            <TabsBody addModel={AddField} label={'إضافة تخصص'} title={'التخصصات'} />,
+            <SemestersTemplate />{' '}
+          </>
+        ),
+        children: [
+          {
+            // index: true,
+            path: ':id',
+            name: 'About Collage',
+            element: <SemesterTemplateDetails title={''} />,
+          },
+        ],
+      },
+      {
+        path: 'subjects',
+        name: 'collage subjects',
+        element: (
+          <>
+            {' '}
+            <TabsBody label={'تعديل'} title={'التخصصات'} />
+            <div className="mt-5">
+              <CardsGroup collection={'subjects'} />{' '}
+            </div>
+          </>
+        ),
+      },
+    ],
+  },
+
+  {
+    path: 'semesters',
+    name: 'الفصول الدراسية',
+    element: <Semesters />,
+    children: [
+      {
+        // path: 'about',
+        index: true,
+        name: 'About Collage',
+        element: <CurrentSemesters />,
+      },
+    ],
+  },
+  {
+    path: 'currentSemester/:id',
+    name: 'الفصول الدراسية',
+    element: <CurrentSemester />,
+  },
+  {
+    path: 'currentSemester/:id/course/:id',
+    name: 'الفصول الدراسية',
+    element: <Course />,
+  },
+  {
+    path: 'currentSemester/:id/addCourse/:id',
+    name: 'الفصول الدراسية',
+    element: <CreateCourse />,
+    children: [
+      {
+        index: true,
+        name: 'الفصول الدراسية',
+        element: <EditCourseInfo />,
+      },
+      {
+        path: 'lessons',
+        name: 'الفصول الدراسية',
+        element: <EditCourseSections />,
+        children: [
+          {
+            path: 'editSectionTitle/:id',
+            name: 'الفصول الدراسية',
+            element: <EditSectionTitle />,
+          },
+        ],
+      },
+    ],
+  },
+  { path: '/base/accordion', name: 'الفصول الدراسية', element: <adminSetting /> },
 ]
 
 const studentRoutes = [
@@ -90,7 +244,8 @@ const teacherRoutes = [
   { path: '/teacher/profile', name: 'الملف الشخصي', element: Dashboard },
 ]
 export default function getRoutes() {
-  const UserRole = localStorage.getItem('user')
+  // const UserRole = localStorage.getItem('user')
+  const UserRole = 'admin'
 
   if (UserRole == 'admin') {
     return adminRoutes
@@ -100,3 +255,22 @@ export default function getRoutes() {
     return teacherRoutes
   }
 }
+
+export function getNestedRoutes() {
+  {
+    return getRoutes().map((route, idx) => {
+      return (
+        route.element && (
+          <Route
+            key={idx}
+            path={route.path}
+            exact={route.exact}
+            name={route.name}
+            element={<route.element />}
+          />
+        )
+      )
+    })
+  }
+}
+export { adminRoutes, studentRoutes, teacherRoutes }

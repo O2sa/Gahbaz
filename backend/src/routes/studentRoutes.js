@@ -2,13 +2,20 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  createStudent,
-  getSemstersGrades,
-  getCurrentCourses,
-} = require("../controllers/studentControllers.js");
+getStudent,
+createStudent,
 
-router.route("/createStudent").post(createStudent);
-router.route("/getSemstersGrades").get(getSemstersGrades);
-router.route("/getCurrentCourses").get(getCurrentCourses);
+getAllStudents
+
+} = require("../controllers/studentControllers");
+
+
+
+
+//collages
+router.route("/students").post(createStudent).get(getAllStudents)
+// router.route("/students/getCollageStudents/:id").get(getCollageStudents)
+// router.route("/students/:id").patch(updateStudent).delete(deleteStudent).get(getStudent);
+
 
 module.exports = router;

@@ -22,6 +22,14 @@ const connectDB = require('./configs/connect');
 const studentRouter = require('./routes/studentRoutes');
 const adminRouter = require('./routes/adminRoutes');
 const teacherRouter = require('./routes/teacherRoutes');
+const collageRouter = require('./routes/collageRoutes');
+const subjectRouter = require('./routes/subjectRoutes');
+const semesterRouter = require('./routes/semesterRoutes');
+const courseRouter = require('./routes/courseRoutes');
+const majorRouter = require('./routes/majorRoutes');
+const semesterTemplateRoute = require('./routes/semesterTemplateRoutes');
+
+
 
 // middleware
 const notFoundMiddleware = require('./middleware/not-found');
@@ -46,9 +54,15 @@ app.use(express.static('./public'));
 // app.use(fileUpload());
 
 //setup apis
-app.use('/api/v1/student', studentRouter);
+app.use('/api/v1', studentRouter);
 app.use('/api/v1/admin', adminRouter);
-app.use('/api/v1/teacher', teacherRouter);
+app.use('/api/v1', teacherRouter);
+app.use('/api/v1', collageRouter);
+app.use('/api/v1', courseRouter);
+app.use('/api/v1', semesterRouter);
+app.use('/api/v1', majorRouter);
+app.use('/api/v1', subjectRouter);
+app.use('/api/v1', semesterTemplateRoute);
 
 
 app.use(notFoundMiddleware);

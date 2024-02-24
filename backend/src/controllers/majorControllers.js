@@ -1,37 +1,39 @@
 const { StatusCodes } = require("http-status-codes");
 const Major = require("../models/Major");
-const Semester = require("../models/SemesterTemp");
+const SemesterTemp = require("../models/SemesterTemp");
 
 const getMajor = async (req, res) => {
-  const majorId = req.params.majorId;
-  const major = await Major.find({ _id: majorId });
+  const id = req.params.id;
+  const item = await Major.find({ _id: id });
 
-  res.status(StatusCodes.OK).json({ major });
+  res.status(StatusCodes.OK).json({ item });
 };
 
-const getAllCollageMajors = async (req, res) => {
-  const collageId = req.params.collageId;
-  const majors = await Major.find({ collage: collageId });
-  console.log(req.params.collageId);
+const getCollageMajors = async (req, res) => {
+  const id = req.params.id;
+  const majors = await Major.find({ collage: id });
+  // console.log(req.params.collageId);
 
   res.status(StatusCodes.OK).json({ majors, count: majors.length });
 };
 
-const addMajor = async (req, res) => {
+const createMajor = async (req, res) => {
   const { semestersNum, major } = req.body;
   console.log(semestersNum, major);
 
   const newMajor = await Major.create(major);
 
   for (var s = 0; s < semestersNum; s++) {
-    var newSemester = {
+    const newSemester = await SemesterTemp.create({
       name: `semester ${s + 1}, ${newMajor.name}`,
+      major: newMajor.id,
       index: s + 1,
-      major: newMajor._id,
-    };
+    });
 
-    const semester = Semester.create(newSemester);
-    console.log(newMajor, semester);
+    newMajor.semesterTemplates.push(newSemester._id);
+    await newMajor.save();
+
+    console.log(newMajor, newSemester);
   }
 
   // Save the parent document
@@ -46,17 +48,30 @@ const addMajor = async (req, res) => {
   res.status(StatusCodes.OK).json(newMajor);
 };
 
-const updateMajor = async (req, res) => {};
-
-const deleteMajor = async (req, res) => {
-  const mjId = req.params.majorId;
-  const deletedMajor = await Major.findOne({ _id: mjId });
-  await deleteMajor.remove();
-  res.status(StatusCodes.OK).json(deletedMajor);
+const updateMajor = async (req, res) => {
+  const id = req.params.id;
+  console.log(id);
+  const item = await Subject.findByIdAndUpdate({ _id: id }, req.body, {
+    new: true,
+  });
+  res.status(StatusCodes.OK).json({ item });
 };
 
-const getMajorSemesters = async (req, res) => {
-  res.status(StatusCodes.OK).json({ res: "Semsters Grades." });
+const deleteMajor = async (req, res) => {
+  const id = req.params.id;
+  const major = await Major.findOneAndDelete({ _id: id });
+  const deletedSems = await SemesterTemp.deleteMany({ major: major.id });
+
+  if (!major) {
+    return res
+      .status(StatusCodes.NOT_FOUND)
+      .json({ message: "Major not found" });
+  }
+
+  // Call remove() on the instance of the Major model
+
+  // You can respond with the deleted Major
+  res.status(StatusCodes.OK).json(major);
 };
 
 const addSemester = async (req, res) => {
@@ -66,10 +81,9 @@ const addSemester = async (req, res) => {
 };
 
 module.exports = {
-  deleteMajor,
   getMajor,
-  addMajor,
+  getCollageMajors,
+  createMajor,
   updateMajor,
-  getMajorSemesters,
-  getAllCollageMajors,
+  deleteMajor,
 };

@@ -103,3 +103,95 @@ const arWords = {
 }
 
 export { CourseGradeW, StudentData, arWords, desktopTableData, phoneTableData, wordsData }
+const d={
+  "semesterManagementData": {
+    "semesters": [
+      {
+        "title": "Fall 2022",
+        "id": "1",
+        "coursesNum": "3",
+        "studentsNum": "50",
+        "level": "Undergraduate",
+        "field": "Computer Science",
+        "startDate": "2022-09-01",
+        "endDate": "2022-12-20",
+        "completed": "false"
+      }
+    ]
+  },
+  "courseData": {
+    "courseInfo": {
+      "title": "Introduction to Programming",
+      "subtitle": "Learn the basics of programming",
+      "id": "1",
+      "describtion": "This course covers fundamental programming concepts.",
+      "image": "course_image.jpg",
+      "secince": "Computer Science",
+      "teachers": ["John Doe", "Jane Smith"],
+      "requirements": ["Basic computer skills"],
+      "status": "Active"
+    },
+    "courseSyllabus": [
+      {
+        "title": "Introduction to Programming Concepts",
+        "id": "1",
+        "lectures": [
+          {
+            "title": "Variables and Data Types",
+            "id": "1",
+            "expectedTime": "1 hour",
+            "describtion": "Understanding variables and different data types in programming.",
+            "video": "https://example.com/lecture1.mp4",
+            "notes": "lecture1_notes.pdf",
+            "file": "lecture1_additional_file.txt"
+          }
+        ]
+      }
+    ],
+    "studentsGrades": [
+      {
+        "student": {
+          "id": "1",
+          "name": "Alice Johnson",
+          "age": 20,
+          "major": "Computer Science"
+        },
+        "id": "1",
+        "grade": 85
+      }
+    ]
+  },
+  "collageManagementData": {
+    "collages": [
+      {
+        "name": "Example College",
+        "id": "1",
+        "fieldsNum": "5"
+      }
+    ],
+    "subjects": [
+      {
+        "title": "Mathematics",
+        "id": "1",
+        "subtitle": "Advanced Calculus"
+      }
+    ],
+    "fields": [
+      {
+        "title": "Computer Science",
+        "id": "1",
+        "semestersNum": "8",
+        "describtion": "Computer Science program description.",
+        "duration": 4
+      }
+    ],
+    "semesterTemplates": [
+      {
+        "title": "Standard Template",
+        "id": "1",
+        "subjectsNum": "5",
+        "order": "1"
+      }
+    ]
+  }
+}

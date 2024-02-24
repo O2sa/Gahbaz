@@ -2,7 +2,7 @@ const { StatusCodes } = require("http-status-codes");
 const Semester = require("../models/Semester");
 const Major = require("../models/Major");
 const SemesterTemp = require("../models/SemesterTemp");
-const CourseTemp = require("../models/CourseTemp");
+const Subject = require("../models/Subject");
 const Course = require("../models/Course");
 const Student = require("../models/Student");
 
@@ -26,6 +26,9 @@ const addSemester = async (req, res) => {
 };
 
 const updateSemester = async (req, res) => {
+  res.status(StatusCodes.OK).json({ res: "Semsters Grades." });
+};
+const createSemester = async (req, res) => {
   res.status(StatusCodes.OK).json({ res: "Semsters Grades." });
 };
 
@@ -76,13 +79,13 @@ const startSemester = async (req, res) => {
       }
 
       // await newSemester.save();
-      console.log("courses:" + sem.courses);
-      console.log("courses length:" + sem.courses.length);
+      console.log("courses:" + sem.subjects);
+      console.log("courses length:" + sem.subjects.length);
 
-      for (const course of sem.courses) {
+      for (const course of sem.subjects) {
         console.log("course id:" + course);
 
-        const tempCourse = await CourseTemp.findById(course).select(
+        const tempCourse = await Subject.findById(course).select(
           "name collage -_id"
         );
 
@@ -99,7 +102,7 @@ const startSemester = async (req, res) => {
           gradesArr.push({ user: student._id, score: 0 });
         });
         console.log("gradesArr" + gradesArr);
-        newCourse.studentsGrades = newCourse.studentsGrades.concat(gradesArr);
+        newCourse.studentsGrades = gradesArr
         await newCourse.save();
         console.log("newCourse" + newCourse);
 
@@ -116,4 +119,5 @@ module.exports = {
   getAllSemesters,
   startSemester,
   getSemester,
+  createSemester
 };

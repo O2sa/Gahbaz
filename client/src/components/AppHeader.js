@@ -12,21 +12,22 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilBell, cilEnvelopeOpen, cilList, cilMenu } from '@coreui/icons'
-
+import { TabsBody } from 'src/stories/Tabs/TabsBody'
 import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
 import { logo } from 'src/assets/brand/logo'
+import { updateSidebarState } from 'src/dataLogic/CollageManagementSlice.mjs'
 
-const AppHeader = () => {
-  const dispatch = useDispatch()
-  const sidebarShow = useSelector((state) => state.sidebarShow)
+const AppHeader = ({sidebarShow, stateChange}) => {
+  // const dispatch = useDispatch()
+  // const sidebarShow = useSelector((state) => state.sidebarStates.sidebarShow)
 
   return (
     <CHeader position="sticky" className="mb-4">
       <CContainer fluid>
         <CHeaderToggler
           className="ps-1"
-          onClick={() => dispatch({ type: 'set', sidebarShow: !sidebarShow })}
+          onClick={() => stateChange({sidebarShow: !sidebarShow.sidebarShow })}
         >
           <CIcon icon={cilMenu} size="lg" />
         </CHeaderToggler>
@@ -70,6 +71,7 @@ const AppHeader = () => {
       <CHeaderDivider />
       <CContainer fluid>
         <AppBreadcrumb />
+        <TabsBody />
       </CContainer>
     </CHeader>
   )

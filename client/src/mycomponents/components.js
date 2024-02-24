@@ -33,6 +33,7 @@ function StatusBadge({ status = 'success', content = '' }) {
     </CBadge>
   )
 }
+
 const CourseGradeWPhone = {
   Present: 'الحضور',
   Assignments: 'التكاليف',

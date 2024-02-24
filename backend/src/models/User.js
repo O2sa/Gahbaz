@@ -46,9 +46,9 @@ UserSchema.methods.comparePassword = async function (canditatePassword) {
 };
 
 
-UserSchema.statics.create = async function(name, email, password) {
-  const user = new this({ name, email, password });
-  await user.save();
-  return user;
-};
+// UserSchema.statics.create = async function(name, email, password) {
+//   const user = new this({ name, email, password });
+//   await user.save();
+//   return user;
+// };
 module.exports = mongoose.model("User", UserSchema);
