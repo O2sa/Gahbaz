@@ -2,5 +2,5 @@
   "compilerOptions": {
     "baseUrl": "."
   },
-  "include": ["src"]
+  "include": ["src", "../learn/storybook/src/comp", "src/__tests__/.CourseManagement.js"]
 }

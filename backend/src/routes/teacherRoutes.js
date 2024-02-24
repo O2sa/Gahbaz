@@ -2,17 +2,19 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  getCourseGrades,
-  getAllCourses,
-  updateCourseGrades,
-  createTeacher
+getTeacher,
+createTeacher,
+updateTeacher,
+deleteTeacher,
+getAllTeachers
 } = require("../controllers/teacherControllers");
 
-router.route("/createTeacher").post(createTeacher);
-router.route("/courses").get(getAllCourses);
-router
-  .route("/courses/:courseId")
-  .get(getCourseGrades)
-  .post(updateCourseGrades);
+
+
+
+//collages
+router.route("/teachers").post(createTeacher).get(getAllTeachers)
+router.route("/teachers/:id").patch(updateTeacher).delete(deleteTeacher).get(getTeacher);
+
 
 module.exports = router;
