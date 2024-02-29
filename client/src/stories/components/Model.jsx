@@ -14,6 +14,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { Button } from './button'
+import { Link, useNavigate } from 'react-router-dom'
 export default function Model({
   modelBody,
   title,
@@ -21,15 +22,18 @@ export default function Model({
   setVisible,
   variant,
   handleSubmit,
+  to,
   ...props
+
 }) {
   const [show, setShow] = useState(true)
-
+const navigate=useNavigate()
   return (
     <>
       <CModal
         size={variant === 'form' ? 'xl' : null}
         scrollable
+        
         visible={visible ?? show}
         backdrop="static"
         alignment={variant === 'form' ? null : 'center'}
@@ -37,6 +41,7 @@ export default function Model({
         // onClick={() => {
         //   return setVisible(false)
         // }}
+        onClose={()=> navigate(to)}
         aria-labelledby="ScrollingLongContentExampleLabel2"
         {...props}
       >
@@ -55,15 +60,17 @@ export default function Model({
           >
             إغلاق
           </CButton>
-          <CButton
-            onClick={() => {
-               setVisible ? setVisible(false) : setShow(false)
-               return handleSubmit()
-            }}
-            color="primary"
-          >
-            حفظ التغيرات
-          </CButton>
+          {/* <Link to={'..'}> */}
+            <CButton
+              onClick={() => {
+                setVisible ? setVisible(false) : setShow(false)
+                return handleSubmit()
+              }}
+              color="primary"
+            >
+              حفظ التغيرات
+            </CButton>
+          {/* </Link> */}
         </CModalFooter>
       </CModal>
     </>

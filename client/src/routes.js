@@ -72,7 +72,14 @@ import { Course } from './stories/screens/Course'
 import { CreateCourse } from './stories/screens/CreateCourse'
 import { EditCourseInfo } from './stories/SpecialComponents/EditCourseInfo'
 import { EditCourseSection } from './stories/SpecialComponents/EditCourseSection'
-import { EditCourseSections, EditSectionTitle } from './stories/SpecialComponents/EditCourseSections'
+import {
+  AddLessonDescription,
+  EditCourseSections,
+  EditSectionTitle,
+  UploadLessonVideo,
+} from './stories/SpecialComponents/EditCourseSections'
+import { Courses } from './stories/screens/Courses'
+import { Lesson } from './stories/screens/Lesson'
 const Collages = React.lazy(() => import('./stories/screens/Collages'))
 const FieldInfo = React.lazy(() => import('./stories/screens/FieldInfo'))
 const adminSetting = React.lazy(() => import('./admin/test'))
@@ -81,6 +88,7 @@ const adminDashboard = React.lazy(() => import('./admin/Dashboard'))
 //Student
 const studentCourses = React.lazy(() => import('./student/courses'))
 const studentGrades = React.lazy(() => import('./student/grades'))
+const Grades = React.lazy(() => import('./student/grades'))
 const studentDash = React.lazy(() => import('./student/Dashboard'))
 
 //Teacher
@@ -222,9 +230,49 @@ const adminRoutes = [
             name: 'الفصول الدراسية',
             element: <EditSectionTitle />,
           },
+          {
+            path: 'uploadLessonVideo/:id',
+            name: 'الفصول الدراسية',
+            element: <UploadLessonVideo />,
+          },
+          {
+            path: 'addLessonDescription/:id',
+            name: 'الفصول الدراسية',
+            element: <AddLessonDescription />,
+          },
         ],
       },
     ],
+  },
+  {
+    path: 'courses',
+    name: 'الفصول الدراسية',
+    element: <Courses />,
+  },
+  {
+    path: 'courses/:id',
+    name: 'الفصول الدراسية',
+    element: <Course admin={false} />,
+  },
+  {
+    path: 'course/lessons/:id',
+    name: 'الفصول الدراسية',
+    element: <Lesson />,
+  },
+  {
+    path: 'course/study/:id',
+    name: 'الفصول الدراسية',
+    element: <Lesson />,
+  },
+  {
+    path: 'grades',
+    name: 'الفصول الدراسية',
+    element: <Grades />,
+  },
+  {
+    path: 'profile',
+    name: 'الفصول الدراسية',
+    element: <studentCourses />,
   },
   { path: '/base/accordion', name: 'الفصول الدراسية', element: <adminSetting /> },
 ]

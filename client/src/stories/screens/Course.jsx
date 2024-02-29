@@ -29,12 +29,13 @@ import { CourseInfo } from '../SpecialComponents/CourseInfo'
 import { AddCourse } from '../SpecialComponents/AddCourse'
 import { useParams } from 'react-router-dom'
 
-export const Course = ({ opt, visible, setVisible, itemData, ...props }) => {
-
+export const Course = ({ admin = true, opt, visible, setVisible, itemData, ...props }) => {
   return (
     <div className="bg-white">
-      <TabsBody  opt={'edit'} addModel={AddCourse} label={'تعديل'} title={'الفصول الحالية'} />
-      <div className="m-4 mt-5">
+      {admin && (
+        <TabsBody opt={'edit'} addModel={AddCourse} label={'تعديل'} title={'الفصول الحالية'} />
+      )}
+      <div className="m-4 pt-5">
         <CourseInfo />
       </div>
     </div>

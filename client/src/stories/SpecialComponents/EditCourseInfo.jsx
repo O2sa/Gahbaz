@@ -41,10 +41,10 @@ export const EditCourseInfo = ({ ...props }) => {
 
   // console.log(course)
   const [formData, setFormData] = useState({
-    describtion: id !== 'new'? course.describtion : '',
-    image: id !== 'new' ? course.image : '',
-    willLearn: id !== 'new' ? course.willLearn : [],
-    requirements: id !== 'new' ? course.requirements : [],
+    describtion: course && course.name? course.describtion : '',
+    image: course && course.name ? course.image : '',
+    willLearn: course && course.name ? course.willLearn : [],
+    requirements: course && course.name ? course.requirements : [],
   })
   //   const dispatch = useDispatch()
 

@@ -69,9 +69,7 @@ export const createAsyncCrudReducerCases = (builder, resource) => {
       setSuccessStatus(state)
       state[resource].push(action.payload[resource.slice(0, -1)])
       state[deleteLastChar(resource)] = action.payload[deleteLastChar(resource)]
-
     })
-
     .addCase(asyncCrudThunks[resource].updateItemThunk.fulfilled, (state, action) => {
       setSuccessStatus(state)
       state[resource] = state[resource].map((item) =>

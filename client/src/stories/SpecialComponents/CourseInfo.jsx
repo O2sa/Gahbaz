@@ -71,7 +71,7 @@ export const CourseInfo = ({ ...props }) => {
       <CRow>
         <CRow>
           <div>
-            <h3 className="mb-2">{course.name}</h3>
+            <h3 className="mb-3">{course.name}</h3>
             <p>{course.subtitle}</p>
           </div>
           <div className="d-flex align-items-center mb-1">
