@@ -7,7 +7,7 @@ import { Link, Outlet } from 'react-router-dom'
 export const Tabs = ({ tabs, ...props }) => {
   const [activeKey, setActiveKey] = React.useState(0)
   return (
-    <div className="bg-white">
+    <div className="bg-white" style={{minHeight: '80vh'}}>
       <CNav variant="tabs" className="p-0" role="tablist">
         {tabs.map((tab, idx) => (
             <Tab
@@ -20,7 +20,7 @@ export const Tabs = ({ tabs, ...props }) => {
             />
         ))}
       </CNav>
-      <CTabContent className="pb-4">
+      <CTabContent  className="pb-4 ">
         {/* <CTabPane> */}
           <Outlet />
         {/* </CTabPane> */}
@@ -31,7 +31,6 @@ export const Tabs = ({ tabs, ...props }) => {
             {tab.header}
             <div className='p-4'>
             {tab.body}
-
             </div>
           </CTabPane>
         ))} */}

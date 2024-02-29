@@ -27,32 +27,22 @@ import { AddCollage } from './AddCollage'
 import AboutSemester from '../SpecialComponents/AboutSemester'
 import { CourseInfo } from '../SpecialComponents/CourseInfo'
 import { AddCourse } from '../SpecialComponents/AddCourse'
-import { useLocation, useParams } from 'react-router-dom'
-import { EditCourseInfo } from '../SpecialComponents/EditCourseInfo'
-import { Tabs } from '../Tabs/Tabs'
+import { useParams } from 'react-router-dom'
+import { CourseCard } from '../SpecialComponents/CourseCard'
+import { CourseLesson } from '../Course/CourseLesson'
+import { CourseContent } from '../Course/CourseContent'
 
-export const CreateCourse = ({ ...props }) => {
-  // const courseId = useLocation().search || ''
-  const { id } = useParams(); 
-  // console.log('courseId', id)
-
-
-  const tabs = [
-    {
-      name: 'المعلومات الأساسية',
-      // icon: stackIcon,
-      to: '.',
-    },
-    {
-      name: 'المعلومات الثانوية',
-      // icon: stackIcon,
-      to: 'fields',
-    },
-    {
-      name: 'الدروس',
-      // icon: stackIcon,
-      to: `lessons`,
-    },
-  ]
-  return <Tabs tabs={tabs} />
+export const Lesson = ({ ...props }) => {
+  return (
+    <div className="bg-white p-4">
+      <div className="row">
+        <div className="col-8">
+          <CourseLesson />
+        </div>
+        <div className="col">
+            <CourseContent />
+        </div>
+      </div>
+    </div>
+  )
 }

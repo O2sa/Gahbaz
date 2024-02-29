@@ -71,7 +71,7 @@ const AppHeader = ({sidebarShow, stateChange}) => {
       <CHeaderDivider />
       <CContainer fluid>
         <AppBreadcrumb />
-        <TabsBody />
+        {/* <TabsBody /> */}
       </CContainer>
     </CHeader>
   )

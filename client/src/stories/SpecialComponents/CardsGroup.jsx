@@ -8,8 +8,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { asyncCrudThunks } from 'src/dataLogic/CollageManagementSlice.mjs'
 import { AddCollage } from '../screens/AddCollage'
 import { AddField } from '../screens/AddField'
+import { FaDivide } from 'react-icons/fa'
 export default function CardsGroup({ collection, editModel, ...props }) {
-  
   useEffect(() => {
     dispatch(asyncCrudThunks[`${collection}`].getItemsThunk())
   }, [])
@@ -39,17 +39,17 @@ export default function CardsGroup({ collection, editModel, ...props }) {
   const renderCards = () => {
     return items.map((item) => (
       // <Link to={item.id}>
-        <SpecialCard
-          title={item.name}
-          id={item.id}
-          subtitle={`عدد التخصصات #${item.fieldsNum || item.semestersNum || item.subtitle}`}
-          onDelete={onDelete}
-          onEdit={togglePopover}
-          // editModel={editModel}
-          itemData={item}
-          collection={collection}
-          to={`${collection}/${item.id}`}
-        />
+      <SpecialCard
+        title={item.name}
+        id={item.id}
+        subtitle={`عدد التخصصات #${item.fieldsNum || item.semestersNum || item.subtitle}`}
+        onDelete={onDelete}
+        onEdit={togglePopover}
+        // editModel={editModel}
+        itemData={item}
+        collection={collection}
+        to={`${collection}/${item.id}`}
+      />
       // </Link>
     ))
   }
@@ -87,12 +87,12 @@ export default function CardsGroup({ collection, editModel, ...props }) {
   }
   const Model = editModel
   return (
-    <CRow className="g-4 row-cols-auto justify-content-center">
-      {renderCards()}
+    <>
+      <div className=" row row-cols-auto justify-content-center " >{renderCards()}</div>
       {modelData.isPopoverOpen && (
         <Model opt={'edit'} itemData={modelData.data} onClose={togglePopover} />
       )}
-    </CRow>
+    </>
   )
 }
 

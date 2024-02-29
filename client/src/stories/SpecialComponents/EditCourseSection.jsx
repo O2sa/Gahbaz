@@ -46,8 +46,7 @@ export const EditCourseSection = ({
 
   ...props
 }) => {
-
-  const {id}=useParams()
+  const { id } = useParams()
 
   const [formData, setFormData] = useState({
     name: section && section.name ? section.name : '',
@@ -80,12 +79,11 @@ export const EditCourseSection = ({
     }))
     // console.log(formData)
   }
+
   function addElement(event) {
     let { name, type, checked, value, id } = event.target
     console.log('event', name, type, checked, value, id)
-
     const itemsArr = formData[name]
-
     // updatedSallybals[idx] = value;
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -96,9 +94,6 @@ export const EditCourseSection = ({
   const saveData = () => {
     console.log(formData)
   }
-
-
-
 
   return (
     <>
@@ -119,7 +114,6 @@ export const EditCourseSection = ({
                     name="editSectionTitle"
                     id="editSectionTitle"
                     key="editSectionTitle"
-                
                     size={'32'}
                     className="me-2 text-secondary"
                   />
@@ -146,24 +140,21 @@ export const EditCourseSection = ({
                     المحتويات
                   </CDropdownToggle>
                   <CDropdownMenu>
-                    <CDropdownItem
-                      name="editLessonVideo"
-                      
-                      id={'editLessonVideo'}
-                    >
-                      فيديو
-                    </CDropdownItem>
-                    <CDropdownItem name="editLessonFile"  id={'editLessonFile'}>
-                      رفع ملف
-                    </CDropdownItem>
-                    <CDropdownItem
-                      name="editLessonDscription"
-                      
-                      id={'editLessonDscription'}
-                    >
+                    <Link to={`uploadLessonVideo/${id}`}>
+                      <CDropdownItem name="editLessonVideo" id={'editLessonVideo'}>
+                        فيديو
+                      </CDropdownItem>
+                    </Link>
+                    <Link to={`addLessonDescription/${id}`}>
+                      <CDropdownItem name="editLessonFile" id={'editLessonFile'}>
+                        رفع ملف
+                      </CDropdownItem>
+                    </Link>
+
+                    <CDropdownItem name="editLessonDscription" id={'editLessonDscription'}>
                       وصف الدرس
                     </CDropdownItem>
-                    <CDropdownItem name="editLessonNotes" id="editLessonNotes" >
+                    <CDropdownItem name="editLessonNotes" id="editLessonNotes">
                       الملاحظات
                     </CDropdownItem>
                   </CDropdownMenu>
@@ -171,7 +162,6 @@ export const EditCourseSection = ({
                 <CiEdit
                   name="editLessonTitle"
                   id={'editLessonTitle'}
-                  
                   size={'32'}
                   className="me-2 text-secondary"
                 />
@@ -179,7 +169,6 @@ export const EditCourseSection = ({
                   name="deleteLesson"
                   id={'deleteLesson'}
                   size={'32'}
-                  
                   className=" text-secondary"
                 />
               </div>
@@ -187,8 +176,7 @@ export const EditCourseSection = ({
           </CListGroupItem>
         ))}
       </CListGroup>
-      <Outlet/>
+      <Outlet />
     </>
   )
 }
-

@@ -45,7 +45,45 @@ const adminNavs = [
     name: 'إدارة الكليات',
     to: '/collages',
     icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
+  },  {
+    component: CNavItem,
+    name: 'الدورات ',
+    to: '/courses',
+    icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
+  },  {
+    component: CNavItem,
+    name: 'الدرجات',
+    to: '/grades',
+    icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
+  },  {
+    component: CNavItem,
+    name: 'الحساب',
+    to: '/profile',
+    icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
   },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   {
     component: CNavTitle,
     name: 'الدورات والأقسام',

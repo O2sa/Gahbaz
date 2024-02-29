@@ -61,23 +61,23 @@ export const SpecialCard = ({
   }
   return (
     <>
-      <CCard className="p-2 m-0 text-center" style={{}} onClick={onClick}>
+      <CCard  className="p-2 m-0 text-center border-0 mb-2 me-2 py-3 j-box-shadow"  onClick={onClick}>
         <CRow className="gap-2 m-0 row align-items-center justify-content-center">
           <CCol className=" p-0 col-auto " style={{ width: '64px', height: '64px' }}>
             {/* <collageIcon style={{ height: '40px', width: '32px' }} /> */}
             <CCardImage src={cardIcon} />
           </CCol>
-          <CCol className=" p-0  w-auto col" style={{}}>
+          <CCol className=" p-0   col" style={{}}>
             <h6>{title}</h6>
-            <CCardText
-              className="d-flex flex-wrap justify-content-center"
+            <div
+              className="d-flex flex-column justify-content-center"
               style={{ fontSize: '14px' }}
             >
               <span className="text-secondary">{subtitle}</span>
               <Link to={itemData.id}>
               <a className="text-primary ms-2">عرض التفاصيل</a>
               </Link>
-            </CCardText>
+            </div>
           </CCol>
           <CCol className="d-flex g-2 p-0 col-auto" style={{ width: 'fit-content' }}>
             <CCardImage

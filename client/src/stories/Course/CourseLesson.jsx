@@ -43,7 +43,6 @@ export const CourseLesson = ({ ...props }) => {
     compeleted: false,
     teacher: 'علي قاسم',
   }
-
   return (
     <>
       <CRow>
@@ -81,7 +80,7 @@ export const CourseLesson = ({ ...props }) => {
           </div>
         </CRow>
         <CRow>
-          <div className="mt-4">
+          <div className="my-4">
             <h5>عن المحاضرة</h5>
             <p>
               معظمنا هو ليس أن يكون هدفنا عال جداً, و أن نخفق في تحقيقه, بل أن يكون سهلاً جداً و
@@ -95,8 +94,8 @@ export const CourseLesson = ({ ...props }) => {
               في تحقيقه, بل أن يكون سهلاً جداً و نحققه.
             </p>
           </div>
-          <div className="mt-4 ">
-            <div className="d-flex justify-content-between mb-">
+          <div className="my-4 ">
+            <div className="d-flex justify-content-between mb-2">
               <h5 className="mb-2"> متطلبات الدورة</h5>
               <CButton className="text-primary border-0 bg-primary bg-opacity-10">
                 <BsUpload className="me-2" />
@@ -115,7 +114,7 @@ export const CourseLesson = ({ ...props }) => {
               في تحقيقه, بل أن يكون سهلاً جداً و نحققه.
             </p>
           </div>
-          <div className="p-4 d-flex bg-primary bg-opacity-10  justify-content-between align-items-center">
+          <div className="p-4 d-flex bg-primary bg-opacity-10  justify-content-between align-items-center my-4">
             <div className="d-flex align-items-center">
               <FaFileAlt size={'48'} className="me-3" />
               <div>
