@@ -1,17 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from 'react'
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux'
 
-import { asyncCrudThunks } from 'src/dataLogic/CollageManagementSlice.mjs';
+import { asyncCrudThunks } from 'src/dataLogic/CollageManagementSlice.mjs'
 
-import CardsGroup from '../SpecialComponents/CardsGroup';
-import { AddCollage } from './AddCollage';
+import CardsGroup from '../SpecialComponents/CardsGroup'
+import { AddCollage } from './AddCollage'
+import { TabsBody } from '../Tabs/TabsBody'
 export default function Collages() {
-  const dispatch = useDispatch();
-  const { error } = useSelector((state) => state.collagesManagement);
-
-
-
+  const dispatch = useDispatch()
+  const { error } = useSelector((state) => state.collagesManagement)
 
   if (error) {
     return (
@@ -22,16 +20,15 @@ export default function Collages() {
           <p className="subtitle-message">Something went wrong</p>
         </div>
       </div>
-    );
+    )
   }
-  
-  
+
   return (
-    <div className="page lists-show">
-      <nav>
-        <h1 className="title-page">Taskbox</h1>
-      </nav>
-      <CardsGroup collection={'collages'} editModel={AddCollage}  />
+    <div className="bg-white h-100" style={{minHeight:'50vh'}}>
+      <TabsBody opt={'edit'} addModel={AddCollage} label={'تعديل'} title={'الفصول الحالية'} />
+      <div className="m-4 mt-5">
+        <CardsGroup collection={'collages'} editModel={AddCollage} />
+      </div>
     </div>
-  );
+  )
 }
