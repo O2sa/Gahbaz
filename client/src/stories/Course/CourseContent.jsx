@@ -83,7 +83,7 @@ export const CourseContent = ({
     <div>
       <CRow className='mb-4'>
         <h4>محتويات الدورة</h4>
-        <CProgress height={8} className="p-0" color="success" value={25}>
+        <CProgress height={16} className="p-0" color="success" value={25}>
           <CProgressBar>25%</CProgressBar>
         </CProgress>
       </CRow>

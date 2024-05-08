@@ -201,9 +201,7 @@ export const AddLessonDescription = ({ opt = 'edit' }) => {
   useEffect(() => {
     asyncCrudThunks.courses.getItemThunk(id)
   }, [])
-
   const course = useSelector((state) => state.collagesManagement.course)
-
   const [formData, setFormData] = useState({
     sectionTitle: course ? course.sections[1].name : '',
   })
