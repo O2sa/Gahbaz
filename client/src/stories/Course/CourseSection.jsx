@@ -70,20 +70,19 @@ export const CourseSection = ({
     })
     return `(${completed}/${lectures.length})`
   }
-
   return (
     <CAccordion className='p-0' activeItemKey={2}>
       <CAccordionItem itemKey={1}>
         <CAccordionHeader>
-          <div className={`d-flex align-items-center justify-content-between w-100`}>
-            <div>{section.name}</div>
+          <div className={`d-flex align-items-center flex-wrap justify-content-between w-100`}>
+            <div className='mb-2'>{section.name}</div>
             <div>
               <BiSolidVideos size={'20'} className={` me-2 text-primary`} />
               <span className={`me-3`}>{`${section.lectures.length} محاضرات`}</span>
               <IoMdTime size={'20'} className={` me-2 text-warning`} />
               <span className={`me-3`}>{section.time}</span>
               <IoCheckmarkDoneSharp size={'20'} className={` me-2 text-success`} />
-              <span className={`me-3`}>
+              <span className={``}>
                 {`%${section.completed} إكتمل `}
                 <span className="text-secondary">{calCompeleted(section.lectures)}</span>
               </span>

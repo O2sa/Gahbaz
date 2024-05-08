@@ -3,14 +3,14 @@ const Course = require("../models/Course");
 
 const getCourse = async (req, res) => {
   const id = req.params.id;
-  const collage = await Course.find({ _id: id });
+  const course = await Course.find({ _id: id });
 
-  res.status(StatusCodes.OK).json({ collage });
+  res.status(StatusCodes.OK).json({ course });
 };
 
 const createCourse = async (req, res) => {
-  const collage = await Course.create(req.body);
-  res.status(StatusCodes.CREATED).json(collage);
+  const course = await Course.create(req.body);
+  res.status(StatusCodes.CREATED).json({ course });
 };
 
 const updateCourse = async (req, res) => {
@@ -23,9 +23,15 @@ const updateCourse = async (req, res) => {
 };
 
 const getSemesterCourses = async (req, res) => {
-  const collages = await Course.find({});
+  const id = req.params.id;
 
-  res.status(StatusCodes.OK).json({ collages, counts: collages.length });
+  const courses = await Course.find({ _id: id });
+
+  res.status(StatusCodes.OK).json({ courses, counts: courses.length });
+};
+const getAllCourses = async (req, res) => {
+  const courses = await Course.find({});
+  res.status(StatusCodes.OK).json({ courses, counts: courses.length });
 };
 
 const deleteCourse = async (req, res) => {

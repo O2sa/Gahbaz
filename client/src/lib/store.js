@@ -6,7 +6,7 @@ import { CollagesManagementSlice, sidebarSlice } from 'src/dataLogic/CollageMana
 const store = configureStore({
   reducer: {
     collagesManagement: CollagesManagementSlice.reducer,
-    sidebarStates: sidebarSlice.reducer
+    sidebarStates: sidebarSlice.reducer,
   },
 })
 

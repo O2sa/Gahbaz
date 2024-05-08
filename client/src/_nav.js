@@ -18,6 +18,7 @@ import {
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 const adminNavs = [
+  //admin
   {
     component: CNavItem,
     name: 'لوحة التحكم',
@@ -27,6 +28,12 @@ const adminNavs = [
     //   color: 'info',
     //   text: 'NEW',
     // },
+  },
+  {
+    component: CNavItem,
+    name: 'إدارة الكليات',
+    to: '/collages',
+    icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
   },
   {
     component: CNavItem,
@@ -40,49 +47,26 @@ const adminNavs = [
     to: '/semesters',
     icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
   },
+
+  //student
   {
     component: CNavItem,
-    name: 'إدارة الكليات',
-    to: '/collages',
-    icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
-  },  {
-    component: CNavItem,
-    name: 'الدورات ',
+    name: 'الدورات - الطالب',
     to: '/courses',
     icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
-  },  {
+  },
+  {
     component: CNavItem,
-    name: 'الدرجات',
+    name: 'الدرجات - الطالب',
     to: '/grades',
     icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
-  },  {
+  },
+  {
     component: CNavItem,
-    name: 'الحساب',
+    name: 'الحساب - الطالب',
     to: '/profile',
     icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
   },
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   {
     component: CNavTitle,

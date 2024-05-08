@@ -26,39 +26,6 @@ export const SpecialCard = ({
   editModel,
   collection
 }) => {
-  // const [cardEditVisible, setCardEditVisible] = useState(false)
-  const addItem = () => {
-    if (collection === 'collages') {
-      return (
-        <AddCollage
-          visible={cardEditVisible}
-          opt={'edit'}
-          setVisible={setCardEditVisible}
-          itemData={itemData}
-        />
-      )
-    }
-    if (collection === 'fields') {
-      return (
-        <AddField
-          visible={cardEditVisible}
-          opt={'edit'}
-          setVisible={setCardEditVisible}
-          itemData={itemData}
-        />
-      )
-    }
-    if (collection === 'subjects') {
-      return (
-        <AddCollage
-          visible={cardEditVisible}
-          opt={'edit'}
-          setVisible={setCardEditVisible}
-          itemData={itemData}
-        />
-      )
-    }
-  }
   return (
     <>
       <CCard  className="p-2 m-0 text-center border-0 mb-2 me-2 py-3 j-box-shadow"  onClick={onClick}>
@@ -97,7 +64,6 @@ export const SpecialCard = ({
           </CCol>
         </CRow>
       </CCard>
-      {/* {addItem()} */}
     </>
   )
 }

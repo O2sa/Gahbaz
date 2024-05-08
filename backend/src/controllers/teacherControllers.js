@@ -48,4 +48,5 @@ module.exports = {
   getAllTeachers,
   deleteTeacher,
   createTeacher,
+  getTeacherCourses,
 };

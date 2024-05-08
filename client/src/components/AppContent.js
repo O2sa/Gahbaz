@@ -1,15 +1,17 @@
-import React, { Suspense, useEffect } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import { CContainer, CSpinner } from '@coreui/react'
-
+// import { selectIsLesson } from 'src/dataLogic/ContinerState'
 // routes config
 import getRoutes from '../routes'
 
-const AppContent = () => {
+const AppContent = ({isLesson}) => {
+
+
   const routes = getRoutes()
   console.log(routes)
   return (
-    <CContainer lg>
+    <CContainer fluid={isLesson ? true : false} lg={!isLesson ? true : false}>
       <Suspense fallback={<CSpinner color="primary" />}>
         <Routes>
           {routes.map((route, idx) => {
@@ -25,7 +27,6 @@ const AppContent = () => {
               )
             )
           })}
-          {/* <Route path="/" element={<Navigate to="dashboard" replace />} /> */}
         </Routes>
       </Suspense>
     </CContainer>

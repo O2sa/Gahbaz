@@ -23,6 +23,7 @@ const AppSidebar = ({sidebarShow, stateChange}) => {
 
   return (
     <CSidebar
+    color='dark'
       position="fixed"
       unfoldable={sidebarShow.sidebarUnfoldable}
       visible={sidebarShow.sidebarShow}
