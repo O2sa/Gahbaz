@@ -41,7 +41,7 @@ const navigate=useNavigate()
         // onClick={() => {
         //   return setVisible(false)
         // }}
-        onClose={()=> navigate(to)}
+        // onClose={()=> navigate(to)}
         aria-labelledby="ScrollingLongContentExampleLabel2"
         {...props}
       >

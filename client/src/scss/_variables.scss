@@ -1228,7 +1228,7 @@ $border-radius-lg:            0 !default;
 // $accordion-button-color:                  $accordion-color !default;
 // $accordion-button-bg:                     $accordion-bg !default;
 // $accordion-transition:                    $btn-transition, border-radius .15s ease !default;
-// $accordion-button-active-bg:              tint-color($component-active-bg, 90%) !default;
+$accordion-button-active-bg:              tint-color($white, 90%) !default;
 // $accordion-button-active-color:           shade-color($primary, 10%) !default;
 
 // $accordion-button-focus-border-color:     $input-focus-border-color !default;

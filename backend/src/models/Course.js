@@ -41,6 +41,10 @@ const CourseSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: "Section",
   },
+  semester: {
+    type: mongoose.Schema.ObjectId,
+    ref: "Semester",
+  },
 });
 
 module.exports = Subject.discriminator("Course", CourseSchema);
@@ -75,7 +79,6 @@ const lesson = new mongoose.Schema({
     type: String,
   },
 });
-
 
 module.exports = mongoose.model("Lesson", lesson);
 module.exports = mongoose.model("Section", SectionSchema);

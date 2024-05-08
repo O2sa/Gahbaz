@@ -80,6 +80,7 @@ import {
 } from './stories/SpecialComponents/EditCourseSections'
 import { Courses } from './stories/screens/Courses'
 import { Lesson } from './stories/screens/Lesson'
+import StudentGrades from './stories/screens/StudentGrades'
 const Collages = React.lazy(() => import('./stories/screens/Collages'))
 const FieldInfo = React.lazy(() => import('./stories/screens/FieldInfo'))
 const adminSetting = React.lazy(() => import('./admin/test'))
@@ -95,6 +96,7 @@ const studentDash = React.lazy(() => import('./student/Dashboard'))
 const teacherCourses = React.lazy(() => import('./teacher/courses'))
 
 const adminRoutes = [
+  //admin
   { index: true, name: 'لوحة التحكم', element: <Dashboard /> },
   { path: 'usersManagement', name: 'إدارة المستخدمين', element: <ManageUsers /> },
   {
@@ -128,7 +130,7 @@ const adminRoutes = [
       },
       {
         path: 'subjects',
-        name: 'collage subjects',
+        name: 'المواد',
         element: (
           <>
             {' '}
@@ -202,27 +204,32 @@ const adminRoutes = [
   },
   {
     path: 'currentSemester/:id',
-    name: 'الفصول الدراسية',
+    name: 'الفصل الحالي',
     element: <CurrentSemester />,
   },
   {
     path: 'currentSemester/:id/course/:id',
-    name: 'الفصول الدراسية',
+    name: 'الدورة',
     element: <Course />,
   },
   {
     path: 'currentSemester/:id/addCourse/:id',
-    name: 'الفصول الدراسية',
+    name: 'إضافة دورة',
     element: <CreateCourse />,
     children: [
       {
         index: true,
-        name: 'الفصول الدراسية',
+        name: '',
         element: <EditCourseInfo />,
       },
       {
+        path: 'grades',
+        name: 'الدرجات',
+        element: <StudentGrades />,
+      },
+      {
         path: 'lessons',
-        name: 'الفصول الدراسية',
+        name: 'الدروس',
         element: <EditCourseSections />,
         children: [
           {
@@ -244,6 +251,9 @@ const adminRoutes = [
       },
     ],
   },
+
+
+  //student
   {
     path: 'courses',
     name: 'الفصول الدراسية',
@@ -276,6 +286,12 @@ const adminRoutes = [
   },
   { path: '/base/accordion', name: 'الفصول الدراسية', element: <adminSetting /> },
 ]
+
+
+
+
+
+
 
 const studentRoutes = [
   { path: '/', exact: true, name: 'الرئيسية' },

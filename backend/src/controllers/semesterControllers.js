@@ -19,13 +19,18 @@ const getAllSemesters = async (req, res) => {
   res.status(StatusCodes.OK).json(semesters);
 };
 
-const addSemester = async (req, res) => {
-  const semester = await Semester.create(req.body);
+const deleteSemester = async (req, res) => {
+  const id = req.params.id;
+
+  const semester = await Semester.findOneAndDelete({_id:id});
+
 
   res.status(StatusCodes.OK).json({ res: "Semsters Grades." });
 };
 
 const updateSemester = async (req, res) => {
+  const id = req.params.id;
+const semester=await Semester.findByIdAndUpdate(id, req.body)
   res.status(StatusCodes.OK).json({ res: "Semsters Grades." });
 };
 const createSemester = async (req, res) => {
@@ -33,6 +38,8 @@ const createSemester = async (req, res) => {
 };
 
 const getSemesterCourses = async (req, res) => {
+  const id = req.params.id;
+const courses=await Semester.findByIdAndUpdate(id, req.body)
   res.status(StatusCodes.OK).json({ res: "Semsters Grades." });
 };
 
@@ -94,6 +101,7 @@ const startSemester = async (req, res) => {
         const newCourse = new Course({
           name: tempCourse.name,
           collage: tempCourse.collage.toString(),
+          semester:newSemester.id
         });
 
         var gradesArr = [];
@@ -119,5 +127,9 @@ module.exports = {
   getAllSemesters,
   startSemester,
   getSemester,
-  createSemester
+  createSemester,
+  deleteSemester,
+  getSemesterCourses,
+  updateSemester,
+deleteSemester
 };

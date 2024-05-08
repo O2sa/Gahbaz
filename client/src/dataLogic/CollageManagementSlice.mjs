@@ -64,6 +64,7 @@ export const setFailedStatus = (state) => {
 }
 
 export const createAsyncCrudReducerCases = (builder, resource) => {
+  
   builder
     .addCase(asyncCrudThunks[resource].createItemThunk.fulfilled, (state, action) => {
       setSuccessStatus(state)
@@ -96,7 +97,6 @@ export const CollagesManagementSlice = createSlice({
   name: 'CollagesManagement',
   initialState: CollagesManagementData,
   reducers: {},
-
   extraReducers(builder) {
     // Add cases for each resource
     Object.keys(asyncCrudThunks).forEach((resource) => {

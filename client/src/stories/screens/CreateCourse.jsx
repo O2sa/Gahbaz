@@ -33,9 +33,8 @@ import { Tabs } from '../Tabs/Tabs'
 
 export const CreateCourse = ({ ...props }) => {
   // const courseId = useLocation().search || ''
-  const { id } = useParams(); 
+  const { id } = useParams()
   // console.log('courseId', id)
-
 
   const tabs = [
     {
@@ -52,6 +51,11 @@ export const CreateCourse = ({ ...props }) => {
       name: 'الدروس',
       // icon: stackIcon,
       to: `lessons`,
+    },
+    {
+      name: 'درجات الطلاب',
+      // icon: stackIcon,
+      to: `grades`,
     },
   ]
   return <Tabs tabs={tabs} />
