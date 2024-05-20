@@ -15,9 +15,11 @@ import stackIcon from '../assets/Stack.svg'
 import { TbMenuOrder } from 'react-icons/tb'
 import { AiTwotoneDelete } from 'react-icons/ai'
 import { CiEdit } from 'react-icons/ci'
-import avatar2 from 'src/assets/images/avatars/2.jpg'
+import avatar2 from '../../assets/images/avatars/2.jpg'
 import { IoReorderFourOutline } from 'react-icons/io5'
 import { IoMdAdd } from 'react-icons/io'
+
+
 
 export const CourseSyllabus = ({
   sections = [

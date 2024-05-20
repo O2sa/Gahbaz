@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { CNavItem, CNavLink, CCardImage } from '@coreui/react'
 import stackIcon from '../assets/Stack.svg'
 import { Link, NavLink } from 'react-router-dom'
-export const Tab = ({ to, label, k, clickHandller, activeKey, tabIcon, ...props }) => {
+export const Tab = ({ to, label, k, clickHandller, activeKey, TabIcon, ...props }) => {
   return (
     <CNavItem className="flex-grow-1 " role="presentation">
       <NavLink to={to}>
@@ -11,6 +11,7 @@ export const Tab = ({ to, label, k, clickHandller, activeKey, tabIcon, ...props 
           active={activeKey === k}
           component="button"
           role="tab"
+          key={k}
           aria-controls="home-tab-pane"
           aria-selected={activeKey === k}
           onClick={() => clickHandller(k)}
@@ -20,7 +21,7 @@ export const Tab = ({ to, label, k, clickHandller, activeKey, tabIcon, ...props 
           // key={key}
           {...props}
         >
-          <CCardImage className="m-2 " style={{ width: '24px' }} src={tabIcon} />
+          <TabIcon className="m-2 " style={{ width: '24px' }}  />
           <h5 className="d-inline">{label}</h5>
         </CNavLink>
       </NavLink>
