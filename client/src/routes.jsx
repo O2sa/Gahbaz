@@ -39,12 +39,12 @@ import { loader as collagesLoader } from './pages/admin/Collages'
 import { loader as courseInfoEditLoader } from './stories/SpecialComponents/EditCourseInfo'
 import {loader as studentGradesLoader} from './pages/admin/StudentGrades'
 //Student
-const studentGrades = React.lazy(() => import('./pages/student/grades'))
-const Grades = React.lazy(() => import('./pages/student/grades'))
-const studentDash = React.lazy(() => import('./pages/student/Dashboard'))
+// const studentGrades = React.lazy(() => import('./pages/student/grades'))
+// const Grades = React.lazy(() => import('./pages/student/grades'))
+// const studentDash = React.lazy(() => import('./pages/student/Dashboard'))
 
 //Teacher
-const teacherCourses = React.lazy(() => import('./pages/teacher/courses'))
+// const teacherCourses = React.lazy(() => import('./pages/teacher/courses'))
 
 export default function getRoutes(queryClient) {
   return [
