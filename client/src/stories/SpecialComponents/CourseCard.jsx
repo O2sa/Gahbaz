@@ -19,15 +19,7 @@ import {
   CCardText,
   CBadge,
 } from '@coreui/react'
-import { GiTeacher } from 'react-icons/gi'
-import stackIcon from '../assets/Stack.svg'
-import { TbMenuOrder } from 'react-icons/tb'
-import { AiTwotoneDelete } from 'react-icons/ai'
-import { CiEdit } from 'react-icons/ci'
-import avatar2 from 'src/assets/images/avatars/2.jpg'
-import { IoReorderFourOutline } from 'react-icons/io5'
-import { IoMdAdd } from 'react-icons/io'
-import Model from '../components/Model'
+
 import { Link } from 'react-router-dom'
 export const CourseCard = ({ course, ...props }) => {
   return (

@@ -21,51 +21,16 @@ import {
   CCardText,
   CBadge,
 } from '@coreui/react'
-import { GiTeacher } from 'react-icons/gi'
-import stackIcon from '../assets/Stack.svg'
-import { TbMenuOrder } from 'react-icons/tb'
-import { AiTwotoneDelete } from 'react-icons/ai'
-import { CiEdit } from 'react-icons/ci'
-import avatar2 from 'src/assets/images/avatars/2.jpg'
-import { IoReorderFourOutline } from 'react-icons/io5'
-import { IoMdAdd } from 'react-icons/io'
-import Model from '../components/Model'
+
+import avatar2 from '../../assets/images/avatars/2.jpg'
+
 import { Tab } from '../Tabs/Tab'
 import { MdOutlineChecklist } from 'react-icons/md'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
-import { asyncCrudThunks } from 'src/dataLogic/CollageManagementSlice.mjs'
-export const CourseInfo = ({ ...props }) => {
-  const courses = {
-    name: 'برمجة المتحكمات',
-    secince: 'البرمجة المتقدمة',
-    semester: 'الفصل السابع',
-    compeleted: false,
-    teacher: 'علي قاسم',
-  }
-  const dispatch = useDispatch()
-
-  const { id } = useParams()
-  useEffect(() => {
-    dispatch(asyncCrudThunks.courses.getItemThunk(id))
-  }, [])
-
-  const course = useSelector((state) => {
-    return state.collagesManagement.course
-  })
-  const status = useSelector((state) => {
-    return state.collagesManagement.status
-  })
-  // console.log(collage)
-
-  if (status === 'loading') {
-    return (
-      <div className="list-items" data-testid="loading" key={'loading'}>
-        Loading
-      </div>
-    )
-  }
-
+import { asyncCrudThunks } from '../../dataLogic/CollageManagementSlice'
+import { CourseContent } from '../Course/CourseContent'
+export default function CourseInfo({ course, ...props }) {
   return (
     course && (
       <CRow>
@@ -87,10 +52,11 @@ export const CourseInfo = ({ ...props }) => {
             <div style={{ fontSize: '12px' }} className="fw-light  ms-4 ">
               <span className="text-secondary">المحاضر</span>
               <p>
-                {course.teachers.map(
-                  (teacher, idx) =>
-                    `${teacher.name} ${idx + 1 !== course.teachers.length ? ' * ' : ''}`,
-                )}
+                {course.teacher ??
+                  course?.teachers?.map(
+                    (teacher, idx) =>
+                      `${teacher.name} ${idx + 1 !== course.teachers.length ? ' * ' : ''}`,
+                  )}
               </p>
             </div>
           </div>
@@ -99,14 +65,14 @@ export const CourseInfo = ({ ...props }) => {
           </div>
         </CRow>
         <CRow>
-          <div>
+          {/* <div>
             <CNav variant="tabs" className="p-0" role="tablist">
               <Tab label={'المادة'} activeKey={1} />
               <Tab label={'المادة'} activeKey={2} />
               <Tab label={'المادة'} activeKey={3} />
               <Tab label={'المادة'} activeKey={4} />
             </CNav>
-          </div>
+          </div> */}
         </CRow>
         <CRow>
           <div className="mt-4">
@@ -116,7 +82,7 @@ export const CourseInfo = ({ ...props }) => {
           <div className="mt-4 bg-success bg-opacity-10 p-4">
             <h5>ما الذي ستتععلمه في هذه الدورة؟</h5>
             <CRow className="">
-              {course.willLearn.map((item) => (
+              {course?.willLearn?.map((item) => (
                 <CCol md={6} className="d-flex justify-content-top">
                   <div className="me-2">
                     <MdOutlineChecklist className="text-success" size={'32'} />
@@ -136,6 +102,10 @@ export const CourseInfo = ({ ...props }) => {
               </ul>
             </p>
           </div>
+
+          <div className="my-4 col d-sm-none d-xl-block ">
+          <CourseContent sections={course.sections}/>
+        </div>
         </CRow>
       </CRow>
     )

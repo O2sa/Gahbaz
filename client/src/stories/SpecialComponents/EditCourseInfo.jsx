@@ -15,36 +15,60 @@ import {
   CFormInput,
 } from '@coreui/react'
 import { CiImageOn } from 'react-icons/ci'
-import stackIcon from '../assets/Stack.svg'
-import { TbMenuOrder } from 'react-icons/tb'
-import { AiTwotoneDelete } from 'react-icons/ai'
-import { CiEdit } from 'react-icons/ci'
-import avatar2 from 'src/assets/images/avatars/2.jpg'
+
 import { BsUpload } from 'react-icons/bs'
-import { IoReorderFourOutline } from 'react-icons/io5'
-import { Divider } from '@mui/material'
+
 import { IoMdAdd } from 'react-icons/io'
 import { useLocation, useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { asyncCrudThunks } from 'src/dataLogic/CollageManagementSlice.mjs'
+import { asyncCrudThunks } from '../../dataLogic/CollageManagementSlice'
+import { useQuery } from '@tanstack/react-query'
+import { useGetElements, useUpdateElement } from '../../pages/crud'
 
-export const EditCourseInfo = ({ ...props }) => {
-  const dispatch = useDispatch()
-  const { id } = useParams()
+export const loader =
+  (queryClient) =>
+  async ({ params }) => {
+    try {
+      await queryClient.ensureQueryData(useGetElements([`courses`, params.courseId]))
+      return params.courseId
+    } catch (error) {
+      console.error(error?.response?.data?.msg)
+      // return redirect('/dashboard/all-jobs');
+    }
+  }
+
+export const EditCourseInfo = ({ queryClient, ...props }) => {
+  const { courseId } = useParams()
   // console.log(id)
 
-  let course
-  useEffect(() => {
-    if (id !== 'new') dispatch(asyncCrudThunks.courses.getItemThunk(id))
-  }, [])
- course = useSelector((state) => state.collagesManagement.course)
+  const {
+    data: course = [],
+    isError: isLoadingError,
+    isFetching: isFetching,
+    isLoading: isLoading,
+    isSuccess: done,
+  } = useQuery(useGetElements([`courses`, courseId]))
+
+  const { mutateAsync: updateCourse, isLoading: isUpdatingCourse } = useUpdateElement(queryClient, [
+    'courses',
+    courseId,
+  ])
+  // console.log(collage)
+
+  // if (isFetching) {
+  //   return (
+  //     <div className="list-items" data-testid="loading" key={'loading'}>
+  //       Loading
+  //     </div>
+  //   )
+  // }
 
   // console.log(course)
   const [formData, setFormData] = useState({
-    describtion: course && course.name? course.describtion : '',
-    image: course && course.name ? course.image : '',
-    willLearn: course && course.name ? course.willLearn : [],
-    requirements: course && course.name ? course.requirements : [],
+    describtion: course.describtion ?? '',
+    image: course.image ?? '',
+    willLearn: course.willLearn ?? [],
+    requirements: course.requirements ?? [],
   })
   //   const dispatch = useDispatch()
 
@@ -98,16 +122,8 @@ export const EditCourseInfo = ({ ...props }) => {
   }
 
   const saveData = () => {
+    updateCourse({ ...formData, _id: id })
     console.log('data', formData)
-    if (id === 'new') {
-      dispatch(asyncCrudThunks.courses.createItemThunk(formData))
-
-     
-    } else {
-      dispatch(asyncCrudThunks.courses.updateItemThunk({ id: id, data: formData }))
-    }
-    console.log('newCourse', course)
-
   }
 
   return (

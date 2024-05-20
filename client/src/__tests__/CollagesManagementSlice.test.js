@@ -10,7 +10,7 @@ import {CollagesManagementSlice,
   setFailedStatus,
   setSuccessStatus,
   createAsyncCrudReducerCases,
-} from '../dataLogic/CollageManagementSlice.mjs';
+} from '../dataLogic/CollageManagementSlice.js';
 
 
 // Your component that uses the Redux store

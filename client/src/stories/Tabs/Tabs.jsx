@@ -2,44 +2,60 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { CNav, CNavItem, CNavLink, CTabContent, CTabPane } from '@coreui/react'
 import { Tab } from './Tab'
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Tabs } from '@mantine/core'
+import { IconPhoto, IconMessageCircle, IconSettings } from '@tabler/icons-react'
 
-export const Tabs = ({ tabs, ...props }) => {
+export const TabsLinks = ({ tabs, ...props }) => {
   const [activeKey, setActiveKey] = React.useState(0)
   return (
-    <div className="bg-white" style={{minHeight: '80vh'}}>
+    <div className="bg-white" style={{ minHeight: '80vh' }}>
       <CNav variant="tabs" className="p-0" role="tablist">
         {tabs.map((tab, idx) => (
-            <Tab
-              label={tab.name}
-              tabIcon={tab.icon}
-              k={idx}
-              clickHandller={setActiveKey}
-              activeKey={activeKey}
-              to={tab.to}
-            />
+          <Tab
+            label={tab.name}
+            TabIcon={tab.icon}
+            k={idx}
+            clickHandller={setActiveKey}
+            activeKey={activeKey}
+            to={tab.to}
+          />
         ))}
       </CNav>
-      <CTabContent  className="pb-4 ">
-        {/* <CTabPane> */}
-          <Outlet />
-        {/* </CTabPane> */}
-        {/* {tabs.map((tab, idx) => (
-          <CTabPane role="tabpanel" aria-labelledby={tab.name}
-           visible={activeKey === idx}
-          >
-            {tab.header}
-            <div className='p-4'>
-            {tab.body}
-            </div>
-          </CTabPane>
-        ))} */}
+      <CTabContent className="pb-4 ">
+        <Outlet />
       </CTabContent>
     </div>
   )
 }
 
-Tabs.propTypes = {
+// export const TabsLinks = ({ tabs, Panels, ...props }) => {
+//   const navigate = useNavigate()
+//   const { tabValue } = useParams()
+//   // const location = useLocation()
+
+//   const Component = Panels
+//   // const tabValue = location.pathname.split('/').pop()
+//   console.log(tabValue)
+//   return (
+//     <Tabs
+//       color="violet"
+//       defaultValue="about"
+//       //  value={tabValue} onTabChange={(value) => navigate(`${value}`)}
+//     >
+//       <Tabs.List>
+//         {tabs.map((tab, idx) => (
+//           // <Link to={tab.to}>
+//           <Tabs.Tab icon={<tab.icon size="0.8rem" k={idx} value={tab.to} />}>{tab.name}</Tabs.Tab>
+//           // </Link>
+//         ))}
+//       </Tabs.List>
+
+//       <Outlet />
+//     </Tabs>
+//   )
+// }
+TabsLinks.propTypes = {
   //   /**
   //    * عنوان البطاقة
   //    */

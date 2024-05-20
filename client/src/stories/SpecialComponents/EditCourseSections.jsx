@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import ReactQuill from 'react-quill'
-// import 'react-quill/dist/quill.snow.css'
-import { Editor } from 'react-draft-wysiwyg'
-import { EditorState, convertToRaw, convertFromRaw } from 'draft-js'
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
+// import ReactQuill from 'react-quill'
+// // import 'react-quill/dist/quill.snow.css'
+// import { Editor } from 'react-draft-wysiwyg'
+// import { EditorState, convertToRaw, convertFromRaw } from 'draft-js'
+// import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 
 import {
   CListGroup,
@@ -19,238 +19,285 @@ import {
   CFormInput,
   CFormTextarea,
 } from '@coreui/react'
-import stackIcon from '../assets/Stack.svg'
-import { TbMenuOrder } from 'react-icons/tb'
-import { AiTwotoneDelete } from 'react-icons/ai'
-import { CiEdit } from 'react-icons/ci'
-import avatar2 from 'src/assets/images/avatars/2.jpg'
-import { IoReorderFourOutline } from 'react-icons/io5'
+import { useForm } from '@mantine/form'
+import { TextInput, Button, Group, Box, Modal, NumberInput } from '@mantine/core'
+
+import { notifications } from '@mantine/notifications'
+import { useDisclosure } from '@mantine/hooks'
 import { IoMdAdd } from 'react-icons/io'
+
 import Model from '../components/Model'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link, Outlet, useLocation, useParams } from 'react-router-dom'
-import { asyncCrudThunks } from 'src/dataLogic/CollageManagementSlice.mjs'
+import { asyncCrudThunks } from '../../dataLogic/CollageManagementSlice'
 import { EditCourseSection } from './EditCourseSection'
-import { AddCollage } from '../screens/AddCollage'
-import { Input } from '@mui/material'
+import { useQuery } from '@tanstack/react-query'
+import {
+  useGetElements,
+  useCreateElement,
+  useUpdateElement,
+  useDeleteElement,
+} from '../../pages/crud'
+import customFetch from '../../utils/customFetch'
 
-export const EditCourseSections = ({ ...props }) => {
-  const dispatch = useDispatch()
+export const EditCourseSections = ({ queryClient, ...props }) => {
   // const location=useLocation()
-  const { id } = useParams()
-  console.log('courseId', id)
+  const { courseId } = useParams()
+  // console.log('courseId', id)
 
-  useEffect(() => {
-    dispatch(asyncCrudThunks.courses.getItemThunk(id))
-  }, [])
+  const {
+    data: sections = [],
+    isError: isLoadingError,
+    isFetching: isFetching,
+    isLoading: isLoading,
+    isSuccess: done,
+  } = useQuery(useGetElements([`sections`, courseId]))
 
-  const course = useSelector((state) => state.collagesManagement.course)
+  if (isFetching) {
+    return (
+      <div className="list-items" data-testid="loading" key={'loading'}>
+        Loading
+      </div>
+    )
+  }
+
+  if (sections.length == 0) {
+    return (
+      <div className="list-items" data-testid="loading" key={'loading'}>
+        empty
+      </div>
+    )
+  }
 
   return (
     <>
-      {course && (
+      {sections && (
         <div>
-          {course.sections.map((item, idx) => (
-            <EditCourseSection section={item} />
+          {sections.map((item, idx) => (
+            <EditCourseSection idx={idx} key={idx} queryClient={queryClient} section={item} />
           ))}
-          <div className='mx-2'>
-            <CButton size='lg' className="bg-primary bg-opacity-25 text-primary border-0  w-100">
-              إضافة قسم
-            </CButton>
+          <div className="mx-2">
+            <AddSection queryClient={queryClient}>
+              {' '}
+                <Button variant='light' sx={{ width: '100%' }} size="lg">
+                  إضافة قسم
+                </Button>{' '}
+            </AddSection>
           </div>
         </div>
       )}
-      <Outlet />
     </>
   )
 }
 
-export const EditSectionTitle = ({ opt = 'edit' }) => {
-  const dispatch = useDispatch()
+export function AddSection({ children, queryClient, edit = false, section }) {
+  const { courseId } = useParams()
+  const { mutateAsync: createSection, isPending: isCreatingCollage } = useCreateElement(
+    queryClient,
+    ['sections', courseId],
+  )
 
-  const { id } = useParams()
-  // console.log('courseId', id)
-  useEffect(() => {
-    asyncCrudThunks.courses.getItemThunk(id)
-  }, [])
+  const { mutateAsync: updateSection, isPending: isUpdating } = useUpdateElement(queryClient, [
+    'sections',
+    courseId,
+  ])
 
-  const course = useSelector((state) => state.collagesManagement.course)
+  // const te = useCreateElement(queryClient)
+  const [opened, { open, close }] = useDisclosure(false)
+  // console.log(isCreatingCollage)
+  // console.log('isCreatingCollage')
+  const form = useForm({
+    initialValues: {
+      name: edit ? section.name : '',
+      course: courseId,
+    },
 
-  const [formData, setFormData] = useState({
-    sectionTitle: course.sections[1].name,
+    validate: (values) => {
+      const errors = {}
+      if (!values.name) {
+        errors.name = 'Please enter a name for the collage.'
+      }
+      return errors
+    },
   })
 
-  function handleSubmit(event) {
-    const sections = course.sections.map((item, idx) =>
-      idx === 1 ? { ...item, name: formData.sectionTitle } : item,
-    )
-    const newCourse = { ...course, sections: sections }
-    dispatch(
-      asyncCrudThunks.courses.updateItemThunk({
-        id: id,
-        data: newCourse,
-      }),
-    )
+  const handleCloseModal = () => {
+    close()
+    form.reset() // Reset
   }
 
-  function handlChange(event) {
-    let { name, type, checked, value } = event.target
-    // console.log('event', name, type, checked, value)
-
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }))
-    // console.log(formData)
+  const handleSubmit = async (values) => {
+    console.log('values')
+    console.log(values)
+    try {
+      if (!edit) await createSection(values)
+      else await updateSection({ ...values, _id: section._id })
+      handleCloseModal()
+      notifications.show({
+        id: 'collage-created',
+        title: 'Success!',
+        message: 'Collage created successfully!',
+        variant: 'success',
+        autoClose: 5000,
+      })
+    } catch (error) {
+      notifications.show({
+        id: 'collage-creation-error',
+        title: 'Error!',
+        message: error?.response?.data?.msg || 'An error occurred while creating the collage.',
+        variant: 'danger',
+        autoClose: 5000,
+      })
+    }
   }
 
   return (
-    <div>
-      <Model
-        title={'تعديل اسم القسم'}
-        handleSubmit={handleSubmit}
-        to={'..'}
-        modelBody={
-          <>
-            <CFormInput
-              type="text"
-              name="sectionTitle"
-              value={formData.sectionTitle}
-              id={``}
-              label={`اسم القسم`}
-              placeholder="أضف اسم القسم"
-              onChange={handlChange}
-              // required
+    <Group position="center">
+      <Modal centered={true} title="إنشاء قسم" opened={opened} onClose={close}>
+        <>
+          <form onSubmit={form.onSubmit(handleSubmit)}>
+            {' '}
+            <TextInput
+              withAsterisk
+              label="الأسم"
+              name="name"
+              placeholder="اسم القسم"
+              error={form.errors.name}
+              // errorMessage={form.errors.name}
+              // onChange={(event) => form.setFieldValue('name', event.currentTarget.value)}
+              {...form.getInputProps('name')}
             />
-          </>
-        }
-      />
-    </div>
+            <Group position="right" mt="md">
+              <Button type="submit">{isCreatingCollage ? 'Creating...' : 'إنشاء'}</Button>
+            </Group>
+          </form>
+        </>
+      </Modal>
+      <Group sx={{width:'100%'}} onClick={open}>
+        {/* <Button radius="xs">إنشاء قسم</Button> */}
+        {children}
+      </Group>
+    </Group>
   )
 }
 
-export const UploadLessonVideo = ({ opt = 'edit' }) => {
-  const dispatch = useDispatch()
+export function DeleteSection({ children, sectionId, queryClient }) {
+  const { courseId } = useParams()
+  const { mutateAsync: deleteSection, isPending: isUpdating } = useDeleteElement(queryClient, [
+    'sections',
+    courseId,
+  ])
 
-  const { id } = useParams()
-  // console.log('courseId', id)
-  useEffect(() => {
-    asyncCrudThunks.courses.getItemThunk(id)
-  }, [])
-
-  const course = useSelector((state) => state.collagesManagement.course)
-
-  const [formData, setFormData] = useState({
-    sectionTitle: course ? course.sections[1].name : '',
-  })
-
-  // function handleSubmit(event) {
-  //   const sections = course.sections.map((item, idx) =>
-  //     idx === 1 ? { ...item, name: formData.sectionTitle } : item,
-  //   )
-  //   const newCourse={...course, sections: sections}
-  //   dispatch(
-  //     asyncCrudThunks.courses.updateItemThunk({
-  //       id: id,
-  //       data: newCourse,
-  //     }),
-  //   )
-  // }
-
-  function handlChange(event) {
-    let { name, type, checked, value } = event.target
-    // console.log('event', name, type, checked, value)
-
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }))
-    // console.log(formData)
+  const handleSubmit = async () => {
+    try {
+      await deleteSection(sectionId)
+      // handleCloseModal()
+      notifications.show({
+        id: 'collage-created',
+        title: 'Success!',
+        message: 'Collage created successfully!',
+        variant: 'success',
+        autoClose: 5000,
+      })
+    } catch (error) {
+      notifications.show({
+        id: 'collage-creation-error',
+        title: 'Error!',
+        message: error?.response?.data?.msg || 'An error occurred while creating the collage.',
+        variant: 'danger',
+        autoClose: 5000,
+      })
+    }
   }
 
   return (
-    <div>
-      <Model
-        title={'تعديل اسم القسم'}
-        // handleSubmit={handleSubmit}
-        to={'..'}
-        modelBody={
-          <div>
-            <CFormInput
-              type="file"
-              name="lessonVideo"
-              // value={'formData.sectionTitle'}
-              id={``}
-              label={`اسم القسم`}
-              placeholder="أضف اسم القسم"
-              onChange={handlChange}
-              // required
-            />
-          </div>
-        }
-      />
-    </div>
+    <Group onClick={handleSubmit}>
+      {/* <Button radius="xs">إنشاء قسم</Button> */}
+      {children}
+    </Group>
+  )
+}
+export function DeleteLesson({ children, sectionId, queryClient, lessonId }) {
+  const { id } = useParams()
+
+  const handleSubmit = async (values) => {
+    try {
+      await customFetch.delete(`sections/${sectionId}/lessons/${lessonId}`)
+      queryClient.invalidateQueries(['sections', id])
+    } catch (error) {
+      return error
+    }
+  }
+
+  return (
+    <Group onClick={handleSubmit}>
+      {/* <Button radius="xs">إنشاء قسم</Button> */}
+      {children}
+    </Group>
   )
 }
 
-export const AddLessonDescription = ({ opt = 'edit' }) => {
-  const dispatch = useDispatch()
+export function AddLesson({ children, sectionId, queryClient, edit = false, lesson }) {
+  const { courseId } = useParams()
 
-  const { id } = useParams()
-  // console.log('courseId', id)
-  useEffect(() => {
-    asyncCrudThunks.courses.getItemThunk(id)
-  }, [])
-  const course = useSelector((state) => state.collagesManagement.course)
-  const [formData, setFormData] = useState({
-    sectionTitle: course ? course.sections[1].name : '',
+  const [opened, { open, close }] = useDisclosure(false)
+
+  const form = useForm({
+    initialValues: {
+      name: edit ? lesson.name : '',
+    },
+
+    validate: (values) => {
+      const errors = {}
+      if (!values.name) {
+        errors.name = 'Please enter a name for the collage.'
+      }
+      return errors
+    },
   })
 
-  // function handleSubmit(event) {
-  //   const sections = course.sections.map((item, idx) =>
-  //     idx === 1 ? { ...item, name: formData.sectionTitle } : item,
-  //   )
-  //   const newCourse={...course, sections: sections}
-  //   dispatch(
-  //     asyncCrudThunks.courses.updateItemThunk({
-  //       id: id,
-  //       data: newCourse,
-  //     }),
-  //   )
-  // }
-
-  function handlChange(event) {
-    let { name, type, checked, value } = event.target
-    // console.log('event', name, type, checked, value)
-
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }))
-    // console.log(formData)
+  const handleCloseModal = () => {
+    close()
+    form.reset() // Reset
   }
-  const [value, setValue] = useState('')
-  const [editorState, setEditorState] = useState(() => EditorState.createEmpty())
 
-  const onEditorStateChange = (newEditorState) => {
-    // Get the content state
-    const contentState = newEditorState.getCurrentContent()
+  const handleSubmit = async (values) => {
+    console.log('values')
+    console.log(values)
+    try {
+      if (edit) await customFetch.patch(`sections/${sectionId}/lessons/${lesson._id}`, values)
+      else await customFetch.post(`sections/${sectionId}/lessons`, values)
 
-    // Convert content state to raw JSON
-    const rawContent = convertToRaw(contentState)
-    console.log(rawContent)
-    setEditorState(newEditorState)
+      queryClient.invalidateQueries(['sections', courseId])
+      handleCloseModal()
+    } catch (error) {
+      return error
+    }
   }
 
   return (
-    <div>
-      <Model
-        variant={'form'}
-        title={'تعديل اسم القسم'}
-        // handleSubmit={handleSubmit}
-        to={'..'}
-        modelBody={<Editor editorState={editorState} onEditorStateChange={onEditorStateChange} />}
-      />
-    </div>
+    <Group position="center">
+      <Modal centered={true} title="إنشاء قسم" opened={opened} onClose={close}>
+        <>
+          <form onSubmit={form.onSubmit(handleSubmit)}>
+            {' '}
+            <TextInput
+              withAsterisk
+              label="الأسم"
+              name="name"
+              placeholder="اسم القسم"
+              error={form.errors.name}
+              // errorMessage={form.errors.name}
+              // onChange={(event) => form.setFieldValue('name', event.currentTarget.value)}
+              {...form.getInputProps('name')}
+            />
+            <Group position="right" mt="md">
+              <Button type="submit"> إنشاء</Button>
+            </Group>
+          </form>
+        </>
+      </Modal>
+      <Group onClick={open}>{children}</Group>
+    </Group>
   )
 }
