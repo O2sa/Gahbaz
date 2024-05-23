@@ -6,7 +6,7 @@ import { TabsLinks } from '../../stories/Tabs/Tabs'
  
 import { BsStack } from 'react-icons/bs'
 import { Tabs } from '@mantine/core'
-import { AboutCollage, Subjects } from '..'
+import { AboutCollage, Subjects } from './index'
 import Majors from './Majors'
 import { IconBathFilled, IconMoodAngry } from '@tabler/icons-react'
 import { IconSubtask } from '@tabler/icons-react'

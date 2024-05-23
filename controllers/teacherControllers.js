@@ -22,7 +22,7 @@ const updateTeacher = async (req, res) => {
 };
 
 const getAllTeachers = async (req, res) => {
-  const items = await Teacher.find({});
+  const items = await Teacher.find({ university: req.user.universityId });
 
   res.status(StatusCodes.OK).json(items);
 };
@@ -36,23 +36,18 @@ const deleteTeacher = async (req, res) => {
 };
 
 const createTeacher = async (req, res) => {
-  // Generate a temporary password
-  const saltRounds = 10;
+  req.body.university=req.user.universityId
+  const user = await Teacher.create(req.body);
 
-  const temporaryPassword = generateTemporaryPassword();
+  const hashedPassword = await hashPassword(req.body.email);
 
-  // Hash the temporary password
-  const hashedPassword = await hashPassword(temporaryPassword);
+  await Teacher.findByIdAndUpdate(user._id, {password: hashedPassword})
 
-  const admin = await Teacher.create({ ...req.body, password: hashedPassword });
-  res.status(StatusCodes.CREATED).json(admin);
+
+  res.status(StatusCodes.CREATED).json(user);
 };
 
-const getTeacherCourses = async (req, res) => {
-  const id = req.params.id;
-  const courses = await Teacher.findById(id).populate("courses");
-  res.status(StatusCodes.CREATED).json(courses);
-};
+
 
 export {
   getTeacher,
@@ -60,5 +55,4 @@ export {
   getAllTeachers,
   deleteTeacher,
   createTeacher,
-  getTeacherCourses,
 };

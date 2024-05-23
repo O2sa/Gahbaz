@@ -20,11 +20,8 @@ import {
   CSpinner,
 } from '@coreui/react'
 
-import { Input } from '../../stories/components/Input'
-import { useDispatch } from 'react-redux'
-import { TabsBody } from '../../stories/Tabs/TabsBody'
+
 import CourseInfo from '../../stories/SpecialComponents/CourseInfo'
-import AddCourse from './AddCourse'
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useGetElements } from '../crud'

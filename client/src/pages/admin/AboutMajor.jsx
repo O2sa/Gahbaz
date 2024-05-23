@@ -17,9 +17,12 @@ export default function AboutMajor({ queryClient, ...props }) {
     isLoading: isLoadingTeachers,
   } = useQuery(useGetElements(['majors','major', majorId]))
 
-  console.log(major)
-  const editCom = <Button type="submit">{isFetchingTeachers ? 'Creating...' : 'إنشاء'}</Button>
-
+  // console.log(major)
+  const editCom = (
+    <Button loading={isFetchingTeachers} type="submit">
+      تعديل
+    </Button>
+  )
   return (
     <>
       <div

@@ -8,6 +8,9 @@ import { ModalsProvider } from '@mantine/modals'
 import { MantineProvider, createEmotionCache } from '@mantine/core'
 import rtlPlugin from 'stylis-plugin-rtl'
 import { Notifications } from '@mantine/notifications'
+import 'dayjs/locale/ar'
+
+import { DatesProvider } from '@mantine/dates'
 // import { CloudinaryContext } from '@cloudinary/react'
 // import { Cloudinary } from '@cloudinary/url-gen'
 
@@ -26,12 +29,8 @@ const loading = (
 
 // Containers
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
-// Pages
-const Login = React.lazy(() => import('./pages/public/Login'))
-const Register = React.lazy(() => import('./pages/public/Register'))
-const Page404 = React.lazy(() => import('./pages/public/Page404'))
-const Page500 = React.lazy(() => import('./pages/public/Page500'))
 
+import { Login, Page404, Page500, Profile, Register } from './pages/public'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -39,16 +38,26 @@ const queryClient = new QueryClient({
     },
   },
 })
+
 const router = createBrowserRouter([
-  { exact: true, path: '/login', name: 'Login Page', element: <Login /> },
-  { exact: true, path: '/register', name: 'Register Page', element: <Register /> },
-  { exact: true, path: '/404', name: 'Page 404', element: <Page404 /> },
-  { exact: true, path: '/500', name: 'Page 500', element: <Page500 /> },
+  { path: '/login', name: 'Login Page', element: <Login /> },
+  { path: '/register', name: 'Register Page', element: <Register /> },
+  { path: '/404', name: 'Page 404', element: <Page404 /> },
+  { path: '/500', name: 'Page 500', element: <Page500 /> },
   {
     path: '/',
     name: 'Home',
-    element: <DefaultLayout />,
-    children: getRoutes(queryClient),
+    element: <DefaultLayout queryClient={queryClient} />,
+    errorElement: <Page500 />,
+
+    children: [
+      ...getRoutes(queryClient),
+      {
+        path: 'profile',
+        name: 'الملف الشخصي',
+        element: <Profile queryClient={queryClient} />,
+      },
+    ],
   },
 ])
 
@@ -83,14 +92,16 @@ function App() {
             ],
           },
           primaryColor: 'brand',
-          primaryShade: 4
+          primaryShade: 4,
         }}
       >
-        <ModalsProvider labels={{ confirm: 'Submit', cancel: 'Cancel' }}>
-          <Suspense fallback={loading}>
-            <RouterProvider router={router} />
-          </Suspense>{' '}
-        </ModalsProvider>
+        <DatesProvider settings={{ locale: 'ar', firstDayOfWeek: 6, weekendDays: [4, 5] }}>
+          <ModalsProvider labels={{ confirm: 'Submit', cancel: 'Cancel' }}>
+            <Suspense fallback={loading}>
+              <RouterProvider router={router} />
+            </Suspense>{' '}
+          </ModalsProvider>
+        </DatesProvider>
         <Notifications />
       </MantineProvider>{' '}
       {/* </CloudinaryContext> */}

@@ -27,7 +27,7 @@ export const CourseCard = ({ course, ...props }) => {
       <CCard style={{ width: '18rem' }} className="border-0 j-box-shadow p-0">
         <CCardImage orientation="top" src={docsImg} />
         <CCardBody>
-          <Link to={`${course.id}`}>
+          <Link to={`${course._id}`}>
            <div className="d-flex justify-content-between mb-2">
             <CBadge className="bg-primary text-primary bg-opacity-10 fw-light p-1">
               {course.secince}

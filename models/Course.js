@@ -30,6 +30,12 @@ const CourseSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: "Semester",
   },
+  grades: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Grade",
+    },
+  ],
   students: [
     {
       student: {
@@ -44,39 +50,15 @@ const CourseSchema = new mongoose.Schema({
   ],
 });
 
-export default Subject.discriminator("Course", CourseSchema);
+// CourseSchema.pre("remove", async function (next) {
+//   try {
+//     await Section.deleteMany({
+//       course: this._id,
+//     });
 
-const SectionSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, "Please provide name"],
-    minlength: 4,
-    maxlength: 50,
-  },
-  lessons: [
-    {
-      name: {
-        type: String,
-        required: [true, "Please provide name"],
-        minlength: 4,
-        maxlength: 50,
-      },
-      type: {
-        type: String,
-        enum: ["video", "topic"],
-        default: "topic",
-      },
-      video: {
-        type: String,
-      },
-      topic: {
-        type: String,
-      },
-    },
-  ],
-  course: {
-    type: mongoose.Schema.ObjectId,
-    ref: "Course",
-    required: true,
-  },
-});
+//     next();
+//   } catch (err) {
+//     next(err);
+//   }
+// });
+export default Subject.discriminator("Course", CourseSchema);

@@ -25,7 +25,7 @@ export const loader =
 
 export default function StudentGrades({ queryClient }) {
   //nested data is ok, see accessorKeys in ColumnDef below
-  const  courseId= useLoaderData()
+  const courseId = useLoaderData()
 
   const {
     data: grades = [],
@@ -46,7 +46,19 @@ export default function StudentGrades({ queryClient }) {
       </div>
     )
   }
+  
+  if (grades.length==0 ) {
+    return (
+      <div className="list-items" data-testid="loading" key={'loading'}>
+        no students
+      </div>
+    )
+  }
 
+  return <GradesTable grades={grades} />
+}
+
+const GradesTable = ({ grades }) => {
   const columns = useMemo(
     () => [
       {
@@ -56,9 +68,8 @@ export default function StudentGrades({ queryClient }) {
           {
             id: 'student',
             accessorKey: 'student',
-            Cell: ({ cell }) => {
-              if (!cell.getValue() || cell.getValue().length == 0) return ''
-              return cell.getValue()?.name || ''
+            Cell: ({ cell, row }) => {
+              return `${row.original.student.firstName} ${row.original.student.lastName}`
             },
             header: 'الطالب',
             enableEditing: false,
@@ -91,12 +102,21 @@ export default function StudentGrades({ queryClient }) {
           })),
         ],
       },
+
+
+      {
+   
+        accessorKey: 'total',
+        header: 'المجموع',
+        enableEditing: false,
+       
+      }
     ],
 
     [],
   )
 
-  const [tableData, setTableData] = useState(() => grades)
+  const [tableData, setTableData] = useState( grades)
 
   const setupDataToUpdata = (values, row) => {
     delete values['student']
@@ -107,6 +127,8 @@ export default function StudentGrades({ queryClient }) {
     }
     return row
   }
+
+  
   const handleSaveRow = async ({ table, row, values }) => {
     //if using flat data and simple accessorKeys/ids, you can just do a simple assignment here.
 

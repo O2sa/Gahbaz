@@ -42,10 +42,23 @@ export default function Collages({ queryClient }) {
   console.log('isLoading', isLoadingTeachers)
   console.log('isFetching', isFetchingTeachers)
 
-  if (isFetchingTeachers) {
-    return (
-      <CSpinner color="primary" />
+  if (isFetchingTeachers || isLoadingTeachers) {
+    return <CSpinner color="primary" />
+  }
 
+  if (collages.length == 0) {
+    return (
+      <div className="bg-white h-100" style={{ minHeight: '50vh' }}>
+        <div
+          className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
+        >
+          <h5>{' الكليات'} </h5>
+          <AddCollage queryClient={queryClient} />
+
+          {/* Render the popover/modal */}
+        </div>
+        <div className="m-4 mt-5">no collages</div>
+      </div>
     )
   }
 

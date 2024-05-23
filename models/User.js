@@ -1,12 +1,18 @@
-import mongoose from "mongoose"
-import validator from "validator"
-import bcrypt from "bcryptjs"
+import mongoose from "mongoose";
+import validator from "validator";
+import bcrypt from "bcryptjs";
 
 const UserSchema = new mongoose.Schema(
   {
-    name: {
+    firstName: {
       type: String,
-      required: [true, "Please provide name"],
+      // required: [true, "Please provide name"],
+      minlength: 3,
+      maxlength: 50,
+    },
+    lastName: {
+      type: String,
+      // required: [true, "Please provide name"],
       minlength: 3,
       maxlength: 50,
     },
@@ -19,36 +25,21 @@ const UserSchema = new mongoose.Schema(
         message: "Please provide valid email",
       },
     },
-    password: {
-      type: String,
-      required: [true, "Please provide password"],
-      minlength: 6,
-    },
+  password: String,
+
     phone: {
       type: Number,
       minlength: 9,
+    },
+    avatar: String,
+    university: {
+      type: mongoose.Types.ObjectId,
+      ref: "University",
+      required: [true, "لا بد من تحديد عدد الحصص اليومية"],
     },
   },
   { timestamps: true }
 );
 
-UserSchema.pre("save", async function () {
-  // console.log(this.modifiedPaths());
-  // console.log(this.isModified('name'));
-  if (!this.isModified("password")) return;
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
 
-UserSchema.methods.comparePassword = async function (canditatePassword) {
-  const isMatch = await bcrypt.compare(canditatePassword, this.password);
-  return isMatch;
-};
-
-
-// UserSchema.statics.create = async function(name, email, password) {
-//   const user = new this({ name, email, password });
-//   await user.save();
-//   return user;
-// };
-export default  mongoose.model("User", UserSchema);
+export default mongoose.model("User", UserSchema);

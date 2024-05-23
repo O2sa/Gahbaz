@@ -17,7 +17,14 @@ const CollageSchema = new mongoose.Schema({
     type: Number,
     required: [true, "Please provide start date"],
   },
+  university: {
+    type: mongoose.Types.ObjectId,
+    ref: "University",
+    required: [true, "لا بد من تحديد عدد الحصص اليومية"],
+  },
 });
+
+
 
 // CollageSchema.pre("findOneAndDelete", async function (next) {
 //   try {

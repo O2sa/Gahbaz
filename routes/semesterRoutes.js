@@ -12,8 +12,8 @@ getSemester
 
 
 
-router.route("/").get(getAllSemesters).post(createSemester);
-router.route("/startSemester").post(startSemester);
+router.route("/").get(getAllSemesters).post(startSemester);
+// router.route("/startSemester").post(startSemester);
 router.route("/:semId").patch(updateSemester).delete(deleteSemester).get(getSemester);
 
 

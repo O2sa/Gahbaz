@@ -80,7 +80,7 @@ export const EditCourseSection = ({
           </div>
         </div>
       </CListGroupItem>
-      {section.lessons.map((lesson, index) => (
+      {section?.lessons?.map((lesson, index) => (
         <CListGroupItem component="a" key={index} className="m-2 py-3 border-1 w-auto">
           <div className="d-flex justify-content-between">
             <div className="d-flex align-items-center">

@@ -57,7 +57,7 @@ export default function Subjects({ queryClient }) {
     data: teachers = [],
     isFetching: isFetchingTeachers,
     isLoading: isLoadingTeachers,
-  } = useQuery(useGetElements(['teachers', collageId]))
+  } = useQuery(useGetElements(['teachers']))
 
   // console.log(subjects)
   const { mutateAsync: updateSubject, isLoading: isUpdatingSubject } = useUpdateElement(
@@ -101,23 +101,45 @@ export default function Subjects({ queryClient }) {
       },
       {
         accessorKey: 'name',
-        id: 'name',
         header: 'الأسم',
       },
       {
-        accessorKey: 'email',
-        id: 'email',
-        header: 'الإيميل',
+        accessorKey: 'subtitle',
+        header: 'العنوان الفرعي',
       },
       {
-        accessorKey: 'phone',
-        id: 'phone',
-        header: 'رقم الهاتف',
+        accessorKey: 'category',
+        header: 'التصنيف',
       },
       {
-        accessorKey: 'phone',
-        id: 'phone',
-        header: 'التخصص',
+        accessorKey: 'teachers',
+        Cell: ({ cell,row }) => {
+          if (!cell.getValue()) return ''
+         
+          return (
+            row.original.teachers?.map((val)=><Badge>{`${val.firstName} ${val.lastName}`}</Badge>)
+
+          )
+        },
+        header: 'المعلمون',
+      },
+      {
+        accessorKey: 'gradeSchema',
+        Cell: ({ cell }) => {
+          if (!cell.getValue()) return ''
+          const elements = cell.getValue().grade
+          const keys = Object.keys(cell.getValue().grade)
+          const grades = keys?.map((ele) => (
+            <Badge>{`${elements[ele]?.name ?? ''}: ${elements[ele]?.value ?? ''} `}</Badge>
+          ))
+          return (
+            <>
+              {grades}
+              <Badge color="green">{`المجموع: ${cell.getValue()?.total ?? ''} `}</Badge>
+            </>
+          )
+        },
+        header: 'هيكلية الدرجات',
       },
     ],
     [],
@@ -172,7 +194,7 @@ export default function Subjects({ queryClient }) {
     ),
     renderCreateRowModalContent: ({ internalEditComponents, row, table }) => (
       <Stack>
-        <Title order={5}>My Custom Edit Modal</Title>
+        <Title order={5}>إنشاء</Title>
         <TextInput
           withAsterisk
           label="الأسم"
@@ -201,7 +223,6 @@ export default function Subjects({ queryClient }) {
           data={teachersForSelect}
           label="المعلمون"
           // placeholder="Pick all that you like"
-          defaultValue={row?.getAllCells()[5]?.getValue()}
           name="teachers"
           id="teachers"
           onChange={(selectedValue) => setNewrowData({ ...newRowData, teachers: selectedValue })}
@@ -213,12 +234,12 @@ export default function Subjects({ queryClient }) {
     ),
     renderEditRowModalContent: ({ internalEditComponents, row, table }) => (
       <Stack>
-        <Title order={5}>My Custom Edit Modal</Title>
+        <Title order={5}>تعديل</Title>
         <TextInput
           withAsterisk
           label="الأسم"
           name="name"
-          defaultValue={row.getAllCells()[2].getValue()}
+          defaultValue={row?.original.name}
           id="name"
           // placeholder="اسم الكلية"
           onChange={(e) => setEditingRowData({ ...editingRowData, name: e.target.value })}
@@ -227,7 +248,7 @@ export default function Subjects({ queryClient }) {
           withAsterisk
           label="العنوان الفرعي"
           name="subtitle"
-          defaultValue={row.getAllCells()[3].getValue()}
+          defaultValue={row?.original.subtitle}
           id="subtitle"
           // placeholder=" subtitle"
           onChange={(e) => setEditingRowData({ ...editingRowData, subtitle: e.target.value })}
@@ -236,7 +257,7 @@ export default function Subjects({ queryClient }) {
           withAsterisk
           label="التصنيف"
           name="category"
-          defaultValue={row.getAllCells()[4].getValue()}
+          defaultValue={row?.original.category}
           id="category"
           // placeholder="اسم الكلية"
           onChange={(e) => setEditingRowData({ ...editingRowData, category: e.target.value })}
@@ -245,7 +266,7 @@ export default function Subjects({ queryClient }) {
           data={teachersForSelect}
           label="المعلمون"
           // placeholder="Pick all that you like"
-          defaultValue={row?.getAllCells()[5]?.getValue()}
+          // defaultValue={row?.getAllCells()[5]?.getValue()}
           name="teachers"
           id="teachers"
           onChange={(selectedValue) =>
@@ -298,7 +319,10 @@ export default function Subjects({ queryClient }) {
 }
 
 const getMultiSelectData = (subjects) =>
-  Object.values(subjects).map((sub) => ({ value: sub._id, label: sub.name }))
+  Object.values(subjects).map((sub) => ({
+    value: sub._id,
+    label: `${sub.firstName} ${sub.lastName}`,
+  }))
 
 const getTheTotal = (elements) => {
   let total = 0

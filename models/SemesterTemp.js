@@ -12,7 +12,7 @@ const SemesterSchema = new mongoose.Schema({
     ref: "Major",
     required: true,
   },
-  index: { type: Number },
+  index: { type: Number,  },
   subjects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Subject" }],
 });
 

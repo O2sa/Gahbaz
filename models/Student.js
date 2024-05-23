@@ -5,11 +5,11 @@ import User from "./User.js"
 
 
 const StudentSchema = new mongoose.Schema({
-  academic_id: {
-    type: Number,
-    unique: true,
-    required: [true, "Please provide the academic id"],
-  },
+  // academic_id: {
+  //   type: Number,
+  //   unique: true,
+  //   required: [true, "Please provide the academic id"],
+  // },
   major: {
     type: mongoose.Schema.ObjectId,
     ref: "Major",
@@ -19,7 +19,9 @@ const StudentSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  semesters:[{ type: mongoose.Schema.ObjectId, ref: "Semester" }]
+  semesters:[{ type: mongoose.Schema.ObjectId, ref: "Semester" }],
+  grades:[{ type: mongoose.Schema.ObjectId, ref: "Grade" }],
+
 });
 
 export default  User.discriminator("Student", StudentSchema);

@@ -12,7 +12,7 @@ createAdmin
 router.route("/").post(createAdmin).get(getAllAdmins)
 router
   .route("/:id")
-  .patch(updateAdmin)
+  .delete(deleteAdmin)
   .patch(updateAdmin)
   .get(getAdmin)
 

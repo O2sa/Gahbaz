@@ -14,7 +14,7 @@ const AppBreadcrumb = () => {
 
   const getBreadcrumbs = (location) => {
     const breadcrumbs = []
-    console.log('location.split(/)', location.split('/'))
+    // console.log('location.split(/)', location.split('/'))
 
     location.split('/').reduce((prev, curr, index, array) => {
       const currentPathname = `${prev}/${curr}`
@@ -31,8 +31,8 @@ const AppBreadcrumb = () => {
   }
 
   const breadcrumbs = getBreadcrumbs(currentLocation)
-  console.log('currentLocation', currentLocation)
-  console.log('breadcrumbs', breadcrumbs)
+  // console.log('currentLocation', currentLocation)
+  // console.log('breadcrumbs', breadcrumbs)
   return (
     <CBreadcrumb className="m-0 ms-2">
       <CBreadcrumbItem href="/">الرئيسية</CBreadcrumbItem>

@@ -30,13 +30,13 @@ import sectionRouter from "./routes/sectionRoutes.js";
 import gradeRouter from "./routes/gradeRoutes.js";
 import majorRouter from "./routes/majorRoutes.js";
 import semesterTemplateRoute from "./routes/semesterTemplateRoutes.js";
-
+import authRouter from "./routes/authRouter.js";
+import userRouter from "./routes/userRouter.js";
 
 // public
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import path from "path";
-
 
 // middleware
 import errorHandlerMiddleware from "./middleware/errorHandlerMiddleware.js";
@@ -45,12 +45,10 @@ import {
   authorizePermissions,
 } from "./middleware/authMiddleware.js";
 
-
 const __dirname = dirname(fileURLToPath(import.meta.url));
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
-
 
 // app.set('trust proxy', 1);
 // app.use(
@@ -59,7 +57,6 @@ if (process.env.NODE_ENV === "development") {
 //     max: 60,
 //   })
 // );
-
 
 app.use(express.static(path.resolve(__dirname, "./client/dist")));
 app.use(cookieParser());
@@ -76,19 +73,19 @@ app.get("/api/v1/test", (req, res) => {
 });
 
 //setup apis
-app.use("/api/v1/students", studentRouter);
-app.use("/api/v1/teachers", teacherRouter);
-app.use("/api/v1/admins", adminRouter);
-app.use("/api/v1/collages", collageRouter);
-app.use("/api/v1/courses", courseRouter);
-app.use("/api/v1/grades", gradeRouter);
-app.use("/api/v1/sections", sectionRouter);
-app.use("/api/v1/semesters", semesterRouter);
-app.use("/api/v1/majors", majorRouter);
-app.use("/api/v1/subjects", subjectRouter);
-app.use("/api/v1/semester-templates", semesterTemplateRoute);
-
-
+app.use("/api/v1/users", authenticateUser, userRouter);
+app.use("/api/v1/students", authenticateUser, studentRouter);
+app.use("/api/v1/teachers", authenticateUser, teacherRouter);
+app.use("/api/v1/admins", authenticateUser, adminRouter);
+app.use("/api/v1/collages", authenticateUser, collageRouter);
+app.use("/api/v1/courses", authenticateUser, courseRouter);
+app.use("/api/v1/grades", authenticateUser, gradeRouter);
+app.use("/api/v1/sections", authenticateUser, sectionRouter);
+app.use("/api/v1/semesters", authenticateUser, semesterRouter);
+app.use("/api/v1/majors", authenticateUser, majorRouter);
+app.use("/api/v1/subjects", authenticateUser, subjectRouter);
+app.use("/api/v1/semester-templates", authenticateUser, semesterTemplateRoute);
+app.use("/api/v1/auth", authRouter);
 
 app.get("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "./client/dist", "index.html"));
@@ -99,9 +96,6 @@ app.use("*", (req, res) => {
 });
 
 app.use(errorHandlerMiddleware);
-
-
-
 
 const port = process.env.PORT || 6000;
 const start = async () => {

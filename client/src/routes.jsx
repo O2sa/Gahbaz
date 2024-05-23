@@ -15,8 +15,6 @@ import {
   StudentGrades,
   AboutCollage,
   AboutMajor,
-  AboutSemester,
-  AddCourse,
   Majors,
   Subjects,
   SemestersTemplate,
@@ -27,8 +25,10 @@ import {
   Teachers,
   Course,
   Lessons,
-  CourseLesson
-} from './pages'
+  CourseLesson,
+} from './pages/admin'
+
+import { Profile } from './pages/public'
 
 import { EditCourseInfo } from './stories/SpecialComponents/EditCourseInfo'
 // import { EditCourseSection } from './stories/SpecialComponents/EditCourseSection'
@@ -37,7 +37,10 @@ import { EditCourseSections } from './stories/SpecialComponents/EditCourseSectio
 
 import { loader as collagesLoader } from './pages/admin/Collages'
 import { loader as courseInfoEditLoader } from './stories/SpecialComponents/EditCourseInfo'
-import {loader as studentGradesLoader} from './pages/admin/StudentGrades'
+import { loader as studentGradesLoader } from './pages/admin/StudentGrades'
+import { useDashboardContext } from './layout/DefaultLayout'
+import { TeacherCourses, TeacherDashboard } from './pages/teacher'
+import { StudentCourses, StudentDashboard,StudentGrade } from './pages/student'
 //Student
 // const studentGrades = React.lazy(() => import('./pages/student/grades'))
 // const Grades = React.lazy(() => import('./pages/student/grades'))
@@ -46,10 +49,12 @@ import {loader as studentGradesLoader} from './pages/admin/StudentGrades'
 //Teacher
 // const teacherCourses = React.lazy(() => import('./pages/teacher/courses'))
 
-export default function getRoutes(queryClient) {
-  return [
+export default function getRoutes(queryClient, user) {
+  // const { user } = useDashboardContext()
+
+  const adminRoutes = [
     //admin
-    { index: true, name: 'لوحة التحكم', element: <AdminDashboard /> },
+    // { index: true, name: 'لوحة التحكم', element: <AdminDashboard /> },
     // { path: 'usersManagement', name: 'إدارة المستخدمين', element: <ManageUsers /> },
     {
       path: 'collages',
@@ -119,7 +124,6 @@ export default function getRoutes(queryClient) {
           name: 'students',
           element: <Students queryClient={queryClient} />,
         },
-
       ],
     },
     {
@@ -133,38 +137,28 @@ export default function getRoutes(queryClient) {
           name: '',
           element: <CourseLesson queryClient={queryClient} />,
         },
-        {
-          path: 'teachers',
-          name: 'Teachers',
-          element: <Teachers queryClient={queryClient} />,
-        },
-        {
-          path: 'students',
-          name: 'students',
-          element: <Students queryClient={queryClient} />,
-        },
-
       ],
     },
     {
       path: 'semesters',
       name: 'الفصول الدراسية',
-      element: <Semesters />,
+      element: <Semesters queryClient={queryClient} />,
     },
     {
-      path: 'semesters/:id',
+      path: 'semesters/:semesterId',
       name: 'الفصل الحالي',
-      element: <Semester />,
+      element: <Semester queryClient={queryClient} />,
     },
     {
       path: 'courses/:courseId',
       name: 'الدورة',
-      element: <Course />,
+      element: <Course queryClient={queryClient} />,
     },
+
     {
       path: 'courses/:courseId/edit',
       name: 'إضافة دورة',
-      element: <CreateCourse />,
+      element: <CreateCourse queryClient={queryClient} />,
       children: [
         {
           index: true,
@@ -176,7 +170,53 @@ export default function getRoutes(queryClient) {
           path: 'grades',
           name: 'الدرجات',
           element: <StudentGrades queryClient={queryClient} />,
-          loader: studentGradesLoader(queryClient)
+          loader: studentGradesLoader(queryClient),
+        },
+        {
+          path: 'lessons',
+          name: 'الدروس',
+          element: <EditCourseSections queryClient={queryClient} />,
+        },
+      ],
+    },
+
+    //teacher
+    { path: 'teacher/dash', name: 'لوحة التحكم', element: <TeacherDashboard /> },
+    { path: 'teacher/courses', name: 'لوحة التحكم', element: <TeacherCourses /> },
+    {
+      path: 'teacher/courses/:courseId',
+      name: 'لوحة التحكم',
+      element: <Course queryClient={queryClient} />,
+    },
+    {
+      path: 'teacher/lessons/:courseId',
+      name: ' ',
+      element: <Lessons queryClient={queryClient} />,
+      children: [
+        {
+          path: ':sectionId/:lessonId',
+          // index: true,
+          name: '',
+          element: <CourseLesson queryClient={queryClient} />,
+        },
+      ],
+    },
+
+    {
+      path: 'teacher/courses/:courseId/edit',
+      name: 'إضافة دورة',
+      element: <CreateCourse queryClient={queryClient} />,
+      children: [
+        {
+          index: true,
+          name: '',
+          element: <EditCourseInfo queryClient={queryClient} />,
+          loader: courseInfoEditLoader(queryClient),
+        },
+        {
+          path: 'grades',
+          name: 'الدرجات',
+          element: <StudentGrades queryClient={queryClient} />,
         },
         {
           path: 'lessons',
@@ -187,25 +227,34 @@ export default function getRoutes(queryClient) {
     },
 
 
-    // //student
 
-    // {
-    //   path: 'course/study/:id',
-    //   name: 'الفصول الدراسية',
-    //   element: <Lesson />,
-    // },
-    // {
-    //   path: 'grades',
-    //   name: 'الفصول الدراسية',
-    //   element: <Grades />,
-    // },
-    // {
-    //   path: 'profile',
-    //   name: 'الفصول الدراسية',
-    //   element: <studentCourses />,
-    // },
-    // { path: '/base/accordion', name: 'الفصول الدراسية', element: <adminSetting /> },
+
+
+    //student
+    { path: 'student/dash', name: 'لوحة التحكم', element: <StudentDashboard /> },
+    { path: 'student/courses', name: 'لوحة التحكم', element: <StudentCourses /> },
+    { path: 'student/grades', name: 'لوحة التحكم', element: <StudentGrade /> },
+    {
+      path: 'student/courses/:courseId',
+      name: 'لوحة التحكم',
+      element: <Course queryClient={queryClient} />,
+    },
+    {
+      path: 'student/lessons/:courseId',
+      name: ' ',
+      element: <Lessons queryClient={queryClient} />,
+      children: [
+        {
+          path: ':sectionId/:lessonId',
+          // index: true,
+          name: '',
+          element: <CourseLesson queryClient={queryClient} />,
+        },
+      ],
+    },
   ]
+
+  return adminRoutes
 }
 
 export function getNestedRoutes() {

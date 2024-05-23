@@ -122,7 +122,7 @@ export const EditCourseInfo = ({ queryClient, ...props }) => {
   }
 
   const saveData = () => {
-    updateCourse({ ...formData, _id: id })
+    updateCourse({ ...formData, _id: courseId })
     console.log('data', formData)
   }
 
