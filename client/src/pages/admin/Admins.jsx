@@ -93,6 +93,10 @@ export default function Admins({ queryClient }) {
         accessorKey: 'name',
         id: 'name',
         header: 'الأسم',
+
+        Cell: ({ cell, row }) => {
+          return `${row.original.firstName} ${row.original.lastName}`
+        },
       },
       {
         accessorKey: 'email',
@@ -110,11 +114,11 @@ export default function Admins({ queryClient }) {
         id: 'permissions',
         accessorKey: 'permissions',
         // accessorFn: (row) => row?.admins?.map((sub) => <Badge>{`${sub.name} `}</Badge>) || '',
-        Cell: ({ cell }) => {
-          if (!cell.getValue() || cell.getValue().length == 0) return ''
-          return cell.getValue()?.map((sub) => <Badge>{`${sub} `}</Badge>)
-        },
-        enableEditing: true,
+        // Cell: ({ cell }) => {
+        //   if (!cell.getValue() || cell.getValue().length == 0) return ''
+        //   return cell.getValue()?.map((sub) => <Badge>{`${sub} `}</Badge>)
+        // },
+        // enableEditing: true,
         header: 'الصلاحيات',
       },
     ],
@@ -170,29 +174,36 @@ export default function Admins({ queryClient }) {
     ),
     renderCreateRowModalContent: ({ internalEditComponents, row, table }) => (
       <Stack>
-        <Title order={5}>My Custom Edit Modal</Title>
+        <Title order={5}>إنشاء</Title>
         <TextInput
           withAsterisk
-          label="الأسم"
-          name="name"
-          id="name"
-          placeholder="اسم الكلية"
+          label="الاسم الأول"
+          name="firstName"
+          id="firstName"
+          placeholder="الاسم الأول"
           onChange={(e) => setNewrowData({ ...newRowData, name: e.target.value })}
+        />{' '}
+        <TextInput
+          withAsterisk
+          label="الاسم الاخير"
+          name="lastName"
+          id="lastName"
+          onChange={(e) => setNewrowData({ ...newRowData, lastName: e.target.value })}
         />{' '}
         <TextInput
           withAsterisk
           label="email"
           name="email"
           id="email"
-          placeholder=" email"
+          placeholder=" الايميل"
           onChange={(e) => setNewrowData({ ...newRowData, email: e.target.value })}
         />{' '}
         <TextInput
           withAsterisk
-          label="phone"
+          label="رقم الهاتف"
           name="phone"
           id="phone"
-          placeholder="اسم الكلية"
+          placeholder="الرقم"
           onChange={(e) => setNewrowData({ ...newRowData, phone: e.target.value })}
         />
         <Flex justify="flex-end">
@@ -202,42 +213,42 @@ export default function Admins({ queryClient }) {
     ),
     renderEditRowModalContent: ({ internalEditComponents, row, table }) => (
       <Stack>
-        <Title order={5}>My Custom Edit Modal</Title>
-        <TextInput
+        <Title order={5}>تعديل</Title>
+   <TextInput
           withAsterisk
-          label="الأسم"
-          name="name"
-          id="name"
-          placeholder="اسم الكلية"
-          onChange={(e) => setNewrowData({ ...editingRowData, name: e.target.value })}
+          label="الاسم الأول"
+          name="firstName"
+          id="lastName"
+          defaultValue={row?.original?.firstName}
+          placeholder="الاسم الأول"
+          onChange={(e) => setEditingRowData({ ...editingRowData, firstName: e.target.value })}
         />{' '}
         <TextInput
           withAsterisk
-          label="email"
+          label="الاسم الاخير"
+          name="lastName"
+          defaultValue={row?.original?.lastName}
+          id="lastName"
+          onChange={(e) => setEditingRowData({ ...editingRowData, lastName: e.target.value })}
+        />{' '}
+        <TextInput
+          withAsterisk
+          label="الايميل"
           name="email"
           id="email"
-          placeholder=" email"
-          onChange={(e) => setNewrowData({ ...editingRowData, email: e.target.value })}
+          defaultValue={row?.original?.email}
+          placeholder=" الايميل"
+          onChange={(e) => setEditingRowData({ ...editingRowData, email: e.target.value })}
         />{' '}
         <TextInput
           withAsterisk
-          label="phone"
+          label="الهاتف"
           name="phone"
           id="phone"
-          placeholder="اسم الكلية"
-          onChange={(e) => setNewrowData({ ...editingRowData, phone: e.target.value })}
+          placeholder="الهاتف"
+          defaultValue={row?.original?.phone}
+          onChange={(e) => setEditingRowData({ ...editingRowData, phone: e.target.value })}
         />
-        {/* <MultiSelect
-          data={teachersForSelect}
-          label="Your favorite frameworks/libraries"
-          placeholder="Pick all that you like"
-          defaultValue={row?.getAllCells()[5]?.getValue()}
-          name="teachers"
-          id="teachers"
-          onChange={(selectedValue) =>
-            setEditingRowData({ ...editingRowData, teachers: selectedValue })
-          }
-        /> */}
         <Flex justify="flex-end">
           <MRT_EditActionButtons row={row} table={table} variant="text" />{' '}
         </Flex>

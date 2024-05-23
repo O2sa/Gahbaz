@@ -23,7 +23,7 @@ const AppHeader = ({sidebarShow, stateChange}) => {
   // const sidebarShow = useSelector((state) => state.sidebarStates.sidebarShow)
 
   return (
-    <CHeader position="sticky"  className="mb-4">
+    <CHeader position="sticky" style={{zIndex: 99}}   className="mb-4">
       <CContainer fluid>
         <CHeaderToggler
           className="ps-1"
@@ -48,7 +48,7 @@ const AppHeader = ({sidebarShow, stateChange}) => {
           </CNavItem>
         </CHeaderNav> */}
         <CHeaderNav className="ms-auto">
-          <CNavItem>
+          {/* <CNavItem>
             <CNavLink href="#">
               <CIcon icon={cilBell} size="lg" />
             </CNavLink>
@@ -62,7 +62,7 @@ const AppHeader = ({sidebarShow, stateChange}) => {
             <CNavLink href="#">
               <CIcon icon={cilEnvelopeOpen} size="lg" />
             </CNavLink>
-          </CNavItem>
+          </CNavItem> */}
         </CHeaderNav>
         <CHeaderNav className="ms-3">
           <AppHeaderDropdown />

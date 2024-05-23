@@ -84,7 +84,7 @@ export default function UploadVideo({ children, sectionId, queryClient, lesson }
 
   return (
     <>
-      <Modal opened={opened} size={'xl'} onClose={close} title="Authentication" centered>
+      <Modal opened={opened} size={'xl'} onClose={close} title="" centered>
         {/* <Group  position="center"> */}
         <Dropzone
           maxFiles={1}

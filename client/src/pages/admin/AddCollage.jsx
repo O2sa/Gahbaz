@@ -79,8 +79,9 @@ export default function AddCollage({ queryClient }) {
             />
             <NumberInput
               error={form.errors.numberOfSemesters}
-              placeholder="lenumberOfSemestersvels"
               label="عدد الفصول"
+              placeholder="عدد الفصول"
+              
               {...form.getInputProps('numberOfSemesters')}
               withAsterisk
             />

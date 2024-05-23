@@ -5,7 +5,7 @@ import { BsStack } from 'react-icons/bs'
 
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { useGetElements } from '../crud'
+import { useDeleteElement, useGetElements } from '../crud'
 
 import { TabsBody } from '../../stories/Tabs/TabsBody'
 import { Link, NavLink } from 'react-router-dom'
@@ -21,10 +21,20 @@ import {
   CSpinner,
 } from '@coreui/react'
 import { MantineReactTable, useMantineReactTable } from 'mantine-react-table'
-import { Badge, Button } from '@mantine/core'
-import { IconArrowAutofitRight, IconPhoto } from '@tabler/icons-react'
+import { ActionIcon, Badge, Box, Button, Flex } from '@mantine/core'
+import {
+  IconArrowAutofitRight,
+  IconArrowBarLeft,
+  IconDetails,
+  IconEdit,
+  IconInfoCircle,
+  IconPhoto,
+  IconTrash,
+} from '@tabler/icons-react'
+import { Tooltip } from 'chart.js'
+import StartSemester from './StartSemester'
 
-export default function Semesters({}) {
+export default function Semesters({ queryClient }) {
   const {
     data: semesters = [],
     isError: isLoadingTeachersError,
@@ -32,14 +42,20 @@ export default function Semesters({}) {
     isLoading: isLoadingTeachers,
   } = useQuery(useGetElements(['semesters']))
 
-
   if (isFetchingTeachers) {
-    return (
-      <CSpinner color="primary" />
-
-    )
+    return <CSpinner color="primary" />
   }
-  //DELETE action
+
+  return <SemestersTable queryClient={queryClient} semesters={semesters} />
+}
+
+const SemestersTable = ({ semesters, queryClient }) => {
+  const { mutateAsync: deleteStudent, isLoading: isDeletingStudent } = useDeleteElement(
+    queryClient,
+    ['semesters'],
+  )
+
+  const openDeleteConfirmModal = (row) => deleteStudent(row.id)
 
   const columns = useMemo(
     () => [
@@ -100,8 +116,8 @@ export default function Semesters({}) {
             <Link to={row.original._id}>
               <Button
                 variant="light"
-                leftSection={<IconPhoto size={14} />}
-                rightSection={<IconArrowAutofitRight size={14} />}
+                leftIcon={<IconInfoCircle size={14} />}
+                rightIcon={<IconArrowBarLeft size={14} />}
               >
                 عرض التفاصيل
               </Button>
@@ -120,6 +136,7 @@ export default function Semesters({}) {
     enableFacetedValues: true,
     enableGrouping: true,
     enablePinning: true,
+    enableRowActions: true,
     getRowId: (row) => row._id,
     paginationDisplayMode: 'pages',
     positionToolbarAlertBanner: 'bottom',
@@ -127,7 +144,23 @@ export default function Semesters({}) {
       radius: 'xl',
       size: 'lg',
     },
+    // renderRowActions: ({ row, table }) => (
+    //   <Flex gap="md">
 
+    //     <Tooltip label="حذف">
+    // <ActionIcon color="red" onClick={() => openDeleteConfirmModal(row)}>
+    //         <IconTrash />
+    //       </ActionIcon>
+    //     </Tooltip>
+    //   </Flex>
+    // ),
+    renderRowActionMenuItems: ({ row }) => (
+      <Flex>
+        <ActionIcon color="red" onClick={() => openDeleteConfirmModal(row)}>
+          <IconTrash />
+        </ActionIcon>
+      </Flex>
+    ),
     mantineTableContainerProps: {
       sx: {
         minHeight: '500px',
@@ -140,8 +173,11 @@ export default function Semesters({}) {
       <div
         className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
       >
-        <h5>{'عن الكلية'} </h5>
-      </div>{' '}
+        <h5>{' الفصول الحالية'} </h5>
+        <StartSemester queryClient={queryClient}>
+          <Button>بدأ فصل جديد</Button>
+        </StartSemester>
+      </div>
       <MantineReactTable table={table} />
     </>
   )

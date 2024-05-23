@@ -8,37 +8,40 @@ const SectionSchema = new mongoose.Schema({
     minlength: 4,
     maxlength: 50,
   },
-  lessons: [
-    {
-      name: {
-        type: String,
-        required: [true, "Please provide name"],
-        minlength: 4,
-        maxlength: 50,
-      },
+  lessons: {
+    type: [
+      {
+        name: {
+          type: String,
+          required: [true, "Please provide name"],
+          minlength: 4,
+          maxlength: 50,
+        },
 
-      video: {
-        url: {
-          type: String,
-          default: "",
+        video: {
+          url: {
+            type: String,
+            default: "",
+          },
+          duration: {
+            type: Number,
+            default: 0,
+          },
         },
-        duration: {
-          type: Number,
-          default: 0,
+        topic: {
+          data: {
+            type: String,
+            default: "",
+          },
+          readingTime: {
+            type: Number,
+            default: 0,
+          },
         },
       },
-      topic: {
-        data: {
-          type: String,
-          default: "",
-        },
-        readingTime: {
-          type: Number,
-          default: 0,
-        },
-      },
-    },
-  ],
+    ],
+    default: [],
+  },
   course: {
     type: mongoose.Schema.ObjectId,
     ref: "Course",

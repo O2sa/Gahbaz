@@ -1,4 +1,4 @@
-import React, { useEffect, Suspense, useState } from 'react'
+import React, { useEffect, Suspense, useState, createContext, useContext } from 'react'
 import { AppContent, AppSidebar, AppFooter, AppHeader } from '../components/index'
 import { Navigate, Route, Routes, useNavigate, Outlet, useNavigation } from 'react-router-dom'
 import { CContainer, CSpinner } from '@coreui/react'
@@ -6,9 +6,35 @@ import { useLocation } from 'react-router-dom'
 
 // routes config
 import getRoutes from '../routes'
-const DefaultLayout = () => {
+import customFetch from '../utils/customFetch'
+import { useGetElements } from '../pages/crud'
+import { useQuery } from '@tanstack/react-query'
+import { notifications } from '@mantine/notifications'
+
+export const loader = (queryClient) => async () => {
+  try {
+    return await queryClient.ensureQueryData(useGetElements(['users', 'current-user']))
+  } catch (error) {
+    return redirect('/')
+  }
+}
+
+
+const DashboardContext = createContext();
+
+
+const DefaultLayout = ({ queryClient }) => {
   const location = useLocation()
+
+  const {
+    data: user = [],
+    isFetching: isFetchingTeachers,
+    isLoading: isLoadingTeachers,
+  }  = useQuery(useGetElements(['users', 'current-user']))
+
+  const navigate = useNavigate()
   const navigation = useNavigation()
+  const [isAuthError, setIsAuthError] = useState(false)
 
   const isPageLoading = navigation.state === 'loading'
 
@@ -28,25 +54,70 @@ const DefaultLayout = () => {
   const stateChange = (state) => {
     setSidebarState((prev) => ({ ...prev, ...state }))
   }
+
+  const logoutUser = async () => {
+    navigate('/login')
+    await customFetch.get('/auth/logout')
+    queryClient.invalidateQueries()
+    notifications.show({
+      id: 'collage-created',
+      title: 'Success!',
+      message: 'loggin out!',
+      variant: 'success',
+      autoClose: 5000,
+    })
+  }
+
+  customFetch.interceptors.response.use(
+    (response) => {
+      return response
+    },
+    (error) => {
+      console.log(error?.response?.status)
+      if (error?.response?.status === 401) {
+        setIsAuthError(true)
+      }
+      return Promise.reject(error)
+    },
+  )
+
+  useEffect(() => {
+    if (!isAuthError) return
+    logoutUser()
+  }, [isAuthError])
+
+
+
+  if(isFetchingTeachers){
+    return <CSpinner color="primary" />
+  }
   return (
-    <div>
-      <AppSidebar sidebarShow={sidebarState} stateChange={stateChange} />
-      <div className="wrapper d-flex flex-column min-vh-100 bg-light">
-        <AppHeader sidebarShow={sidebarState} stateChange={stateChange} />
-        <div className="body flex-grow-1 px-3">
-          <CContainer
-            fluid={isCurrentPathLesson ? true : false}
-            lg={!isCurrentPathLesson ? true : false}
-          >
-            <Suspense fallback={<CSpinner color="primary" />}>
-              {isPageLoading ? <CSpinner color="primary" /> : <Outlet />}{' '}
-            </Suspense>
-          </CContainer>{' '}
+    <DashboardContext.Provider
+      value={{
+        user,
+        logoutUser,
+      }}
+    >
+      <div>
+        <AppSidebar sidebarShow={sidebarState} stateChange={stateChange} />
+        <div className="wrapper d-flex flex-column min-vh-100 bg-light">
+          <AppHeader sidebarShow={sidebarState} stateChange={stateChange} />
+          <div className="body flex-grow-1 px-3">
+            <CContainer
+              fluid={isCurrentPathLesson ? true : false}
+              lg={!isCurrentPathLesson ? true : false}
+            >
+              <Suspense fallback={<CSpinner color="primary" />}>
+                {isPageLoading ? <CSpinner color="primary" /> : <Outlet />}{' '}
+              </Suspense>
+            </CContainer>{' '}
+          </div>
+          {/* <AppFooter /> */}
         </div>
-        {/* <AppFooter /> */}
       </div>
-    </div>
+    </DashboardContext.Provider>
   )
 }
+export const useDashboardContext = () => useContext(DashboardContext);
 
 export default DefaultLayout

@@ -19,6 +19,9 @@ import { AiFillBank } from 'react-icons/ai'
 import customFetch from '../../utils/customFetch'
 import { useDeleteElement } from '../../pages/crud'
 import EditCollage from '../../pages/admin/EditCollage'
+
+
+
 export const SpecialCard = ({ data, queryClient, collection, Component, deltails }) => {
   const { mutateAsync: deleteElement, isLoading: isLoading } = useDeleteElement(
     queryClient,

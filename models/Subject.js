@@ -10,7 +10,6 @@ const SubjectSchema = new mongoose.Schema({
   },
   gradeSchema: {
     total: { type: Number, default: 100 },
-
     grade: {
       type:  mongoose.Schema.Types.Mixed,
       default: {

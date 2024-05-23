@@ -6,8 +6,13 @@ const AdminSchema = new mongoose.Schema({
   permissions: { type: String, enum: PERMISSIONS, default: "rw-" },
   role: {
     type: String,
-    enum: ["admin", "super-admin"],
+    enum: ["admin", "super-admin", 'user'],
     default: "admin",
+  },
+  university: {
+    type: mongoose.Types.ObjectId,
+    ref: "University",
+    // required: [true, "لا بد من تحديد عدد الحصص اليومية"],
   },
 });
 

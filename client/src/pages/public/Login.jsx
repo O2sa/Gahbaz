@@ -17,22 +17,46 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
+import { Button, PasswordInput, TextInput } from '@mantine/core'
+import { useForm } from '@mantine/form'
+import customFetch from '../../utils/customFetch'
+import { notifications } from '@mantine/notifications'
 
 const Login = () => {
-  const nev = useNavigate()
+  const navigate = useNavigate()
+  const form = useForm({
+    initialValues: {
+      email: '',
+      password: '',
+    },
+  })
 
-  const [user, setUser] = useState('')
-  const submitHandler = (e) => {
-    e.preventDefault()
-    // Dispatch login
-    console.log(user)
-    // localStorage.setItem('user', user)
+  console.log(form.values)
 
-    // redirect(`/dashboard`)
+  const handleSubmit = async (values) => {
+    console.log('values')
+    console.log(values)
+    try {
+      await customFetch.post('/auth/login', values)
+      navigate('/')
 
-    login(user, nev)
+      notifications.show({
+        id: 'collage-created',
+        title: 'Success!',
+        message: 'Semesters created successfully!',
+        variant: 'success',
+        autoClose: 5000,
+      })
+    } catch (error) {
+      notifications.show({
+        id: 'collage-creation-error',
+        title: 'Error!',
+        message: error?.response?.data?.msg || 'An error occurred while creating the collage.',
+        variant: 'danger',
+        autoClose: 5000,
+      })
+    }
   }
-
   return (
     <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
@@ -41,47 +65,28 @@ const Login = () => {
             <CCardGroup>
               <CCard className="p-4">
                 <CCardBody>
-                  <CForm method="post">
-                    <h1>تسجيل الدخول</h1>
-                    <p className="text-medium-emphasis">قم بتسجيل الدخول، لتصل إلى حسابك</p>
-                    <CInputGroup className="mb-3">
-                      <CInputGroupText>
-                        <CIcon icon={cilUser} />
-                      </CInputGroupText>
-                      <CFormInput
-                        onChange={(e) => setUser(e.target.value)}
-                        placeholder="الإيميل"
-                        autoComplete="username"
-                      />
-                    </CInputGroup>
-                    <CInputGroup className="mb-4">
-                      <CInputGroupText>
-                        <CIcon icon={cilLockLocked} />
-                      </CInputGroupText>
-                      <CFormInput
-                        type="password"
-                        placeholder="كلمة السر"
-                        autoComplete="current-password"
-                      />
-                    </CInputGroup>
-                    <CRow>
-                      <CCol xs={6}>
-                        <CButton
-                          onClick={submitHandler}
-                          type="submit"
-                          color="primary"
-                          className="px-4"
-                        >
-                          تسجيل
-                        </CButton>
-                      </CCol>
-                      <CCol xs={6} className="text-right">
-                        <CButton color="link" className="px-0">
-                          هل نسيت كلمة السر?
-                        </CButton>
-                      </CCol>
-                    </CRow>
-                  </CForm>
+                  <form onSubmit={form.onSubmit(handleSubmit)}>
+          
+                    <TextInput
+                      label="Email address"
+                      placeholder="hello@gmail.com"
+                      size="md"
+                      mt="md"
+                      {...form.getInputProps('email')}
+                    />
+                  
+                    <PasswordInput
+                      label="Password"
+                      placeholder="Your password"
+                      mt="md"
+                      size="md"
+                      {...form.getInputProps('password')}
+                    />{' '}
+                    {/* <Checkbox label="Keep me logged in" mt="xl" size="md" /> */}
+                    <Button type="submit" fullWidth mt="xl" size="md">
+                      Login
+                    </Button>
+                  </form>
                 </CCardBody>
               </CCard>
               <CCard className="text-white bg-primary py-5" style={{ width: '44%' }}>
@@ -128,4 +133,5 @@ async function login(request, nev) {
   //   console.log(error)
   // }
 }
+
 export default Login

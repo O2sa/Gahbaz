@@ -18,7 +18,11 @@ export default function AboutMajor({ queryClient, collection, editModel, ...prop
     isLoading,
   } = useQuery(useGetElements(['collages', collageId]))
 
-  const editCom = <Button type="submit">{isFetching ? 'Creating...' : 'إنشاء'}</Button>
+  const editCom = (
+    <Button loading={isFetching} type="submit">
+      تعديل
+    </Button>
+  )
   return (
     <>
       <div

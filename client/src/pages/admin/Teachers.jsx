@@ -52,7 +52,7 @@ export default function Teachers({ queryClient }) {
     isFetching: isFetchingTeachers,
     isLoading: isLoadingTeachers,
   } = useQuery(useGetElements(['teachers']))
- 
+
   // console.log(teachers)
   const { mutateAsync: updateTeacher, isLoading: isUpdatingTeacher } = useUpdateElement(
     queryClient,
@@ -63,7 +63,7 @@ export default function Teachers({ queryClient }) {
     ['teachers'],
   )
 
-  const teachersForSelect = getMultiSelectData(teachers)
+  // const teachersForSelect = getMultiSelectData(teachers)
   const [editingRowData, setEditingRowData] = useState({}) // State for new row data
 
   const handleCreateTeacher = async ({ values, row, table, exitCreatingMode }) => {
@@ -73,7 +73,7 @@ export default function Teachers({ queryClient }) {
     table.setCreatingRow(false)
   }
 
-  const [newRowData, setNewrowData] = useState({  }) // State for new row data
+  const [newRowData, setNewrowData] = useState({}) // State for new row data
 
   //UPDATE action
   const handleSaveTeacher = async ({ values, row, table }) => {
@@ -93,31 +93,24 @@ export default function Teachers({ queryClient }) {
         header: '#',
       },
       {
-        accessorFn: (row) => `${row.name}`,
+        accessorKey: 'name',
         id: 'name',
         header: 'الأسم',
+
+        Cell: ({ cell, row }) => {
+          return `${row.original.firstName} ${row.original.lastName}`
+        },
       },
       {
-        accessorKey: 'subtitle',
-        id: 'subtitle',
-        header: 'الأسم',
-      },
-      {
-        accessorKey: 'category',
-        id: 'category',
-        header: 'الأسم',
+        accessorKey: 'email',
+        id: 'email',
+        header: 'الإيميل',
       },
 
       {
-        id: 'teachers',
-        accessorKey: 'teachers',
-        // accessorFn: (row) => row?.teachers?.map((sub) => <Badge>{`${sub.name} `}</Badge>) || '',
-        Cell: ({ cell }) => {
-          if (!cell.getValue() || cell.getValue().length == 0) return ''
-          return cell.getValue()?.map((sub) => <Badge>{`${teachers[sub]?.name ?? ''} `}</Badge>)
-        },
-        enableEditing: true,
-        header: 'المواد',
+        accessorKey: 'phone',
+        id: 'phone',
+        header: 'رقم الهاتف',
       },
     ],
     [],
@@ -175,38 +168,34 @@ export default function Teachers({ queryClient }) {
         <Title order={5}>My Custom Edit Modal</Title>
         <TextInput
           withAsterisk
-          label="الأسم"
-          name="name"
-          id="name"
-          placeholder="اسم الكلية"
+          label="الاسم الأول"
+          name="firstName"
+          id="firstName"
+          placeholder="الاسم الأول"
           onChange={(e) => setNewrowData({ ...newRowData, name: e.target.value })}
         />{' '}
         <TextInput
           withAsterisk
-          label="subtitle"
-          name="subtitle"
-          id="subtitle"
-          placeholder=" subtitle"
-          onChange={(e) => setNewrowData({ ...newRowData, subtitle: e.target.value })}
+          label="الاسم الاخير"
+          name="lastName"
+          id="lastName"
+          onChange={(e) => setNewrowData({ ...newRowData, lastName: e.target.value })}
         />{' '}
         <TextInput
           withAsterisk
-          label="category"
-          name="category"
-          id="category"
-          placeholder="اسم الكلية"
-          onChange={(e) => setNewrowData({ ...newRowData, category: e.target.value })}
-        />
-        <MultiSelect
-          data={teachersForSelect}
-          label="Your favorite frameworks/libraries"
-          placeholder="Pick all that you like"
-          defaultValue={row?.getAllCells()[5]?.getValue()}
-          name="teachers"
-          id="teachers"
-          onChange={(selectedValue) =>
-            setEditingRowData({ ...newRowData, teachers: selectedValue })
-          }
+          label="الايميل"
+          name="email"
+          id="email"
+          placeholder=" الايميل"
+          onChange={(e) => setNewrowData({ ...newRowData, email: e.target.value })}
+        />{' '}
+        <TextInput
+          withAsterisk
+          label="الهاتف"
+          name="phone"
+          id="phone"
+          placeholder="الهاتف"
+          onChange={(e) => setNewrowData({ ...newRowData, phone: e.target.value })}
         />
         <Flex justify="flex-end">
           <MRT_EditActionButtons row={row} table={table} variant="text" />{' '}
@@ -218,38 +207,38 @@ export default function Teachers({ queryClient }) {
         <Title order={5}>My Custom Edit Modal</Title>
         <TextInput
           withAsterisk
-          label="الأسم"
-          name="name"
-          id="name"
-          placeholder="اسم الكلية"
-          onChange={(e) => setNewrowData({ ...editingRowData, name: e.target.value })}
+          label="الاسم الأول"
+          name="firstName"
+          id="firstName"
+          defaultValue={row?.original?.firstName}
+          placeholder="الاسم الأول"
+          onChange={(e) => setEditingRowData({ ...editingRowData, firstName: e.target.value })}
         />{' '}
         <TextInput
           withAsterisk
-          label="subtitle"
-          name="subtitle"
-          id="subtitle"
-          placeholder=" subtitle"
-          onChange={(e) => setNewrowData({ ...editingRowData, subtitle: e.target.value })}
+          label="الاسم الاخير"
+          name="lastName"
+          defaultValue={row?.original?.lastName}
+          id="lastName"
+          onChange={(e) => setEditingRowData({ ...editingRowData, lastName: e.target.value })}
         />{' '}
         <TextInput
           withAsterisk
-          label="category"
-          name="category"
-          id="category"
-          placeholder="اسم الكلية"
-          onChange={(e) => setNewrowData({ ...editingRowData, category: e.target.value })}
-        />
-        <MultiSelect
-          data={teachersForSelect}
-          label="Your favorite frameworks/libraries"
-          placeholder="Pick all that you like"
-          defaultValue={row?.getAllCells()[5]?.getValue()}
-          name="teachers"
-          id="teachers"
-          onChange={(selectedValue) =>
-            setEditingRowData({ ...editingRowData, teachers: selectedValue })
-          }
+          label="الايميل"
+          name="email"
+          id="email"
+          defaultValue={row?.original?.email}
+          placeholder=" الايميل"
+          onChange={(e) => setEditingRowData({ ...editingRowData, email: e.target.value })}
+        />{' '}
+        <TextInput
+          withAsterisk
+          label="الهاتف"
+          name="phone"
+          id="phone"
+          placeholder="الهاتف"
+          defaultValue={row?.original?.phone}
+          onChange={(e) => setEditingRowData({ ...editingRowData, phone: e.target.value })}
         />
         <Flex justify="flex-end">
           <MRT_EditActionButtons row={row} table={table} variant="text" />{' '}
@@ -271,7 +260,7 @@ export default function Teachers({ queryClient }) {
           table.setCreatingRow(true)
         }}
       >
-        Create New User
+        إنشاء مستخدم جديد
       </Button>
     ),
 
@@ -287,7 +276,7 @@ export default function Teachers({ queryClient }) {
     ),
     state: {
       isLoading: isLoadingTeachers,
-      isSaving: isCreatingTeacher || isUpdatingTeacher,
+      isSaving: isCreatingTeacher || isUpdatingTeacher || isDeletingTeacher,
       showAlertBanner: isLoadingTeachersError,
       showProgressBars: isFetchingTeachers,
     },

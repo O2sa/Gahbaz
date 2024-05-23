@@ -1,23 +1,24 @@
 import { StatusCodes } from "http-status-codes";
 import Admin from "../models/Admin.js";
-import { generateTemporaryPassword, hashPassword } from "../utils/passwordUtils.js";
-
+import {
+  generateTemporaryPassword,
+  hashPassword,
+} from "../utils/passwordUtils.js";
 
 export const getAllAdmins = async (req, res) => {
   const admin = await Admin.find(req.params.id);
   res.status(StatusCodes.OK).json(admin);
 };
 export const createAdmin = async (req, res) => {
-// Generate a temporary password
-const saltRounds = 10; 
+  req.body.university=req.user.universityId
+  const user = await Admin.create(req.body);
 
-const temporaryPassword = generateTemporaryPassword();
+  const hashedPassword = await hashPassword(req.body.email);
 
-// Hash the temporary password
-const hashedPassword =await hashPassword(temporaryPassword)
+  await Admin.findByIdAndUpdate(user._id, {password: hashedPassword})
 
-  const admin = await Admin.create({...req.body, password: hashedPassword});
-  res.status(StatusCodes.CREATED).json(admin);
+
+  res.status(StatusCodes.CREATED).json(user);
 };
 
 export const getAdmin = async (req, res) => {
@@ -37,6 +38,3 @@ export const deleteAdmin = async (req, res) => {
   const removedAdmin = await Admin.findByIdAndDelete(req.params.id);
   res.status(StatusCodes.OK).json(removedAdmin);
 };
-
-
-

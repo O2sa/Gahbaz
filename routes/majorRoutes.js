@@ -6,10 +6,11 @@ import {
   createMajor,
   updateMajor,
   deleteMajor,
+  getAllMajors
 } from "../controllers/majorControllers.js";
 
 //collages
-router.route("/").post(createMajor);
+router.route("/").post(createMajor).get(getAllMajors)
 router.route("/major/:id").get(getMajor);
 router
   .route("/:id")

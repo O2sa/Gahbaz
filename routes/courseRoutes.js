@@ -6,7 +6,8 @@ import {
     createCourse,
     updateCourse,
     deleteCourse,
-    getAllCourses
+    getAllCourses,
+    getTeacherCourses
 } from "../controllers/courseControllers.js"
 
 
@@ -14,8 +15,9 @@ import {
 
 //collages
 router.route("/").post(createCourse).get(getAllCourses)
-router.route("/getSemesterCourses/:id").get(getSemesterCourses)
+router.route("/semester-courses/:semesterId").get(getSemesterCourses)
 router.route("/:id").patch(updateCourse).delete(deleteCourse).get(getCourse);
+router.route("/teacher-courses").get(getAllCourses);
 
 
 export default router;

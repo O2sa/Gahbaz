@@ -20,7 +20,7 @@ import {
   CFormTextarea,
 } from '@coreui/react'
 import { useForm } from '@mantine/form'
-import { TextInput, Button, Group, Box, Modal, NumberInput } from '@mantine/core'
+import { TextInput, Button, Group, Box, Modal, NumberInput, Center } from '@mantine/core'
 
 import { notifications } from '@mantine/notifications'
 import { useDisclosure } from '@mantine/hooks'
@@ -61,32 +61,28 @@ export const EditCourseSections = ({ queryClient, ...props }) => {
     )
   }
 
-  if (sections.length == 0) {
-    return (
-      <div className="list-items" data-testid="loading" key={'loading'}>
-        empty
-      </div>
-    )
-  }
+
 
   return (
-    <>
-      {sections && (
+    <div className='m-4'>
+      {sections.length>0 ? (
         <div>
           {sections.map((item, idx) => (
             <EditCourseSection idx={idx} key={idx} queryClient={queryClient} section={item} />
           ))}
-          <div className="mx-2">
-            <AddSection queryClient={queryClient}>
-              {' '}
-                <Button variant='light' sx={{ width: '100%' }} size="lg">
-                  إضافة قسم
-                </Button>{' '}
-            </AddSection>
-          </div>
         </div>
-      )}
-    </>
+      ): 
+      
+      <Center m={8}>لا يوجد أقسام بعد</Center>}
+      <div className="mx-2">
+        <AddSection  queryClient={queryClient}>
+          {' '}
+          <Button variant="light" sx={{ width: '100%' }} size="lg">
+            إضافة قسم
+          </Button>{' '}
+        </AddSection>
+      </div>
+    </div>
   )
 }
 
@@ -173,7 +169,7 @@ export function AddSection({ children, queryClient, edit = false, section }) {
           </form>
         </>
       </Modal>
-      <Group sx={{width:'100%'}} onClick={open}>
+      <Group sx={{ width: '100%' }} onClick={open}>
         {/* <Button radius="xs">إنشاء قسم</Button> */}
         {children}
       </Group>

@@ -1,5 +1,5 @@
-import mongoose from "mongoose"
-import SemesterTemp from "./SemesterTemp.js"
+import mongoose from "mongoose";
+import SemesterTemp from "./SemesterTemp.js";
 
 const MajorSchema = new mongoose.Schema({
   name: {
@@ -21,35 +21,24 @@ const MajorSchema = new mongoose.Schema({
     ref: "Collage",
     required: true,
   },
+  students: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Student",
+    },
+  ],
 
   semesterTemplates: [{ type: mongoose.Schema.ObjectId, ref: "SemesterTemp" }],
 });
 
-// MajorSchema.pre('findOneAndDelete', async function(next) {
-//   try {
-//       // Find all semester templates linked to this Major
-//     await SemesterTemp.deleteMany({ major: this._id });
 
-//       // Delete all found semester templates
-//       // await Promise.all(semesterTemplates.map(async (semesterTemplate) => {
-//       //     await semesterTemplate.remove();
-//       // }));
+MajorSchema.pre('remove', async function (next) {
+  try {
+    await SemesterTemp.deleteMany({ major: this._id });
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
 
-//       next();
-//   } catch (error) {
-//       next(error);
-//   }
-// });
-
-
-
-// MajorSchema.pre("findByIdAndDelete", async function (next) {
-//   try {
-//     await SemesterTemp.deleteMany({ major: this._id });
-//     next();
-//   } catch (error) {
-//     next(error);
-//   }
-// });
-
-export default  mongoose.model("Major", MajorSchema);
+export default mongoose.model("Major", MajorSchema);
