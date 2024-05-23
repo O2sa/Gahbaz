@@ -1,12 +1,19 @@
 import { StatusCodes } from "http-status-codes"
 import Student from "../models/Student.js"
 import Semester from "../models/Semester.js"
+import Major from "../models/Major.js"
+import { hashPassword } from "../utils/passwordUtils.js";
 
 const createStudent = async (req, res) => {
-  // const student=req.body;
-  console.log(req.body);
-  const student = await Student.create(req.body);
-  res.status(StatusCodes.CREATED).json(student);
+  req.body.university=req.user.universityId
+  const user = await Student.create(req.body);
+
+  const hashedPassword = await hashPassword(req.body.email);
+
+  await Student.findByIdAndUpdate(user._id, {password: hashedPassword})
+
+
+  res.status(StatusCodes.CREATED).json(user);
 };
 
 const updateStudent = async (req, res) => {
@@ -23,8 +30,13 @@ const getStudent = async (req, res) => {
 const deleteStudent = async (req, res) => {
   const id = req.params.id;
   const student = await Student.findByIdAndDelete(id);
+  // const major = await Major.findById(student.major);
+  // major.students.pull(student._id)
+  // await major.save()
   res.status(StatusCodes.CREATED).json( student );
 };
+
+
 
 const getSemstersGrades = async (req, res) => {
   const id = req.params.id;
@@ -38,7 +50,7 @@ const getCurrentCourses = async (req, res) => {
 };
 
 const getAllStudents = async (req, res) => {
-  const students = await Student.find();
+  const students = await Student.find({university: req.user.universityId}).populate('major')
   res.status(StatusCodes.CREATED).json( students );
 };
 

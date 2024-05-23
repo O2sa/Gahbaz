@@ -61,18 +61,29 @@ export const OFF_LECTURES = [
   { value: 9, label: "العاشرة" },
 ];
 
+export const NUMS_ST = [
+  "one",
+  "two",
+  "three",
+  "four",
+  "five",
+  "seven",
+  "eight",
+  "nine",
+  "ten",
+];
 
-export const NUMS_ST=['one', 'two', 'three', 'four', 'five', 'seven', 'eight', 'nine', 'ten']
+export const PERMISSIONS = ["r--", "rw-", "r-d", "rwd"];
 
 
 
-export const PERMISSIONS=["r--", "rw-", "r-d", "rwd"]
-
-
-// if (
-//  true ||
-//   false
-// ) {
-//   console.log(false && false);
-
-// }
+export const getCurrentTime = () =>
+  Date().toLocaleString("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    // hour: "2-digit",
+    // minute: "2-digit",
+    // second: "2-digit",
+    hour12: false, 
+  });

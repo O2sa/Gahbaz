@@ -14,8 +14,8 @@ const apiLimiter = rateLimiter({
   message: { msg: 'IP rate limit exceeded, retry in 15 minutes.' },
 });
 
-router.post('/register', apiLimiter, validateRegisterInput, register);
-router.post('/login', apiLimiter, validateLoginInput, login);
+router.post('/register', apiLimiter, register);
+router.post('/login', apiLimiter, login);
 router.get('/logout', logout);
 
 

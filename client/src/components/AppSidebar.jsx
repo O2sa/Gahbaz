@@ -14,15 +14,16 @@ import 'simplebar/dist/simplebar.min.css'
 
 // sidebar nav config
 import getNavs from '../_nav'
+import { useDashboardContext } from '../layout/DefaultLayout'
 // import { updateSidebarState } from 'src/dataLogic/CollageManagementSlice.js'
 
 const AppSidebar = ({sidebarShow, stateChange}) => {
-  // const dispatch = useDispatch()
-  // const sidebarShow = useSelector((state) => state.sidebarStates.sidebarShow)
-  // console.log(getNavs())
+  const { user } = useDashboardContext()
+
 
   return (
     <CSidebar
+    style={{zIndex: 100}} 
     color='dark'
       position="fixed"
       unfoldable={sidebarShow.sidebarUnfoldable}
@@ -37,7 +38,7 @@ const AppSidebar = ({sidebarShow, stateChange}) => {
       </CSidebarBrand>
       <CSidebarNav>
         <SimpleBar>
-          <AppSidebarNav items={getNavs()} />
+          <AppSidebarNav items={getNavs(user)} />
         </SimpleBar>
       </CSidebarNav>
       <CSidebarToggler

@@ -23,20 +23,17 @@ import {
 import CIcon from '@coreui/icons-react'
 import { Link, redirect, useNavigate } from 'react-router-dom'
 import avatar8 from '../../assets/images/avatars/3.jpg'
-
+import { useDashboardContext } from '../../layout/DefaultLayout'
 const AppHeaderDropdown = () => {
-  const navigate = useNavigate()
-  const logout = () => {
-    redirect('/login')
-    localStorage.clear()
-  }
+  const { user, logoutUser } = useDashboardContext()
+
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0" caret={false}>
         <CAvatar src={avatar8} size="md" />
       </CDropdownToggle>
       <CDropdownMenu className="pt-0 text-start" placement="bottom-start">
-        <CDropdownHeader className="bg-light fw-semibold py-2">الحساب</CDropdownHeader>
+        {/* <CDropdownHeader className="bg-light fw-semibold py-2">الحساب</CDropdownHeader>
         <CDropdownItem href="#">
           <CIcon icon={cilBell} className="me-2" />
           التحديثات
@@ -87,15 +84,10 @@ const AppHeaderDropdown = () => {
           <CBadge color="primary" className="ms-2">
             42
           </CBadge>
-        </CDropdownItem>
+        </CDropdownItem> */}
         <CDropdownDivider />
         <Link to={'/login'}>
-          <CDropdownItem
-            onClick={() => {
-              localStorage.clear()
-            }}
-            href="#"
-          >
+          <CDropdownItem onClick={logoutUser} href="#">
             <CIcon icon={cilLockLocked} className="me-2" />
             إغلاق الحساب
           </CDropdownItem>

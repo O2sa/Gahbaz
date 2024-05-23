@@ -27,9 +27,9 @@ const updateCourse = async (req, res) => {
 };
 
 const getSemesterCourses = async (req, res) => {
-  const id = req.params.id;
+  const semesterId = req.params.semesterId;
 
-  const courses = await Course.find({ semester: id });
+  const courses = await Course.find({ semester: semesterId });
 
   res.status(StatusCodes.OK).json(courses);
 };
@@ -45,9 +45,14 @@ const getAllCourses = async (req, res) => {
 const deleteCourse = async (req, res) => {
   const id = req.params.id;
 
-  const collages = await Course.findByIdAndDelete({ _id: id });
-
+  const course = await Course.findByIdAndDelete({ _id: id });
+  await Section.deleteMany({ course: course._Id });
   res.status(StatusCodes.OK).json();
+};
+const getTeacherCourses = async (req, res) => {
+  // const teacherId = req.params.teacherId;
+  const courses = await Course.find({  });
+  res.status(StatusCodes.CREATED).json(courses);
 };
 
 const getCourseStudents = async (req, res) => {
@@ -68,4 +73,5 @@ export {
   getSemesterCourses,
   deleteCourse,
   getAllCourses,
+  getTeacherCourses
 };

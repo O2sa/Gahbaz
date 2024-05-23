@@ -1,32 +1,35 @@
-import React, { useState } from 'react'
-import PropTypes from 'prop-types'
-// import { SpecialCard } from '../components/Specialcard'
-// import { CButton, CCol, CRow } from '@coreui/react'
-import Model from '../../stories/components/Model'
-import {
-  CCol,
-  CRow,
-  CForm,
-  CFormControlValidation,
-  CFormLabel,
-  CInputGroup,
-  CInputGroupText,
-  CFormSelect,
-  CFormFeedback,
-  CFormCheck,
-  CButton,
-  CFormTextarea,
-  CFormInput,
-} from '@coreui/react'
+import React, { useEffect, useState } from 'react'
 
-import { Input } from '../../stories/components/Input'
-import { useDispatch } from 'react-redux'
-import { asyncCrudThunks } from '../../dataLogic/CollageManagementSlice'
-import { TabsBody } from '../../stories/Tabs/TabsBody'
-import AddCollage from './AddCollage'
-import AboutSemester from './AboutSemester'
+import { Link, useLoaderData, useParams } from 'react-router-dom'
 
-export default function Semester({ opt, visible, setVisible, itemData, ...props }) {
+import { useQuery } from '@tanstack/react-query'
+import { useGetElements } from '../crud'
+import { SemesterDetails } from '../../stories/SpecialComponents/SemesterDetails'
+import { CSpinner } from '@coreui/react'
+
+export default function Semester({ queryClient, ...props }) {
+  const { semesterId } = useParams()
+
+  const {
+    data: semester = {},
+    isError: isLoadingTeachersError,
+    isFetching: isFetchingTeachers,
+    isLoading: isLoadingTeachers,
+  } = useQuery(useGetElements(['semesters', semesterId]))
+
+  const {
+    data: courses = [],
+    isError: isLoadingError,
+    isFetching: isFetching,
+    isLoading: isLoading,
+  } = useQuery(useGetElements(['courses', 'semester-courses', semesterId]))
+
+  // console.log(collage)
+
+  if (isFetchingTeachers || isFetching) {
+    return <CSpinner color="primary" />
+  }
+
   return (
     <div className="bg-white">
       <div
@@ -35,7 +38,32 @@ export default function Semester({ opt, visible, setVisible, itemData, ...props 
         <h5>{' تفاصيل الفصل'} </h5>
       </div>{' '}
       <div className="m-4 mt-5">
-        <AboutSemester />
+        <div className="p-4 row pb-5">
+          <div className="col-md-6">
+            {semester && (
+              <>
+                <div>
+                  <h5 className={''}>
+                    {' '}
+                    {semester.name}
+                    <span className={`text-secondary fs-6`}>{' (خريف 2023)'} </span>{' '}
+                  </h5>
+                  <span className={`text-secondary`}>
+                    {' '}
+                    {`${semester.semester}، ${semester.level}`}
+                  </span>{' '}
+                </div>{' '}
+                <p>
+                  {semester.describtion}
+                  <div></div>
+                </p>
+              </>
+            )}
+          </div>
+          <div className="col-md-6">
+            <SemesterDetails semester={semester} courses={courses} />
+          </div>
+        </div>
       </div>
     </div>
   )

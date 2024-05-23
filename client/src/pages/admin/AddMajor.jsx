@@ -29,6 +29,7 @@ import { notifications } from '@mantine/notifications'
 import { useDisclosure } from '@mantine/hooks'
 import { useCreateElement } from '../crud'
 import { useParams } from 'react-router-dom'
+import { isPending } from '@reduxjs/toolkit'
 
 export default function AddMajor({ queryClient }) {
   const { id: collageId } = useParams()
@@ -45,7 +46,7 @@ export default function AddMajor({ queryClient }) {
     initialValues: {
       name: '',
       // levels: 0,
-      collage: collageId
+      collage: collageId,
     },
 
     validate: (values) => {
@@ -71,15 +72,15 @@ export default function AddMajor({ queryClient }) {
       handleCloseModal()
       notifications.show({
         id: 'collage-created',
-        title: 'Success!',
-        message: 'Collage created successfully!',
+        title: 'نجحت العملية!',
+        message: 'تم إنشاء الكلية!',
         variant: 'success',
         autoClose: 5000,
       })
     } catch (error) {
       notifications.show({
         id: 'collage-creation-error',
-        title: 'Error!',
+        title: 'خطأ!',
         message: error?.response?.data?.msg || 'An error occurred while creating the collage.',
         variant: 'danger',
         autoClose: 5000,
@@ -103,9 +104,10 @@ export default function AddMajor({ queryClient }) {
               // onChange={(event) => form.setMajorValue('name', event.currentTarget.value)}
               {...form.getInputProps('name')}
             />
-        
             <Group position="right" mt="md">
-              <Button type="submit">{isCreatingCollage ? 'Creating...' : 'إنشاء'}</Button>
+              <Button loading={isPending} type="submit">
+              إنشاء
+              </Button>
             </Group>
           </form>
         </>

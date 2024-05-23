@@ -1,15 +1,13 @@
 import React, { useEffect } from 'react'
 
-import { useDispatch, useSelector } from 'react-redux'
 
-import { asyncCrudThunks } from '../../dataLogic/CollageManagementSlice'
 import { TabsLinks } from '../../stories/Tabs/Tabs'
 
 import { BsStack } from 'react-icons/bs'
 
 import { useParams } from 'react-router-dom'
 import { Tabs } from '@mantine/core'
-import { AboutMajor, SemestersTemplate } from '..'
+import { AboutMajor, SemestersTemplate } from './index'
 import { IconFileAnalytics, IconInfoOctagon } from '@tabler/icons-react'
 
 export default function MajorInfo({}) {

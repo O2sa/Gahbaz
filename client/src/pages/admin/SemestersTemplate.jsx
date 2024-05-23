@@ -179,8 +179,8 @@ export default function SemestersTemplate({ queryClient }) {
 
         <MultiSelect
           data={subjectsForSelect}
-          label="Your favorite frameworks/libraries"
-          placeholder="Pick all that you like"
+          label="المواد"
+          placeholder="اختر المواد "
           name="subjects"
           id="subjects"
           clearButtonProps={{ 'aria-label': 'Clear selection' }}
@@ -208,8 +208,8 @@ export default function SemestersTemplate({ queryClient }) {
         {console.log(editingRowData.subjects)}
         <MultiSelect
           data={subjectsForSelect}
-          label="Your favorite frameworks/libraries"
-          placeholder="Pick all that you like"
+          label="المواد"
+          placeholder="اختر المواد "
           defaultValue={row?.getAllCells()[2]?.getValue()}
           // defaultValue={getSelectedValues(subjectsForSelect, row?.getAllCells()[2]?.getValue())}
           name="subjects"
@@ -242,26 +242,9 @@ export default function SemestersTemplate({ queryClient }) {
       centered: true,
       onClose: () => setEditingRowData({}),
     },
-    renderTopToolbarCustomActions: ({ table }) => (
-      <Button
-        onClick={() => {
-          table.setCreatingRow(true) //simplest way to open the create row modal with no default values
-        }}
-      >
-        Create New User
-      </Button>
-    ),
 
-    renderRowActionMenuItems: ({ row }) => (
-      <Box>
-        <ActionIcon
-          // onClick={() => setEditingRowData({ subjects: row.getAllCells()[2].getValue() })}
-        >
-          <IconEdit />
-        </ActionIcon>
-        <ActionIcon onClick={() => console.info('Delete')}>{/* <DeleteI /> */}</ActionIcon>
-      </Box>
-    ),
+
+
     state: {
       isLoading: isLoadingTemplates,
       isSaving: isCreatingTemplate || isUpdatingTemplate,
