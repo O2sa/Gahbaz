@@ -152,23 +152,7 @@ export default function Students({ queryClient }) {
         enableEditing: false,
         header: 'التخصص',
       },
-      {
-        accessorKey: 'details',
-        header: 'الحالة',
-        Cell: ({ cell, row }) => {
-          return (
-            <Link to={row.original._id}>
-              <Button
-                variant="light"
-                leftIcon={<IconInfoCircle size={14} />}
-                rightIcon={<IconArrowBarRight size={14} />}
-              >
-                عرض التفاصيل
-              </Button>
-            </Link>
-          )
-        },
-      },
+    
     ],
     [],
   )
