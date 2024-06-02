@@ -102,17 +102,25 @@ export default function Subjects({ queryClient }) {
       {
         accessorKey: 'name',
         header: 'الأسم',
+        enableEditing: false,
+
       },
       {
         accessorKey: 'subtitle',
         header: 'العنوان الفرعي',
+        enableEditing: false,
+
       },
       {
         accessorKey: 'category',
         header: 'التصنيف',
+        enableEditing: false,
+
       },
       {
         accessorKey: 'teachers',
+        enableEditing: false,
+
         Cell: ({ cell,row }) => {
           if (!cell.getValue()) return ''
          
