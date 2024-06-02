@@ -40,6 +40,7 @@ import {
 import { IconEdit, IconTrash } from '@tabler/icons-react'
 import { useCreateElement, useDeleteElement, useGetElements, useUpdateElement } from '../crud'
 import { modals } from '@mantine/modals'
+import { isUserActive } from '../../utils/UsersUtils'
 
 export default function Teachers({ queryClient }) {
   //call CREATE hook
@@ -99,27 +100,30 @@ export default function Teachers({ queryClient }) {
         accessorKey: 'name',
         id: 'name',
         header: 'الأسم',
-        enableEditing: false ,
+        enableEditing: false,
 
         Cell: ({ cell, row }) => {
           const item = row.original
           return (
-            <Group gap="sm" noWrap>
-              <Indicator>
-                <Avatar in size={40} src={item.avatar} radius={40} />
-              </Indicator>
-              <div>
-                <Text fz="sm" fw={500}>
-                  {`${item.firstName} ${item.lastName}`}
-                </Text>
-                <Text fz="xs" c="dimmed">
-                  {item.email}
-                </Text>
-              </div>
-            </Group>
+            <Link to={'/users/' + item._id}>
+              <Group gap="sm" noWrap>
+                <Indicator disabled={!isUserActive(row.original.lastActivity)}>
+                  <Avatar  size={40} src={item.avatar} radius={40} />
+                </Indicator>
+                <div>
+                  <Text fz="sm" fw={500}>
+                    {`${item.firstName} ${item.lastName}`}
+                  </Text>
+                  <Text fz="xs" c="dimmed">
+                    {item.email}
+                  </Text>
+                </div>
+              </Group>
+            </Link>
           )
         },
       },
+
       {
         accessorKey: 'email',
         id: 'email',
