@@ -4,6 +4,7 @@ import {
   generateTemporaryPassword,
   hashPassword,
 } from "../utils/passwordUtils.js";
+import University from "../models/University.js";
 
 const getTeacher = async (req, res) => {
   const id = req.params.id;
@@ -18,11 +19,15 @@ const updateTeacher = async (req, res) => {
   const item = await Teacher.findOneAndUpdate({ _id: id }, req.body, {
     new: true,
   });
+
+
   res.status(StatusCodes.CREATED).json(item);
 };
 
 const getAllTeachers = async (req, res) => {
-  const items = await Teacher.find({ university: req.user.universityId });
+  const items = await Teacher.find({
+     university: req.user.university 
+    });
 
   res.status(StatusCodes.OK).json(items);
 };
@@ -36,18 +41,16 @@ const deleteTeacher = async (req, res) => {
 };
 
 const createTeacher = async (req, res) => {
-  req.body.university=req.user.universityId
+  const uni = await University.findOne({ admin: req.user._id });
+  req.body["university"] = uni._id;
   const user = await Teacher.create(req.body);
 
   const hashedPassword = await hashPassword(req.body.email);
 
-  await Teacher.findByIdAndUpdate(user._id, {password: hashedPassword})
-
+  await Teacher.findByIdAndUpdate(user._id, { password: hashedPassword });
 
   res.status(StatusCodes.CREATED).json(user);
 };
-
-
 
 export {
   getTeacher,

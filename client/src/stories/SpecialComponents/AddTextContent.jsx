@@ -1,5 +1,5 @@
 import { useDisclosure, usePagination } from '@mantine/hooks'
-import { Modal, Group, Button } from '@mantine/core'
+import { Modal, Group, Button, Box, RemoveScroll, ScrollArea } from '@mantine/core'
 import { Editor } from './Editor'
 import { useEditor } from '@tiptap/react'
 import Highlight from '@tiptap/extension-highlight'
@@ -28,7 +28,7 @@ export function AddTextContent({ children, sectionId, queryClient, lesson }) {
       Highlight,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
     ],
-    content,
+    content: lesson.topic.data,
   })
 
   const handleSubmit = async () => {
@@ -50,12 +50,27 @@ export function AddTextContent({ children, sectionId, queryClient, lesson }) {
 
   return (
     <>
-      <Modal opened={opened} size={'xl'} onClose={close} title="Authentication" centered>
-        <Editor editor={editor} />
+      <Modal
+        className={RemoveScroll.classNames.fullWidth}
+        style={{ maxHeight: '400px', overflow: 'auto' }}
+        opened={opened}
+        size={'xl'}
+        onClose={close}
+        title="Authentication"
+        centered
+      >
+        <Box sx={{ height: '400px' }}>
+          <Editor editor={editor} />
+        </Box>
 
-        <Group onClick={handleSubmit} position="center">
-          {children}{' '}
-        </Group>
+        <Box m={'lg'} sx={{ position: 'sticky' }} ta="left">
+          <Group sx={{ width: 'fit-content' }}>
+            <Button onClick={handleSubmit}>حفظ وإغلاق</Button>
+            <Button variant="subtle" onClick={close}>
+              إغلاق
+            </Button>
+          </Group>
+        </Box>
       </Modal>
 
       <Group onClick={open} position="center">

@@ -92,6 +92,7 @@ export default function EditCollage({ queryClient, data, component }) {
               withAsterisk
               label="الأسم"
               name="name"
+              
               placeholder="اسم الكلية"
               error={form.errors.name}
               // errorMessage={form.errors.name}

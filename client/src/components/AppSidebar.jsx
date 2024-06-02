@@ -15,26 +15,29 @@ import 'simplebar/dist/simplebar.min.css'
 // sidebar nav config
 import getNavs from '../_nav'
 import { useDashboardContext } from '../layout/DefaultLayout'
+import { Center, Image } from '@mantine/core'
 // import { updateSidebarState } from 'src/dataLogic/CollageManagementSlice.js'
-
-const AppSidebar = ({sidebarShow, stateChange}) => {
+import logo from '../assets/brand/Logo.svg'
+const AppSidebar = ({ sidebarShow, stateChange }) => {
   const { user } = useDashboardContext()
-
 
   return (
     <CSidebar
-    style={{zIndex: 100}} 
-    color='dark'
+      style={{ zIndex: 99 }}
+      color="dark"
       position="fixed"
       unfoldable={sidebarShow.sidebarUnfoldable}
       visible={sidebarShow.sidebarShow}
       onVisibleChange={(visible) => {
-        stateChange({sidebarShow: visible })
+        stateChange({ sidebarShow: visible })
       }}
     >
-      <CSidebarBrand className="d-none d-md-flex" to="/">
+      <CSidebarBrand className=" bg-white " to="/">
         {/* <CIcon className="sidebar-brand-full" icon={logoNegative} height={35} />
         <CIcon className="sidebar-brand-narrow" icon={sygnet} height={35} /> */}
+        <Center>
+          <Image src={logo} />
+        </Center>
       </CSidebarBrand>
       <CSidebarNav>
         <SimpleBar>
@@ -43,7 +46,7 @@ const AppSidebar = ({sidebarShow, stateChange}) => {
       </CSidebarNav>
       <CSidebarToggler
         className="d-none d-lg-flex"
-        onClick={() => stateChange({  sidebarUnfoldable: !sidebarShow.sidebarUnfoldable })}
+        onClick={() => stateChange({ sidebarUnfoldable: !sidebarShow.sidebarUnfoldable })}
       />
     </CSidebar>
   )

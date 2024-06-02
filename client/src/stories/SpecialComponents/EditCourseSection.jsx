@@ -24,7 +24,7 @@ import { Link, Outlet, useParams } from 'react-router-dom'
 import { asyncCrudThunks } from '../../dataLogic/CollageManagementSlice'
 import { AddLesson, AddSection, DeleteLesson, DeleteSection } from './EditCourseSections'
 import { IoMdAdd } from 'react-icons/io'
-import { Menu, Button, Text, Popover } from '@mantine/core'
+import { Menu, Button, Text, Popover, ActionIcon, Tooltip } from '@mantine/core'
 import {
   IconSettings,
   IconSearch,
@@ -35,6 +35,9 @@ import {
   IconVideo,
   IconWriting,
   IconTextCaption,
+  IconEdit,
+  IconLetterSSmall,
+  IconNotebook,
 } from '@tabler/icons-react'
 import { AddTextContent } from './AddTextContent'
 import UploadVideo from './UploadVideo'
@@ -51,49 +54,54 @@ export const EditCourseSection = ({
   const [opened, setOpened] = useState(false)
 
   return (
-    <CListGroup className="bg-primary bg-opacity-10 m-2 ">
+    <CListGroup className="bg-secondary bg-opacity-10 m-2 ">
       <CListGroupItem className="m-2 bg-transparent border-0">
         <div className="d-flex justify-content-between">
           <div className="d-flex align-items-center">
             <TbMenuOrder size={'32'} className="me-3" />
             <div>
-              <h4 className={''}>{`القسم 0${idx + 1}: ${section.name}`}</h4>
+              <Text size={'md'}>{`القسم 0${idx + 1}: ${section.name}`}</Text>
             </div>{' '}
           </div>
           <div className="d-flex align-items-center">
             <AddLesson sectionId={section._id} queryClient={queryClient}>
-              {' '}
-              <IoMdAdd size={'32'} className="me-2 text-secondary" />
+              <Tooltip label="add">
+                <ActionIcon size={'xl'}>
+                  <IoMdAdd style={{ width: '70%', height: '70%' }} />
+                </ActionIcon>
+              </Tooltip>
             </AddLesson>
             <AddSection queryClient={queryClient} edit={true} section={section}>
-              <CiEdit
-                name="editSectionTitle"
-                id="editSectionTitle"
-                key="editSectionTitle"
-                size={'32'}
-                className="me-2 text-secondary"
-              />
+              <Tooltip label="add">
+                <ActionIcon size={'xl'}>
+                  <IconEdit style={{ width: '70%', height: '70%' }} />
+                </ActionIcon>
+              </Tooltip>
             </AddSection>
             <DeleteSection queryClient={queryClient} sectionId={section._id}>
-              <AiTwotoneDelete name="deleteSection" size={'32'} className=" text-secondary" />
+              <Tooltip label="add">
+                <ActionIcon size={'xl'}  >
+                  <AiTwotoneDelete style={{ width: '70%', height: '70%' }} />
+                </ActionIcon>
+              </Tooltip>
             </DeleteSection>
           </div>
         </div>
       </CListGroupItem>
       {section?.lessons?.map((lesson, index) => (
-        <CListGroupItem component="a" key={index} className="m-2 py-3 border-1 w-auto">
+        <CListGroupItem key={index} className="m-2 mx-4 py-3 border-1 w-auto">
           <div className="d-flex justify-content-between">
             <div className="d-flex align-items-center">
-              <IoReorderFourOutline size={'32'} className="me-3 text-secondary" />
+              <IconNotebook size={'32'} className="me-3 text-secondary" />
               {/* <CAvatar size="md" className="me-3" src={avatar2} /> */}
               <div>
-                <h5 className={''}> {lesson.name}</h5>
+                <Text > {lesson.name}</Text>
                 {/* <span className={`text-secondary`}> {item.id}</span>{' '} */}
               </div>{' '}
             </div>
             <div className="d-flex align-items-center">
-              <CDropdown className='me-2'>
-                <CDropdownToggle color="secondary">المحتويات </CDropdownToggle>
+              <CDropdown className="me-2">
+                <CDropdownToggle >المحتويات </CDropdownToggle>
                 <CDropdownMenu>
                   <CDropdownItem href="#">
                     {' '}
@@ -125,20 +133,18 @@ export const EditCourseSection = ({
                 lesson={lesson}
               >
                 {' '}
-                <CiEdit
-                  name="editLessonTitle"
-                  id={'editLessonTitle'}
-                  size={'32'}
-                  className="me-2 text-secondary"
-                />{' '}
+                <Tooltip label="add">
+                  <ActionIcon size={'xl'}>
+                    <IconEdit style={{ width: '70%', height: '70%' }} />
+                  </ActionIcon>
+                </Tooltip>
               </AddLesson>
               <DeleteLesson sectionId={section._id} queryClient={queryClient} lessonId={lesson._id}>
-                <AiTwotoneDelete
-                  name="deleteLesson"
-                  id={'deleteLesson'}
-                  size={'32'}
-                  className=" text-secondary"
-                />{' '}
+                <Tooltip label="add">
+                  <ActionIcon size={'xl'}>
+                    <AiTwotoneDelete style={{ width: '70%', height: '70%' }} />
+                  </ActionIcon>
+                </Tooltip>
               </DeleteLesson>
             </div>
           </div>

@@ -8,12 +8,13 @@ import AddCollage from './AddCollage'
 import { TabsBody } from '../../stories/Tabs/TabsBody'
 import { redirect, useLoaderData } from 'react-router-dom'
 import customFetch from '../../utils/customFetch'
-import { Button, Group, TextInput } from '@mantine/core'
+import { Button, Group, Skeleton, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useQuery } from '@tanstack/react-query'
 import { useGetElements } from '../crud'
 import EditCollage from './EditCollage'
 import { CSpinner } from '@coreui/react'
+import { CardLoader, NoData } from '../LoadingComponents'
 
 const collagesQuery = () => ({
   queryKey: ['collages'],
@@ -42,8 +43,25 @@ export default function Collages({ queryClient }) {
   console.log('isLoading', isLoadingTeachers)
   console.log('isFetching', isFetchingTeachers)
 
+
+  
+  const loadingComponent = (
+    <Group>
+      <Skeleton height={50} mb="xl" />
+    </Group>
+  )
   if (isFetchingTeachers || isLoadingTeachers) {
-    return <CSpinner color="primary" />
+    return (
+      <div className="bg-white h-100" style={{ minHeight: '50vh' }}>
+        <div
+          className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
+        >
+          <h5>{' الكليات'} </h5>
+          <AddCollage queryClient={queryClient} />
+        </div>
+        <CardLoader />
+      </div>
+    )
   }
 
   if (collages.length == 0) {
@@ -57,7 +75,7 @@ export default function Collages({ queryClient }) {
 
           {/* Render the popover/modal */}
         </div>
-        <div className="m-4 mt-5">no collages</div>
+        <NoData />
       </div>
     )
   }

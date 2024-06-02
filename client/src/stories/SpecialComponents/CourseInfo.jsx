@@ -30,6 +30,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { asyncCrudThunks } from '../../dataLogic/CollageManagementSlice'
 import { CourseContent } from '../Course/CourseContent'
+import { Avatar, Center, Group, Image, Stack, Text, rem } from '@mantine/core'
+import { CiImageOn } from 'react-icons/ci'
 export default function CourseInfo({ course, ...props }) {
   return (
     course && (
@@ -39,30 +41,34 @@ export default function CourseInfo({ course, ...props }) {
             <h3 className="mb-3">{course.name}</h3>
             <p>{course.subtitle}</p>
           </div>
-          <div className="d-flex align-items-center mb-1">
-            <div className="position-relative">
-              <CAvatar size="sm" className="" src={avatar2} />
-              <CAvatar
-                size="sm"
-                className="position-absolute top-0"
-                style={{ right: '15px' }}
-                src={avatar2}
-              />
-            </div>
-            <div style={{ fontSize: '12px' }} className="fw-light  ms-4 ">
-              <span className="text-secondary">المحاضر</span>
-              <p>
+          <Group mb={'md'}>
+            <Avatar.Group>
+              {course.teachers.map((val) => (
+                <Avatar radius="xl" src={val.avatar} />
+              ))}
+            </Avatar.Group>
+
+            <Stack sx={{ gap: '0' }}>
+              <Text color="dimmed">االمعلم: </Text>
+              <Text>
                 {course.teacher ??
                   course?.teachers?.map(
                     (teacher, idx) =>
-                      `${teacher.name} ${idx + 1 !== course.teachers.length ? ' * ' : ''}`,
+                      `${teacher.firstName} ${teacher.lastName} ${
+                        idx + 1 !== course.teachers.length ? ' * ' : ''
+                      }`,
                   )}
-              </p>
-            </div>
-          </div>
-          <div>
-            <CCardImage orientation="top" src={docsImg} />
-          </div>
+              </Text>
+            </Stack>
+          </Group>
+          <Center>
+            {course.cover && course.cover.length > 0 ? (
+              <Image src={course.cover} />
+            ) : (
+              <CiImageOn className="w-50 h-100 text-secondary" />
+              // <CiImageOn width={'100%'} height={'100%'} />
+            )}
+          </Center>
         </CRow>
         <CRow>
           {/* <div>
@@ -103,9 +109,9 @@ export default function CourseInfo({ course, ...props }) {
             </p>
           </div>
 
-          <div className="my-4 col d-sm-none d-xl-block ">
-          <CourseContent sections={course.sections}/>
-        </div>
+          <div className="my-4  ">
+            <CourseContent to={'lessons/'} sections={course.sections} />
+          </div>
         </CRow>
       </CRow>
     )

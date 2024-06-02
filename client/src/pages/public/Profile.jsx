@@ -6,6 +6,7 @@ import {
   Flex,
   Grid,
   Group,
+  PasswordInput,
   Text,
   TextInput,
 } from '@mantine/core'
@@ -19,6 +20,8 @@ import UploadProfile from './UploadProfile'
 import { useDashboardContext } from '../../layout/DefaultLayout'
 import customFetch from '../../utils/customFetch'
 import { notifications } from '@mantine/notifications'
+import { ChatContactsLoader } from '../LoadingComponents'
+
 export default function Profile({ queryClient }) {
   const { user } = useDashboardContext()
   const form = useForm({
@@ -46,11 +49,12 @@ export default function Profile({ queryClient }) {
     },
   })
 
+  console.log(form.values)
   const handleSubmit = async (values) => {
     console.log('values')
     console.log(values)
     try {
-      await customFetch.post(`users/${user._id}`, values)
+      await customFetch.patch(`users/${user._id}`, form.values)
 
       notifications.show({
         id: 'collage-created',
@@ -93,6 +97,12 @@ export default function Profile({ queryClient }) {
     }
   }
 
+  const getRole = () => {
+    if (user.__t === 'Student') return `طالب ${user.major.name}, الفصل ${user.comingSemester}`
+    if (user.__t === 'Teatcher') return `معلم`
+    if (user.__t === 'Admin') return `مدير`
+  }
+
   return (
     <Container fluid>
       <Container
@@ -104,13 +114,13 @@ export default function Profile({ queryClient }) {
         fluid
         mb={34}
       >
-        <Flex gap={'md'} justify={'space-between'} h={'100%'}  align={'center'}>
+        <Flex gap={'md'} justify={'space-between'} h={'100%'} align={'center'}>
           <Group noWrap sx={{}}>
             <Avatar size={'xl'} variant="outline" sx={{ borderRadius: '50%' }} src={user.avatar} />
             <div>
-              <Text>{'أحمد قاسم'}</Text>
+              <Text>{`${user.firstName} ${user.lastName}`}</Text>
               <Text size="xs" color="dimmed">
-                {'ظالب علوم حاسب، الفصل الرابع'}
+                {getRole()}
               </Text>
             </div>
           </Group>
@@ -140,16 +150,15 @@ export default function Profile({ queryClient }) {
         mb={34}
       >
         <Text>{'المعلومات الشخصية'}</Text>
-
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Group mt={5} noWrap sx={{}}>
-            <Grid justify="space-between"   w={'100%'}>
-              <Grid.Col w span={9}>
+            <Grid gutterXs={'lg'} align="space-between" justify="space-between" w={'100%'}>
+              <Grid.Col xs={12} md={9}>
                 <Group noWrap>
                   <TextInput
-                    mt={'-1'}
+                    my={4}
+                    size="md"
                     w={'50%'}
-                    error={form.errors.name}
                     placeholder="الاسم الاول"
                     label="الاسم"
                     {...form.getInputProps('firstName')}
@@ -157,8 +166,9 @@ export default function Profile({ queryClient }) {
                   />
                   <TextInput
                     w={'50%'}
-                    error={form.errors.name}
+                    my={12}
                     placeholder="الاسم الاخير"
+                    size="md"
                     label=" "
                     {...form.getInputProps('lastName')}
                     withAsterisk
@@ -166,27 +176,37 @@ export default function Profile({ queryClient }) {
                 </Group>
                 <TextInput
                   w={'100%'}
+                  size="md"
                   placeholder="lenumberOfSemestersvels"
                   label="الايميل"
                   {...form.getInputProps('email')}
                   withAsterisk
-                  m={4}
+                  my={12}
                 />
                 <TextInput
                   w={'100%'}
+                  size="md"
                   error={form.errors.name}
                   placeholder="lenumberOfSemestersvels"
                   label="رقم الهاتف"
                   {...form.getInputProps('phone')}
                   withAsterisk
+                  my={12}
                 />
               </Grid.Col>
-              <Grid.Col p={16} sx={{ alignContent: 'center' }} bg={'gray'} span={2}>
+              <Grid.Col
+                p={16}
+                sx={{ alignContent: 'center', textAlign: 'center' }}
+                bg={'gray'}
+                // className='bg-secondary'
+                xs={11}
+                md={2}
+              >
                 <Center h={'70%'}>
                   <Avatar h={'100%'} w={'100%'} size={'xl'} variant="outline" src={user.avatar} />
                 </Center>
                 <Center mt={4}>
-                  <UploadProfile queryClient={queryClient} user={user.avatar}>
+                  <UploadProfile queryClient={queryClient} user={user}>
                     <Button size="xs" color="dark" rightIcon={<IconUpload />} variant="subtle">
                       رفع صورة
                     </Button>
@@ -196,35 +216,42 @@ export default function Profile({ queryClient }) {
             </Grid>
           </Group>
 
-          <Button type="submit" mt={34} size="lg">
-            حفظ{' '}
-          </Button>
+          <Flex m={12} justify={'flex-end'}>
+            <Button onClick={handleSubmit} type="submit" mt={34} size="lg">
+              حفظ{' '}
+            </Button>
+          </Flex>
         </form>
       </Container>
       <Group bg="white" py={34} px={16} w={400}>
         <form onSubmit={passform.onSubmit(passhandleSubmit)}>
           <Text>{' تغيير كلمة السر'}</Text>
           <Group mt={2} sx={{}}>
-            <TextInput
+            <PasswordInput
+              size="md"
               w={'100%'}
               placeholder="كلمة السر القديمة"
               label="كلمة السر القديمة"
-              {...form.getInputProps('oldPassword')}
+              name="oldPassword"
+              {...passform.getInputProps('oldPassword')}
               withAsterisk
             />
-            <TextInput
+            <PasswordInput
               w={'100%'}
               placeholder=""
+              size="md"
               label="كلمة السر الجديدة"
-              {...form.getInputProps('password')}
+              name="password"
+              {...passform.getInputProps('password')}
               withAsterisk
-            />{' '}
-            <TextInput
+            />
+            <PasswordInput
               w={'100%'}
+              size="md"
               placeholder="كرر كلمة السر"
               label="كلمة السر الجديدة"
-              {...form.getInputProps('confirmPassword')}
-              withAsterisk
+              name="confirmPassword"
+              {...passform.getInputProps('confirmPassword')}
             />
             <Button type="submit" fullWidth mt="xl" size="md">
               حفظ

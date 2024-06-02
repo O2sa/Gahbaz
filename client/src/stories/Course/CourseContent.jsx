@@ -26,11 +26,15 @@ import { PiPlayPauseFill } from 'react-icons/pi'
 import { IoMdTime } from 'react-icons/io'
 import { FaCheckSquare } from 'react-icons/fa'
 import { MdBook, MdCheckCircleOutline } from 'react-icons/md'
-import { Tabs } from '@mantine/core'
-import { Link, NavLink, useParams } from 'react-router-dom'
+import { Group, NavLink, Tabs, Text } from '@mantine/core'
+import { Link, useParams } from 'react-router-dom'
+import { IconNotes } from '@tabler/icons-react'
 
-export const CourseContent = ({ sections, setNextLesson, ...props }) => {
+export const CourseContent = ({ sections, setNextLesson, close, to, ...props }) => {
   const { lessonId } = useParams()
+
+  console.log('lessonId', lessonId)
+
   const calCompeleted = (lessons) => {
     let time = 0
 
@@ -41,6 +45,8 @@ export const CourseContent = ({ sections, setNextLesson, ...props }) => {
 
       if (lessonId == item._id) {
         const les = lessons[idx + 1]
+        console.log('les', les)
+
         setNextLesson(les ? les._id : null)
       }
     })
@@ -59,58 +65,49 @@ export const CourseContent = ({ sections, setNextLesson, ...props }) => {
       <CRow>
         {sections.map((section, idx) => (
           // <CourseSection key={idx} section={section} />
-          <CAccordion className="p-0" activeItemKey={idx}>
+          <CAccordion className="p-0" key={idx}>
             <CAccordionItem itemKey={1}>
               <CAccordionHeader>
                 <div
                   className={`d-flex align-items-center flex-wrap justify-content-between w-100`}
                 >
-                  <div className="mb-2">{section.name}</div>
+                  <Text>{`القسم ${idx + 1}: ${section.name}`}</Text>
                   <div>
                     <BiSolidVideos size={'20'} className={` me-2 text-primary`} />
-                    <span className={`me-3`}>{`${section.lessons.length} محاضرات`}</span>
+                    <span className={`me-3`}>{`${section.lessons.length} دروس`}</span>
                     <IoMdTime size={'20'} className={` me-2 text-warning`} />
                     <span className={`me-3`}>{calCompeleted(section.lessons)}</span>
-                    <IoCheckmarkDoneSharp size={'20'} className={` me-2 text-success`} />
-                    {/* <span className={``}>
-                      {`%${section.completed} إكتمل `}
-                      <span className="text-secondary">{calCompeleted(section.lessons)}</span>
-                    </span> */}
                   </div>
                 </div>{' '}
               </CAccordionHeader>
-              <CAccordionBody>
+              <CAccordionBody className="p-0">
                 {section.lessons.map((item, idx) => (
-                  // <Tabs.Tab value={idx}>Second tab</Tabs.Tab>
+                  <Link
+                    className="p-0"
+                    onClick={() => (close ? close() : console.log('close'))}
+                    to={`${to}${section._id}/${item._id}`}
+                  >
+                    <NavLink
+                      p={'md'}
+                      // component={Link}
+                      // href={`/lessons/${section.course}/${section._id}/${item._id}`}
+                      key={item._id}
+                      active={item._id == lessonId}
+                      label={item.name}
+                      // description={item.description}
+                      icon={<IconNotes />}
+                      rightSection={
+                        <Group>
+                          <IoMdTime size={'20'} className={` me-2 text-warning`} />
 
-                  <Link to={`/lessons/${section.course}/${section._id}/${item._id}`}>
-                    <div
-                      key={idx}
-                      className={`d-flex align-items-center justify-content-between p-2 ${
-                        item._id == lessonId ? 'bg-primary bg-opacity-25' : ''
-                      }`}
-                    >
-                      <div>
-                        <MdCheckCircleOutline
-                          size={'16'}
-                          className={`${
-                            item._id == lessonId ? 'text-primary' : 'text-secondary'
-                          } text-primary me-2`}
-                        />
-                        <span className={`${item._id == lessonId ? '' : 'text-secondary'} `}>
-                          {item.name}{' '}
-                        </span>
-                      </div>
-                      <div>
-                        {/* <IoIosPause
-                          size={'16'}
-                          className={`${item._id == lessonId ? '' : 'text-secondary'} me-2`}
-                        /> */}
-                        <span className={`${item._id == lessonId ? '' : 'text-secondary'} `}>
-                          {item.time}
-                        </span>
-                      </div>
-                    </div>
+                          <Text>
+                            {Math.floor(item?.video?.duration) + item?.topic?.readingTime}د
+                          </Text>
+                        </Group>
+                      }
+                      // onClick={() => setActive(index)}
+                      variant="light"
+                    />
                   </Link>
                 ))}
               </CAccordionBody>

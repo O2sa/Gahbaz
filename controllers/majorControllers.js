@@ -18,9 +18,8 @@ const getCollageMajors = async (req, res) => {
   res.status(StatusCodes.OK).json(majors);
 };
 const getAllMajors = async (req, res) => {
-  const majors = await Major.find();
+  const majors = await Major.find({ university: req.user.university });
   // console.log(req.params.collageId);
-
   res.status(StatusCodes.OK).json(majors);
 };
 

@@ -30,6 +30,7 @@ import { BsUpload } from 'react-icons/bs'
 import { useOutletContext, useParams } from 'react-router-dom'
 import { useGetElements } from '../crud'
 import { useQuery } from '@tanstack/react-query'
+import { Avatar, Group, Stack, Text } from '@mantine/core'
 
 export default function CourseLesson({ ...props }) {
   const { sectionId, lessonId } = useParams()
@@ -54,28 +55,14 @@ export default function CourseLesson({ ...props }) {
       <CRow>
         <CRow>
           <div>
-            {lesson?.video.url || lesson?.video.url.length > 0 ? (
-              <video width={'100%'} orientation="top" src={lesson?.video.url} controls />
+            {lesson?.video?.url || lesson?.video.url.length > 0 ? (
+              <video width={'100%'} orientation="top" src={lesson?.video?.url} controls />
             ) : null}
           </div>
           <div>
             <h3 className="my-3">{lesson?.name || ''} </h3>
           </div>
-          <div className="d-flex align-items-center mb-1">
-            <div className="position-relative">
-              <CAvatar size="sm" className="" src={avatar2} />
-              <CAvatar
-                size="sm"
-                className="position-absolute top-0"
-                style={{ right: '15px' }}
-                src={avatar2}
-              />
-            </div>
-            <div style={{ fontSize: '12px' }} className="fw-light  ms-4 ">
-              <span className="text-secondary">المحاضر</span>
-              <p>أحمد قاسم * علي صالح</p>
-            </div>
-          </div>
+
         </CRow>
         <CRow>
           {/* <div>
@@ -89,31 +76,11 @@ export default function CourseLesson({ ...props }) {
         </CRow>
         <CRow>
           <div className="my-4">
-            <h5>عن المحاضرة</h5>
+            {/* <h5>عن المحاضرة</h5> */}
             <p dangerouslySetInnerHTML={{ __html: lesson?.topic.data || '' }}></p>
           </div>
 
-          {/* <div className="my-4 ">
-            <div className="d-flex justify-content-between mb-2">
-              <h5 className="mb-2"> متطلبات الدورة</h5>
-              <CButton className="text-primary border-0 bg-primary bg-opacity-10">
-                <BsUpload className="me-2" />
-                تحميل
-              </CButton>
-            </div>{' '}
-            <p>
-              معظمنا هو ليس أن يكون هدفنا عال جداً, و أن نخفق في تحقيقه, بل أن يكون سهلاً جداً و
-              نحققه. معظمنا هو ليس أن يكون هدفنا عال جداً, و أن نخفق في تحقيقه, بل أن يكون سهلاً
-              جداً و نحققه. معظمنا هو ليس أن يكون هدفنا عال جداً, و أن نخفق في تحقيقه, بل أن يكون
-              سهلاً جداً و نحققه. معظمنا هو ليس أن يكون هدفنا عال جداً, و أن نخفق في تحقيقه, بل أن
-              يكون سهلاً جداً و نحققه.معظمنا هو ليس أن يكون هدفنا عال جداً, و أن نخفق في تحقيقه, بل
-              أن يكون سهلاً جداً و نحققه. معظمنا هو ليس أن يكون هدفنا عال جداً, و أن نخفق في تحقيقه,
-              بل أن يكون سهلاً جداً و نحققه. معظمنا هو ليس أن يكون هدفنا عال جداً, و أن نخفق في
-              تحقيقه, بل أن يكون سهلاً جداً و نحققه. معظمنا هو ليس أن يكون هدفنا عال جداً, و أن نخفق
-              في تحقيقه, بل أن يكون سهلاً جداً و نحققه.
-            </p>
-          </div> */}
-          {/* <div className="p-4 d-flex bg-primary bg-opacity-10  justify-content-between align-items-center my-4">
+          <div className="p-4 d-flex bg-primary bg-opacity-10  justify-content-between align-items-center my-4">
             <div className="d-flex align-items-center">
               <FaFileAlt size={'48'} className="me-3" />
               <div>
@@ -125,7 +92,7 @@ export default function CourseLesson({ ...props }) {
               <IoMdAdd />
               إضافة عنصر
             </CButton>
-          </div> */}
+          </div>
         </CRow>
       </CRow>
     </>

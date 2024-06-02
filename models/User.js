@@ -25,7 +25,7 @@ const UserSchema = new mongoose.Schema(
         message: "Please provide valid email",
       },
     },
-  password: String,
+    password: String,
 
     phone: {
       type: Number,
@@ -37,9 +37,14 @@ const UserSchema = new mongoose.Schema(
       ref: "University",
       required: [true, "لا بد من تحديد عدد الحصص اليومية"],
     },
+    isAdmin: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    lastActivity: Date,
   },
   { timestamps: true }
 );
-
 
 export default mongoose.model("User", UserSchema);

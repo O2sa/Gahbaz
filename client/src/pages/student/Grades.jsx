@@ -5,12 +5,13 @@ import {
   // createRow,
   useMantineReactTable,
 } from 'mantine-react-table'
-import { ActionIcon, Button, Flex, Text, Tooltip, Box } from '@mantine/core'
+import { ActionIcon, Button, Flex, Text, Tooltip, Box, Center, Title, Divider } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
 import { useGetElements, useUpdateElement } from '../crud'
 import { useLoaderData, useParams } from 'react-router-dom'
 import customFetch from '../../utils/customFetch'
 import { useDashboardContext } from '../../layout/DefaultLayout'
+import { NoData, SemestersLoader } from '../LoadingComponents'
 
 export default function Grades({ queryClient }) {
   //nested data is ok, see accessorKeys in ColumnDef below
@@ -22,25 +23,25 @@ export default function Grades({ queryClient }) {
     isLoading: isLoading,
   } = useQuery(useGetElements(['grades', 'student-grades', user._id]))
 
-
-
   if (isFetching || isLoading) {
-    return (
-      <div className="list-items" data-testid="loading" key={'loading'}>
-        Loading
-      </div>
-    )
+    return <SemestersLoader />
   }
 
   if (grades.length == 0) {
-    return (
-      <div className="list-items" data-testid="loading" key={'loading'}>
-        
-      </div>
-    )
+    return <NoData />
   }
 
-  return <GradesTable grades={grades} />
+  return grades.map((gr, idx) => (
+    <Box mb={'xl'} key={idx}>
+      <Title order={3} m={'lg'}>
+        {`${gr.semester.name} - ${new Date(
+          gr.semester.startDate,
+        ).toLocaleDateString()} => ${new Date(gr.semester.endDate).toLocaleDateString()}`}{' '}
+      </Title>
+      <GradesTable grades={gr.grades} />
+      <Divider />
+    </Box>
+  ))
 }
 
 const GradesTable = ({ grades }) => {
@@ -69,7 +70,7 @@ const GradesTable = ({ grades }) => {
           ...Object.keys(grades[0].grade).map((gr, idx) => ({
             // accessorKey: `grade.${gr}.value`,
             accessorFn: (row) => {
-              console.log('row', row)
+              // console.log('row', row)
               return row.grade[gr].value
             },
             id: gr,
@@ -90,11 +91,7 @@ const GradesTable = ({ grades }) => {
 
   return (
     // <MantineProvider dir="rtl">
-    <MantineReactTable
-      columns={columns}
-      data={grades}
-      getRowId={(row) => row.id}
-    />
+    <MantineReactTable columns={columns} data={grades} getRowId={(row) => row.id} />
     // {/* </MantineProvider> */}
   )
 }
