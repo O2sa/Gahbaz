@@ -35,6 +35,8 @@ export const login = async (req, res) => {
   console.log("user", user);
   console.log("body", req.body);
 
+
+
   const isValidUser =
     user && (await comparePassword(req.body.password, user.password));
 
@@ -42,7 +44,7 @@ export const login = async (req, res) => {
 
   let jwt = {};
   if (user.role == "admin" || user.role == "super-admin") {
-    const university = await University.findOne({ admin: user._id });
+    const university = await University.findById(user.university);
     jwt = { universityId: university._id, role: user.role };
     console.log(jwt);
   }

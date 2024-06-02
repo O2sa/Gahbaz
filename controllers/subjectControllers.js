@@ -5,7 +5,7 @@ import Major from "../models/Major.js";
 
 const getCollageSubjects = async (req, res) => {
   const id = req.params.id;
-  const subjects = await Subject.find({ collage: id }).populate('teacher')
+  const subjects = await Subject.find({ collage: id }).populate('teachers')
   res.status(StatusCodes.OK).json(subjects);
 };
 
