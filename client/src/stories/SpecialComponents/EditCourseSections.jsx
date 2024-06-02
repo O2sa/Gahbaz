@@ -20,7 +20,17 @@ import {
   CFormTextarea,
 } from '@coreui/react'
 import { useForm } from '@mantine/form'
-import { TextInput, Button, Group, Box, Modal, NumberInput, Center } from '@mantine/core'
+import {
+  TextInput,
+  Button,
+  Group,
+  Box,
+  Modal,
+  NumberInput,
+  Center,
+  Text,
+  Title,
+} from '@mantine/core'
 
 import { notifications } from '@mantine/notifications'
 import { useDisclosure } from '@mantine/hooks'
@@ -61,21 +71,22 @@ export const EditCourseSections = ({ queryClient, ...props }) => {
     )
   }
 
-
-
   return (
-    <div className='m-4'>
-      {sections.length>0 ? (
+    <div className="m-4">
+      <Title mb={'md'} order={3}>دروس الدورة</Title>
+
+
+      {sections.length > 0 ? (
         <div>
           {sections.map((item, idx) => (
             <EditCourseSection idx={idx} key={idx} queryClient={queryClient} section={item} />
           ))}
         </div>
-      ): 
-      
-      <Center m={8}>لا يوجد أقسام بعد</Center>}
+      ) : (
+        <Center m={8}>لا يوجد أقسام بعد</Center>
+      )}
       <div className="mx-2">
-        <AddSection  queryClient={queryClient}>
+        <AddSection queryClient={queryClient}>
           {' '}
           <Button variant="light" sx={{ width: '100%' }} size="lg">
             إضافة قسم

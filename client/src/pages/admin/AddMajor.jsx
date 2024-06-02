@@ -105,7 +105,7 @@ export default function AddMajor({ queryClient }) {
               {...form.getInputProps('name')}
             />
             <Group position="right" mt="md">
-              <Button loading={isPending} type="submit">
+              <Button loading={isCreatingCollage} type="submit">
               إنشاء
               </Button>
             </Group>

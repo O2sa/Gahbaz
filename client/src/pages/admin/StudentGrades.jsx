@@ -5,7 +5,7 @@ import {
   // createRow,
   useMantineReactTable,
 } from 'mantine-react-table'
-import { ActionIcon, Button, Flex, Text, Tooltip, Box } from '@mantine/core'
+import { ActionIcon, Button, Flex, Text, Tooltip, Box, Group, Indicator, Avatar } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
 import { useGetElements, useUpdateElement } from '../crud'
 import { useLoaderData, useParams } from 'react-router-dom'
@@ -66,10 +66,24 @@ const GradesTable = ({ grades }) => {
         header: 'الطالب',
         columns: [
           {
-            id: 'student',
             accessorKey: 'student',
             Cell: ({ cell, row }) => {
-              return `${row.original.student.firstName} ${row.original.student.lastName}`
+              const item = row.original
+              return (
+                <Group gap="sm" noWrap>
+                  <Indicator>
+                    <Avatar in size={40} src={item.avatar} radius={40} />
+                  </Indicator>
+                  <div>
+                    <Text fz="sm" fw={500}>
+                      {`${item.firstName} ${item.lastName}`}
+                    </Text>
+                    <Text fz="xs" c="dimmed">
+                      {item.email}
+                    </Text>
+                  </div>
+                </Group>
+              )
             },
             header: 'الطالب',
             enableEditing: false,

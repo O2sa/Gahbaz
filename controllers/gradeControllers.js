@@ -48,22 +48,31 @@ const updateGrade = async (req, res) => {
 const getAllGrades = async (req, res) => {
   const courseId = req.params.courseId;
 
-  let grades = await Grade.find({ course: courseId }).populate('student')
+  let grades = await Grade.find({ course: courseId }).populate("student");
 
   for (const grade in grades)
     grades[grade].student = await Student.findById(grades[grade].student);
   res.status(StatusCodes.OK).json(grades);
 };
 
-
 const getStudentGrades = async (req, res) => {
   const studentId = req.params.studentId;
+  const student = await Student.findById(studentId).populate("semesters");
+  let semestersGrades = [];
+  for (const semester of student.semesters) {
+    const temp = { semester: semester };
+    const grades = await Grade.find({
+      course: {
+        $in: semester.courses,
+      },
+      student: studentId,
+    }).populate("course");
 
-  let grades = await Grade.find({ student: studentId }).populate('course')
+    temp.grades = grades;
+    semestersGrades.push(temp);
+  }
 
-  for (const grade in grades)
-    grades[grade].student = await Student.findById(grades[grade].student);
-  res.status(StatusCodes.OK).json(grades);
+  res.status(StatusCodes.OK).json(semestersGrades);
 };
 
 const deleteGrade = async (req, res) => {
@@ -74,4 +83,11 @@ const deleteGrade = async (req, res) => {
   res.status(StatusCodes.OK).json();
 };
 
-export { getGrade, createGrade, updateGrade, deleteGrade, getAllGrades, getStudentGrades };
+export {
+  getGrade,
+  createGrade,
+  updateGrade,
+  deleteGrade,
+  getAllGrades,
+  getStudentGrades,
+};

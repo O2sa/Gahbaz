@@ -1,10 +1,8 @@
 import { RichTextEditor, Link } from '@mantine/tiptap'
 
-export function Editor({editor}) {
-
-
+export function Editor({ editor }) {
   return (
-    <RichTextEditor editor={editor}>
+    <RichTextEditor sx={{ height: '100%' }} editor={editor}>
       <RichTextEditor.Toolbar sticky stickyOffset={60}>
         <RichTextEditor.ControlsGroup>
           <RichTextEditor.Bold />

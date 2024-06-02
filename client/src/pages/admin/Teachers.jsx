@@ -24,6 +24,9 @@ import {
   Stack,
   TextInput,
   MultiSelect,
+  Group,
+  Indicator,
+  Avatar,
 } from '@mantine/core'
 import { IconUserCircle, IconSend } from '@tabler/icons-react'
 import {
@@ -96,20 +99,40 @@ export default function Teachers({ queryClient }) {
         accessorKey: 'name',
         id: 'name',
         header: 'الأسم',
+        enableEditing: false ,
 
         Cell: ({ cell, row }) => {
-          return `${row.original.firstName} ${row.original.lastName}`
+          const item = row.original
+          return (
+            <Group gap="sm" noWrap>
+              <Indicator>
+                <Avatar in size={40} src={item.avatar} radius={40} />
+              </Indicator>
+              <div>
+                <Text fz="sm" fw={500}>
+                  {`${item.firstName} ${item.lastName}`}
+                </Text>
+                <Text fz="xs" c="dimmed">
+                  {item.email}
+                </Text>
+              </div>
+            </Group>
+          )
         },
       },
       {
         accessorKey: 'email',
         id: 'email',
         header: 'الإيميل',
+        enableEditing: false ,
+
       },
 
       {
         accessorKey: 'phone',
         id: 'phone',
+        enableEditing: false ,
+
         header: 'رقم الهاتف',
       },
     ],

@@ -6,11 +6,11 @@ import {
 } from "../utils/passwordUtils.js";
 
 export const getAllAdmins = async (req, res) => {
-  const admin = await Admin.find(req.params.id);
+  const admin = await Admin.find({university: req.user.university});
   res.status(StatusCodes.OK).json(admin);
 };
 export const createAdmin = async (req, res) => {
-  req.body.university=req.user.universityId
+  req.body.university=req.user.university
   const user = await Admin.create(req.body);
 
   const hashedPassword = await hashPassword(req.body.email);

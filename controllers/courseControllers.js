@@ -50,8 +50,8 @@ const deleteCourse = async (req, res) => {
   res.status(StatusCodes.OK).json();
 };
 const getTeacherCourses = async (req, res) => {
-  // const teacherId = req.params.teacherId;
-  const courses = await Course.find({  });
+  const teacherId = req.params.teacherId;
+  const courses = await Course.find({ teachers: teacherId });
   res.status(StatusCodes.CREATED).json(courses);
 };
 
@@ -73,5 +73,5 @@ export {
   getSemesterCourses,
   deleteCourse,
   getAllCourses,
-  getTeacherCourses
+  getTeacherCourses,
 };

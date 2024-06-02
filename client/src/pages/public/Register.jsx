@@ -10,11 +10,15 @@ import {
   Group,
   Button,
   NumberInput,
+  Image,
+  Center,
 } from '@mantine/core'
 import customFetch from '../../utils/customFetch'
 import { useForm } from '@mantine/form'
 import { useNavigate } from 'react-router-dom'
 import { notifications } from '@mantine/notifications'
+import { Link } from 'react-router-dom'
+import logo from '../../assets/brand/Logo.svg'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -25,17 +29,14 @@ export default function Register() {
       // lastName: '',
       email: '',
       password: '',
-
     },
-
-  
   })
 
   const handleSubmit = async (values) => {
     console.log('values')
     console.log(values)
     try {
-      await customFetch.post('/auth/register', values);
+      await customFetch.post('/auth/register', values)
       navigate('/login')
 
       notifications.show({
@@ -55,62 +56,66 @@ export default function Register() {
       })
     }
   }
+
   return (
     <Container size={420} my={40}>
-      <Title ta="center">Welcome back!</Title>
+      <Center mb={'xl'}>
+        <Image width={'75%'} src={logo} />
+      </Center>
+      <Title ta="center">مرحبا بك في منصة جهبذ !</Title>
       <Text c="dimmed" size="sm" ta="center" mt={5}>
-        Do not have an account yet?{' '}
-        <Anchor size="sm" component="button">
+        قم بإنشاء حسابك!{' '}
+        {/* <Anchor size="sm" component="button">
           Create account
-        </Anchor>
+        </Anchor> */}
       </Text>
 
       <Paper withBorder shadow="md" p={30} mt={30} radius="md">
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <TextInput
-            label="Email address"
-            placeholder="hello@gmail.com"
+            label="الاسم الاول"
+            placeholder=""
             size="md"
             {...form.getInputProps('firstName')}
           />
           <TextInput
-            label="Email address"
-            placeholder="hello@gmail.com"
+            label="الاسم الاخير"
+            placeholder=""
             size="md"
             mt="md"
             {...form.getInputProps('lastName')}
           />
           <NumberInput
-            label="Email address"
-            placeholder="hello@gmail.com"
+            label="رقم الهاتف "
+            placeholder=""
             size="md"
             mt="md"
             {...form.getInputProps('phone')}
           />
           <TextInput
-            label="Email address"
-            placeholder="hello@gmail.com"
+            label="الايميل"
+            placeholder=""
             size="md"
             mt="md"
             {...form.getInputProps('email')}
           />
           <PasswordInput
-            label="Password"
-            placeholder="Your password"
+            label="كلمة السر"
+            placeholder=""
             mt="md"
             size="md"
             {...form.getInputProps('password')}
           />{' '}
           {/* <Checkbox label="Keep me logged in" mt="xl" size="md" /> */}
-          <Button type='submit' fullWidth mt="xl" size="md">
-            Login
+          <Button type="submit" fullWidth mt="xl" size="md">
+            إنشاء
           </Button>
         </form>
         <Text ta="center" mt="md">
-          Don&apos;t have an account?{' '}
-          <Anchor href="#" fw={700} onClick={(event) => event.preventDefault()}>
-            Register
-          </Anchor>
+          ألديك حساب بالفعل؟{' '}
+          <Link to="/login" fw={700}>
+            تسجيل الدخول
+          </Link>
         </Text>
       </Paper>
     </Container>

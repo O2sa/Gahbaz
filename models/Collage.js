@@ -20,7 +20,7 @@ const CollageSchema = new mongoose.Schema({
   university: {
     type: mongoose.Types.ObjectId,
     ref: "University",
-    required: [true, "لا بد من تحديد عدد الحصص اليومية"],
+    required: [true,"collage"],
   },
 });
 
