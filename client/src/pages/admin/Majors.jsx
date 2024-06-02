@@ -15,6 +15,7 @@ import { useGetElements } from '../crud'
 import AddMajor from './AddMajor'
 import EditMajor from './EditMajor'
 import { CSpinner } from '@coreui/react'
+import { CardLoader, NoData } from '../LoadingComponents'
 
 export default function Majors({ queryClient }) {
   const { id: collageId } = useParams()
@@ -25,10 +26,30 @@ export default function Majors({ queryClient }) {
     isLoading: isLoadingTeachers,
   } = useQuery(useGetElements(['majors', collageId]))
 
-  if (isFetchingTeachers) {
+  if (isFetchingTeachers || isLoadingTeachers) {
     return (
-      <CSpinner color="primary" />
-
+      <div className="bg-white h-100" style={{ minHeight: '50vh' }}>
+        <div
+          className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
+        >
+          <h5>{' الكليات'} </h5>
+          <AddCollage queryClient={queryClient} />
+        </div>
+        <CardLoader />
+      </div>
+    )
+  }
+  if (collages.length==0) {
+    return (
+      <div className="bg-white h-100" style={{ minHeight: '50vh' }}>
+        <div
+          className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
+        >
+          <h5>{' الكليات'} </h5>
+          <AddMajor queryClient={queryClient} />
+        </div>
+        <NoData />
+      </div>
     )
   }
 
@@ -47,7 +68,7 @@ export default function Majors({ queryClient }) {
           items={collages}
           collection={['majors', collageId]}
           EditComponent={EditMajor}
-          root={true}
+          // root={true}
         />
       </div>
     </div>

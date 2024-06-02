@@ -21,7 +21,7 @@ import {
   CSpinner,
 } from '@coreui/react'
 import { MantineReactTable, useMantineReactTable } from 'mantine-react-table'
-import { ActionIcon, Badge, Box, Button, Flex } from '@mantine/core'
+import { ActionIcon, Badge, Box, Button, Flex, Group } from '@mantine/core'
 import {
   IconArrowAutofitRight,
   IconArrowBarLeft,
@@ -87,15 +87,26 @@ const SemestersTable = ({ courses, queryClient }) => {
         header: 'الحالة',
         Cell: ({ cell, row }) => {
           return (
-            <Link to={`{${row.original._id}`}>
-              <Button
-                variant="light"
-                leftIcon={<IconInfoCircle size={14} />}
-                rightIcon={<IconArrowBarLeft size={14} />}
-              >
-                عرض التفاصيل
-              </Button>
-            </Link>
+            <Group>
+              <Link to={`${row.original._id}`}>
+                <Button
+                  variant="light"
+                  leftIcon={<IconInfoCircle size={14} />}
+                  rightIcon={<IconArrowBarLeft size={14} />}
+                >
+                  عرض التفاصيل
+                </Button>
+              </Link>{' '}
+              <Link to={`${row.original._id}/edit`}>
+                <Button
+                  variant="light"
+                  leftIcon={<IconInfoCircle size={14} />}
+                  rightIcon={<IconArrowBarLeft size={14} />}
+                >
+                 تعديل
+                </Button>
+              </Link>
+            </Group>
           )
         },
       },
@@ -130,7 +141,7 @@ const SemestersTable = ({ courses, queryClient }) => {
     // ),
     renderRowActionMenuItems: ({ row }) => (
       <Flex>
-            <Link to={`${row.original._id}/edit`}>
+        <Link to={`${row.original._id}/edit`}>
           <ActionIcon color="red">
             <IconTrash />
           </ActionIcon>

@@ -33,6 +33,7 @@ import {
 } from '@tabler/icons-react'
 import { Tooltip } from 'chart.js'
 import StartSemester from './StartSemester'
+import { SemestersLoader } from '../LoadingComponents'
 
 export default function Semesters({ queryClient }) {
   const {
@@ -42,11 +43,35 @@ export default function Semesters({ queryClient }) {
     isLoading: isLoadingTeachers,
   } = useQuery(useGetElements(['semesters']))
 
-  if (isFetchingTeachers) {
-    return <CSpinner color="primary" />
+  if (isFetchingTeachers || isLoadingTeachers) {
+    return (
+      <Box p={'md'} bg={'white'}>
+        <div
+          className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
+        >
+          <h5>{' الفصول الحالية'} </h5>
+          <StartSemester queryClient={queryClient}>
+            <Button>بدأ فصل جديد</Button>
+          </StartSemester>
+        </div>
+        <SemestersLoader />{' '}
+      </Box>
+    )
   }
 
-  return <SemestersTable queryClient={queryClient} semesters={semesters} />
+  return (
+    <>
+      <div
+        className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
+      >
+        <h5>{' الفصول الحالية'} </h5>
+        <StartSemester queryClient={queryClient}>
+          <Button>بدأ فصل جديد</Button>
+        </StartSemester>
+      </div>
+      <SemestersTable queryClient={queryClient} semesters={semesters} />{' '}
+    </>
+  )
 }
 
 const SemestersTable = ({ semesters, queryClient }) => {
@@ -93,9 +118,12 @@ const SemestersTable = ({ semesters, queryClient }) => {
           if (!cell.getValue()) return ''
           return (
             <>
-              <Badge>{row.original.startDate}</Badge>
+              <Badge>{new Date(row.original.startDate).toLocaleDateString()}</Badge>
+              <br />
               إلى
-              <Badge>{row.original.endDate}</Badge>
+              <br />
+
+              <Badge>{new Date(row.original.endDate).toLocaleDateString()}</Badge>
             </>
           )
         },
@@ -140,20 +168,12 @@ const SemestersTable = ({ semesters, queryClient }) => {
     getRowId: (row) => row._id,
     paginationDisplayMode: 'pages',
     positionToolbarAlertBanner: 'bottom',
+
     mantinePaginationProps: {
       radius: 'xl',
       size: 'lg',
     },
-    // renderRowActions: ({ row, table }) => (
-    //   <Flex gap="md">
 
-    //     <Tooltip label="حذف">
-    // <ActionIcon color="red" onClick={() => openDeleteConfirmModal(row)}>
-    //         <IconTrash />
-    //       </ActionIcon>
-    //     </Tooltip>
-    //   </Flex>
-    // ),
     renderRowActionMenuItems: ({ row }) => (
       <Flex>
         <ActionIcon color="red" onClick={() => openDeleteConfirmModal(row)}>
@@ -168,17 +188,5 @@ const SemestersTable = ({ semesters, queryClient }) => {
     },
   })
 
-  return (
-    <>
-      <div
-        className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
-      >
-        <h5>{' الفصول الحالية'} </h5>
-        <StartSemester queryClient={queryClient}>
-          <Button>بدأ فصل جديد</Button>
-        </StartSemester>
-      </div>
-      <MantineReactTable table={table} />
-    </>
-  )
+  return <MantineReactTable table={table} />
 }

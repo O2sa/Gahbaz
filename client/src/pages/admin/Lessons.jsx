@@ -32,17 +32,32 @@ import { BiSolidVideos } from 'react-icons/bi'
 import { IoIosPause } from 'react-icons/io'
 import { PiPlayPauseFill } from 'react-icons/pi'
 import { IoMdTime } from 'react-icons/io'
-import { Link, Outlet, useParams } from 'react-router-dom'
+import { Link, Outlet, useLoaderData, useParams } from 'react-router-dom'
 import { useGetElements } from '../crud'
 import { useQuery } from '@tanstack/react-query'
 import { TabsLinks } from '../../stories/Tabs/Tabs'
 import { BsStack } from 'react-icons/bs'
+import { Box, Button, Drawer, Grid, Group, Text } from '@mantine/core'
+import { useDisclosure } from '@mantine/hooks'
+
+export const loader =
+  (queryClient) =>
+  async ({ params }) => {
+    try {
+      await queryClient.ensureQueryData(useGetElements([`courses`, params.courseId]))
+      return params.courseId
+    } catch (error) {
+      console.error(error?.response?.data?.msg)
+      // return redirect('/dashboard/all-jobs');
+    }
+  }
 
 export default function Lessons({ ...props }) {
-  const { courseId, lessonId } = useParams()
+  // const { courseId } = useParams()
   // console.log('courseId', courseId)
   // console.log('lessonId', lessonId)
 
+  const courseId = useLoaderData()
   const {
     data: course = [],
     isError: isLoadingError,
@@ -50,14 +65,23 @@ export default function Lessons({ ...props }) {
     isLoading: isLoading,
   } = useQuery(useGetElements(['courses', courseId]))
 
-  if (isFetching || isLoading) {
-    return (
-      <CSpinner color="primary" />
-
-    )
+  if (isLoading) {
+    return <CSpinner color="primary" />
   }
 
   const [nextLesson, setNextLesson] = useState(null)
+  const [opened, { open, close }] = useDisclosure(false)
+  // console.log('nextLesson', nextLesson)
+
+  const getLessonsNum = course?.sections?.reduce(
+    (acc, section) => acc + section?.lessons?.length,
+    0,
+  )
+
+  const courseSyllbus = (
+    <CourseContent close={close} setNextLesson={setNextLesson} to={''} sections={course.sections} />
+  )
+
   return (
     <>
       <div>
@@ -77,19 +101,22 @@ export default function Lessons({ ...props }) {
                 <div>
                   <MdFolderCopy size={'20'} className={` me-2 text-primary`} />
                   <span className={`me-3`}>{`${course.sections.length} أقسام `}</span>
-                  {/* <BiSolidVideos size={'20'} className={` me-2 text-primary`} />
-                  <span className={`me-3`}>{`الدورات محاضرات`}</span>
-                  <IoMdTime size={'20'} className={` me-2 text-warning`} />
+                  <BiSolidVideos size={'20'} className={` me-2 text-primary`} />
+                  <span className={`me-3`}>{`${getLessonsNum} دروس`}</span>
+                  {/* <IoMdTime size={'20'} className={` me-2 text-warning`} />
                   <span className={`me-3`}>{`الدورات`}</span> */}
                 </div>
               </div>
             </div>
           </div>
-          <div className="d-flex justify-content-between g-2">
-            {/* <CButton size="lg" className="d-none d-md-inline me-1   bg-white text-primary border-0">
-              {' '}
-              كتابة تعليق
-            </CButton> */}
+
+          <Group>
+            <div className="d-block d-xl-none">
+              <Button onClick={open} variant="default" color="brand">
+                محتويات الدورة
+              </Button>
+            </div>
+
             {nextLesson ? (
               <Link to={nextLesson}>
                 <CButton className="" size="lg">
@@ -99,19 +126,37 @@ export default function Lessons({ ...props }) {
             ) : (
               ''
             )}
-          </div>
+          </Group>
         </div>
-        <div className="p-4 row">
-          <div className="bg-white col-sm-12 col-xl-8">
-            {/* <CourseLesson lesson={course?.sections[0]?.lessons[0]} /> */}
-            <Outlet context={course.sections} />
-          </div>
-          <div className="col d-sm-none d-xl-block ">
-            {course.sections ? (
-              <CourseContent setNextLesson={setNextLesson} sections={course.sections} />
+        <Grid>
+          <Grid.Col bg={'white'} sx={{ minHeight: '100vh' }} span={12} lg={9} gap={'md'} p={'md'}>
+            {getLessonsNum > 0 ? (
+              <Outlet context={course.sections} />
+            ) : (
+              <Text> لا يوجد دروس بعد</Text>
+            )}
+          </Grid.Col>
+
+          <Grid.Col span={12} lg={3}>
+            {course.sections && course.sections.length > 0 && getLessonsNum > 0 ? (
+              <>
+                {' '}
+                <div className=" d-none d-xl-block ">{courseSyllbus} </div>
+                <div className="d-block d-xl-none">
+                  <Drawer
+                    position="right"
+                    opened={opened}
+                    overlayProps={{ opacity: 0.5, blur: 4 }}
+                    onClose={close}
+                    title=""
+                  >
+                    {courseSyllbus}
+                  </Drawer>
+                </div>
+              </>
             ) : null}
-          </div>
-        </div>
+          </Grid.Col>
+        </Grid>
       </div>
     </>
   )

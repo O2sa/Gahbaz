@@ -1,8 +1,11 @@
 import { Router } from "express";
+const router = Router();
+
 import {
   getCurrentUser,
   updateUser,
-  changePss
+  changePss,
+  getUser,
   // getAllAdmins,
   // getAdmin,
   // deleteAdmin,
@@ -16,7 +19,6 @@ import {
 import { addAdmin } from "../controllers/authController.js";
 
 // import upload from '../middleware/multerMiddleware.js';
-const router = Router();
 
 router.get("/current-user", getCurrentUser);
 // router
@@ -33,7 +35,7 @@ router.get("/current-user", getCurrentUser);
 //   getApplicationStats,
 // ]);
 
-router.patch("/:id", updateUser);
+router.route("/:id").patch(updateUser).get(getUser);
 router.post("/:id/change-pass", changePss);
 
 export default router;

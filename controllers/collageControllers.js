@@ -8,7 +8,7 @@ const getCollage = async (req, res) => {
   const id = req.params.id;
   const collage = await Collage.findOne({
     _id: id,
-    university: req.user.universityId,
+    university: req.user.university,
   }).populate("majors");
   // const collage = await Collage.find({ _id: id });
 
@@ -18,7 +18,7 @@ const getCollage = async (req, res) => {
 const createCollage = async (req, res) => {
   const collage = await Collage.create({
     ...req.body,
-    university: req.user.universityId,
+    university: req.user.university,
   });
   res.status(StatusCodes.CREATED).json(collage);
 };
@@ -35,8 +35,9 @@ const updateCollage = async (req, res) => {
 };
 
 const getAllCollages = async (req, res) => {
+  console.log(req.user)
   const collages = await Collage.find({
-    university: req.user.universityId,
+    university: req.user.university,
   })
   res.status(StatusCodes.OK).json(collages);
 };

@@ -17,12 +17,13 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
-import { Button, PasswordInput, TextInput } from '@mantine/core'
+import { Button, Image, PasswordInput, TextInput,Center, Title } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import customFetch from '../../utils/customFetch'
 import { notifications } from '@mantine/notifications'
+import logo from '../../assets/brand/Logo.svg'
 
-const Login = () => {
+const Login = ({}) => {
   const navigate = useNavigate()
   const form = useForm({
     initialValues: {
@@ -37,7 +38,7 @@ const Login = () => {
     console.log('values')
     console.log(values)
     try {
-      await customFetch.post('/auth/login', values)
+      const { data } = await customFetch.post('/auth/login', values)
       navigate('/')
 
       notifications.show({
@@ -66,33 +67,35 @@ const Login = () => {
               <CCard className="p-4">
                 <CCardBody>
                   <form onSubmit={form.onSubmit(handleSubmit)}>
-          
                     <TextInput
-                      label="Email address"
-                      placeholder="hello@gmail.com"
+                      label="الايميل"
+                      placeholder=""
                       size="md"
                       mt="md"
                       {...form.getInputProps('email')}
                     />
-                  
                     <PasswordInput
-                      label="Password"
-                      placeholder="Your password"
+                      label="كلمة السر"
+                      placeholder=""
                       mt="md"
                       size="md"
                       {...form.getInputProps('password')}
                     />{' '}
                     {/* <Checkbox label="Keep me logged in" mt="xl" size="md" /> */}
                     <Button type="submit" fullWidth mt="xl" size="md">
-                      Login
+                      تسجيل
                     </Button>
                   </form>
                 </CCardBody>
               </CCard>
               <CCard className="text-white bg-primary py-5" style={{ width: '44%' }}>
                 <CCardBody className="text-center">
+                  <Center mb={'xl'}>
+                    <Image width={'75%'} src={logo} />
+                  </Center>
+                  {/* <Title ta="center">مرحبا بك في منصة جهبذ !</Title> */}
+
                   <div>
-                    <h2>إنشاء حساب</h2>
                     <p>إذا لم يكن لديك حساب فقم بإنشاء حساب جديد</p>
                     <Link to="/register">
                       <CButton color="primary" className="mt-3" active tabIndex={-1}>

@@ -6,42 +6,31 @@ import { createJWT } from "../utils/tokenUtils.js";
 import University from "../models/University.js";
 import Admin from "../models/Admin.js";
 import { body } from "express-validator";
+import { logLogin } from "../utils/dataCollector.js";
 
 export const register = async (req, res) => {
-  const isFirstAccount = (await User.countDocuments()) === 0;
+  const isFirstAccount = true;
   req.body.role = isFirstAccount ? "super-admin" : "user";
 
   console.log(req.body);
   const user = await Admin.create(req.body);
 
   const hashedPassword = await hashPassword(req.body.password);
-  req.body.password = hashedPassword;
-
-
-
-
-
-  console.log("hashedPassword", hashedPassword);
-  console.log("user", user);
-  console.log("Password encoding:", Buffer.from(req.body.password).toString("utf8")); // Log encoding of user-entered password
-
-  console.log("Hashed password encoding:", Buffer.from(hashedPassword).toString("utf8")); // Log encoding of hashed password
-  
-  // ... rest of your code
-  
+  await User.findByIdAndUpdate(user._id, { password: hashedPassword });
 
 
   if (req.body.role == "super-admin") {
     const university = await University.create({ admin: user._id });
+    await User.findByIdAndUpdate(user._id, { university: university._id });
+
+  
   }
 
   res.status(StatusCodes.CREATED).json({ msg: "user created" });
 };
 
-
 export const login = async (req, res) => {
   const user = await User.findOne({ email: req.body.email });
-  const users = await User.find({});
 
   console.log("user", user);
   console.log("body", req.body);
@@ -49,10 +38,9 @@ export const login = async (req, res) => {
   const isValidUser =
     user && (await comparePassword(req.body.password, user.password));
 
-  
   if (!isValidUser) throw new UnauthenticatedError("invalid credentials");
 
-  let jwt={}
+  let jwt = {};
   if (user.role == "admin" || user.role == "super-admin") {
     const university = await University.findOne({ admin: user._id });
     jwt = { universityId: university._id, role: user.role };
@@ -68,7 +56,9 @@ export const login = async (req, res) => {
     expires: new Date(Date.now() + oneDay),
     secure: process.env.NODE_ENV === "production",
   });
-  res.status(StatusCodes.OK).json({ msg: "user logged in" });
+
+  await logLogin(user._id);
+  res.status(StatusCodes.OK).json({ msg: "user logged in", role: user.__t });
 };
 
 export const logout = (req, res) => {
@@ -78,6 +68,7 @@ export const logout = (req, res) => {
   });
   res.status(StatusCodes.OK).json({ msg: "user logged out!" });
 };
+
 
 
 export const addAdmin = async (req, res) => {

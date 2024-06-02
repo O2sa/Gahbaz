@@ -7,7 +7,7 @@ import {
   MRT_EditActionButtons,
 } from 'mantine-react-table'
 import { Link, useLoaderData, useParams } from 'react-router-dom'
-
+import { MRT_Localization_AR } from 'mantine-react-table/locales/ar'
 // import useTable
 import {
   ActionIcon,
@@ -24,6 +24,9 @@ import {
   Stack,
   TextInput,
   MultiSelect,
+  Indicator,
+  Group,
+  Avatar,
 } from '@mantine/core'
 import { IconUserCircle, IconSend } from '@tabler/icons-react'
 import {
@@ -95,7 +98,22 @@ export default function Admins({ queryClient }) {
         header: 'الأسم',
 
         Cell: ({ cell, row }) => {
-          return `${row.original.firstName} ${row.original.lastName}`
+          const item = row.original
+          return (
+            <Group gap="sm" noWrap>
+              <Indicator>
+                <Avatar in size={40} src={item.avatar} radius={40} />
+              </Indicator>
+              <div>
+                <Text fz="sm" fw={500}>
+                  {`${item.firstName} ${item.lastName}`}
+                </Text>
+                <Text fz="xs" c="dimmed">
+                  {item.email}
+                </Text>
+              </div>
+            </Group>
+          )
         },
       },
       {
@@ -136,6 +154,7 @@ export default function Admins({ queryClient }) {
     enableEditing: true,
     createDisplayMode: 'modal',
     editDisplayMode: 'modal',
+    localization: MRT_Localization_AR,
     enableRowActions: true,
     getRowId: (row) => row._id,
     paginationDisplayMode: 'pages',
@@ -214,7 +233,7 @@ export default function Admins({ queryClient }) {
     renderEditRowModalContent: ({ internalEditComponents, row, table }) => (
       <Stack>
         <Title order={5}>تعديل</Title>
-   <TextInput
+        <TextInput
           withAsterisk
           label="الاسم الأول"
           name="firstName"
@@ -285,6 +304,7 @@ export default function Admins({ queryClient }) {
     ),
     state: {
       isLoading: isLoadingAdmins,
+      showSkeletons: isLoadingAdmins,
       isSaving: isCreatingAdmin || isUpdatingAdmin || isDeletingAdmin,
       showAlertBanner: isLoadingAdminsError,
       showProgressBars: isFetchingAdmins,

@@ -56,7 +56,7 @@ const DefaultLayout = ({ queryClient }) => {
   }
 
   const logoutUser = async () => {
-    navigate('/login')
+    navigate('/landing')
     await customFetch.get('/auth/logout')
     queryClient.invalidateQueries()
     notifications.show({

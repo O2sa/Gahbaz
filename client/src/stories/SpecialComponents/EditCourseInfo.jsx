@@ -24,6 +24,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { asyncCrudThunks } from '../../dataLogic/CollageManagementSlice'
 import { useQuery } from '@tanstack/react-query'
 import { useGetElements, useUpdateElement } from '../../pages/crud'
+import { Box, Button, Group, Image, Text } from '@mantine/core'
+import UploadCourseCover from './UploadCourseCover'
 
 export const loader =
   (queryClient) =>
@@ -128,30 +130,26 @@ export const EditCourseInfo = ({ queryClient, ...props }) => {
 
   return (
     <CRow className="m-4">
-      <CRow>
-        <h5 className="mb-2">غلاف الدورة</h5>
-        <CCard className="mb-3 border-0" style={{ maxWidth: '540px' }}>
-          <CRow className="g-0">
-            <CCol md={4} className="bg-light">
-              <CiImageOn c className="w-100 h-100 text-secondary" />{' '}
-            </CCol>
-            <CCol md={8}>
-              <CCardBody>
-                <CCardText>
-                  This is a wider card with supporting text below as a natural lead-in to additional
-                  content. This content is a little bit longer.
-                </CCardText>
-                <CCardText>
-                  <CButton className="text-primary border-0 bg-primary bg-opacity-10">
-                    <BsUpload className="me-2" />
-                    تحميل
-                  </CButton>
-                </CCardText>
-              </CCardBody>
-            </CCol>
-          </CRow>
-        </CCard>
-      </CRow>
+      <h5 className="mb-2">غلاف الدورة</h5>
+      <Group m={'md'}>
+        <Group className="g-0">
+          <Box w={200} md={4} className="bg-light">
+            {course.cover && course.cover.length > 1 ? (
+              <Image src={course.cover} />
+            ) : (
+              <CiImageOn c className="w-100 h-100 text-secondary" />
+            )}
+          </Box>
+          <Box md={8}>
+            <Text mb={'md'}>قم بتحميل الصورة الخاصة بالدورة هنا .</Text>
+            <UploadCourseCover queryClient={queryClient}>
+              <Button variant="light" rightIcon={<BsUpload className="me-2" />}>
+                تحميل
+              </Button>
+            </UploadCourseCover>
+          </Box>
+        </Group>
+      </Group>
       <hr className="border-1 w-100 h-auto my-4" />
       <CRow>
         <CFormTextarea

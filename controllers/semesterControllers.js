@@ -18,7 +18,9 @@ const getSemester = async (req, res) => {
 };
 
 const getAllSemesters = async (req, res) => {
-  const semesters = await Semester.find({ university: req.user.universityId });
+  const semesters = await Semester.find({ 
+    university: req.user.university
+   });
   res.status(StatusCodes.OK).json(semesters);
 };
 
@@ -57,7 +59,7 @@ const getSemesterCourses = async (req, res) => {
 
 const startSemester = async (req, res) => {
   const { semesterData, collages } = req.body;
-  semesterData.university = req.user.universityId;
+  semesterData.university = req.user.university;
 
   for (const collageId of collages) {
     const collageData = await Collage.findById(collageId);

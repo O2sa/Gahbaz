@@ -24,13 +24,14 @@ import CIcon from '@coreui/icons-react'
 import { Link, redirect, useNavigate } from 'react-router-dom'
 import avatar8 from '../../assets/images/avatars/3.jpg'
 import { useDashboardContext } from '../../layout/DefaultLayout'
+import { Avatar } from '@mantine/core'
 const AppHeaderDropdown = () => {
   const { user, logoutUser } = useDashboardContext()
 
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0" caret={false}>
-        <CAvatar src={avatar8} size="md" />
+        <Avatar  src={user.avatar} size="lg" radius={'xl'} />
       </CDropdownToggle>
       <CDropdownMenu className="pt-0 text-start" placement="bottom-start">
         {/* <CDropdownHeader className="bg-light fw-semibold py-2">الحساب</CDropdownHeader>

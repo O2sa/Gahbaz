@@ -1,3 +1,3 @@
 import AppHeaderDropdown from './AppHeaderDropdown'
-
-export { AppHeaderDropdown }
+import HeaderIcons from './HeaderIcons'
+export { AppHeaderDropdown, HeaderIcons }

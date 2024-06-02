@@ -36,6 +36,7 @@ const CourseSchema = new mongoose.Schema({
       ref: "Grade",
     },
   ],
+  cover: String,
   students: [
     {
       student: {

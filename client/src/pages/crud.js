@@ -44,6 +44,33 @@ export function useUpdateElement(queryClient, collection) {
       const { data } = await customFetch.patch(`${collection[0]}/${element._id}`, element)
       return data
     },
+    onError: (error) => {
+      console.log(error)
+      throw error // Re-throw the error for handling in handleSubmit
+    },
+    // onMutate: (newElement) => {
+    //   queryClient.setQueryData(collection, (prevElements) => {
+    //     console.log('newElement', newElement)
+    //     console.log('prevElements :', prevElements)
+    //     return prevElements?.map((prevElement) =>
+    //       prevElement._id === newElement._id ? newElement : prevElement,
+    //     )
+    //   })
+    // },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: collection }),
+  })
+}
+
+export function useUpdateOneElement(queryClient, collection) {
+  return useMutation({
+    mutationFn: async (element) => {
+      const { data } = await customFetch.patch(`${collection[0]}/${element._id}`, element)
+      return data
+    },
+    onError: (error) => {
+      console.log(error)
+      throw error // Re-throw the error for handling in handleSubmit
+    },
     // onMutate: (newElement) => {
     //   queryClient.setQueryData(collection, (prevElements) => {
     //     console.log('newElement', newElement)
@@ -66,7 +93,10 @@ export function useCreateElement(queryClient, collection) {
       return response.data // Assuming the API returns the created element data
     },
 
-
+    onError: (error) => {
+      console.log(error)
+      throw error // Re-throw the error for handling in handleSubmit
+    },
     onMutate: (newElement) => {
       queryClient.setQueryData(collection, (prevElements) => [
         ...prevElements,
@@ -76,10 +106,7 @@ export function useCreateElement(queryClient, collection) {
       ])
     },
 
-    onError: (error) => {
-      console.log(error)
-      throw error // Re-throw the error for handling in handleSubmit
-    },
+
     onSettled: () => queryClient.invalidateQueries({ queryKey: collection }),
 
   })

@@ -19,3 +19,14 @@ a{
 .j-box-shadow{
   box-shadow: 0 5px 26px 0 rgba(68,88,144,.14);
 }
+
+
+.header-blur{
+  filter: none;
+  backdrop-filter: blur('50px');
+
+}
+
+.sidebar-backdrop{
+  z-index: 95;
+}

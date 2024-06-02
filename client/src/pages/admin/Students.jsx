@@ -25,8 +25,11 @@ import {
   TextInput,
   MultiSelect,
   Select,
+  Group,
+  Indicator,
+  Avatar,
 } from '@mantine/core'
-import { IconUserCircle, IconSend } from '@tabler/icons-react'
+import { IconUserCircle, IconSend, IconInfoCircle, IconArrowBarRight } from '@tabler/icons-react'
 import {
   QueryClient,
   QueryClientProvider,
@@ -38,6 +41,7 @@ import {
 import { IconEdit, IconTrash } from '@tabler/icons-react'
 import { useCreateElement, useDeleteElement, useGetElements, useUpdateElement } from '../crud'
 import { modals } from '@mantine/modals'
+import { isUserActive } from '../../utils/UsersUtils'
 
 export default function Students({ queryClient }) {
   //call CREATE hook
@@ -104,7 +108,24 @@ export default function Students({ queryClient }) {
         header: 'الأسم',
 
         Cell: ({ cell, row }) => {
-          return `${row.original.firstName} ${row.original.lastName}`
+          const item = row.original
+          return (
+            <Link to={'/users/' + item._id}>
+              <Group gap="sm" noWrap>
+                <Indicator disabled={!isUserActive(row.original.lastActivity)}>
+                  <Avatar  size={40} src={item.avatar} radius={40} />
+                </Indicator>
+                <div>
+                  <Text fz="sm" fw={500}>
+                    {`${item.firstName} ${item.lastName}`}
+                  </Text>
+                  <Text fz="xs" c="dimmed">
+                    {item.email}
+                  </Text>
+                </div>
+              </Group>
+            </Link>
+          )
         },
       },
 
@@ -131,6 +152,23 @@ export default function Students({ queryClient }) {
         enableEditing: false,
         header: 'التخصص',
       },
+      {
+        accessorKey: 'details',
+        header: 'الحالة',
+        Cell: ({ cell, row }) => {
+          return (
+            <Link to={row.original._id}>
+              <Button
+                variant="light"
+                leftIcon={<IconInfoCircle size={14} />}
+                rightIcon={<IconArrowBarRight size={14} />}
+              >
+                عرض التفاصيل
+              </Button>
+            </Link>
+          )
+        },
+      },
     ],
     [],
   )
@@ -144,6 +182,8 @@ export default function Students({ queryClient }) {
     enableGrouping: true,
     enablePinning: true,
     enableEditing: true,
+    enableRowSelection:false,
+    onHoveredRowChange:()=>null,
     createDisplayMode: 'modal',
     editDisplayMode: 'modal',
     enableRowActions: true,
@@ -165,6 +205,29 @@ export default function Students({ queryClient }) {
         minHeight: '500px',
       },
     },
+    renderDetailPanel: ({ row }) => (
+      <Box
+        sx={{
+          display: 'flex',
+
+          justifyContent: 'flex-start',
+
+          alignItems: 'center',
+
+          gap: '16px',
+
+          padding: '16px',
+        }}
+      >
+        <img alt="avatar" height={200} src={row.original.avatar} style={{ borderRadius: '50%' }} />
+
+        <Box sx={{ textAlign: 'center' }}>
+          <Title>Signature Catch Phrase:</Title>
+
+          <Text>&quot;{row.original.signatureCatchPhrase}&quot;</Text>
+        </Box>
+      </Box>
+    ),
 
     onCreatingRowSave: handleCreateStudent,
     onEditingRowSave: handleSaveStudent,
@@ -191,13 +254,13 @@ export default function Students({ queryClient }) {
           name="firstName"
           id="firstName"
           placeholder="الاسم الأول"
-          onChange={(e) => setNewrowData({ ...newRowData, name: e.target.value })}
+          onChange={(e) => setNewrowData({ ...newRowData, firstName: e.target.value })}
         />{' '}
         <TextInput
           withAsterisk
           label="الاسم الاخير"
-          name="firstName"
-          id="firstName"
+          name="lastName"
+          id="lastName"
           onChange={(e) => setNewrowData({ ...newRowData, lastName: e.target.value })}
         />{' '}
         <TextInput
@@ -220,7 +283,6 @@ export default function Students({ queryClient }) {
           data={majorsForSelect}
           label="التخصص"
           // placeholder="Pick all that you like"
-          defaultValue={row?.getAllCells()[5]?.getValue()}
           name="major"
           id="major"
           onChange={(selectedValue) => setNewrowData({ ...newRowData, major: selectedValue })}
@@ -232,8 +294,7 @@ export default function Students({ queryClient }) {
     ),
     renderEditRowModalContent: ({ internalEditComponents, row, table }) => (
       <Stack>
-                <Title order={5}>تعديل</Title>
-
+        <Title order={5}>تعديل</Title>
         <TextInput
           withAsterisk
           label="الاسم الأول"

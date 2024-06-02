@@ -30,7 +30,8 @@ const loading = (
 // Containers
 const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 
-import { Login, Page404, Page500, Profile, Register } from './pages/public'
+import { Login, Page404, Page500, Profile, Register, Error, Landing } from './pages/public'
+import ChatRoom from './chat/ChatContainer'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -39,24 +40,23 @@ const queryClient = new QueryClient({
   },
 })
 
-const router = createBrowserRouter([
-  { path: '/login', name: 'Login Page', element: <Login /> },
-  { path: '/register', name: 'Register Page', element: <Register /> },
-  { path: '/404', name: 'Page 404', element: <Page404 /> },
-  { path: '/500', name: 'Page 500', element: <Page500 /> },
+export const router = createBrowserRouter([
+  { path: '/landing', name: 'landing', element: <Landing /> },
+
+  { path: '/login', name: 'تسجيل الدخول', element: <Login /> },
+  { path: '/register', name: 'إنشاء حساب', element: <Register /> },
+  { path: '/404', name: 'غير موجدو', element: <Page404 /> },
+  { path: '/500', name: 'خطأ!', element: <Page500 /> },
   {
     path: '/',
-    name: 'Home',
+    name: 'الرئيسية',
     element: <DefaultLayout queryClient={queryClient} />,
-    errorElement: <Page500 />,
+    errorElement: <Error />,
 
     children: [
       ...getRoutes(queryClient),
-      {
-        path: 'profile',
-        name: 'الملف الشخصي',
-        element: <Profile queryClient={queryClient} />,
-      },
+  
+      
     ],
   },
 ])
@@ -67,15 +67,19 @@ const rtlCache = createEmotionCache({
 })
 
 function App() {
+
+
   return (
     <QueryClientProvider client={queryClient}>
       {/* <CloudinaryContext cloudName="ddng3kwfw"> */}
       <MantineProvider
         withGlobalStyles
         withNormalizeCSS
+      
         emotionCache={rtlCache}
         theme={{
           dir: 'rtl',
+          
           fontFamily: 'Cairo',
           colors: {
             brand: [
@@ -96,7 +100,7 @@ function App() {
         }}
       >
         <DatesProvider settings={{ locale: 'ar', firstDayOfWeek: 6, weekendDays: [4, 5] }}>
-          <ModalsProvider labels={{ confirm: 'Submit', cancel: 'Cancel' }}>
+          <ModalsProvider labels={{ confirm: 'حفظ', cancel: 'إلغاء' }}>
             <Suspense fallback={loading}>
               <RouterProvider router={router} />
             </Suspense>{' '}
