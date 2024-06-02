@@ -199,7 +199,7 @@ export default function Teachers({ queryClient }) {
           name="firstName"
           id="firstName"
           placeholder="الاسم الأول"
-          onChange={(e) => setNewrowData({ ...newRowData, name: e.target.value })}
+          onChange={(e) => setNewrowData({ ...newRowData, firstName: e.target.value })}
         />{' '}
         <TextInput
           withAsterisk
