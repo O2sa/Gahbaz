@@ -70,7 +70,19 @@ if (process.env.NODE_ENV === "development") {
 app.use(express.static(path.resolve(__dirname, "./client/dist")));
 app.use(cookieParser());
 app.use(express.json());
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        defaultSrc: ["'self'"],
+        connectSrc: ["'self'", "http://localhost:5000", "ws://localhost:5000"],
+        // Add other directives as needed
+      },
+    },
+  })
+);
+
 app.use(cors());
 app.use(mongoSanitize());
 
@@ -175,4 +187,6 @@ io.on("connection", (socket) => {
 });
 
 
-// setInterval(collectAndStoreMetrics, 10000); // Collect and store metrics every 10 seconds
+// console.log('EMAIL_USER:', process.env.EMAIL_USER);
+// console.log('EMAIL_PASS:', process.env.EMAIL_PASS);
+setInterval(collectAndStoreMetrics, 100000); // Collect and store metrics every 10 seconds
