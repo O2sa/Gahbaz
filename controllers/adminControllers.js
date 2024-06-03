@@ -6,7 +6,7 @@ import {
 } from "../utils/passwordUtils.js";
 
 export const getAllAdmins = async (req, res) => {
-  const admin = await Admin.find({university: req.user.university});
+  const admin = await Admin.find({university: req.user.university}).select('-password')
   res.status(StatusCodes.OK).json(admin);
 };
 export const createAdmin = async (req, res) => {
@@ -22,7 +22,7 @@ export const createAdmin = async (req, res) => {
 };
 
 export const getAdmin = async (req, res) => {
-  const admin = await Admin.findById(req.params.id);
+  const admin = await Admin.findById(req.params.id).select('-password')
   res.status(StatusCodes.OK).json(admin);
 };
 
@@ -35,6 +35,6 @@ export const updateAdmin = async (req, res) => {
 };
 
 export const deleteAdmin = async (req, res) => {
-  const removedAdmin = await Admin.findByIdAndDelete(req.params.id);
+  const removedAdmin = await Admin.findByIdAndDelete(req.params.id).select('-password')
   res.status(StatusCodes.OK).json(removedAdmin);
 };

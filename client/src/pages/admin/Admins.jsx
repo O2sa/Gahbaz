@@ -105,7 +105,7 @@ export default function Admins({ queryClient }) {
             <Link to={'/users/' + item._id}>
               <Group gap="sm" noWrap>
                 <Indicator disabled={!isUserActive(row.original.lastActivity)}>
-                  <Avatar  size={40} src={item.avatar} radius={40} />
+                  <Avatar size={40} src={item.avatar} radius={40} />
                 </Indicator>
                 <div>
                   <Text fz="sm" fw={500}>
@@ -126,7 +126,6 @@ export default function Admins({ queryClient }) {
         id: 'email',
         header: 'الإيميل',
         enableEditing: false,
-
       },
 
       {
@@ -134,7 +133,12 @@ export default function Admins({ queryClient }) {
         id: 'phone',
         header: 'رقم الهاتف',
         enableEditing: false,
-
+      },
+      {
+        accessorKey: 'lastActivity',
+        header: 'آخر نشاط',
+        accessorFn:(row)=>row.lastActivity?new Date(row?.lastActivity).toLocaleTimeString():'unkown',
+        enableEditing: false,
       },
 
       {
@@ -148,7 +152,6 @@ export default function Admins({ queryClient }) {
         // enableEditing: true,
         header: 'الصلاحيات',
         enableEditing: false,
-
       },
     ],
     [],
