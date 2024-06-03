@@ -1,21 +1,49 @@
 import { StatusCodes } from "http-status-codes";
 import Student from "../models/Student.js";
-import Semester from "../models/Semester.js";
-import Major from "../models/Major.js";
+import crypto from 'crypto';
+
+
 import { hashPassword } from "../utils/passwordUtils.js";
 import University from "../models/University.js";
+import sendMail from "../utils/mailer.js";
 const createStudent = async (req, res) => {
-  const uni = await University.findOne({ admin: req.user._id });
-  req.body["university"] = uni._id;
-  console.log(req.body);
+  // console.log(req.body);
 
+  // const user = await Student.create(req.body);
 
-  const user = await Student.create(req.body);
+  // const hashedPassword = await hashPassword(req.body.email);
+  // const updatedUser = await Student.findByIdAndUpdate(user._id, {
+  //   password: hashedPassword,
+  // }).select("-password");
 
-  const hashedPassword = await hashPassword(req.body.email);
-  await Student.findByIdAndUpdate(user._id, { password: hashedPassword });
+  try {
+    const { email, firstName, lastName } = req.body;
+    req.body["university"] =req.user.university;
 
-  res.status(StatusCodes.CREATED).json(user);
+    // Generate a temporary password
+    const tempPassword = crypto.randomBytes(8).toString("hex");
+    const hashedPassword = await hashPassword(tempPassword);
+
+    // Create the user with the temporary password
+    const newUser = new Student({
+      ...req.body,
+      password: hashedPassword,
+    });
+
+    await newUser.save();
+
+    // Send email with the temporary password
+    const subject = "Welcome to E-Learning Platform - Your Temporary Password";
+    const text = `Hello ${firstName},\n\nYour account has been created. Please use the following temporary password to log in for the first time:\n\nTemporary Password: ${tempPassword}\n\nPlease change your password after logging in.\n\nThank you,\nE-Learning Platform Team`;
+
+    await sendMail(email, subject, text);
+
+    res.status(StatusCodes.CREATED).json();
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
 
 const updateStudent = async (req, res) => {
@@ -26,13 +54,15 @@ const updateStudent = async (req, res) => {
 
 const getStudent = async (req, res) => {
   const id = req.params.id;
-  const student = await Student.findById(id).populate('major')
-  res.status(StatusCodes.CREATED).json( student );
+  const student = await Student.findById(id)
+    .populate("major")
+    .select("-password");
+  res.status(StatusCodes.CREATED).json(student);
 };
 
 const deleteStudent = async (req, res) => {
   const id = req.params.id;
-  const student = await Student.findByIdAndDelete(id);
+  const student = await Student.findByIdAndDelete(id).select("-password");
   // const major = await Major.findById(student.major);
   // major.students.pull(student._id)
   // await major.save()
@@ -53,7 +83,9 @@ const getCurrentCourses = async (req, res) => {
 const getAllStudents = async (req, res) => {
   const students = await Student.find({
     university: req.user.university,
-  }).populate("major");
+  })
+    .select("-password")
+    .populate("major");
   res.status(StatusCodes.CREATED).json(students);
 };
 
