@@ -32,7 +32,7 @@ console.log(user)
   const isValidUser =
     user &&
     (await comparePassword(req.body.oldPassword, user.password)) &&
-    req.body.password !== req.body.confirmPassword;
+    req.body.password === req.body.confirmPassword;
   if (!isValidUser) throw new Error("invalid credentials");
 
   const hashedPassword = await hashPassword(req.body.password);

@@ -73,7 +73,7 @@ export const NUMS_ST = [
   "ten",
 ];
 
-export const PERMISSIONS = ["r--", "rw-", "r-d", "rwd"];
+export const PERMISSIONS = ["r", "rw", "rd", "rwd"];
 
 
 

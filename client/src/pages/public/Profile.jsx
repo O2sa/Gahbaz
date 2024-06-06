@@ -223,7 +223,7 @@ export default function Profile({ queryClient }) {
           </Flex>
         </form>
       </Container>
-      <Group bg="white" py={34} px={16} w={400}>
+      <Group bg="white" py={34} px={16}  >
         <form onSubmit={passform.onSubmit(passhandleSubmit)}>
           <Text>{' تغيير كلمة السر'}</Text>
           <Group mt={2} sx={{}}>

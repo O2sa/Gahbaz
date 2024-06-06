@@ -23,7 +23,10 @@ import { BsStack } from 'react-icons/bs'
 
 import { useLocation, useParams } from 'react-router-dom'
 import { TabsLinks } from '../../stories/Tabs/Tabs'
+import { BsInfoSquare } from "react-icons/bs";
+import { GiLevelEndFlag } from "react-icons/gi";
 
+import { MdOutlinePlayLesson } from "react-icons/md";
 export default function CreateCourse ({ ...props })  {
   // const courseId = useLocation().search || ''
   const { id } = useParams()
@@ -32,7 +35,7 @@ export default function CreateCourse ({ ...props })  {
   const tabs = [
     {
       name: 'المعلومات الأساسية',
-      icon: BsStack,
+      icon: BsInfoSquare,
       to: '.',
     },
     // {
@@ -42,12 +45,12 @@ export default function CreateCourse ({ ...props })  {
     // },
     {
       name: 'الدروس',
-      icon: BsStack,
+      icon: MdOutlinePlayLesson,
       to: `lessons`,
     },
     {
       name: 'درجات الطلاب',
-      icon: BsStack,
+      icon: GiLevelEndFlag,
       to: `grades`,
     },
   ]

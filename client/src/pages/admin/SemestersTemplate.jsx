@@ -108,7 +108,7 @@ export default function SemestersTemplate({ queryClient }) {
           // console.log("value", cell.value);
           // console.log("teacher", cell.getValue());
           if (!cell.getValue() || cell.getValue().length == 0) return ''
-          return cell.getValue()?.map((sub) => <Badge>{`${subjects[sub]?.name ?? ''} `}</Badge>)
+          return cell.getValue()?.map((sub) =>  <Badge>{`${sub?.name } `}</Badge>)
         },
         enableEditing: true,
         header: 'المواد',

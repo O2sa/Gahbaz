@@ -25,8 +25,16 @@ import {
   TextInput,
   MultiSelect,
   Grid,
+  Modal,
+  Group,
+  NumberInput,
 } from '@mantine/core'
-import { IconUserCircle, IconSend } from '@tabler/icons-react'
+import {
+  IconUserCircle,
+  IconSend,
+  IconArrowLeftCircle,
+  IconArrowBarLeft,
+} from '@tabler/icons-react'
 import {
   QueryClient,
   QueryClientProvider,
@@ -38,6 +46,8 @@ import {
 import { IconEdit, IconTrash } from '@tabler/icons-react'
 import { useCreateElement, useDeleteElement, useGetElements, useUpdateElement } from '../crud'
 import { modals } from '@mantine/modals'
+import { CiEdit } from 'react-icons/ci'
+import { useDisclosure } from '@mantine/hooks'
 
 export default function Subjects({ queryClient }) {
   //call CREATE hook
@@ -103,37 +113,33 @@ export default function Subjects({ queryClient }) {
         accessorKey: 'name',
         header: 'الأسم',
         enableEditing: false,
-
       },
       {
         accessorKey: 'subtitle',
         header: 'العنوان الفرعي',
         enableEditing: false,
-
       },
       {
         accessorKey: 'category',
         header: 'التصنيف',
         enableEditing: false,
-
       },
       {
         accessorKey: 'teachers',
         enableEditing: false,
 
-        Cell: ({ cell,row }) => {
+        Cell: ({ cell, row }) => {
           if (!cell.getValue()) return ''
-         
-          return (
-            row.original.teachers?.map((val)=><Badge>{`${val.firstName} ${val.lastName}`}</Badge>)
 
-          )
+          return row.original.teachers?.map((val) => (
+            <Badge>{`${val.firstName} ${val.lastName}`}</Badge>
+          ))
         },
         header: 'المعلمون',
       },
       {
         accessorKey: 'gradeSchema',
-        Cell: ({ cell }) => {
+        Cell: ({ cell, row }) => {
           if (!cell.getValue()) return ''
           const elements = cell.getValue().grade
           const keys = Object.keys(cell.getValue().grade)
@@ -143,7 +149,21 @@ export default function Subjects({ queryClient }) {
           return (
             <>
               {grades}
-              <Badge color="green">{`المجموع: ${cell.getValue()?.total ?? ''} `}</Badge>
+              <Badge m={'sm'} color="green">{`المجموع: ${cell.getValue()?.total ?? ''} `}</Badge>
+              <EditSchema
+                queryClient={queryClient}
+                gradeSchema={cell.getValue()}
+                subjectId={row.original._id}
+              >
+                <Button
+                  m={'md'}
+                  variant="subtle"
+                  leftIcon={<CiEdit size={14} />}
+                  rightIcon={<IconArrowBarLeft size={14} />}
+                >
+                  تعديل
+                </Button>
+              </EditSchema>
             </>
           )
         },
@@ -336,4 +356,105 @@ const getTheTotal = (elements) => {
   let total = 0
   for (const ele in elements) total += elements[ele].value
   return total
+}
+
+function EditSchema({ children, queryClient, gradeSchema, subjectId }) {
+  const { id: collageId } = useParams()
+
+  const { mutateAsync: updateSubject, isLoading: isUpdatingSubject } = useUpdateElement(
+    queryClient,
+    ['subjects', collageId],
+  )
+  // const te = useCreateElement(queryClient)
+  const [fields, setFields] = useState(gradeSchema)
+  console.log('fields', fields)
+  // console.log('fields', gradeSchema)
+
+  const [opened, { open, close }] = useDisclosure(false)
+  // console.log(isCreatingCollage)
+  // console.log('isCreatingCollage')
+  const addField = () => {
+    const key = Object.keys(fields.grade).length
+    setFields({
+      ...fields,
+      total: Object.keys(fields.grade)?.reduce((ac, val) => fields.grade[val].value + ac, 0) + 10,
+
+      grade: { ...fields.grade, [key]: { name: '', value: 10 } },
+    })
+  }
+  const handleCloseModal = () => {
+    close()
+  }
+
+  const handleSubmit = async (values) => {
+    console.log('values')
+    console.log(values)
+    try {
+      const res = await updateSubject({ gradeSchema: fields, _id: subjectId })
+      close()
+    } catch (error) {}
+  }
+
+  return (
+    <Group position="center">
+      <Modal centered={true} title="إنشاء كلية" opened={opened} onClose={close}>
+        <>
+          {/* <form onSubmit={form.onSubmit(handleSubmit)}> */}
+          <Group>
+            {Object.keys(fields.grade)?.map((val, idx) => (
+              <Group noWrap>
+                <TextInput
+                  onChange={(e) =>
+                    setFields({
+                      ...fields,
+                      grade: {
+                        ...fields.grade,
+                        [val]: { ...fields.grade[val], name: e.target.value },
+                      },
+                    })
+                  }
+                  placeholder="اسم الحقل"
+                  defaultValue={fields.grade[val].name}
+                  withAsterisk
+                />{' '}
+                <NumberInput
+                  placeholder="قيمة الحقل"
+                  onChange={(e) => {
+                    console.log(e)
+                    setFields({
+                      ...fields,
+                      grade: {
+                        ...fields.grade,
+                        [val]: { ...fields.grade[val], value: e },
+                      },
+                      total: Object.keys(fields.grade)?.reduce(
+                        (ac, val) => fields.grade[val].value + ac,
+                        0,
+                      ),
+                    })
+                  }}
+                  defaultValue={fields.grade[val].value}
+                  withAsterisk
+                />
+              </Group>
+            ))}
+            <Badge radius={'xl'} fullWidth color="green" h={32}>
+              {':المجموع' + fields.total}
+            </Badge>
+            <Button variant="light" onClick={addField} fullWidth>
+              إضافة حقل
+            </Button>
+          </Group>
+
+          <Group position="right" mt="md">
+            <Button onClick={handleSubmit} loading={isUpdatingSubject} type="submit">
+              حفط
+            </Button>
+          </Group>
+          {/* </form> */}
+        </>
+      </Modal>
+      <Group onClick={open}>{children}</Group>
+    </Group>
+  )
 }

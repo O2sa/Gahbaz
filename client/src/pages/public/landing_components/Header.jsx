@@ -32,11 +32,9 @@ const Header = () => {
               الأسئلة الشائعة
             </Link>
           </div>
-<RouterLink to={'/login'}>
-
-<Button color="brand" >تسجيل الدخول</Button>
-
-</RouterLink>
+          <RouterLink to={'/login'}>
+            <Button color="brand">تسجيل الدخول</Button>
+          </RouterLink>
         </div>
       </div>
 
@@ -82,27 +80,7 @@ const Header = () => {
               <Anchor href="mailto:example@mail.com">example@mail.com</Anchor>
             </div>
 
-            <Code
-              color="yellow"
-              style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: 15 }}
-            >
-              Template made by
-              <Anchor href="https://github.com/Giuseppetm">
-                <UnstyledButton>
-                  <Group>
-                    <Avatar size={40} color="orange">
-                      GDC
-                    </Avatar>
-                    <div>
-                      <Text>Giuseppetm</Text>
-                      <Text size="xs" color="dimmed">
-                        giuseppe.delcampo@outlook.com
-                      </Text>
-                    </div>
-                  </Group>
-                </UnstyledButton>
-              </Anchor>
-            </Code>
+      
           </div>
         </Drawer>
       </div>

@@ -50,7 +50,6 @@ const DefaultLayout = ({ queryClient }) => {
   })
 
   const routes = getRoutes()
-
   const stateChange = (state) => {
     setSidebarState((prev) => ({ ...prev, ...state }))
   }
