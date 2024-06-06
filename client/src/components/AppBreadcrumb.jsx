@@ -16,24 +16,7 @@ import { FaRegStar } from 'react-icons/fa'
 import { router } from '../App'
 const AppBreadcrumb = () => {
   const location = useLocation()
-  const matches = matchRoutes([
-    { path: '/landing', name: 'landing' },
-  
-    { path: '/login', name: 'Login Page' },
-    { path: '/register', name: 'Register Page', },
-    { path: '/404', name: 'Page 404',  },
-    { path: '/500', name: 'Page 500', },
-    {
-      path: '/',
-      name: 'Home',
-  
-      children: [
-        ...getRoutes(),
-    
-        
-      ],
-    },
-  ], location)
+  const matches = matchRoutes([getRoutes()], location)
   const [faverite, setfaverite] = useState(false)
 
   // Generate unique breadcrumbs
@@ -48,7 +31,7 @@ const AppBreadcrumb = () => {
 
     return acc
   }, [])
-  
+
   const [value, toggle] = useToggle([0, 1])
   useEffect(() => {
     addRecentMaterial(breadcrumbs[breadcrumbs.length - 1])
@@ -67,14 +50,13 @@ const AppBreadcrumb = () => {
       addFaveriteLink(breadcrumbs[breadcrumbs.length - 1])
     }
   }
-  console.log('location', location)
-  console.log('matches', matches)
+  // console.log('location', location)
+  // console.log('matches', matches)
   // console.log('value', value)
 
-
   return (
-  <>
-      <Group mb={'0'}   aria-label="breadcrumb">
+    <>
+      <Group mb={'0'} aria-label="breadcrumb">
         <ol className="breadcrumb my-auto">
           {breadcrumbs.map((breadcrumb, index) => {
             const isLast = index === breadcrumbs.length - 1

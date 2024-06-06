@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import Major from "../models/Major.js";
 import SemesterTemp from "../models/SemesterTemp.js";
 import Collage from "../models/Collage.js";
+import Semester from "../models/Semester.js";
 
 const getMajor = async (req, res) => {
   const id = req.params.id;
@@ -18,10 +19,12 @@ const getCollageMajors = async (req, res) => {
   res.status(StatusCodes.OK).json(majors);
 };
 
-
 const getAllMajors = async (req, res) => {
-  const majors = await Major.find({  });
-  // console.log(req.params.collageId);
+  const majors = await Major.find({}).populate({
+    path: "semesterTemplates",
+    active: false,
+  });
+
   res.status(StatusCodes.OK).json(majors);
 };
 

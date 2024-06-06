@@ -6,6 +6,9 @@ import {
   useMantineReactTable,
   MRT_EditActionButtons,
 } from 'mantine-react-table'
+
+
+
 import { Link, useLoaderData, useParams } from 'react-router-dom'
 import { MRT_Localization_AR } from 'mantine-react-table/locales/ar'
 // import useTable
@@ -27,8 +30,10 @@ import {
   Indicator,
   Group,
   Avatar,
+  Checkbox,
+  Modal,
+  NumberInput,
 } from '@mantine/core'
-import { IconUserCircle, IconSend } from '@tabler/icons-react'
 import {
   QueryClient,
   QueryClientProvider,
@@ -78,7 +83,8 @@ export default function Admins({ queryClient }) {
 
   //UPDATE action
   const handleSaveAdmin = async ({ values, row, table }) => {
-    await updateAdmin({ ...values, ...editingRowData, _id: row.id })
+    await updateAdmin({ ...editingRowData, _id: row.id })
+    // console.log(values)
     table.setEditingRow(null) //exit editing mode
   }
 
@@ -137,7 +143,8 @@ export default function Admins({ queryClient }) {
       {
         accessorKey: 'lastActivity',
         header: 'آخر نشاط',
-        accessorFn:(row)=>row.lastActivity?new Date(row?.lastActivity).toLocaleTimeString():'unkown',
+        accessorFn: (row) =>
+          row.lastActivity ? new Date(row?.lastActivity).toLocaleTimeString() : 'unkown',
         enableEditing: false,
       },
 
@@ -145,10 +152,17 @@ export default function Admins({ queryClient }) {
         id: 'permissions',
         accessorKey: 'permissions',
         // accessorFn: (row) => row?.admins?.map((sub) => <Badge>{`${sub.name} `}</Badge>) || '',
-        // Cell: ({ cell }) => {
-        //   if (!cell.getValue() || cell.getValue().length == 0) return ''
-        //   return cell.getValue()?.map((sub) => <Badge>{`${sub} `}</Badge>)
-        // },
+        Cell: ({ cell }) => {
+          if (!cell.getValue() || cell.getValue().length == 0) return ''
+          return (
+            <Group mt="xs">
+              <Checkbox checked={cell.getValue().split('').includes('r')} value="r" label="قراءة" />
+              <Checkbox checked={cell.getValue().split('').includes('w')} value="w" label="تعديل" />
+              <Checkbox checked={cell.getValue().split('').includes('d')} value="d" label="حذف" />
+            </Group>
+          )
+        },
+
         // enableEditing: true,
         header: 'الصلاحيات',
         enableEditing: false,
@@ -225,7 +239,7 @@ export default function Admins({ queryClient }) {
         />{' '}
         <TextInput
           withAsterisk
-          label="email"
+          label="الايميل"
           name="email"
           id="email"
           placeholder=" الايميل"
@@ -239,6 +253,19 @@ export default function Admins({ queryClient }) {
           placeholder="الرقم"
           onChange={(e) => setNewrowData({ ...newRowData, phone: e.target.value })}
         />
+        <Checkbox.Group
+          defaultValue={['r']}
+          label="حدد صلاحيات المدير:"
+          // description="This is anonymous"
+          onChange={(e) => setNewrowData({ ...newRowData, permissions: e.join('') })}
+          withAsterisk
+        >
+          <Group mt="xs">
+            <Checkbox disabled value="r" label="قراءة" />
+            <Checkbox value="w" label="تعديل" />
+            <Checkbox value="d" label="حذف" />
+          </Group>
+        </Checkbox.Group>
         <Flex justify="flex-end">
           <MRT_EditActionButtons row={row} table={table} variant="text" />{' '}
         </Flex>
@@ -282,6 +309,19 @@ export default function Admins({ queryClient }) {
           defaultValue={row?.original?.phone}
           onChange={(e) => setEditingRowData({ ...editingRowData, phone: e.target.value })}
         />
+        <Checkbox.Group
+          defaultValue={row?.original?.permissions?.split('')}
+          label="حدد صلاحيات المدير:"
+          // description="This is anonymous"
+          onChange={(e) => setEditingRowData({ ...editingRowData, permissions: e.join('') })}
+          withAsterisk
+        >
+          <Group mt="xs">
+            <Checkbox disabled value="r" label="قراءة" />
+            <Checkbox value="w" label="تعديل" />
+            <Checkbox value="d" label="حذف" />
+          </Group>
+        </Checkbox.Group>
         <Flex justify="flex-end">
           <MRT_EditActionButtons row={row} table={table} variant="text" />{' '}
         </Flex>

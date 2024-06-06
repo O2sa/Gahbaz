@@ -27,13 +27,24 @@ import {
 } from '@tabler/icons-react'
 import { RiProfileFill } from 'react-icons/ri'
 import { BsChatDots } from 'react-icons/bs'
+import { MdDashboard } from 'react-icons/md'
+import { AiOutlineDashboard } from "react-icons/ai";
+import { TbUserSquare } from "react-icons/tb";
+import { IoChatbubblesOutline } from "react-icons/io5";
+
+import { PiCardsThreeBold } from "react-icons/pi";
+import { SiGoogleclassroom } from "react-icons/si";
+import { FaUsersGear } from "react-icons/fa6";
+import { PiBooksThin } from "react-icons/pi";
+import { FaLandmark } from "react-icons/fa6";
+import { GiLevelEndFlag } from "react-icons/gi";
 
 const publicNavs = [
   {
     component: CNavItem,
     name: 'لوحة التحكم',
     to: '.',
-    icon: <IconDashboard className="me-4" />,
+    icon: <AiOutlineDashboard className="me-4" />,
     // badge: {
     //   color: 'info',
     //   text: 'NEW',
@@ -43,13 +54,13 @@ const publicNavs = [
     component: CNavItem,
     name: 'الملف الشخصي',
     to: 'profile',
-    icon: <RiProfileFill className="me-4" />,
+    icon: <TbUserSquare className="me-4" />,
   },
   {
     component: CNavItem,
     name: 'المحادثات',
     to: 'chat',
-    icon: <BsChatDots className="me-4" />,
+    icon: <IoChatbubblesOutline className="me-4" />,
   },
 ]
 const adminNavs = [
@@ -59,20 +70,20 @@ const adminNavs = [
     component: CNavItem,
     name: 'إدارة الكليات',
     to: '/collages',
-    icon: <IconManualGearbox className="me-4" />,
+    icon: <FaLandmark className="me-4" />,
   },
 
   {
     component: CNavItem,
     name: 'الفصول الدراسية',
     to: '/semesters',
-    icon: <IconSection className="me-4" />,
+    icon: <SiGoogleclassroom className="me-4" />,
   },
   {
     component: CNavItem,
     name: 'ادارة المستخدمين',
     to: '/users',
-    icon: <IconUsers className="me-4" />,
+    icon: <FaUsersGear className="me-4" />,
   },
 ]
 
@@ -90,14 +101,14 @@ const studentNavs = [
     component: CNavItem,
     name: ' الدورات',
     to: 'courses',
-    icon: <IconManualGearbox className="me-4" />,
+    icon: <PiBooksThin className="me-4" />,
   },
 
   {
     component: CNavItem,
     name: ' الدرجات',
     to: 'grades',
-    icon: <IconSection className="me-4" />,
+    icon: <GiLevelEndFlag className="me-4" />,
   },
 ]
 

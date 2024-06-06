@@ -1,31 +1,32 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { CNav, CNavItem, CNavLink, CTabContent, CTabPane } from '@coreui/react'
-import { Tab } from './Tab'
-import { Link, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { Tabs } from '@mantine/core'
+import { Link, NavLink, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Box, Flex, Grid, Group, Tabs, Text, Title } from '@mantine/core'
 import { IconPhoto, IconMessageCircle, IconSettings } from '@tabler/icons-react'
 
 export const TabsLinks = ({ tabs, ...props }) => {
   const [activeKey, setActiveKey] = React.useState(0)
   return (
-    <div className="bg-white" style={{ minHeight: '80vh' }}>
-      <CNav variant="tabs" className="p-0" role="tablist">
-        {tabs.map((tab, idx) => (
-          <Tab
-            label={tab.name}
-            TabIcon={tab.icon}
-            k={idx}
-            clickHandller={setActiveKey}
-            activeKey={activeKey}
-            to={tab.to}
-          />
-        ))}
-      </CNav>
-      <CTabContent className="pb-4 ">
+    <Box bg={'white'} sx={{ minHeight: '80vh' }}>
+      <Tabs defaultValue={tabs[0].name}>
+        <Grid grow gutter={'xs'} sx={{gap:0}}>
+          {tabs.map((tab, idx) => (
+            <Grid.Col span={'auto'}>
+              <Link to={tab.to}>
+                <Tabs.Tab w={'100%'} icon={<tab.icon size="1.5rem" />} value={tab.name}>
+                  {' '}
+                  <Text size={'md'}>{tab.name}</Text>
+                </Tabs.Tab>{' '}
+              </Link>
+            </Grid.Col>
+          ))}
+        </Grid>
+      </Tabs>
+      <Box className="pb-4 ">
         <Outlet />
-      </CTabContent>
-    </div>
+      </Box>
+    </Box>
   )
 }
 

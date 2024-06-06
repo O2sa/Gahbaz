@@ -10,6 +10,9 @@ export async function logLogin(userId) {
   await loginEvent.save();
 }
 
+
+
+
 export const getActiveUsers = async () => {
   const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
 

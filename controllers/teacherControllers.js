@@ -41,8 +41,7 @@ const deleteTeacher = async (req, res) => {
 };
 
 const createTeacher = async (req, res) => {
-  const uni = await University.findOne({ admin: req.user._id });
-  req.body["university"] = uni._id;
+  req.body["university"] = req.user.university;
   const user = await Teacher.create(req.body);
 
   const hashedPassword = await hashPassword(req.body.email);

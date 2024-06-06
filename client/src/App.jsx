@@ -28,7 +28,6 @@ const loading = (
 )
 
 // Containers
-const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 
 import { Login, Page404, Page500, Profile, Register, Error, Landing } from './pages/public'
 import ChatRoom from './chat/ChatContainer'
@@ -47,18 +46,7 @@ export const router = createBrowserRouter([
   { path: '/register', name: 'إنشاء حساب', element: <Register /> },
   { path: '/404', name: 'غير موجدو', element: <Page404 /> },
   { path: '/500', name: 'خطأ!', element: <Page500 /> },
-  {
-    path: '/',
-    name: 'الرئيسية',
-    element: <DefaultLayout queryClient={queryClient} />,
-    errorElement: <Error />,
-
-    children: [
-      ...getRoutes(queryClient),
-  
-      
-    ],
-  },
+  getRoutes(queryClient),
 ])
 
 const rtlCache = createEmotionCache({
@@ -67,19 +55,16 @@ const rtlCache = createEmotionCache({
 })
 
 function App() {
-
-
   return (
     <QueryClientProvider client={queryClient}>
       {/* <CloudinaryContext cloudName="ddng3kwfw"> */}
       <MantineProvider
         withGlobalStyles
         withNormalizeCSS
-      
         emotionCache={rtlCache}
         theme={{
           dir: 'rtl',
-          
+
           fontFamily: 'Cairo',
           colors: {
             brand: [
@@ -109,7 +94,7 @@ function App() {
         <Notifications />
       </MantineProvider>{' '}
       {/* </CloudinaryContext> */}
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   )
 }

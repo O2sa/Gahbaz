@@ -13,6 +13,10 @@ const SemesterSchema = new mongoose.Schema({
     required: true,
   },
   index: { type: Number,  },
+  active: {
+    type: Boolean,
+    default: false,
+  },
   subjects: [{ type: mongoose.Schema.Types.ObjectId, ref: "Subject" }],
 });
 

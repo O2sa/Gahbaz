@@ -3,7 +3,7 @@ import User from "./User.js";
 import { PERMISSIONS } from "../utils/constants.js";
 
 const AdminSchema = new mongoose.Schema({
-  permissions: { type: String, enum: PERMISSIONS, default: "rw-" },
+  permissions: { type: String, enum: PERMISSIONS, default: "r" },
   role: {
     type: String,
     enum: ["admin", "super-admin", 'user'],
