@@ -5,7 +5,7 @@ import { BsStack } from 'react-icons/bs'
 
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { useDeleteElement, useGetElements } from '../crud'
+import { useDeleteElement, useGetElements, useUpdateElement } from '../crud'
 
 import { TabsBody } from '../../stories/Tabs/TabsBody'
 import { Link, NavLink } from 'react-router-dom'
@@ -21,7 +21,7 @@ import {
   CSpinner,
 } from '@coreui/react'
 import { MantineReactTable, useMantineReactTable } from 'mantine-react-table'
-import { ActionIcon, Badge, Box, Button, Flex } from '@mantine/core'
+import { ActionIcon, Badge, Box, Button, Flex, Group } from '@mantine/core'
 import {
   IconArrowAutofitRight,
   IconArrowBarLeft,
@@ -34,6 +34,8 @@ import {
 import { Tooltip } from 'chart.js'
 import StartSemester from './StartSemester'
 import { SemestersLoader } from '../LoadingComponents'
+import customFetch from '../../utils/customFetch'
+import { MdPinEnd } from 'react-icons/md'
 
 export default function Semesters({ queryClient }) {
   const {
@@ -42,6 +44,11 @@ export default function Semesters({ queryClient }) {
     isFetching: isFetchingTeachers,
     isLoading: isLoadingTeachers,
   } = useQuery(useGetElements(['semesters']))
+  const { mutateAsync: updateSemester, isLoading: isUpdating } = useUpdateElement(queryClient, [
+    'semesters',
+  ])
+
+
 
   if (isFetchingTeachers || isLoadingTeachers) {
     return (
@@ -79,7 +86,11 @@ const SemestersTable = ({ semesters, queryClient }) => {
     queryClient,
     ['semesters'],
   )
-
+  
+  const handleEnd = async (id) => {
+    await customFetch.patch(`semesters/${id}/end-semester`)
+    queryClient.invalidateQueries({ queryKey: ['semesters'] })
+  }
   const openDeleteConfirmModal = (row) => deleteStudent(row.id)
 
   const columns = useMemo(
@@ -97,7 +108,7 @@ const SemestersTable = ({ semesters, queryClient }) => {
       },
       {
         accessorKey: 'students',
-        header: 'الإيميل',
+        header: 'الطلاب',
         Cell: ({ cell }) => {
           if (!cell.getValue()) return ''
           return cell.getValue().length
@@ -105,7 +116,7 @@ const SemestersTable = ({ semesters, queryClient }) => {
       },
       {
         accessorKey: 'courses',
-        header: 'عدد الدورات ',
+        header: ' الدورات ',
         Cell: ({ cell }) => {
           if (!cell.getValue()) return ''
           return cell.getValue().length
@@ -122,7 +133,6 @@ const SemestersTable = ({ semesters, queryClient }) => {
               <br />
               إلى
               <br />
-
               <Badge>{new Date(row.original.endDate).toLocaleDateString()}</Badge>
             </>
           )
@@ -132,8 +142,12 @@ const SemestersTable = ({ semesters, queryClient }) => {
         accessorKey: 'completed',
         header: 'الحالة',
         Cell: ({ cell }) => {
-          if (!cell.getValue()) return ''
-          return <Badge>{cell.getValue() ? 'مكتمل' : ' ما زال'}</Badge>
+          // if (!cell.getValue()) return ''
+          return (
+            <Badge color={cell?.getValue() ? 'green' : 'blue'}>
+              {cell?.getValue() ? 'مكتمل' : ' ما زال'}
+            </Badge>
+          )
         },
       },
       {
@@ -141,15 +155,25 @@ const SemestersTable = ({ semesters, queryClient }) => {
         header: 'الحالة',
         Cell: ({ cell, row }) => {
           return (
-            <Link to={row.original._id}>
+            <Group>
+              <Link to={row.original._id}>
+                <Button
+                  variant="light"
+                  leftIcon={<IconInfoCircle size={14} />}
+                  rightIcon={<IconArrowBarLeft size={14} />}
+                >
+                  عرض التفاصيل
+                </Button>
+              </Link>
               <Button
                 variant="light"
-                leftIcon={<IconInfoCircle size={14} />}
-                rightIcon={<IconArrowBarLeft size={14} />}
+                onClick={() => handleEnd(row.original._id)}
+                color="red"
+                leftIcon={<MdPinEnd size={14} />}
               >
-                عرض التفاصيل
+                انهاء الفصل
               </Button>
-            </Link>
+            </Group>
           )
         },
       },

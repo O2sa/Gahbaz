@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import customFetch from '../utils/customFetch'
+import { notifications } from '@mantine/notifications'
 
 export function useDeleteElement(queryClient, collection) {
   return useMutation({
@@ -10,7 +11,16 @@ export function useDeleteElement(queryClient, collection) {
       const response = await customFetch.delete(`/${collection[0]}/${eleId}`)
     },
     onError: (error) => {
-      console.log(error)
+      // console.log(error)
+      notifications.show({
+        id: 'error-delete',
+        title: 'خطأ!',
+        message: error?.message,
+        variant: 'error',
+        color:'red',
+        autoClose: 5000,
+      })
+
       throw error // Re-throw the error for handling in handleSubmit
     },
     onMutate: (eleId) => {
@@ -45,7 +55,16 @@ export function useUpdateElement(queryClient, collection) {
       return data
     },
     onError: (error) => {
-      console.log(error)
+      // console.log(error)
+      notifications.show({
+        id: 'error-delete',
+        title: 'خطأ!',
+        message: error?.message,
+        variant: 'error',
+        color:'red',
+        autoClose: 5000,
+      })
+
       throw error // Re-throw the error for handling in handleSubmit
     },
     // onMutate: (newElement) => {
@@ -68,7 +87,16 @@ export function useUpdateOneElement(queryClient, collection) {
       return data
     },
     onError: (error) => {
-      console.log(error)
+      // console.log(error)
+      notifications.show({
+        id: 'error-delete',
+        title: 'خطأ!',
+        message: error?.message,
+        variant: 'error',
+        color:'red',
+        autoClose: 5000,
+      })
+
       throw error // Re-throw the error for handling in handleSubmit
     },
     // onMutate: (newElement) => {
@@ -94,7 +122,16 @@ export function useCreateElement(queryClient, collection) {
     },
 
     onError: (error) => {
-      console.log(error)
+      // console.log(error)
+      notifications.show({
+        id: 'error-delete',
+        title: 'خطأ!',
+        message: error?.message,
+        variant: 'error',
+        color:'red',
+        autoClose: 5000,
+      })
+
       throw error // Re-throw the error for handling in handleSubmit
     },
     onMutate: (newElement) => {

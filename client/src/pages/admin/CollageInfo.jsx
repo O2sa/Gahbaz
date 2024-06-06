@@ -10,6 +10,16 @@ import { AboutCollage, Subjects } from './index'
 import Majors from './Majors'
 import { IconBathFilled, IconMoodAngry } from '@tabler/icons-react'
 import { IconSubtask } from '@tabler/icons-react'
+import { RiCollageFill, RiCollageLine, RiMoreLine } from 'react-icons/ri'
+import { MdClass, MdKingBed, MdOutlineGolfCourse, MdSubject } from 'react-icons/md'
+import { FaBookOpen } from 'react-icons/fa'
+import { TbLayoutCollage } from 'react-icons/tb'
+import { BiCategory } from 'react-icons/bi'
+import { FiInfo } from 'react-icons/fi'
+import { GrInfo } from 'react-icons/gr'
+import { GoBook } from 'react-icons/go'
+import { FaLandmarkDome } from "react-icons/fa6";
+
 
 export default function CollageInfo({
 queryClient
@@ -17,17 +27,17 @@ queryClient
   const tabs = [
     {
       name: 'معلومات الكلية',
-      icon: BsStack,
+      icon: GrInfo,
       to: '.',
     },
     {
       name: 'التخصصات',
-      icon: IconBathFilled,
+      icon: FaLandmarkDome,
       to: 'majors',
     },
     {
       name: 'المواد',
-      icon: IconSubtask,
+      icon: GoBook,
       to: 'subjects',
     },
   ]

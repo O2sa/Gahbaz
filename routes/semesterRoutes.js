@@ -6,7 +6,8 @@ createSemester,
 startSemester,
 updateSemester,
 deleteSemester,
-getSemester
+getSemester,
+endSemester
 } from "../controllers/semesterControllers.js"
 
 
@@ -15,6 +16,7 @@ getSemester
 router.route("/").get(getAllSemesters).post(startSemester);
 // router.route("/startSemester").post(startSemester);
 router.route("/:semId").patch(updateSemester).delete(deleteSemester).get(getSemester);
+router.route("/:semId/end-semester").patch(endSemester)
 
 
 export default router;

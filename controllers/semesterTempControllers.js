@@ -35,10 +35,17 @@ const deleteSemesterTemplate = async (req, res) => {
 const getMajorTemplates = async (req, res) => {
   const id = req.params.id;
 
-  const semesterTemplates = await SemesterTemp.find({ major: id });
+  const semesterTemplates = await SemesterTemp.find({ major: id })
+    .populate("subjects")
+    .populate({
+      path: "major",
+      populate: {
+        path: "collage",
+        // model: "Collage",
+      },
+    });
   // console.log(semesterTemplates)
 
-  
   res.status(StatusCodes.OK).json(semesterTemplates);
 };
 

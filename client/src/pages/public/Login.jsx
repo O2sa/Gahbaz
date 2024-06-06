@@ -2,26 +2,28 @@ import React, { useState } from 'react'
 import axios from 'axios'
 
 import { Link, Form, redirect, useNavigate } from 'react-router-dom'
+
 import {
-  CButton,
-  CCard,
-  CCardBody,
-  CCardGroup,
-  CCol,
-  CContainer,
-  CForm,
-  CFormInput,
-  CInputGroup,
-  CInputGroupText,
-  CRow,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilUser } from '@coreui/icons'
-import { Button, Image, PasswordInput, TextInput,Center, Title } from '@mantine/core'
+  TextInput,
+  PasswordInput,
+  Checkbox,
+  Anchor,
+  Paper,
+  Title,
+  Text,
+  Container,
+  Group,
+  Button,
+  Center,
+  Image,
+  Menu,
+} from '@mantine/core'
 import { useForm } from '@mantine/form'
 import customFetch from '../../utils/customFetch'
 import { notifications } from '@mantine/notifications'
 import logo from '../../assets/brand/Logo.svg'
+import { PiChalkboardTeacher, PiChalkboardTeacherDuotone, PiStudentBold } from 'react-icons/pi'
+import { RiAdminFill } from 'react-icons/ri'
 
 const Login = ({}) => {
   const navigate = useNavigate()
@@ -32,7 +34,7 @@ const Login = ({}) => {
     },
   })
 
-  console.log(form.values)
+  // console.log(form.values)
 
   const handleSubmit = async (values) => {
     console.log('values')
@@ -59,57 +61,79 @@ const Login = ({}) => {
     }
   }
   return (
-    <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
-      <CContainer>
-        <CRow className="justify-content-center">
-          <CCol md={8}>
-            <CCardGroup>
-              <CCard className="p-4">
-                <CCardBody>
-                  <form onSubmit={form.onSubmit(handleSubmit)}>
-                    <TextInput
-                      label="الايميل"
-                      placeholder=""
-                      size="md"
-                      mt="md"
-                      {...form.getInputProps('email')}
-                    />
-                    <PasswordInput
-                      label="كلمة السر"
-                      placeholder=""
-                      mt="md"
-                      size="md"
-                      {...form.getInputProps('password')}
-                    />{' '}
-                    {/* <Checkbox label="Keep me logged in" mt="xl" size="md" /> */}
-                    <Button type="submit" fullWidth mt="xl" size="md">
-                      تسجيل
-                    </Button>
-                  </form>
-                </CCardBody>
-              </CCard>
-              <CCard className="text-white bg-primary py-5" style={{ width: '44%' }}>
-                <CCardBody className="text-center">
-                  <Center mb={'xl'}>
-                    <Image width={'75%'} src={logo} />
-                  </Center>
-                  {/* <Title ta="center">مرحبا بك في منصة جهبذ !</Title> */}
+    <Container size={420} my={40}>
+      <Center mb={'xl'}>
+        <Image width={'75%'} src={logo} />
+      </Center>
+      <Title ta="center">أهلا بك!</Title>
+      <Text c="dimmed" size="sm" ta="center" mt={5}>
+        لم تُنشأ حساب بعد؟ <Link to={'/register'}>إنشاء حساب</Link>
+      </Text>
 
-                  <div>
-                    <p>إذا لم يكن لديك حساب فقم بإنشاء حساب جديد</p>
-                    <Link to="/register">
-                      <CButton color="primary" className="mt-3" active tabIndex={-1}>
-                        إنشاء!
-                      </CButton>
-                    </Link>
-                  </div>
-                </CCardBody>
-              </CCard>
-            </CCardGroup>
-          </CCol>
-        </CRow>
-      </CContainer>
-    </div>
+      <Paper withBorder shadow="md" p={30} mt={30} radius="md">
+        <form onSubmit={form.onSubmit(handleSubmit)}>
+          <TextInput
+            label="الايميل"
+            placeholder="الايميل"
+            size="md"
+            mt="md"
+            {...form.getInputProps('email')}
+          />
+          <PasswordInput
+            label="كلمة السر"
+            placeholder="كلمة السر"
+            mt="md"
+            size="md"
+            {...form.getInputProps('password')}
+          />{' '}
+          <Group justify="space-between" mt="lg">
+            <Anchor component="button" size="sm">
+              نسيت كلمة السر؟
+            </Anchor>
+          </Group>{' '}
+          <Group align="center" j>
+            <Button type="submit" fullWidth mt="xl" size="md">
+              تسجيل
+            </Button>
+          </Group>
+          <Menu shadow="md" width={200}>
+            <Menu.Target>
+              <Center m={'lg'}>
+                <Anchor variant="light">تجربة المنصة</Anchor>
+              </Center>
+            </Menu.Target>
+
+            <Menu.Dropdown>
+              <Menu.Label>تجربة المنصة بحساب:</Menu.Label>
+              <Menu.Item
+                onClick={() =>
+                  handleSubmit({ password: 'student@test.com', email: 'student@test.com' })
+                }
+                icon={<PiStudentBold size={14} />}
+              >
+                طالب
+              </Menu.Item>
+              <Menu.Item
+                onClick={() =>
+                  handleSubmit({ password: 'teacher@tech.com', email: 'teacher@tech.com' })
+                }
+                icon={<PiChalkboardTeacherDuotone size={14} />}
+              >
+                معلم
+              </Menu.Item>
+              <Menu.Item
+                onClick={() =>
+                  handleSubmit({ password: 'admin@test.com', email: 'admin@test.com' })
+                }
+                icon={<RiAdminFill size={14} />}
+              >
+                مدير
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        </form>
+      </Paper>
+    </Container>
   )
 }
 

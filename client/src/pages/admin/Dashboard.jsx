@@ -383,7 +383,7 @@ const Charts = () => {
         </Title>
         <Grid>
           <Grid.Col xs={12} lg={6} h={rem('400px')}>
-            <StorageCpuChart data={data.metrics} />
+            <StorageCpuChart data={data.metrics.splice(11,80)} />
           </Grid.Col>
           <Grid.Col xs={12} lg={6} h={rem('400px')}>
             <NetworkChart data={data.metrics} />

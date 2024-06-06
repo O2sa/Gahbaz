@@ -8,6 +8,7 @@ import Student from "../models/Student.js";
 import Collage from "../models/Collage.js";
 import Grade from "../models/Grade.js";
 import Section from "../models/Section.js";
+
 const getSemester = async (req, res) => {
   const semId = req.params.semId;
   const semester = await Semester.findById(semId).populate("courses");
@@ -18,9 +19,15 @@ const getSemester = async (req, res) => {
 };
 
 const getAllSemesters = async (req, res) => {
-  const semesters = await Semester.find({ 
-    university: req.user.university
-   });
+  const semesters = await Semester.find({
+    university: req.user.university,
+  }).populate({
+    path: "major",
+    populate: {
+      path: "collage",
+      // model: "Collage",
+    },
+  });
   res.status(StatusCodes.OK).json(semesters);
 };
 
@@ -47,6 +54,13 @@ const updateSemester = async (req, res) => {
   const semester = await Semester.findByIdAndUpdate(semId, req.body);
   res.status(StatusCodes.OK).json();
 };
+const endSemester = async (req, res) => {
+  const semId = req.params.semId;
+  const semester = await Semester.findByIdAndUpdate(semId, { completed: true });
+  await SemesterTemp.findByIdAndUpdate(semester.template, { active: false });
+  res.status(StatusCodes.OK).json();
+};
+
 const createSemester = async (req, res) => {
   res.status(StatusCodes.OK).json();
 };
@@ -58,37 +72,33 @@ const getSemesterCourses = async (req, res) => {
 };
 
 const startSemester = async (req, res) => {
-  const { semesterData, collages } = req.body;
+  const { semesterData, semesters } = req.body;
   semesterData.university = req.user.university;
 
-  for (const collageId of collages) {
-    const collageData = await Collage.findById(collageId);
+  console.log("semesters", semesters);
+  let usedStudents = [];
+  const semesterTemplates = await SemesterTemp.find({
+    _id: {
+      $in: semesters,
+    },
+  });
+  console.log("semesterTemplates", semesterTemplates);
 
-    const majors = await Major.find({ collage: collageData._id });
+  for (const template of semesterTemplates) {
+    const students = await Student.find({
+      comingSemester: template.index,
+      major: template.major,
+      _id: { $nin: usedStudents },
+    });
+    console.log("students", students);
 
-    for (const major of majors) {
-      let usedStudents = [];
-      const semesterTemplates = await SemesterTemp.find({
-        _id: {
-          $in: major.semesterTemplates,
-        },
-      });
-      for (const template of semesterTemplates) {
-        const students = await Student.find({
-          comingSemester: template.index,
-          major: major._id,
-          _id: { $nin: usedStudents },
-        });
-        template.major = major._id;
-        if (students.length > 0 && template.subjects.length > 0) {
-          const dStudents = await createSemesterFromTemplate(
-            semesterData,
-            template,
-            students
-          );
-          usedStudents = [...usedStudents, ...dStudents];
-        }
-      }
+    if (students.length > 0 && template.subjects.length > 0) {
+      const dStudents = await createSemesterFromTemplate(
+        semesterData,
+        template,
+        students
+      );
+      usedStudents = [...usedStudents, ...dStudents];
     }
   }
 
@@ -109,14 +119,17 @@ export const createSemesterFromTemplate = async (
     });
 
     const newSemester = new Semester({
-      name: template.name.toString(),
-      major: template._id.toString(),
+      name: template.name,
+      major: template.major,
+      template: template._id,
       ...semesterData,
     });
 
     await newSemester.save();
 
+    await SemesterTemp.findByIdAndUpdate(template._id, { active: true });
     const coursesSchemas = {};
+
     const newCourses = await Promise.all(
       subjects.map(async (subject) => {
         const newCourse = new Course({
@@ -176,4 +189,5 @@ export {
   deleteSemester,
   getSemesterCourses,
   updateSemester,
+  endSemester
 };

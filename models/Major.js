@@ -29,6 +29,7 @@ const MajorSchema = new mongoose.Schema({
   ],
 
   semesterTemplates: [{ type: mongoose.Schema.ObjectId, ref: "SemesterTemp" }],
+  semesters: [{ type: mongoose.Schema.ObjectId, ref: "Semester" }],
 });
 
 

@@ -6,9 +6,13 @@ import {
 } from "../utils/passwordUtils.js";
 
 export const getAllAdmins = async (req, res) => {
-  const admin = await Admin.find({university: req.user.university}).select('-password')
+  const admin = await Admin.find({
+    // university: req.user.university
+  }).select('-password')
   res.status(StatusCodes.OK).json(admin);
 };
+
+
 export const createAdmin = async (req, res) => {
   req.body.university=req.user.university
   const user = await Admin.create(req.body);
