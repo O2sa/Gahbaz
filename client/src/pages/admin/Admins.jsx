@@ -144,7 +144,7 @@ export default function Admins({ queryClient }) {
         accessorKey: 'lastActivity',
         header: 'آخر نشاط',
         accessorFn: (row) =>
-          row.lastActivity ? new Date(row?.lastActivity).toLocaleTimeString() : 'unkown',
+          row.lastActivity ? new Date(row?.lastActivity).toLocaleString() : 'unkown',
         enableEditing: false,
       },
 
@@ -156,9 +156,9 @@ export default function Admins({ queryClient }) {
           if (!cell.getValue() || cell.getValue().length == 0) return ''
           return (
             <Group mt="xs">
-              <Checkbox checked={cell.getValue().split('').includes('r')} value="r" label="قراءة" />
-              <Checkbox checked={cell.getValue().split('').includes('w')} value="w" label="تعديل" />
-              <Checkbox checked={cell.getValue().split('').includes('d')} value="d" label="حذف" />
+              <Checkbox readOnly checked={cell.getValue().split('').includes('r')} value="r" label="قراءة" />
+              <Checkbox readOnly checked={cell.getValue().split('').includes('w')} value="w" label="تعديل" />
+              <Checkbox readOnly checked={cell.getValue().split('').includes('d')} value="d" label="حذف" />
             </Group>
           )
         },
