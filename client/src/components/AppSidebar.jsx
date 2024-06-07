@@ -19,7 +19,6 @@ import { Center, Image } from '@mantine/core'
 // import { updateSidebarState } from 'src/dataLogic/CollageManagementSlice.js'
 import logo from '../assets/brand/Logo.svg'
 const AppSidebar = ({ sidebarShow, stateChange }) => {
-  const { user } = useDashboardContext()
 
   return (
     <CSidebar
@@ -41,7 +40,7 @@ const AppSidebar = ({ sidebarShow, stateChange }) => {
       </CSidebarBrand>
       <CSidebarNav>
         <SimpleBar>
-          <AppSidebarNav items={getNavs(user)} />
+          <AppSidebarNav items={getNavs()} />
         </SimpleBar>
       </CSidebarNav>
       <CSidebarToggler

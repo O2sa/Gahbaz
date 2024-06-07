@@ -174,45 +174,15 @@ export default function Students({ queryClient }) {
     getRowId: (row) => row._id,
     paginationDisplayMode: 'pages',
     positionToolbarAlertBanner: 'bottom',
-    mantinePaginationProps: {
-      radius: 'xl',
-      size: 'lg',
-    },
+
     mantineToolbarAlertBannerProps: isLoadingStudentsError
       ? {
           color: 'red',
           children: 'خطأ في تحميل البيانات',
         }
       : undefined,
-    mantineTableContainerProps: {
-      sx: {
-        minHeight: '500px',
-      },
-    },
-    renderDetailPanel: ({ row }) => (
-      <Box
-        sx={{
-          display: 'flex',
 
-          justifyContent: 'flex-start',
-
-          alignItems: 'center',
-
-          gap: '16px',
-
-          padding: '16px',
-        }}
-      >
-        <img alt="avatar" height={200} src={row.original.avatar} style={{ borderRadius: '50%' }} />
-
-        <Box sx={{ textAlign: 'center' }}>
-          <Title>Signature Catch Phrase:</Title>
-
-          <Text>&quot;{row.original.signatureCatchPhrase}&quot;</Text>
-        </Box>
-      </Box>
-    ),
-
+   
     onCreatingRowSave: handleCreateStudent,
     onEditingRowSave: handleSaveStudent,
     renderRowActions: ({ row, table }) => (

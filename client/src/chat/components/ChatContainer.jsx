@@ -14,9 +14,25 @@ import SingleChat from './SingleChat'
 import axios from 'axios'
 import { removeGroupChatRoute, deleteChatRoute } from '../utils/APIRoutes'
 import { toastOptions } from '../utils/constants'
-import { ActionIcon, Avatar, Group, UnstyledButton, Text, Button, Grid, Flex, Box } from '@mantine/core'
-import { IconChevronRight } from '@tabler/icons-react'
+import {
+  ActionIcon,
+  Avatar,
+  Group,
+  UnstyledButton,
+  Text,
+  Button,
+  Grid,
+  Flex,
+  Box,
+  Menu,
+  Skeleton,
+  rem,
+  Divider,
+} from '@mantine/core'
+import { IconChevronRight, IconDotsVertical, IconSearch } from '@tabler/icons-react'
 import { CDropdown, CDropdownItem, CDropdownMenu, CDropdownToggle } from '@coreui/react'
+import classes from './chat.module.css'
+import UserButton from '../NewChat/components/UserButton/UserButton'
 
 function ChatContainer({ socket, fetchAgain, setFetchAgain }) {
   const { setSelectedChat, selectedChat, user } = ChatState()
@@ -86,94 +102,69 @@ function ChatContainer({ socket, fetchAgain, setFetchAgain }) {
   }
 
   return (
-    <Box h={'100%'}>
-      <Flex h={'10%'} bg={'white'} wrap={'nowrap'} align={'center'} justify={'space-between'}>
-        <Group>
-          <ActionIcon
-            onClick={() => {
-              setSelectedChat(undefined)
-            }}
-          >
-            <IoIosArrowBack />
-          </ActionIcon>
-          {selectedChat && (
-            <>
-              <Group gap="sm">
-                <Avatar
-                  size={40}
-                  src={
-                    selectedChat.isGroupChat
-                      ? selectedChat.groupPic
-                      : getSenderProfilePic(user, selectedChat.users)
-                  }
-                  alt={
-                    selectedChat.isGroupChat
-                      ? selectedChat.chatName
-                      : getSender(user, selectedChat.users)
-                  }
-                  radius={40}
-                />
-                <div>
-                  <Text fz="sm" fw={500}>
-                    {selectedChat.isGroupChat
-                      ? selectedChat.chatName
-                      : getSender(user, selectedChat.users)}{' '}
-                  </Text>
-                  <Text fz="xs" c="dimmed">
-                    {/* {item.email} */}
-                  </Text>
-                </div>
-              </Group>
-            </>
-          )}
-        </Group>
+    <Box
+      bg={'gray.1'}
+      sx={(theme) => ({
+        borderLeft: `1px solid ${theme.colors.gray[3]}`,
+      })}
+    >
+      <Box
+      bg={'white'}
+        sx={(theme) => ({
+          padding: `${theme.spacing.sm} ${theme.spacing.md}`,
+          borderBottom: `1px solid ${theme.colors.gray[3]}`,
+          borderTopRightRadius: `${theme.radius.md}`,
 
-        <CDropdown className="me-2">
-          <CDropdownToggle  color="">
-            <ActionIcon variant="subtle" aria-label="Settings" color='black'>
-              <GoKebabHorizontal style={{ width: '70%', height: '70%' }} stroke={1.5} />
-            </ActionIcon>{' '}
-          </CDropdownToggle>
-          <CDropdownMenu>
-            {selectedChat.isGroupChat ? (
-              <>
-                <CDropdownItem href="#">
-                  <Button
-                    leftSection={<RxPencil2 size={14} />}
-                    onClick={updateChat}
-                    variant="default"
-                  >
-                    Update
-                  </Button>
-                </CDropdownItem>
-                <CDropdownItem href="#">
-                  <Button
-                    leftSection={<RxPencil2 size={14} />}
-                    onClick={leaveChat}
-                    variant="default"
-                  >
-                    Leave Group
-                  </Button>
-                </CDropdownItem>
-              </>
-            ) : (
-              <>
-                <CDropdownItem href="#">
-                  <Button
-                    leftSection={<RxPencil2 size={14} />}
-                    onClick={deleteChat}
-                    variant="default"
-                  >
-                    delete chat
-                  </Button>
-                </CDropdownItem>
-              </>
-            )}
-          </CDropdownMenu>
-        </CDropdown>
-      </Flex>
-     
-     
+        })}
+      >
+        <Skeleton visible={false || false}>
+          <Flex align="center" justify="space-between">
+            <UserButton
+              email={user._id}
+              image={
+                selectedChat.isGroupChat
+                  ? selectedChat.groupPic
+                  : getSenderProfilePic(user, selectedChat.users)
+              }
+              name={
+                selectedChat.isGroupChat
+                  ? selectedChat.chatName
+                  : getSender(user, selectedChat.users)
+              }
+              asAction={false}
+              
+            />
+            <Flex gap="sm">
+              <ActionIcon variant="subtle">
+                <IconSearch size={16} />
+              </ActionIcon>
+              {/* <Menu>
+                <Menu.Target>
+                  Toggle
+         
+                </Menu.Target>
+                <Menu.Dropdown>
+                  {selectedChat.isGroupChat ? (
+                    <>
+                      <Menu.Item onClick={updateChat} icon={<RxPencil2 size={14} />}>
+                        Update
+                      </Menu.Item>
+                      <Menu.Item onClick={leaveChat} icon={<RxPencil2 size={14} />}>
+                        Leave Group
+                      </Menu.Item>
+                    </>
+                  ) : (
+                    <Menu.Item onClick={deleteChat} icon={<RxPencil2 size={14} />}>
+                      Leave Group
+                    </Menu.Item>
+                  )}
+                </Menu.Dropdown>
+              </Menu>  */}
+            </Flex>
+          </Flex>
+        </Skeleton>
+      </Box>
+
       <SingleChat
         fetchAgain={fetchAgain}
         socket={socket}

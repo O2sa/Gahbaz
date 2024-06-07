@@ -30,10 +30,11 @@ import {
   createPolymorphicComponent,
   rem,
   Paper,
+  Container,
+  Image,
 } from '@mantine/core'
 import { ChatContactsLoader } from '../../pages/LoadingComponents'
 import { useMediaQuery } from '@mantine/hooks'
-
 
 const styles = {
   welcome: {
@@ -105,60 +106,64 @@ function Chat() {
   // }, [user]);
 
   return (
-    <>
+    <Container fluid>
       {user && (
         <Surface
           component={Paper}
           {...PAPER_PROPS}
           style={{ height: tablet_match ? 'auto' : rem(565) }}
         >
-          <Grid h={'90vh'} className="">
-            <Grid.Col h={'100%'} p={'0'} bg={'white'} span={4} sx={{}}>
+          <Grid h={'100%'} gutter={0}>
+            <Grid.Col
+              span={12}
+               sm={3}
+              md={4}
+              lg={3}
+            >
               {/* <UserInfo fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} /> */}
 
-              <Group h={'10%'}>
-                <form className="w-100" onSubmit={(event) => handleSearch(event)}>
-                  <TextInput
-                    m={'md'}
-                    leftSection={
-                      search && (
-                        <ActionIcon
-                          // className="right-button"
-                          onClick={() => {
-                            setSearch('')
-                          }}
-                        >
-                          <GrFormClose />
-                        </ActionIcon>
-                      )
-                    }
-                    rightSection={
-                      navState === 'add-trip' && search ? (
-                        <ActionIcon
-                          onClick={() => {
-                            setNavState('start')
-                          }}
-                        >
-                          <IoIosArrowBack />
-                        </ActionIcon>
-                      ) : (
-                        <ActionIcon
-                          type="submit"
-                          // className="search__button"
-                        >
-                          <SlMagnifier />
-                        </ActionIcon>
-                      )
-                    }
-                    type="text"
-                    placeholder="Search or start new chat"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                </form>
-              </Group>
+              <Stack py="md" style={{ height: '100%' }}>
+                <Box px="sm">
+                  <form onSubmit={(event) => handleSearch(event)}>
+                    <TextInput
+                      leftSection={
+                        search && (
+                          <ActionIcon
+                            // className="right-button"
+                            onClick={() => {
+                              setSearch('')
+                            }}
+                          >
+                            <GrFormClose />
+                          </ActionIcon>
+                        )
+                      }
+                      rightSection={
+                        navState === 'add-trip' && search ? (
+                          <ActionIcon
+                            onClick={() => {
+                              setNavState('start')
+                            }}
+                          >
+                            <IoIosArrowBack />
+                          </ActionIcon>
+                        ) : (
+                          <ActionIcon
+                            type="submit"
+                            // className="search__button"
+                          >
+                            <SlMagnifier />
+                          </ActionIcon>
+                        )
+                      }
+                      type="text"
+                      placeholder="Search or start new chat"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                    />
+                  </form>
+                </Box>
 
-              <Stack h={'80%'} sx={{ overflowY: 'scroll' }}>
                 {!search || navState === 'start' ? (
                   <Contacts socket={socket} selectedChat={selectedChat} fetchAgain={fetchAgain} />
                 ) : loading ? (
@@ -171,7 +176,12 @@ function Chat() {
               </Stack>
             </Grid.Col>
 
-            <Grid.Col h={'100%'} sx={{ backgroundColor: '#E5E5E5' }} p={0} span={8}>
+            <Grid.Col
+              span={12}
+              sm={9}
+              md={8}
+              lg={9}
+            >
               {selectedChat ? (
                 <ChatContainer
                   socket={socket}
@@ -179,21 +189,25 @@ function Chat() {
                   setFetchAgain={setFetchAgain}
                 />
               ) : (
-                <div style={styles.welcome} className="">
-                  <img style={styles.img} src={Robot} alt="Robot waves his palm" />
+                <Box
+                  bg={'gray.1'}
+                  sx={(theme) => ({
+                    borderLeft: `1px solid ${theme.colors.gray[3]}`,
+                  })}
+                >
+                  {/* <Image w={'200px'} src={Robot} alt="Robot waves his palm" />
                   <h1>
                     Welcome,{' '}
                     <span style={styles.span}>{`${user.firstName} ${user.lastName}`}!</span>
                   </h1>
-                  <h3>Select a chat to start messaging.</h3>
-                </div>
+                  <h3>Select a chat to start messaging.</h3> */}
+                </Box>
               )}
             </Grid.Col>
           </Grid>
         </Surface>
       )}
-      <ToastContainer />
-    </>
+    </Container>
   )
 }
 

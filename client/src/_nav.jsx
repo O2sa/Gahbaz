@@ -38,6 +38,7 @@ import { FaUsersGear } from "react-icons/fa6";
 import { PiBooksThin } from "react-icons/pi";
 import { FaLandmark } from "react-icons/fa6";
 import { GiLevelEndFlag } from "react-icons/gi";
+import { useDashboardContext } from './layout/DefaultLayout'
 
 const publicNavs = [
   {
@@ -112,7 +113,8 @@ const studentNavs = [
   },
 ]
 
-export default function getNavs(user) {
+export default function getNavs() {
+  const {user}=useDashboardContext()
   // console.log('user', user)
   if (user.__t == 'Admin') return [...publicNavs, ...adminNavs]
 

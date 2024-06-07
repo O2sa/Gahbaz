@@ -27,6 +27,7 @@ import {
 import { upperFirst, useMediaQuery } from '@mantine/hooks'
 import { showNotification } from '@mantine/notifications'
 import { useDashboardContext } from '../../layout/DefaultLayout'
+import SearchProvider from './SearchProvider'
 
 const ICON_SIZE = 20
 
@@ -159,8 +160,7 @@ const NOTIFICATIONS = [
 // }
 
 const HeaderIcons = (props) => {
-
-const {logoutUser}=useDashboardContext()
+  const { logoutUser } = useDashboardContext()
   const { desktopOpened, toggleDesktop, toggleMobile, mobileOpened } = props
   const theme = useMantineTheme()
   const laptop_match = useMediaQuery('(max-width: 992px)')
@@ -220,23 +220,9 @@ const {logoutUser}=useDashboardContext()
 
   return (
     <Group justify="space-between">
-      <Group gap={0}>
-        {!mobile_match && (
-          <TextInput
-            placeholder="search"
-            rightSection={<IconSearch size={ICON_SIZE} />}
-            ml="md"
-            style={{ width: tablet_match ? 'auto' : rem(400) }}
-          />
-        )}
-      </Group>
+      <SearchProvider />
       <Group>
-        {mobile_match && (
-          <ActionIcon>
-            <IconSearch size={ICON_SIZE} />
-          </ActionIcon>
-        )}
-        <Menu shadow="lg" width={320}>
+        {/* <Menu shadow="lg" width={320}>
           <Menu.Target>
             <Indicator processing size={10} offset={6}>
               <Tooltip label="Messages">
@@ -275,7 +261,7 @@ const {logoutUser}=useDashboardContext()
               Show all notifications
             </Menu.Item>
           </Menu.Dropdown>
-        </Menu>
+        </Menu> */}
         <Tooltip label="Logout">
           <ActionIcon onClick={logoutUser} color="brand" size="lg" title="Notifications">
             <IconPower size={ICON_SIZE} />

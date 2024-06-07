@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { getAdminDashData } from "../controllers/SystemDataControllers.js";
+import { getAdminDashData, search } from "../controllers/SystemDataControllers.js";
 const router = Router();
 
 
 router.get("/get-admin-dash", getAdminDashData);
+router.get("/search", search);
 
 export default router;
