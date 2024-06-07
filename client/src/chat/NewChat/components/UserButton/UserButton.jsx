@@ -9,7 +9,7 @@ import { IconChevronRight } from '@tabler/icons-react';
 import classes from './UserButton.module.css';
 
 
-const UserProfileButton = ({
+const UserButton = ({
   image,
   name,
   email,
@@ -36,4 +36,4 @@ const UserProfileButton = ({
   );
 };
 
-export default UserProfileButton;
+export default UserButton;
