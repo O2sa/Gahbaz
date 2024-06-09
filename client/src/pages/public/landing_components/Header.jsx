@@ -32,8 +32,8 @@ const Header = () => {
               الأسئلة الشائعة
             </Link>
           </div>
-          <RouterLink to={'/login'}>
-            <Button color="brand">تسجيل الدخول</Button>
+          <RouterLink to={'/register'}>
+            <Button color="brand">إنشاء حساب</Button>
           </RouterLink>
         </div>
       </div>
@@ -79,8 +79,6 @@ const Header = () => {
 
               <Anchor href="mailto:example@mail.com">example@mail.com</Anchor>
             </div>
-
-      
           </div>
         </Drawer>
       </div>
