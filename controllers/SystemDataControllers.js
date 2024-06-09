@@ -48,7 +48,7 @@ export const search = async (req, res) => {
       const courses = await Course.find({
         name: new RegExp(query, "i"),
         semester: {
-          $in: user.semsesters,
+          $in: user.semesters,
         },
       });
       data = { courses };
