@@ -2,7 +2,7 @@ import React, { Component, Suspense, useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import getRoutes from './routes'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, useLocation } from 'react-router-dom'
 import './scss/style.scss'
 import { ModalsProvider } from '@mantine/modals'
 import { MantineProvider, createEmotionCache } from '@mantine/core'
@@ -57,7 +57,11 @@ const rtlCache = createEmotionCache({
   stylisPlugins: [rtlPlugin],
 })
 
+
+
+
 function App() {
+
   return (
     <QueryClientProvider client={queryClient}>
       {/* <CloudinaryContext cloudName="ddng3kwfw"> */}
