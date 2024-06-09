@@ -1,21 +1,15 @@
 import { Avatar, Group, Text } from '@mantine/core'
-import { ChatList } from 'react-chat-elements'
+import { ChatItem, ChatList } from 'react-chat-elements'
 
 const UserListItem = ({ handleFunction, result }) => {
   return (
-    <ChatList
-      className="chat-list"
+    <ChatItem
       onClick={handleFunction}
-      dataSource={[
-        {
-          avatar: result.avatar,
-          alt: result.firstName,
-          title: `${result.firstName} ${result.lastName}`,
-          subtitle: `${result.email} `,
-          date: '',
-          dateString: '',
-        },
-      ]}
+      key={result._id}
+      avatar={result.avatar}
+      alt={result.firstName}
+      title={`${result.firstName} ${result.lastName}`}
+      subtitle={`${result.email} `}
     />
   )
 }

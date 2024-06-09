@@ -5,7 +5,17 @@ import {
   // createRow,
   useMantineReactTable,
 } from 'mantine-react-table'
-import { ActionIcon, Button, Flex, Text, Tooltip, Box, Group, Indicator, Avatar } from '@mantine/core'
+import {
+  ActionIcon,
+  Button,
+  Flex,
+  Text,
+  Tooltip,
+  Box,
+  Group,
+  Indicator,
+  Avatar,
+} from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
 import { useGetElements, useUpdateElement } from '../crud'
 import { Link, useLoaderData, useParams } from 'react-router-dom'
@@ -47,8 +57,8 @@ export default function StudentGrades({ queryClient }) {
       </div>
     )
   }
-  
-  if (grades.length==0 ) {
+
+  if (grades.length == 0) {
     return (
       <div className="list-items" data-testid="loading" key={'loading'}>
         no students
@@ -56,10 +66,17 @@ export default function StudentGrades({ queryClient }) {
     )
   }
 
-  return <GradesTable grades={grades} />
+  return <GradesTable grades={grades} queryClient={queryClient} />
 }
 
-const GradesTable = ({ grades }) => {
+const GradesTable = ({ grades, queryClient }) => {
+  const { courseId } = useParams()
+
+  const { mutateAsync: update, isLoading: isUpdatingStudent } = useUpdateElement(queryClient, [
+    'grades',
+    courseId,
+  ])
+
   const columns = useMemo(
     () => [
       {
@@ -70,18 +87,18 @@ const GradesTable = ({ grades }) => {
             accessorKey: 'student',
             id: 'student',
             header: 'الطالب',
-    
+            enableEditing: false,
             Cell: ({ cell, row }) => {
               const item = row.original
               return (
                 <Link to={'/users/' + item._id}>
                   <Group gap="sm" noWrap>
                     <Indicator disabled={!isUserActive(row.original.lastActivity)}>
-                      <Avatar  size={40} src={item.avatar} radius={40} />
+                      <Avatar size={40} src={item.avatar} radius={40} />
                     </Indicator>
                     <div>
                       <Text fz="sm" fw={500}>
-                        {`${item.firstName} ${item.lastName}`}
+                        {`${item.student.firstName} ${item.student.lastName}`}
                       </Text>
                       <Text fz="xs" c="dimmed">
                         {item.email}
@@ -92,7 +109,6 @@ const GradesTable = ({ grades }) => {
               )
             },
           },
-    
         ],
       },
       {
@@ -122,20 +138,17 @@ const GradesTable = ({ grades }) => {
         ],
       },
 
-
       {
-   
         accessorKey: 'total',
         header: 'المجموع',
         enableEditing: false,
-       
-      }
+      },
     ],
 
     [],
   )
 
-  const [tableData, setTableData] = useState( grades)
+  const [tableData, setTableData] = useState(grades)
 
   const setupDataToUpdata = (values, row) => {
     delete values['student']
@@ -147,7 +160,6 @@ const GradesTable = ({ grades }) => {
     return row
   }
 
-  
   const handleSaveRow = async ({ table, row, values }) => {
     //if using flat data and simple accessorKeys/ids, you can just do a simple assignment here.
 
@@ -158,7 +170,7 @@ const GradesTable = ({ grades }) => {
     console.log('values', values)
 
     try {
-      await customFetch.patch(`grades/${updatedRow._id}`, updatedRow)
+      await update(updatedRow)
 
       tableData[row.index] = updatedRow
       setTableData([...tableData])

@@ -64,7 +64,7 @@ export default function UploadCourseCover({ children, queryClient }) {
           onReject={(files) => console.log('rejected files', files)}
           m={'md'}
           maxFiles={1}
-          maxSize={2 * 1024 * 1024}
+          // maxSize={2 * 1024 * 1024}
           accept={{ 'image/*': [] }}
           onDrop={handleFileChange}
         >

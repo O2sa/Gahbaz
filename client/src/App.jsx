@@ -9,7 +9,10 @@ import { MantineProvider, createEmotionCache } from '@mantine/core'
 import rtlPlugin from 'stylis-plugin-rtl'
 import { Notifications } from '@mantine/notifications'
 import 'dayjs/locale/ar'
+import dayjs from 'dayjs'
 
+
+dayjs.locale('ar') // use loaded locale globally
 import { DatesProvider } from '@mantine/dates'
 // import { CloudinaryContext } from '@cloudinary/react'
 // import { Cloudinary } from '@cloudinary/url-gen'

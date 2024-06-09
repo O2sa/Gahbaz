@@ -102,7 +102,7 @@ function ChatInput({ handleSendMsg, setNewAttach, newAttach }) {
     extensions: [
       StarterKit,
       Link,
-      Placeholder.configure({ placeholder: 'Type your message' }),
+      Placeholder.configure({ placeholder: 'اكتب رسالتك' }),
     ],
     content: '',
   });
@@ -134,6 +134,7 @@ function ChatInput({ handleSendMsg, setNewAttach, newAttach }) {
 
     if (editor) {
       const message = editor.getHTML();
+      console.log('content', editor.getJSON())
       
       // Your logic to send the message, e.g., API call
       handleSendMsg(message);
@@ -158,9 +159,9 @@ function ChatInput({ handleSendMsg, setNewAttach, newAttach }) {
           )}
           <RichTextEditor.Content />
         </RichTextEditor>
-      <Tooltip label="Send message">
+      <Tooltip label="ارسال رسالة">
         <ActionIcon
-          title="send message"
+          title="ارسال رسالة"
           variant="filled"
           size="xl"
           radius="xl"

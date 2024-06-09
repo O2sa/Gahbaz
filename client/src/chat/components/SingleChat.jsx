@@ -12,6 +12,9 @@ import { isGroupRecieved, isAnotherSender, isLastMessage } from '../config/ChatL
 import ChatInput from './ChatInput'
 import { MessageBox, MessageList } from 'react-chat-elements'
 import { Box, Center, Divider, Loader, ScrollArea, Stack } from '@mantine/core'
+import ChatItem from '../NewChat/components/ChatItem/ChatItem'
+import { useMediaQuery } from '@mantine/hooks'
+import dayjs from 'dayjs'
 
 function SingleChatTest({ fetchAgain, socket, setFetchAgain, selectedChat }) {
   const [messages, setMessages] = useState([])
@@ -141,8 +144,9 @@ function SingleChat({ fetchAgain, socket, setFetchAgain, selectedChat }) {
   const [socketConnected, setSocketConnected] = useState(false)
   const [newAttach, setNewAttach] = useState()
   const [loading, setLoading] = useState(false)
-  const messagesEndRef = useRef(null);
+  const messagesEndRef = useRef(null)
   const { user } = ChatState()
+  const tablet_match = useMediaQuery('(max-width: 768px)')
 
   console.log(user)
   const sendMessage = async (msg) => {
@@ -222,17 +226,16 @@ function SingleChat({ fetchAgain, socket, setFetchAgain, selectedChat }) {
     }
   })
 
-
-
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
     }
-  };
+  }
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    console.log('messages', messages)
+    scrollToBottom()
+  }, [messages])
 
   return (
     <>
@@ -259,16 +262,22 @@ function SingleChat({ fetchAgain, socket, setFetchAgain, selectedChat }) {
               // />
               messages.map((message, i) => (
                 <>
-                  <MessageBox
-                    position={isAnotherSender(message, user._id) ? 'left' : 'right'}
-                    type="text"
-                    title={
+                  <ChatItem
+                    ml={isAnotherSender(message, user._id) ? 'auto' : 0}
+                    // type="text"
+                    fullName={
                       isAnotherSender(message, user._id)
                         ? `${message.sender.firstName} ${message.sender.lastName}`
-                        : `${user.firstName} ${user.lastName}`
+                        : `أنت`
                     }
-                    text={<p dangerouslySetInnerHTML={{ __html: message?.content || '' }} />}
-                    date={message.createdAt}
+                    avatar={
+                      isAnotherSender(message, user._id) ? message.sender.avatar : user.avatar
+                    }
+                    message={
+                      <span dangerouslySetInnerHTML={{ __html: message?.content.trim() || '' }} />
+                    }
+                    sent_time={new Date(message.createdAt).toLocaleString()}
+                    style={{ maxWidth: tablet_match ? '100%' : '70%' }}
                     key={uuidv4()}
                     id={uuidv4()}
                   />

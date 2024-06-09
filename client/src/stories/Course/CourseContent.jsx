@@ -35,9 +35,10 @@ export const CourseContent = ({ sections, setNextLesson, close, to, ...props }) 
 
   console.log('lessonId', lessonId)
 
-  const calCompeleted = (lessons) => {
+  const calCompeleted = (section) => {
     let time = 0
 
+    const lessons = section.lessons
     lessons.map((item, idx) => {
       item.completed = false
       item.active = false
@@ -47,7 +48,7 @@ export const CourseContent = ({ sections, setNextLesson, close, to, ...props }) 
         const les = lessons[idx + 1]
         console.log('les', les)
 
-        setNextLesson(les ? les._id : null)
+        setNextLesson(les ? `${section._id}/${les._id}` : null)
       }
     })
     // return `(${completed}/${lessons.length})`
@@ -76,7 +77,7 @@ export const CourseContent = ({ sections, setNextLesson, close, to, ...props }) 
                     <BiSolidVideos size={'20'} className={` me-2 text-primary`} />
                     <span className={`me-3`}>{`${section.lessons.length} دروس`}</span>
                     <IoMdTime size={'20'} className={` me-2 text-warning`} />
-                    <span className={`me-3`}>{calCompeleted(section.lessons)}</span>
+                    <span className={`me-3`}>{calCompeleted(section)}</span>
                   </div>
                 </div>{' '}
               </CAccordionHeader>
