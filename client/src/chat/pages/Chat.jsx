@@ -32,6 +32,7 @@ import {
   Paper,
   Container,
   Image,
+  ScrollArea,
 } from '@mantine/core'
 import { ChatContactsLoader } from '../../pages/LoadingComponents'
 import { useMediaQuery } from '@mantine/hooks'
@@ -111,15 +112,10 @@ function Chat() {
         <Surface
           component={Paper}
           {...PAPER_PROPS}
-          style={{ height: tablet_match ? 'auto' : rem(565) }}
+          style={{ height: tablet_match ? 'auto' : rem(565), overflow: 'hidden' }}
         >
-          <Grid h={'100%'} gutter={0}>
-            <Grid.Col
-              span={12}
-               sm={3}
-              md={4}
-              lg={3}
-            >
+          <Grid gutter={0} h={'100%'}>
+            <Grid.Col span={12} sm={4} md={4} lg={3} h={'100%'}>
               {/* <UserInfo fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} /> */}
 
               <Stack py="md" style={{ height: '100%' }}>
@@ -157,13 +153,13 @@ function Chat() {
                         )
                       }
                       type="text"
-                      placeholder="Search or start new chat"
+                      placeholder="ابحث عن مستخدم لبدء محادثة"
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                     />
                   </form>
                 </Box>
-
+                {/* <ScrollArea> */}
                 {!search || navState === 'start' ? (
                   <Contacts socket={socket} selectedChat={selectedChat} fetchAgain={fetchAgain} />
                 ) : loading ? (
@@ -173,15 +169,11 @@ function Chat() {
                 ) : (
                   <Search socket={socket} searchResults={searchResults} />
                 )}
+                {/* </ScrollArea> */}
               </Stack>
             </Grid.Col>
 
-            <Grid.Col
-              span={12}
-              sm={9}
-              md={8}
-              lg={9}
-            >
+            <Grid.Col span={12} sm={8} md={8} lg={9}>
               {selectedChat ? (
                 <ChatContainer
                   socket={socket}

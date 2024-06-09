@@ -1,26 +1,9 @@
-import {
-  Avatar,
-  Box,
-  Flex,
-  Paper,
-  Skeleton,
-  Text,
-} from '@mantine/core';
-import classes from './ChatItem.module.css';
-
+import { Avatar, Box, Flex, Paper, Skeleton, Text } from '@mantine/core'
+// import classes from './ChatItem.module.css'
 
 const ChatItem = (props) => {
-  const {
-    id,
-    avatar,
-    message,
-    fullName,
-    sender,
-    sent_time,
-    loading,
-    ...others
-  } = props;
-  const isMe = fullName.toLowerCase() === 'you';
+  const { id, avatar, message, fullName, sender, sent_time, loading=false, ...others } = props
+  const isMe = fullName.toLowerCase() === 'أنت'
 
   return loading ? (
     <Flex gap="sm">
@@ -32,17 +15,8 @@ const ChatItem = (props) => {
       <Flex gap="xs">
         <Avatar src={avatar} radius="50%" />
         <Box>
-          <Paper
-            p="sm"
-            className={isMe ? classes.isMeChatItem : classes.chatItem}
-          >
-            <Text
-              size="sm"
-              fw={600}
-              tt="capitalize"
-              mb={4}
-              c={isMe ? 'white' : 'initial'}
-            >
+          <Paper p="sm" color={isMe ? 'white' : 'black'} bg={isMe ? 'brand' : 'white'}>
+            <Text size="sm" fw={600} tt="capitalize" mb={4} c={isMe ? 'white' : 'initial'}>
               {fullName}
             </Text>
             <Text size="sm" c={isMe ? 'white' : 'initial'}>
@@ -55,7 +29,7 @@ const ChatItem = (props) => {
         </Box>
       </Flex>
     </Box>
-  );
-};
+  )
+}
 
-export default ChatItem;
+export default ChatItem

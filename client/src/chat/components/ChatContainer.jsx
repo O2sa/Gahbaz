@@ -4,7 +4,7 @@ import { RxExit, RxPencil2 } from 'react-icons/rx'
 import { GoKebabHorizontal } from 'react-icons/go'
 
 import { ChatState } from '../context/ChatProvider'
-import { getSender, getSenderProfilePic } from '../config/ChatLogics'
+import { getSender, getSenderFull, getSenderProfilePic } from '../config/ChatLogics'
 
 import UpdateGroupChat from './Group/UpdateGroupChat'
 import SubmitModal from './Aux/SubmitModal'
@@ -109,18 +109,21 @@ function ChatContainer({ socket, fetchAgain, setFetchAgain }) {
       })}
     >
       <Box
-      bg={'white'}
+        bg={'white'}
         sx={(theme) => ({
           padding: `${theme.spacing.sm} ${theme.spacing.md}`,
           borderBottom: `1px solid ${theme.colors.gray[3]}`,
           borderTopRightRadius: `${theme.radius.md}`,
-
         })}
       >
         <Skeleton visible={false || false}>
           <Flex align="center" justify="space-between">
             <UserButton
-              email={user._id}
+              email={
+                selectedChat.isGroupChat
+                  ? `${selectedChat?.users?.length} عضو`
+                  : getSenderFull(user, selectedChat.users)?.email
+              }
               image={
                 selectedChat.isGroupChat
                   ? selectedChat.groupPic
@@ -132,7 +135,6 @@ function ChatContainer({ socket, fetchAgain, setFetchAgain }) {
                   : getSender(user, selectedChat.users)
               }
               asAction={false}
-              
             />
             <Flex gap="sm">
               <ActionIcon variant="subtle">

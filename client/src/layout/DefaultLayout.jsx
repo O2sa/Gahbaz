@@ -10,6 +10,7 @@ import customFetch from '../utils/customFetch'
 import { useGetElements } from '../pages/crud'
 import { useQuery } from '@tanstack/react-query'
 import { notifications } from '@mantine/notifications'
+import { getNotfication } from '../pages/notfications'
 
 export const loader = (queryClient) => async () => {
   try {
@@ -19,9 +20,7 @@ export const loader = (queryClient) => async () => {
   }
 }
 
-
-const DashboardContext = createContext();
-
+const DashboardContext = createContext()
 
 const DefaultLayout = ({ queryClient }) => {
   const location = useLocation()
@@ -30,7 +29,7 @@ const DefaultLayout = ({ queryClient }) => {
     data: user = [],
     isFetching: isFetchingTeachers,
     isLoading: isLoadingTeachers,
-  }  = useQuery(useGetElements(['users', 'current-user']))
+  } = useQuery(useGetElements(['users', 'current-user']))
 
   const navigate = useNavigate()
   const navigation = useNavigation()
@@ -75,6 +74,10 @@ const DefaultLayout = ({ queryClient }) => {
       console.log(error?.response?.status)
       if (error?.response?.status === 401) {
         setIsAuthError(true)
+      } else if (error?.response?.status === 400 || error?.response?.status === 403) {
+        console.log('error', error?.response?.data?.msg)
+        // getNotfication(false,  error?.response?.data?.msg)
+        // navigate('/')
       }
       return Promise.reject(error)
     },
@@ -85,9 +88,7 @@ const DefaultLayout = ({ queryClient }) => {
     logoutUser()
   }, [isAuthError])
 
-
-
-  if(isFetchingTeachers){
+  if (isFetchingTeachers) {
     return <CSpinner color="primary" />
   }
   return (
@@ -117,6 +118,6 @@ const DefaultLayout = ({ queryClient }) => {
     </DashboardContext.Provider>
   )
 }
-export const useDashboardContext = () => useContext(DashboardContext);
+export const useDashboardContext = () => useContext(DashboardContext)
 
 export default DefaultLayout

@@ -464,7 +464,6 @@ export function ActiveUsers({users }) {
           )
         },
       },
-
       {
         accessorKey: 'phone',
         id: 'phone',

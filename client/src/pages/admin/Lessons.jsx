@@ -81,7 +81,6 @@ export default function Lessons({ ...props }) {
   const courseSyllbus = (
     <CourseContent close={close} setNextLesson={setNextLesson} to={''} sections={course.sections} />
   )
-
   return (
     <>
       <div>
@@ -110,7 +109,7 @@ export default function Lessons({ ...props }) {
             </div>
           </div>
 
-          <Group>
+          <Group position='right' >
             <div className="d-block d-xl-none">
               <Button onClick={open} variant="default" color="brand">
                 محتويات الدورة
@@ -119,9 +118,9 @@ export default function Lessons({ ...props }) {
 
             {nextLesson ? (
               <Link to={nextLesson}>
-                <CButton className="" size="lg">
+                <Button className="" >
                   الدرس التالي
-                </CButton>
+                </Button>
               </Link>
             ) : (
               ''

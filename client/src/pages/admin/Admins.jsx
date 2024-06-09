@@ -7,8 +7,6 @@ import {
   MRT_EditActionButtons,
 } from 'mantine-react-table'
 
-
-
 import { Link, useLoaderData, useParams } from 'react-router-dom'
 import { MRT_Localization_AR } from 'mantine-react-table/locales/ar'
 // import useTable
@@ -110,7 +108,11 @@ export default function Admins({ queryClient }) {
           return (
             <Link to={'/users/' + item._id}>
               <Group gap="sm" noWrap>
-                <Indicator disabled={!isUserActive(row.original.lastActivity)}>
+                <Indicator
+                  disabled={
+                    row.original.lastActivity ? isUserActive(row.original.lastActivity) : true
+                  }
+                >
                   <Avatar size={40} src={item.avatar} radius={40} />
                 </Indicator>
                 <div>
@@ -156,9 +158,24 @@ export default function Admins({ queryClient }) {
           if (!cell.getValue() || cell.getValue().length == 0) return ''
           return (
             <Group mt="xs">
-              <Checkbox readOnly checked={cell.getValue().split('').includes('r')} value="r" label="قراءة" />
-              <Checkbox readOnly checked={cell.getValue().split('').includes('w')} value="w" label="تعديل" />
-              <Checkbox readOnly checked={cell.getValue().split('').includes('d')} value="d" label="حذف" />
+              <Checkbox
+                readOnly
+                checked={cell.getValue().split('').includes('r')}
+                value="r"
+                label="قراءة"
+              />
+              <Checkbox
+                readOnly
+                checked={cell.getValue().split('').includes('w')}
+                value="w"
+                label="تعديل"
+              />
+              <Checkbox
+                readOnly
+                checked={cell.getValue().split('').includes('d')}
+                value="d"
+                label="حذف"
+              />
             </Group>
           )
         },

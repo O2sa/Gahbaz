@@ -80,7 +80,7 @@ export default function CourseLesson({ ...props }) {
             <p dangerouslySetInnerHTML={{ __html: lesson?.topic.data || '' }}></p>
           </div>
 
-          <div className="p-4 d-flex bg-primary bg-opacity-10  justify-content-between align-items-center my-4">
+          {/* <div className="p-4 d-flex bg-primary bg-opacity-10  justify-content-between align-items-center my-4">
             <div className="d-flex align-items-center">
               <FaFileAlt size={'48'} className="me-3" />
               <div>
@@ -92,7 +92,7 @@ export default function CourseLesson({ ...props }) {
               <IoMdAdd />
               إضافة عنصر
             </CButton>
-          </div>
+          </div> */}
         </CRow>
       </CRow>
     </>

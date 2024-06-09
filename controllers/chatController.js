@@ -33,7 +33,7 @@ export const accessChat = async (req, res) => {
 
   isChat = await User.populate(isChat, {
     path: "latestMessage.sender",
-    select: "username profilePic",
+    select: "email avatar lastName firstName",
   });
 
   const user2_id = await User.findOne({ _id: userId });
@@ -42,6 +42,7 @@ export const accessChat = async (req, res) => {
   if (isChat.length > 0) {
     res.send(isChat[0]);
   } else {
+
     var chatData = {
       chatName: `${username}`,
       isGroupChat: false,
@@ -75,7 +76,7 @@ export const fetchChats = async (req, res) => {
       .then(async (results) => {
         results = await User.populate(results, {
           path: "latestMessage.sender",
-          select: "username profilePic",
+          select: "lastName firstName avatar email",
         });
         res.status(200).send(results);
       });
@@ -106,6 +107,8 @@ export const createGroupChat = async (req, res) => {
       groupPic: groupPicUrl,
       groupAdmin: req.user,
     });
+
+    
     const fullGroupChat = await Chat.findOne({ _id: groupChat._id })
       .populate("users", "-password")
       .populate("groupAdmin", "-password");

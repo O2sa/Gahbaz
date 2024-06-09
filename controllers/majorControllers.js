@@ -37,7 +37,7 @@ const createMajor = async (req, res) => {
 
   for (var s = 0; s < collage.numberOfSemesters; s++) {
     const newSemester = await SemesterTemp.create({
-      name: `semester ${s + 1}, ${newMajor.name}`,
+      name: `الفصل ${s + 1}, ${newMajor.name}`,
       major: newMajor._id,
       index: s,
     });
