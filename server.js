@@ -47,7 +47,10 @@ import path from "path";
 
 // middleware
 import errorHandlerMiddleware from "./middleware/errorHandlerMiddleware.js";
-import { authenticateUser, authorizePermissions } from "./middleware/authMiddleware.js";
+import {
+  authenticateUser,
+  authorizePermissions,
+} from "./middleware/authMiddleware.js";
 import { activityLogger } from "./middleware/systemMiddleware.js";
 import { collectAndStoreMetrics } from "./utils/dataCollector.js";
 
@@ -91,13 +94,9 @@ app.get("/api/v1/test", (req, res) => {
   res.json({ msg: "test route" });
 });
 
-
-
 app.use("/api/v1/auth", authRouter);
 
-app.use(authenticateUser);
-
-
+app.use(authenticateUser, authorizePermissions);
 
 //setup apis
 app.use("/api/v1/users", userRouter);
