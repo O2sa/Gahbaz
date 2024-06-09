@@ -35,9 +35,9 @@ const About = () => {
                 معرفة المزيد
               </Button>
             </Link>
-            <RouterLink to={'/register'}>
+            <RouterLink to={'/login'}>
               <Button variant="default" size="md">
-                إنشاء حساب
+              تجربة المنصة
               </Button>
             </RouterLink>
           </div>
