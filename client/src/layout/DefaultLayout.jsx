@@ -91,7 +91,7 @@ const DefaultLayout = ({ queryClient }) => {
       } else if (error?.response?.status === 400 || error?.response?.status === 403) {
         console.log('error', error?.response?.data?.msg)
         // getNotfication(false,  error?.response?.data?.msg)
-        // navigate('/')
+        navigate('/')
       }
       return Promise.reject(error)
     },
