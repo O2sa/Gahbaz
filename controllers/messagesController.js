@@ -5,8 +5,9 @@ import Messages from "../models/messageModel.js";
 
 export const getMessages = async (req, res, next) => {
   try {
+
     const messages = await Messages.find({ chat: req.params.chatId })
-      .populate("sender", "username profilePic email")
+      .populate("sender", "email avatar lastName firstName")
       .populate({ path: "chat", populate: { path: 'latestMessage', populate: { path: 'sender' } } });
     res.json(messages);
   } catch (error) {
@@ -37,7 +38,7 @@ export const addMessage = async (req, res, next) => {
       },
       { new: true, }
     );
-    message = await message.populate("sender", "username profilePic");
+    message = await message.populate("sender", "email avatar lastName firstName");
     message = await User.populate(message, {
       path: "chat.users",
       select: "username profilePic",
