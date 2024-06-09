@@ -38,7 +38,7 @@ function Search({ searchResults }) {
     <>
       <div className="">
         {searchResults.length !== 0 ? (
-          <Stack className="">
+          <Stack sx={{overflowX:'hidden', overflowY:'scroll'}}>
             {searchResults?.map((result) => (
               <UserListItem handleFunction={() => accessChat(result._id)}
                 result={result}

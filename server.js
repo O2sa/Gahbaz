@@ -47,10 +47,7 @@ import path from "path";
 
 // middleware
 import errorHandlerMiddleware from "./middleware/errorHandlerMiddleware.js";
-import {
-  authenticateUser,
-  authorizePermissions,
-} from "./middleware/authMiddleware.js";
+import { authenticateUser, authorizePermissions } from "./middleware/authMiddleware.js";
 import { activityLogger } from "./middleware/systemMiddleware.js";
 import { collectAndStoreMetrics } from "./utils/dataCollector.js";
 
@@ -94,30 +91,37 @@ app.get("/api/v1/test", (req, res) => {
   res.json({ msg: "test route" });
 });
 
+
+
+app.use("/api/v1/auth", authRouter);
+
+app.use(authenticateUser);
+
+
+
 //setup apis
-app.use("/api/v1/users", authenticateUser, activityLogger, userRouter);
-app.use("/api/v1/students", authenticateUser, activityLogger, studentRouter);
-app.use("/api/v1/teachers", authenticateUser, activityLogger, teacherRouter);
-app.use("/api/v1/admins", authenticateUser, activityLogger, adminRouter);
-app.use("/api/v1/collages", authenticateUser, activityLogger, collageRouter);
-app.use("/api/v1/courses", authenticateUser, activityLogger, courseRouter);
-app.use("/api/v1/grades", authenticateUser, activityLogger, gradeRouter);
-app.use("/api/v1/sections", authenticateUser, activityLogger, sectionRouter);
-app.use("/api/v1/semesters", authenticateUser, activityLogger, semesterRouter);
-app.use("/api/v1/majors", authenticateUser, activityLogger, majorRouter);
-app.use("/api/v1/subjects", authenticateUser, subjectRouter);
-app.use("/api/v1/system", authenticateUser, systemRouter);
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/students", studentRouter);
+app.use("/api/v1/teachers", teacherRouter);
+app.use("/api/v1/admins", adminRouter);
+app.use("/api/v1/collages", collageRouter);
+app.use("/api/v1/courses", courseRouter);
+app.use("/api/v1/grades", gradeRouter);
+app.use("/api/v1/sections", sectionRouter);
+app.use("/api/v1/semesters", semesterRouter);
+app.use("/api/v1/majors", majorRouter);
+app.use("/api/v1/subjects", subjectRouter);
+app.use("/api/v1/system", systemRouter);
 app.use(
   "/api/v1/semester-templates",
-  authenticateUser,
-  activityLogger,
+
   semesterTemplateRoute
 );
-app.use("/api/v1/auth", authRouter);
+
 app.use("/images", express.static("images"));
-app.use("/api/v1/au", authenticateUser, activityLogger, userRoutes);
-app.use("/api/v1/messages", authenticateUser, activityLogger, messageRoutes);
-app.use("/api/v1/chats", authenticateUser, activityLogger, chatRoutes);
+app.use("/api/v1/au", userRoutes);
+app.use("/api/v1/messages", messageRoutes);
+app.use("/api/v1/chats", chatRoutes);
 
 app.get("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "./client/dist", "index.html"));
@@ -147,7 +151,7 @@ start();
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    // origin: "http://localhost:5173",
     credentials: true,
   },
 });
@@ -156,17 +160,14 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("Connected to socket.io");
 
-
   socket.on("setup", (userData) => {
     socket.join(userData._id);
     socket.emit("connected");
   });
 
-
   socket.on("join chat", (room) => {
     socket.join(room);
   });
-
 
   socket.on("contacts", (data) => {
     if (data) {
@@ -179,13 +180,11 @@ io.on("connection", (socket) => {
       .emit("message recieved", newMessageRecieved);
   });
 
-  
   socket.off("setup", () => {
     console.log("USER DISCONNECTED");
     socket.leave(userData._id);
   });
 });
-
 
 // console.log('EMAIL_USER:', process.env.EMAIL_USER);
 // console.log('EMAIL_PASS:', process.env.EMAIL_PASS);

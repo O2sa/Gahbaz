@@ -4,10 +4,10 @@ import Section from "../models/Section.js";
 
 const getCourse = async (req, res) => {
   const id = req.params.id;
-  const course = await Course.findById(id);
+  const course = await Course.findById(id).populate('sections').populate('teachers')
   const sections = await Section.find({ course: id });
 
-  // console.log(course);
+  // // console.log(course);
   course.sections = sections;
   res.status(StatusCodes.OK).json(course);
 };
@@ -34,10 +34,20 @@ const getSemesterCourses = async (req, res) => {
   res.status(StatusCodes.OK).json(courses);
 };
 
-const getAllCourses = async (req, res) => {
-  const id = req.params.id;
-
-  const courses = await Course.find({}).populate("sections");
+const getTeacherStudentCourses = async (req, res) => {
+  let courses = [];
+  switch (req.user.__t) {
+    case "Teacher": {
+      courses = await Course.find({ teachers: req.user._id }).populate("sections");
+      break;
+    }
+    case "Student": {
+      courses = await Course.find({
+        semester: { $in: req.user.semesters },
+      }).populate("sections");
+      break;
+    }
+  }
 
   res.status(StatusCodes.OK).json(courses);
 };
@@ -72,6 +82,6 @@ export {
   updateCourse,
   getSemesterCourses,
   deleteCourse,
-  getAllCourses,
+  getTeacherStudentCourses,
   getTeacherCourses,
 };

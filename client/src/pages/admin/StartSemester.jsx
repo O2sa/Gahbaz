@@ -37,7 +37,7 @@ import { AiFillBank } from 'react-icons/ai'
 import { forwardRef } from 'react'
 import { getCurrentTime } from '../../../../utils/constants'
 
-import 'dayjs/locale/ar-sa'
+import 'dayjs/locale/ar'
 import { DatePickerInput } from '@mantine/dates'
 import dayjs from 'dayjs' // Import dayjs
 import { IconCalendar } from '@tabler/icons-react'

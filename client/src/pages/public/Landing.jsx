@@ -12,6 +12,7 @@ import About from './landing_components/About'
 import styled from 'styled-components'
 
 const LandingWrapper = styled.div`
+
   #about {
     min-height: 100vh;
     height: 100vh;
@@ -176,8 +177,6 @@ const LandingWrapper = styled.div`
       padding: 0px;
     }
   }
-
-  /*# sourceMappingURL=landingStyle.css.map */
 `
 
 const Landing = () => {

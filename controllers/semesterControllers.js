@@ -8,6 +8,7 @@ import Student from "../models/Student.js";
 import Collage from "../models/Collage.js";
 import Grade from "../models/Grade.js";
 import Section from "../models/Section.js";
+import Chat from "../models/chatModel.js";
 
 const getSemester = async (req, res) => {
   const semId = req.params.semId;
@@ -142,6 +143,16 @@ export const createSemesterFromTemplate = async (
         coursesSchemas[newCourse._id] = getSchemaTemplate(
           subject.gradeSchema.grade
         );
+
+        var users = [...students,...newCourse?.teachers];
+
+        const groupChat = await Chat.create({
+          chatName: `دورة ${newCourse?.name}`,
+          users: users,
+          isGroupChat: true,
+          // groupPic: groupPicUrl,
+          groupAdmin: newCourse?.teachers[0],
+        });
         return newCourse;
       })
     );

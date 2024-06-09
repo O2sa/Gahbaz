@@ -7,7 +7,7 @@ import {
 
 export const getAllAdmins = async (req, res) => {
   const admin = await Admin.find({
-    // university: req.user.university
+    university: req.user.university
   }).select('-password')
   res.status(StatusCodes.OK).json(admin);
 };

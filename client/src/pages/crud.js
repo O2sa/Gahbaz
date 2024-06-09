@@ -15,7 +15,7 @@ export function useDeleteElement(queryClient, collection) {
       notifications.show({
         id: 'error-delete',
         title: 'خطأ!',
-        message: error?.message,
+        message: error?.response?.data?.msg||'خطأ',
         variant: 'error',
         color:'red',
         autoClose: 5000,
@@ -59,7 +59,7 @@ export function useUpdateElement(queryClient, collection) {
       notifications.show({
         id: 'error-delete',
         title: 'خطأ!',
-        message: error?.message,
+        message: error?.response?.data?.msg||'خطأ',
         variant: 'error',
         color:'red',
         autoClose: 5000,
@@ -91,7 +91,7 @@ export function useUpdateOneElement(queryClient, collection) {
       notifications.show({
         id: 'error-delete',
         title: 'خطأ!',
-        message: error?.message,
+        message: error?.response?.data?.msg||'خطأ',
         variant: 'error',
         color:'red',
         autoClose: 5000,
@@ -126,7 +126,7 @@ export function useCreateElement(queryClient, collection) {
       notifications.show({
         id: 'error-delete',
         title: 'خطأ!',
-        message: error?.message,
+        message: error?.response?.data?.msg||'خطأ',
         variant: 'error',
         color:'red',
         autoClose: 5000,
