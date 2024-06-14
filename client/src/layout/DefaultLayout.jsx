@@ -13,17 +13,6 @@ import { useQuery } from '@tanstack/react-query'
 import { notifications } from '@mantine/notifications'
 import { getNotfication } from '../pages/notfications'
 
-// const TRACKING_ID = 'G-P7SYZGRE0X' // Replace with your actual tracking ID
-
-// ReactGA.initialize(TRACKING_ID)
-
-// const usePageTracking = () => {
-//   const location = useLocation()
-
-//   useEffect(() => {
-//     ReactGA.pageview(location.pathname + location.search)
-//   }, [location])
-// }
 
 
 export const loader = (queryClient) => async () => {
@@ -38,7 +27,6 @@ const DashboardContext = createContext()
 
 const DefaultLayout = ({ queryClient }) => {
   const location = useLocation()
-  // usePageTracking()
 
   const {
     data: user = [],
