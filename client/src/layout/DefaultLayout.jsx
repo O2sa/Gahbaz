@@ -3,7 +3,7 @@ import { AppContent, AppSidebar, AppFooter, AppHeader } from '../components/inde
 import { Navigate, Route, Routes, useNavigate, Outlet, useNavigation } from 'react-router-dom'
 import { CContainer, CSpinner } from '@coreui/react'
 import { useLocation } from 'react-router-dom'
-import ReactGA from 'react-ga'
+// import ReactGA from 'react-ga'
 
 // routes config
 import getRoutes from '../routes'
@@ -13,6 +13,17 @@ import { useQuery } from '@tanstack/react-query'
 import { notifications } from '@mantine/notifications'
 import { getNotfication } from '../pages/notfications'
 
+// const TRACKING_ID = 'G-P7SYZGRE0X' // Replace with your actual tracking ID
+
+// ReactGA.initialize(TRACKING_ID)
+
+// const usePageTracking = () => {
+//   const location = useLocation()
+
+//   useEffect(() => {
+//     ReactGA.pageview(location.pathname + location.search)
+//   }, [location])
+// }
 
 
 export const loader = (queryClient) => async () => {
@@ -27,6 +38,7 @@ const DashboardContext = createContext()
 
 const DefaultLayout = ({ queryClient }) => {
   const location = useLocation()
+  // usePageTracking()
 
   const {
     data: user = [],
