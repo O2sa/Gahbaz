@@ -1,7 +1,7 @@
 import 'react-app-polyfill/stable'
 import 'core-js'
 import React, { useEffect } from 'react'
-import ReactDOM from "react-dom/client";
+import ReactDOM from 'react-dom/client'
 
 import { createRoot } from 'react-dom/client'
 import App from './App'
@@ -15,15 +15,12 @@ import { makeServer } from './server.js'
 import testingStore from './lib/store'
 import store from './lib/store'
 
-
-ReactDOM.createRoot(document.getElementById("root")).render(
-  
-  <Provider store={testingStore}>
-    <App />
-    {/* <Testing /> */}
-  </Provider>
-);
-
+ReactDOM.createRoot(document.getElementById('root')).render(
+    <Provider store={testingStore}>
+      <App />
+      {/* <Testing /> */}
+    </Provider>
+)
 
 // ReactDOM.render(
 //   <Provider store={testingStore}>
