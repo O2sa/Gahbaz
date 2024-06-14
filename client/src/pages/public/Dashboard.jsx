@@ -55,7 +55,7 @@ import { StudentDashboard } from '../student'
 import { AdminDashboard } from '../admin'
 import { TeacherDashboard } from '../teacher'
 
-const Dashboard = ({queryClient}) => {
+const Dashboard = ({ queryClient }) => {
   const { user } = useDashboardContext()
   // const {
   //   data: data = [],
@@ -70,15 +70,22 @@ const Dashboard = ({queryClient}) => {
 
   const getComponent = () => {
     if (user.__t === 'Admin') {
-      return <AdminDashboard queryClient={queryClient}/>
+      return <AdminDashboard queryClient={queryClient} />
     } else if (user.__t === 'Teacher') {
-      return <TeacherDashboard queryClient={queryClient}/>
+      return <TeacherDashboard queryClient={queryClient} />
     } else if (user.__t === 'Student') {
-      return <StudentDashboard queryClient={queryClient}/>
+      return <StudentDashboard queryClient={queryClient} />
     }
   }
   return (
     <div>
+      <>
+        <title>Chat | DesignSparx</title>
+        <meta
+          name="description"
+          content="Explore our versatile dashboard website template featuring a stunning array of themes and meticulously crafted components. Elevate your web project with seamless integration, customizable themes, and a rich variety of components for a dynamic user experience. Effortlessly bring your data to life with our intuitive dashboard template, designed to streamline development and captivate users. Discover endless possibilities in design and functionality today!"
+        />
+      </>
       <Flex justify={'space-between'} wrap={'wrap'} p={'xl'} my={'lg'} bg={'white'}>
         <RecentMaterials />
         <FaveriteLinks />

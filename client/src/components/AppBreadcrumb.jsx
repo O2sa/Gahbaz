@@ -13,26 +13,14 @@ import { ActionIcon, Box, Group, Rating, Title } from '@mantine/core'
 import { useToggle } from '@mantine/hooks'
 import { CiStar } from 'react-icons/ci'
 import { FaRegStar } from 'react-icons/fa'
-import { router } from '../App'
+import { useAppContext } from '../layout/MainComponent'
+
 const AppBreadcrumb = () => {
-  const location = useLocation()
-  const matches = matchRoutes([getRoutes()], location)
+  const { breadcrumbs } = useAppContext()
   const [faverite, setfaverite] = useState(false)
 
   // Generate unique breadcrumbs
-  const breadcrumbs = matches.reduce((acc, match, index) => {
-    const route = match.route
-    const path = match.pathname
 
-    // Avoid duplicate paths
-    if (!acc.find((b) => b.path === path)) {
-      acc.push({ name: route.name, path })
-    }
-
-    return acc
-  }, [])
-
-  const [value, toggle] = useToggle([0, 1])
   useEffect(() => {
     addRecentMaterial(breadcrumbs[breadcrumbs.length - 1])
 
@@ -50,7 +38,9 @@ const AppBreadcrumb = () => {
       addFaveriteLink(breadcrumbs[breadcrumbs.length - 1])
     }
   }
+
   // console.log('location', location)
+  // console.log('history', history)
   // console.log('matches', matches)
   // console.log('value', value)
 
