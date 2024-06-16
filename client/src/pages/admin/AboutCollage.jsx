@@ -7,6 +7,7 @@ import EditMajor from './EditMajor'
 import { useQuery } from '@tanstack/react-query'
 import { useGetElements } from '../crud'
 import EditCollage from './EditCollage'
+import { Helmet } from 'react-helmet'
 
 export default function AboutMajor({ queryClient, collection, editModel, ...props }) {
   const { id: collageId } = useParams()
@@ -43,9 +44,13 @@ export default function AboutMajor({ queryClient, collection, editModel, ...prop
   }
   return (
     <>
+               <Helmet>
+            <title>{ 'منصة جهبذ | تفاصيل الكلية' }</title>
+      </Helmet>
       <div
         className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
       >
+
         <h5>{'عن الكلية'} </h5>
         <EditCollage component={editCom} data={data} queryClient={queryClient} />
       </div>

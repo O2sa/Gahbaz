@@ -24,6 +24,7 @@ import { notifications } from '@mantine/notifications'
 import logo from '../../assets/brand/Logo.svg'
 import { PiChalkboardTeacher, PiChalkboardTeacherDuotone, PiStudentBold } from 'react-icons/pi'
 import { RiAdminFill } from 'react-icons/ri'
+import { Helmet } from 'react-helmet'
 
 const Login = ({}) => {
   const navigate = useNavigate()
@@ -62,6 +63,9 @@ const Login = ({}) => {
   }
   return (
     <Container size={420} my={40}>
+        <Helmet>
+        <title>{ 'منصة جهبذ | تسجيل الدخول' }</title>
+      </Helmet>
       <Center mb={'xl'}>
         <Image width={'75%'} src={logo} />
       </Center>

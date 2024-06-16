@@ -21,6 +21,7 @@ import { useDashboardContext } from '../../layout/DefaultLayout'
 import customFetch from '../../utils/customFetch'
 import { notifications } from '@mantine/notifications'
 import { ChatContactsLoader } from '../LoadingComponents'
+import { Helmet } from 'react-helmet'
 
 export default function Profile({ queryClient }) {
   const { user } = useDashboardContext()
@@ -105,6 +106,9 @@ export default function Profile({ queryClient }) {
 
   return (
     <Container fluid>
+                 <Helmet>
+            <title>{ 'منصة جهبذ |  الملف الشخصي' }</title>
+      </Helmet>
       <Container
         bg="white"
         sx={{

@@ -39,6 +39,7 @@ import { TabsLinks } from '../../stories/Tabs/Tabs'
 import { BsStack } from 'react-icons/bs'
 import { Box, Button, Drawer, Grid, Group, Text } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
+import { Helmet } from 'react-helmet'
 
 export const loader =
   (queryClient) =>
@@ -83,6 +84,9 @@ export default function Lessons({ ...props }) {
   )
   return (
     <>
+                               <Helmet>
+            <title>{ 'منصة جهبذ | الدروس' }</title>
+      </Helmet>
       <div>
         <div className="mb-4 d-flex justify-content-between align-items-center">
           <div className="d-flex">

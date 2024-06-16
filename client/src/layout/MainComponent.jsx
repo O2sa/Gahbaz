@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react'
 import { Outlet, matchRoutes, useLocation } from 'react-router-dom'
 import getRoutes from '../routes'
 import { initGA, logPageView } from '../utils/analytics'
-
+import { Helmet } from 'react-helmet';
 const AppContext = createContext()
 
 export const MainLayout = ({ children }) => {
@@ -17,7 +17,9 @@ export const MainLayout = ({ children }) => {
     //console.log('Current location:', location.pathname)
 
     createBreadCrumbs(location)
-        document.title = 'منصة جهبذ | ' + breadcrumbs.length > 0 ?  breadcrumbs[breadcrumbs.length - 1].name : ''
+    // console.log('breadcrumbs', breadcrumbs[breadcrumbs.length - 1].name)
+    // document.title =
+    //   'منصة جهبذ | ' + breadcrumbs.length > 0 ? breadcrumbs[breadcrumbs.length - 1].name : ''
     logPageView(
       breadcrumbs.length > 0 ? breadcrumbs[breadcrumbs.length - 1].name : '',
       location.search,
@@ -26,7 +28,6 @@ export const MainLayout = ({ children }) => {
     // Perform actions based on location change here
   }, [location])
 
-  // const location = useLocation()
 
   const createBreadCrumbs = (location) => {
     const matches = matchRoutes(getRoutes(), location)
@@ -51,6 +52,7 @@ export const MainLayout = ({ children }) => {
         breadcrumbs,
       }}
     >
+    
       <Outlet />
     </AppContext.Provider>
   )

@@ -36,6 +36,7 @@ import StartSemester from './StartSemester'
 import { SemestersLoader } from '../LoadingComponents'
 import customFetch from '../../utils/customFetch'
 import { MdPinEnd } from 'react-icons/md'
+import { Helmet } from 'react-helmet'
 
 export default function Semesters({ queryClient }) {
   const {
@@ -53,6 +54,7 @@ export default function Semesters({ queryClient }) {
   if (isFetchingTeachers || isLoadingTeachers) {
     return (
       <Box p={'md'} bg={'white'}>
+
         <div
           className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
         >
@@ -68,6 +70,9 @@ export default function Semesters({ queryClient }) {
 
   return (
     <>
+                     <Helmet>
+            <title>{ 'منصة جهبذ |  الفصول الدراسية' }</title>
+      </Helmet>
       <div
         className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
       >

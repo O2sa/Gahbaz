@@ -51,6 +51,7 @@ import { CSpinner } from '@coreui/react'
 import { useDashboardContext } from '../../layout/DefaultLayout'
 import { StudentCourses } from '../student'
 import { TeacherCourses } from '../teacher'
+import { Helmet } from 'react-helmet'
 // Chart.register(...registerables);
 
 const Charts = ({queryClient}) => {
@@ -63,7 +64,11 @@ const Charts = ({queryClient}) => {
       return <StudentCourses queryClient={queryClient} />
     }
   }
-  return <div>{getComponent()}</div>
+  return <div>
+            <Helmet>
+            <title>{ 'منصة جهبذ |  الدورات' }</title>
+      </Helmet>
+{getComponent()}</div>
 }
 
 export default Charts

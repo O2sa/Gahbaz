@@ -8,8 +8,10 @@ import { MdAdminPanelSettings } from 'react-icons/md'
 import { FaChalkboardTeacher } from 'react-icons/fa'
 import { PiStudent } from 'react-icons/pi'
 import { RiAdminLine } from 'react-icons/ri'
+import { Helmet } from 'react-helmet'
 
 export default function Users({ queryClient }) {
+
   const tabs = [
     {
       name: 'المدراء',
@@ -26,8 +28,14 @@ export default function Users({ queryClient }) {
       icon: PiStudent,
       to: 'students',
     },
-
   ]
 
-  return <TabsLinks tabs={tabs} />
+  return (
+    <>
+      <Helmet>
+        <title>{'منصة جهبذ |  المستخدمون'}</title>
+      </Helmet>
+      <TabsLinks tabs={tabs} />
+    </>
+  )
 }

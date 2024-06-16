@@ -25,7 +25,6 @@ import {
   Course,
   Lessons,
   CourseLesson,
-  StudentProfile,
   UserProfile,
 } from './pages/admin'
 
