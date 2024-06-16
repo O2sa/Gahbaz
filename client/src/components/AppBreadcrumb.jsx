@@ -29,7 +29,7 @@ const AppBreadcrumb = () => {
   }, breadcrumbs)
 
   const handleFavrite = (val) => {
-    console.log(val)
+    // console.log(val)
     if (faverite == true) {
       setfaverite(false)
       removeFaveriteLink(breadcrumbs[breadcrumbs.length - 1])

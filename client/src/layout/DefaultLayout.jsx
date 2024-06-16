@@ -74,11 +74,11 @@ const DefaultLayout = ({ queryClient }) => {
       return response
     },
     (error) => {
-      console.log(error?.response?.status)
+      //console.log(error?.response?.status)
       if (error?.response?.status === 401) {
         setIsAuthError(true)
       } else if (error?.response?.status === 400 || error?.response?.status === 403) {
-        console.log('error', error?.response?.data?.msg)
+        //console.log('error', error?.response?.data?.msg)
         // getNotfication(false,  error?.response?.data?.msg)
         navigate('/')
       }

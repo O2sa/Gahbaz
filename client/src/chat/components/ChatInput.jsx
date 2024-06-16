@@ -134,7 +134,7 @@ function ChatInput({ handleSendMsg, setNewAttach, newAttach }) {
 
     if (editor) {
       const message = editor.getHTML();
-      console.log('content', editor.getJSON())
+      //console.log('content', editor.getJSON())
       
       // Your logic to send the message, e.g., API call
       handleSendMsg(message);

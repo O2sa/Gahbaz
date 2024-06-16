@@ -40,8 +40,8 @@ export default function AddMajor({ queryClient }) {
   )
   // const te = useCreateElement(queryClient)
   const [opened, { open, close }] = useDisclosure(false)
-  // console.log(isCreatingCollage)
-  // console.log('isCreatingCollage')
+  // //console.log(isCreatingCollage)
+  // //console.log('isCreatingCollage')
   const form = useForm({
     initialValues: {
       name: '',
@@ -64,11 +64,11 @@ export default function AddMajor({ queryClient }) {
   }
 
   const handleSubmit = async (values) => {
-    console.log('values')
-    console.log(values)
+    //console.log('values')
+    //console.log(values)
     try {
       const res = await createCollage(values)
-      console.log(res)
+      //console.log(res)
       handleCloseModal()
       notifications.show({
         id: 'collage-created',

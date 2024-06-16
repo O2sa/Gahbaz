@@ -33,26 +33,13 @@ import {
   Container,
   Image,
   ScrollArea,
+  Title,
+  Text,
 } from '@mantine/core'
 import { ChatContactsLoader } from '../../pages/LoadingComponents'
 import { useMediaQuery } from '@mantine/hooks'
 
-const styles = {
-  welcome: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: '#121212',
-    flexDirection: 'column',
-    backgroundColor: '#E5E5E5',
-  },
-  img: {
-    height: '20rem',
-  },
-  span: {
-    color: '#B1454A',
-  },
-}
+
 
 const PAPER_PROPS = {
   shadow: 'md',
@@ -173,7 +160,7 @@ function Chat() {
               </Stack>
             </Grid.Col>
 
-            <Grid.Col span={12} sm={8} md={8} lg={9}>
+            <Grid.Col h={'100%'} span={12} sm={8} md={8} lg={9}>
               {selectedChat ? (
                 <ChatContainer
                   socket={socket}
@@ -182,17 +169,24 @@ function Chat() {
                 />
               ) : (
                 <Box
-                  bg={'gray.1'}
                   sx={(theme) => ({
                     borderLeft: `1px solid ${theme.colors.gray[3]}`,
                   })}
                 >
-                  {/* <Image w={'200px'} src={Robot} alt="Robot waves his palm" />
-                  <h1>
-                    Welcome,{' '}
-                    <span style={styles.span}>{`${user.firstName} ${user.lastName}`}!</span>
-                  </h1>
-                  <h3>Select a chat to start messaging.</h3> */}
+                  <Center>
+                    <Stack>
+                      <Image w={'80%'} h={'400px'} src={Robot} alt="Robot waves his palm" />
+                      <Box ta={'center'}>
+                        <Title order={1}>
+                          أهلا بك,{' '}
+                          <Text color='brand' sx={{ display:'inline'}} >
+                            {`${user.firstName} ${user.lastName}`}!
+                          </Text>
+                        </Title>
+                        <Title order={3}>قم باختيار محادثة لتبدأ المراسلة</Title>
+                      </Box>
+                    </Stack>
+                  </Center>
                 </Box>
               )}
             </Grid.Col>
