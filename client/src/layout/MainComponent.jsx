@@ -17,6 +17,7 @@ export const MainLayout = ({ children }) => {
     console.log('Current location:', location.pathname)
 
     createBreadCrumbs(location)
+        document.title = 'منصة جهبذ | ' + breadcrumbs.length > 0 ?  breadcrumbs[breadcrumbs.length - 1].name : ''
     logPageView(
       breadcrumbs.length > 0 ? breadcrumbs[breadcrumbs.length - 1].name : '',
       location.search,
