@@ -54,6 +54,7 @@ import { useDashboardContext } from '../../layout/DefaultLayout'
 import { StudentDashboard } from '../student'
 import { AdminDashboard } from '../admin'
 import { TeacherDashboard } from '../teacher'
+import { Helmet } from 'react-helmet'
 
 const Dashboard = ({ queryClient }) => {
   const { user } = useDashboardContext()
@@ -79,13 +80,10 @@ const Dashboard = ({ queryClient }) => {
   }
   return (
     <div>
-      <>
-        <title>Chat | DesignSparx</title>
-        <meta
-          name="description"
-          content="Explore our versatile dashboard website template featuring a stunning array of themes and meticulously crafted components. Elevate your web project with seamless integration, customizable themes, and a rich variety of components for a dynamic user experience. Effortlessly bring your data to life with our intuitive dashboard template, designed to streamline development and captivate users. Discover endless possibilities in design and functionality today!"
-        />
-      </>
+
+<Helmet>
+            <title>{ 'منصة جهبذ | الرئيسية' }</title>
+      </Helmet>
       <Flex justify={'space-between'} wrap={'wrap'} p={'xl'} my={'lg'} bg={'white'}>
         <RecentMaterials />
         <FaveriteLinks />

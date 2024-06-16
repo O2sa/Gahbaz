@@ -25,6 +25,7 @@ import CourseInfo from '../../stories/SpecialComponents/CourseInfo'
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useGetElements } from '../crud'
+import { Helmet } from 'react-helmet'
 
 export default function Course({ admin = true, opt, visible, setVisible, itemData, ...props }) {
   const { courseId } = useParams()
@@ -43,6 +44,9 @@ export default function Course({ admin = true, opt, visible, setVisible, itemDat
   }
   return (
     <div className="bg-white">
+                             <Helmet>
+            <title>{ 'منصة جهبذ | الدورة' }</title>
+      </Helmet>
       {/* {admin && (
         <TabsBody  title={'الفصول الحالية'} />
       )} */}

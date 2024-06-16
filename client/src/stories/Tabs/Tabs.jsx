@@ -4,11 +4,13 @@ import { CNav, CNavItem, CNavLink, CTabContent, CTabPane } from '@coreui/react'
 import { Link, NavLink, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Box, Flex, Grid, Group, Tabs, Text, Title } from '@mantine/core'
 import { IconPhoto, IconMessageCircle, IconSettings } from '@tabler/icons-react'
+import { Helmet } from 'react-helmet'
 
 export const TabsLinks = ({ tabs, ...props }) => {
   const [activeKey, setActiveKey] = React.useState(0)
   return (
     <Box bg={'white'} sx={{ minHeight: '80vh' }}>
+
       <Tabs defaultValue={tabs[0].name}>
         <Grid grow gutter={'xs'} sx={{gap:0}}>
           {tabs.map((tab, idx) => (

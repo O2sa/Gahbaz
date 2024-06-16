@@ -6,6 +6,7 @@ import { Button, Skeleton } from '@mantine/core'
 import EditMajor from './EditMajor'
 import { useQuery } from '@tanstack/react-query'
 import { useGetElements } from '../crud'
+import { Helmet } from 'react-helmet'
 
 export default function AboutMajor({ queryClient, ...props }) {
   const { id: majorId } = useParams()
@@ -44,6 +45,9 @@ export default function AboutMajor({ queryClient, ...props }) {
   }
   return (
     <>
+               <Helmet>
+            <title>{ 'منصة جهبذ |  تفاصيل التخصص' }</title>
+      </Helmet>
       <div
         className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
       >

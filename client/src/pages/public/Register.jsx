@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom'
 import { notifications } from '@mantine/notifications'
 import { Link } from 'react-router-dom'
 import logo from '../../assets/brand/Logo.svg'
+import { Helmet } from 'react-helmet'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -59,6 +60,9 @@ export default function Register() {
 
   return (
     <Container size={420} my={40}>
+                       <Helmet>
+            <title>{ 'منصة جهبذ |  الدورات' }</title>
+      </Helmet>
       <Center mb={'xl'}>
         <Image width={'75%'} src={logo} />
       </Center>

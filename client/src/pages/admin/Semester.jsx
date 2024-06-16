@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useGetElements } from '../crud'
 import { SemesterDetails } from '../../stories/SpecialComponents/SemesterDetails'
 import { CSpinner } from '@coreui/react'
+import { Helmet } from 'react-helmet'
 
 export default function Semester({ queryClient, ...props }) {
   const { semesterId } = useParams()
@@ -32,6 +33,9 @@ export default function Semester({ queryClient, ...props }) {
 
   return (
     <div className="bg-white">
+                       <Helmet>
+            <title>{ 'منصة جهبذ |  تفاصيل الفصل الدراسي' }</title>
+      </Helmet>
       <div
         className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
       >

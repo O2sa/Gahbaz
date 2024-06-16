@@ -31,6 +31,7 @@ import { useOutletContext, useParams } from 'react-router-dom'
 import { useGetElements } from '../crud'
 import { useQuery } from '@tanstack/react-query'
 import { Avatar, Group, Stack, Text } from '@mantine/core'
+import { Helmet } from 'react-helmet'
 
 export default function CourseLesson({ ...props }) {
   const { sectionId, lessonId } = useParams()
@@ -52,6 +53,9 @@ export default function CourseLesson({ ...props }) {
   }
   return (
     <>
+                           <Helmet>
+            <title>{ 'منصة جهبذ | الدرس' }</title>
+      </Helmet>
       <CRow>
         <CRow>
           <div>
