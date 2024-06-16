@@ -1,15 +1,15 @@
 import { Avatar, Group, Text } from '@mantine/core'
-import { ChatItem, ChatList } from 'react-chat-elements'
+import ChatsList from '../../NewChat/components/ChatsList/ChatsList'
 
 const UserListItem = ({ handleFunction, result }) => {
   return (
-    <ChatItem
+    <ChatsList
       onClick={handleFunction}
       key={result._id}
       avatar={result.avatar}
       alt={result.firstName}
-      title={`${result.firstName} ${result.lastName}`}
-      subtitle={`${result.email} `}
+      firstName={`${result.firstName} ${result.lastName}`}
+      lastMessage={`${result.email} `}
     />
   )
 }

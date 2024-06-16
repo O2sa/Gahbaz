@@ -24,7 +24,7 @@ function SingleChatTest({ fetchAgain, socket, setFetchAgain, selectedChat }) {
   const scrollRef = useRef()
   const { user } = ChatState()
 
-  // console.log(user)
+  // //console.log(user)
   const sendMessage = async (msg) => {
     setLoading(true)
     try {
@@ -148,7 +148,7 @@ function SingleChat({ fetchAgain, socket, setFetchAgain, selectedChat }) {
   const { user } = ChatState()
   const tablet_match = useMediaQuery('(max-width: 768px)')
 
-  console.log(user)
+  //console.log(user)
   const sendMessage = async (msg) => {
     setLoading(true)
     try {
@@ -233,7 +233,7 @@ function SingleChat({ fetchAgain, socket, setFetchAgain, selectedChat }) {
   }
 
   useEffect(() => {
-    console.log('messages', messages)
+    //console.log('messages', messages)
     scrollToBottom()
   }, [messages])
 

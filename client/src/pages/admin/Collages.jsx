@@ -40,8 +40,8 @@ export default function Collages({ queryClient }) {
     isFetching: isFetchingTeachers,
     isLoading: isLoadingTeachers,
   } = useQuery(useGetElements(['collages']))
-  console.log('isLoading', isLoadingTeachers)
-  console.log('isFetching', isFetchingTeachers)
+  //console.log('isLoading', isLoadingTeachers)
+  //console.log('isFetching', isFetchingTeachers)
 
 
   

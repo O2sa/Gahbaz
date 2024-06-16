@@ -86,6 +86,27 @@ export const ChatContactsLoader = () => {
           <Skeleton height={8} radius="xl" />
           <Skeleton height={8} />
         </Group>
+      </Flex>{' '}
+      <Flex mx={8} gap={'xs'} w={'100%'}>
+        <Skeleton w={'20%'} circle height={'100%'} />{' '}
+        <Group w={'80%'} gap={'0'}>
+          <Skeleton height={8} radius="xl" />
+          <Skeleton height={8} />
+        </Group>
+      </Flex>{' '}
+      <Flex mx={8} gap={'xs'} w={'100%'}>
+        <Skeleton w={'20%'} circle height={'100%'} />{' '}
+        <Group w={'80%'} gap={'0'}>
+          <Skeleton height={8} radius="xl" />
+          <Skeleton height={8} />
+        </Group>
+      </Flex>{' '}
+      <Flex mx={8} gap={'xs'} w={'100%'}>
+        <Skeleton w={'20%'} circle height={'100%'} />{' '}
+        <Group w={'80%'} gap={'0'}>
+          <Skeleton height={8} radius="xl" />
+          <Skeleton height={8} />
+        </Group>
       </Flex>
     </>
   )

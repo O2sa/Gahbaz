@@ -59,7 +59,7 @@ export default function Admins({ queryClient }) {
     isLoading: isLoadingAdmins,
   } = useQuery(useGetElements(['admins']))
 
-  // console.log(admins)
+  // //console.log(admins)
   const { mutateAsync: updateAdmin, isLoading: isUpdatingAdmin } = useUpdateElement(queryClient, [
     'admins',
   ])
@@ -71,7 +71,7 @@ export default function Admins({ queryClient }) {
   const [editingRowData, setEditingRowData] = useState({}) // State for new row data
 
   const handleCreateAdmin = async ({ values, row, table, exitCreatingMode }) => {
-    // console.log(newRowData)
+    // //console.log(newRowData)
     await createAdmin({ ...newRowData, collage: collageId })
     modals.closeAll()
     table.setCreatingRow(false)
@@ -82,7 +82,7 @@ export default function Admins({ queryClient }) {
   //UPDATE action
   const handleSaveAdmin = async ({ values, row, table }) => {
     await updateAdmin({ ...editingRowData, _id: row.id })
-    // console.log(values)
+    // //console.log(values)
     table.setEditingRow(null) //exit editing mode
   }
 
@@ -390,6 +390,6 @@ const getMultiSelectData = (admins) =>
 
 const getSelectedValues = (elements, ids) => {
   const filterdElements = elements.filter((val) => ids.includes(val.value))
-  console.log('filterdElements', filterdElements)
+  //console.log('filterdElements', filterdElements)
   return filterdElements
 }
