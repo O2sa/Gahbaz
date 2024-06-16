@@ -20,6 +20,7 @@ import { IconArrowAutofitLeft } from '@tabler/icons-react'
 import { useGetElements } from '../crud'
 import { useQuery } from '@tanstack/react-query'
 import { MantineReactTable } from 'mantine-react-table'
+import { Helmet } from 'react-helmet'
 
 export default function UserProfile({ queryClient }) {
   const { userId } = useParams()
@@ -52,6 +53,9 @@ export default function UserProfile({ queryClient }) {
 
   return (
     <Container fluid>
+                                 <Helmet>
+            <title>{ 'منصة جهبذ | معلومات المستخدم' }</title>
+      </Helmet>
       <Container
         bg="white"
         sx={{

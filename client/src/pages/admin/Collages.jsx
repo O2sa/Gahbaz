@@ -15,6 +15,7 @@ import { useGetElements } from '../crud'
 import EditCollage from './EditCollage'
 import { CSpinner } from '@coreui/react'
 import { CardLoader, NoData } from '../LoadingComponents'
+import { Helmet } from 'react-helmet'
 
 const collagesQuery = () => ({
   queryKey: ['collages'],
@@ -67,6 +68,9 @@ export default function Collages({ queryClient }) {
   if (collages.length == 0) {
     return (
       <div className="bg-white h-100" style={{ minHeight: '50vh' }}>
+                               <Helmet>
+            <title>{ 'منصة جهبذ | الكليات' }</title>
+      </Helmet>
         <div
           className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
         >

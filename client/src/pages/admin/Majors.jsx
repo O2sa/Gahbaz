@@ -16,6 +16,7 @@ import AddMajor from './AddMajor'
 import EditMajor from './EditMajor'
 import { CSpinner } from '@coreui/react'
 import { CardLoader, NoData } from '../LoadingComponents'
+import { Helmet } from 'react-helmet'
 
 export default function Majors({ queryClient }) {
   const { id: collageId } = useParams()
@@ -55,6 +56,9 @@ export default function Majors({ queryClient }) {
 
   return (
     <div className="bg-white h-100" style={{ minHeight: '50vh' }}>
+                         <Helmet>
+            <title>{ 'منصة جهبذ | التخصصات' }</title>
+      </Helmet>
       <div
         className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
       >

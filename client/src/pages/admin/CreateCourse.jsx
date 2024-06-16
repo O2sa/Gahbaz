@@ -27,6 +27,7 @@ import { BsInfoSquare } from "react-icons/bs";
 import { GiLevelEndFlag } from "react-icons/gi";
 
 import { MdOutlinePlayLesson } from "react-icons/md";
+import { Helmet } from 'react-helmet'
 export default function CreateCourse ({ ...props })  {
   // const courseId = useLocation().search || ''
   const { id } = useParams()
@@ -54,5 +55,10 @@ export default function CreateCourse ({ ...props })  {
       to: `grades`,
     },
   ]
-  return <TabsLinks tabs={tabs} />
+  return <>
+                             <Helmet>
+            <title>{ 'منصة جهبذ | تعديل بيانات الدورة' }</title>
+      </Helmet>
+  <TabsLinks tabs={tabs} />
+  </>
 }
