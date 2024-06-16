@@ -77,7 +77,7 @@ function GroupChatCreate({ setModalActive }) {
         users: JSON.stringify(selectedUsers.map((u) => u._id)),
       })
       setChats([data, ...chats])
-      console.log(data)
+      //console.log(data)
     //   toast.success('New Group Chat Created!', toastOptions)
     } catch (error) {
     //   toast.error(error.response.data.message, toastOptions)

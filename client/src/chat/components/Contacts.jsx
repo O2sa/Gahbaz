@@ -124,7 +124,7 @@ function Contacts({ fetchAgain, selectedChat, socket }) {
       ) : (
         <Stack sx={{ overflowY: 'auto', overflowX: 'hidden', gap: 0 }}>
           {loading
-            ? Array.from({ length: 6 }).map((o, i) => (
+            ? Array.from({ length: 12}).map((o, i) => (
                 <Box key={`chat-list-${i}`}>
                   <Skeleton height={48} radius={0} />
                   <Divider />

@@ -14,7 +14,7 @@ export const MainLayout = ({ children }) => {
   }, [])
 
   useEffect(() => {
-    console.log('Current location:', location.pathname)
+    //console.log('Current location:', location.pathname)
 
     createBreadCrumbs(location)
     logPageView(
