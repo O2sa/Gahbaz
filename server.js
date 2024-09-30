@@ -187,4 +187,4 @@ io.on("connection", (socket) => {
 
 // console.log('EMAIL_USER:', process.env.EMAIL_USER);
 // console.log('EMAIL_PASS:', process.env.EMAIL_PASS);
-setInterval(collectAndStoreMetrics, 100000); // Collect and store metrics every 10 seconds
+// setInterval(collectAndStoreMetrics, 100000); // Collect and store metrics every 10 seconds
