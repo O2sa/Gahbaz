@@ -4,7 +4,7 @@
 
 <div align="center">
 
-[![Preview](readme_preview/al-folio-preview.png)](https://alshedivat.github.io/al-folio/)
+[![Preview](screenshot.png)](https://elearningsystem.onrender.com)
 
 **An integrated system for universities and institutions for distance learning and for managing the educational process.**
 
@@ -18,7 +18,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/amirpourmand/al-folio?color=blueviolet)](https://hub.docker.com/r/amirpourmand/al-folio)
 
 [![GitHub release](https://img.shields.io/github/v/release/alshedivat/al-folio)](https://github.com/alshedivat/al-folio/releases/latest)
-[![GitHub license](https://img.shields.io/github/license/alshedivat/al-folio?color=blue)](https://github.com/alshedivat/al-folio/blob/master/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/alshedivat/al-folio?color=blue)](https://github.com/o2sa/al-folio/blob/version-two/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/alshedivat/al-folio)](https://github.com/alshedivat/al-folio)
 [![GitHub forks](https://img.shields.io/github/forks/alshedivat/al-folio)](https://github.com/alshedivat/al-folio/fork)
 
