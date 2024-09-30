@@ -6,19 +6,19 @@
 
 [![Preview](screenshot.png)](https://elearningsystem.onrender.com)
 
-**An integrated system for universities and institutions for distance learning and for managing the educational process.**
+**منظومة متكاملة للجامعات والمؤسسات للتعليم عن بعد وإدارة العملية التعليمية.**
 
 ---
 
-[![deploy](https://github.com/alshedivat/al-folio/actions/workflows/deploy.yml/badge.svg)](https://github.com/o2sa/gahbaz/actions/workflows/deploy.yml)
+[![deploy](https://github.com/CS0Team/gahbaz/actions/workflows/deploy.yml/badge.svg)](https://github.com/CS0Team/gahbaz/actions/workflows/deploy.yml)
 [![Maintainers](https://img.shields.io/badge/maintainers-4-success.svg)](#maintainers)
-[![GitHub contributors](https://img.shields.io/github/contributors/alshedivat/al-folio.svg)](https://github.com/o2sa/gahbaz/graphs/contributors/)
+[![GitHub contributors](https://img.shields.io/github/contributors/CS0Team/gahbaz.svg)](https://github.com/CS0Team/gahbaz/graphs/contributors/)
 
 
-[![GitHub release](https://img.shields.io/github/v/release/alshedivat/al-folio)](https://github.com/o2sa/gahbaz/releases/latest)
-[![GitHub license](https://img.shields.io/github/license/alshedivat/al-folio?color=blue)](https://github.com/o2sa/al-folio/blob/version-two/LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/o2sa/gahbaz)](https://github.com/o2sa/gahbaz)
-[![GitHub forks](https://img.shields.io/github/forks/o2sa/gahbaz)](https://github.com/o2sa/gahbaz/fork)
+[![GitHub release](https://img.shields.io/github/v/release/CS0Team/gahbaz)](https://github.com/CS0Team/gahbaz/releases/latest)
+[![GitHub license](https://img.shields.io/github/license/CS0Team/gahbaz?color=blue)](https://github.com/CS0Team/gahbaz/blob/version-two/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/CS0Team/gahbaz)](https://github.com/CS0Team/gahbaz)
+[![GitHub forks](https://img.shields.io/github/forks/CS0Team/gahbaz)](https://github.com/CS0Team/gahbaz/fork)
 
 </div>
 
@@ -32,14 +32,14 @@
 ## **الميزات الرئيسية**
 - **الأدوار**: مسؤول النظام، المعلمون، الطلاب
 - **إدارة الدورات**: إنشاء وتحديث وإدارة المحتوى الدراسي
-- **إدارة الاختبارات**: جدولة وإدارة الاختبارات، التقييم التلقائي
+- **إدارة الفصول الدارسية**: إدرة الفصول الدارسية وجدولتها بضغطة زر حيث يكون كل شيءٍ جاهز
 - **تقديم المهام**: يمكن للطلاب تقديم المهام، ويمكن للمعلمين مراجعتها
 - **الدردشة في الوقت الفعلي**: تواصل فوري بين الطلاب والمعلمين باستخدام **Socket.IO**
 - **نظام الإشعارات**: إشعارات فورية للمستخدمين
 - **تخزين سحابي**: تخزين الوسائط مثل المحاضرات والاختبارات باستخدام **Cloudinary**
 - **تحليلات وتقارير**: إنشاء تقارير الأداء للطلاب
 - **واجهة مستخدم متجاوبة بالكامل**: تم تصميم الواجهة باستخدام **Mantine UI**
-- **نشر المشروع باستخدام Render** لسهولة التوسع
+- **أُستضيف المشروع باستخدام Render**
 
 ---
 
@@ -64,14 +64,16 @@
 
 ### **التصميم وإدارة المشروع**:
 - **Figma**: لتصميم واجهات المستخدم (UI/UX) والمخططات النظامية
-  - [تصاميم Figma](https://www.figma.com)
+  - [تصاميم الواجهات](https://www.figma.com/file/ynGrVrMF4UM9r9q6wVuwmB/ElearningSystem?type=design&amp;mode=design&amp;t=zUvpF1mkzI0gMjbk-1)
+  - [مخططات النظام(UML)](https://www.figma.com/file/ynGrVrMF4UM9r9q6wVuwmB/ElearningSystem?type=design&amp;mode=design&amp;t=zUvpF1mkzI0gMjbk-1)
+
 - **Jira**: أداة لإدارة المشاريع وتتبع المهام
   - [رابط Jira](https://www.atlassian.com/software/jira)
 
 ### **النشر و DevOps**:
 - **GitHub**: للتحكم في الإصدار والتعاون
-  - [مستودع GitHub](https://github.com/your-repository)
-- **Render**: منصة سحابية لنشر الواجهة الخلفية والأمامية
+  - [مستودع GitHub](https://github.com/CS0Team/Gahbaz)
+- **Render**: منصة استضافة للواجهة الخلفية والأمامية
   - [رابط Render](https://render.com)
 
 ---
@@ -110,18 +112,23 @@
 ## **بنية الملفات**
 
 ```
-e-learning-system/
-├── client/              # كود الواجهة الأمامية (React)
-│   ├── src/
-│   ├── public/
-├── server/              # كود الواجهة الخلفية (Node.js, Express)
-│   ├── models/          # نماذج Mongoose
-│   ├── controllers/     # وحدات التحكم في الطلبات
-│   ├── routes/          # نقاط نهاية API
-│   ├── sockets/         # أحداث Socket.IO
-├── config/              # تكوينات البيئة
-├── README.md            # توثيق المشروع
-└── .env                 # متغيرات البيئة (غير مشترك)
+Gahbaz/
+├── client/             # يحتوي على كود الواجهة الأمامية (React)
+├── configs/            # ملفات التكوين (مثل متغيرات البيئة واتصالات قواعد البيانات)
+├── controllers/        # المنطق لمعالجة الطلبات، يربط بين المسارات والنماذج
+├── errors/             # معالجات الأخطاء المخصصة والفئات لإدارة الأخطاء
+├── learn/              # يتعامل مع وظائف التعلم الإلكتروني، مثل الدورات والدروس وغيرها
+├── middleware/         # وظائف الوسيط لمعالجة التوثيق وتسجيل الأحداث ومعالجة الطلبات
+├── models/             # المخططات والنماذج الخاصة بقاعدة البيانات (Mongoose)
+├── node_modules/       # التبعات المثبتة باستخدام npm
+├── package.json        # بيانات المشروع والسكربتات
+├── package-lock.json   # إصدارات التبعات المقفلة لضمان التثبيت المتسق
+├── public/             # الملفات الثابتة للواجهة الأمامية
+├── README.MD           # توثيق المشروع وتعليمات الإعداد
+├── routes/             # تعريف نقاط النهاية لـ API ومنطق معالجة المسارات
+├── screenshot.png      # لقطة شاشة للتوثيق أو لأغراض العرض التوضيحي
+├── server.js           # نقطة دخول لخادم الواجهة الخلفية (Node.js و Express)
+└── utils/              # دوال مساعدة للاستخدام العام عبر الواجهة الخلفية
 ```
 
 ---
