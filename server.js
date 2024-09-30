@@ -96,7 +96,7 @@ app.get("/api/v1/test", (req, res) => {
 
 app.use("/api/v1/auth", authRouter);
 
-app.use(authenticateUser, authorizePermissions);
+app.use("/api/v1",authenticateUser, authorizePermissions);
 
 //setup apis
 app.use("/api/v1/users", userRouter);
