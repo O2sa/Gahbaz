@@ -1,10 +1,11 @@
+<div dir="rtl">
 
 # Gahbaz(جهبذ)
 
 
 <div align="center">
 
-[![Preview](screenshot.png)](https://elearningsystem.onrender.com)
+[![Preview](https://github.com/CS0Team/Gahbaz/screenshot.png)](https://elearningsystem.onrender.com)
 
 **منظومة متكاملة للجامعات والمؤسسات للتعليم عن بعد وإدارة العملية التعليمية.**
 
@@ -234,3 +235,6 @@ npm run dev
 - [رابط Cloudinary](https://cloudinary.com)
 - [رابط Jira](https://www.atlassian.com/software/jira)
 - [وثائق Render](https://render.com/docs)
+
+</div>
+
