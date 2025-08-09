@@ -1,0 +1,49 @@
+
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./server/.env
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - mongo
+    networks:
+      - app-net
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://backend:5000
+    ports:
+      - "3000:80"
+    env_file:
+      - ./client/.env
+    networks:
+      - app-net
+    depends_on:
+      - server
+    # environment:
+    #   - VITE_API_URL=http://backend:5000
+
+  mongo:
+    image: mongo:7
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-net
+
+volumes:
+  mongo-data:
+
+networks:
+  app-net:

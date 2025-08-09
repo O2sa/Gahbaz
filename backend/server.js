@@ -67,7 +67,7 @@ if (process.env.NODE_ENV === "development") {
 //   })
 // );
 
-app.use(express.static(path.resolve(__dirname, "./client/dist")));
+app.use(express.static(path.resolve(__dirname, "../client/dist")));
 app.use(cookieParser());
 app.use(express.json());
 app.use(
@@ -76,7 +76,7 @@ app.use(
       useDefaults: true,
       directives: {
         defaultSrc: ["'self'"],
-        connectSrc: ["'self'", "http://localhost:5000", "ws://localhost:5000"],
+        connectSrc: ["'self'", "http://localhost:5000", "https://localhost:5000", "ws://localhost:5000", "wss://localhost:5000"],
         // Add other directives as needed
       },
     },
@@ -86,9 +86,9 @@ app.use(
 app.use(cors());
 app.use(mongoSanitize());
 
-app.get("/", (req, res) => {
-  res.send("Hello World");
-});
+// app.get("/", (req, res) => {
+//   res.send("Hello World");
+// });
 
 app.get("/api/v1/test", (req, res) => {
   res.json({ msg: "test route" });
@@ -123,7 +123,7 @@ app.use("/api/v1/messages", messageRoutes);
 app.use("/api/v1/chats", chatRoutes);
 
 app.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "./client/dist", "index.html"));
+  res.sendFile(path.resolve(__dirname, "../client/dist", "index.html"));
 });
 
 app.use("*", (req, res) => {
