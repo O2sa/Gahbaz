@@ -5,7 +5,7 @@
 
 <div align="center">
 
-[![Preview](https://github.com/CS0Team/Gahbaz/screenshot.png)](https://elearningsystem.onrender.com)
+[![Preview](screenshot.png)](https://elearningsystem.onrender.com)
 
 **منظومة متكاملة للجامعات والمؤسسات للتعليم عن بعد وإدارة العملية التعليمية.**
 
