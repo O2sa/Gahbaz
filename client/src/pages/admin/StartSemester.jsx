@@ -35,7 +35,7 @@ import { useParams } from 'react-router-dom'
 import { AiFillBank } from 'react-icons/ai'
 
 import { forwardRef } from 'react'
-import { getCurrentTime } from '../../../../utils/constants'
+// import { getCurrentTime } from '../../../../utils/constants'
 
 import 'dayjs/locale/ar'
 import { DatePickerInput } from '@mantine/dates'

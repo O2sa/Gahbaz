@@ -19,12 +19,14 @@ export const authenticateUser = async (req, res, next) => {
   try {
     const { userId, role } = verifyJWT(token);
     // const testUser = userId === "64b2c07ccac2efc972ab0eca";
-    req.user = await User.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
       userId,
       { lastActivity: new Date() },
       { new: true }
     ).select("-password");
-
+    if (!user) throw new UnauthenticatedError("authentication invalid");
+    
+    req.user = user;
     // authorizePermissions(req);
     // req.user = user;
     // console.log(req.user)
@@ -45,7 +47,13 @@ export const authorizePermissions = (req, res, next) => {
 
   const method = req.method;
   const paths = req.originalUrl.split("/");
-  const deniedPaths = ["collages", "majors", "subjects", "semester-templates",'semesters'];
+  const deniedPaths = [
+    "collages",
+    "majors",
+    "subjects",
+    "semester-templates",
+    "semesters",
+  ];
 
   console.log(req.user);
   console.log(method);
