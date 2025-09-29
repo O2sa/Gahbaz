@@ -2,14 +2,18 @@
 services:
   server:
     build:
-      context: ./server
+      context: ./backend
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
-    env_file:
-      - ./server/.env
+    # env_file:
+    #   - ./backend/.env
     environment:
       - NODE_ENV=production
+      - JWT_LIFETIME=30d
+      - JWT_SECRET=IcGuR0dBKg5PAdfdreaY9Sqz1VlQw6yFjMv
+      - MONGO_URL=mongodb://mongo:27017/jahbd
+      - PORT=5000
     depends_on:
       - mongo
     networks:
@@ -20,7 +24,7 @@ services:
       context: ./client
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://backend:5000
+        VITE_API_URL: http://server:5000
     ports:
       - "3000:80"
     env_file:
@@ -30,7 +34,7 @@ services:
     depends_on:
       - server
     # environment:
-    #   - VITE_API_URL=http://backend:5000
+      # - VITE_API_URL=http://server:5000
 
   mongo:
     image: mongo:7

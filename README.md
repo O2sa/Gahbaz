@@ -23,7 +23,6 @@
 </div>
 
 
-No problem! Here's the updated README to include **real-time chat functionality** using **Socket.IO**.
 
 ---
 
@@ -257,11 +256,6 @@ Please make sure your code follows our guidelines and is well-documented.
 
 ---
 
-## **License**
-
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/your-repository/elearning-system/blob/main/LICENSE) file for more details.
-
----
 
 ## **Useful Links**
 
