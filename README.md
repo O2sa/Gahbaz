@@ -10,13 +10,13 @@
 
 ---
 
-[![deploy](https://github.com/alshedivat/al-folio/actions/workflows/deploy.yml/badge.svg)](https://github.com/o2sa/gahbaz/actions/workflows/deploy.yml)
+[![deploy](https://github.com/O2sa/Gahbaz/actions/workflows/deploy.yml/badge.svg)](https://github.com/o2sa/gahbaz/actions/workflows/deploy.yml)
 [![Maintainers](https://img.shields.io/badge/maintainers-4-success.svg)](#maintainers)
-[![GitHub contributors](https://img.shields.io/github/contributors/alshedivat/al-folio.svg)](https://github.com/o2sa/gahbaz/graphs/contributors/)
+[![GitHub contributors](https://img.shields.io/github/contributors/o2sa/al-folio.svg)](https://github.com/o2sa/gahbaz/graphs/contributors/)
 
 
-[![GitHub release](https://img.shields.io/github/v/release/alshedivat/al-folio)](https://github.com/o2sa/gahbaz/releases/latest)
-[![GitHub license](https://img.shields.io/github/license/alshedivat/al-folio?color=blue)](https://github.com/o2sa/al-folio/blob/version-two/LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/O2sa/Gahbaz)](https://github.com/o2sa/gahbaz/releases/latest)
+[![GitHub license](https://img.shields.io/github/license/O2sa/Gahbaz?color=blue)](https://github.com/o2sa/Gahbaz/blob/version-two/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/o2sa/gahbaz)](https://github.com/o2sa/gahbaz)
 [![GitHub forks](https://img.shields.io/github/forks/o2sa/gahbaz)](https://github.com/o2sa/gahbaz/fork)
 
