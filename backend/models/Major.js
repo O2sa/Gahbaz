@@ -33,13 +33,4 @@ const MajorSchema = new mongoose.Schema({
 });
 
 
-MajorSchema.pre('remove', async function (next) {
-  try {
-    await SemesterTemp.deleteMany({ major: this._id });
-    next();
-  } catch (err) {
-    next(err);
-  }
-});
-
 export default mongoose.model("Major", MajorSchema);

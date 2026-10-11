@@ -13,14 +13,14 @@ const CollageSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: "Major",
   },
-    numberOfSemesters:{
+  numberOfSemesters: {
     type: Number,
-    required: [true, "Please provide start date"],
+    required: [true, "Please provide number of semesters"],
   },
   university: {
     type: mongoose.Types.ObjectId,
     ref: "University",
-    required: [true,"collage"],
+    required: [true, "University is required"],
   },
 });
 

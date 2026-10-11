@@ -33,12 +33,12 @@ const SemesterSchema = new mongoose.Schema({
   university: {
     type: mongoose.Types.ObjectId,
     ref: "University",
-    required: [true, "لا بد من تحديد عدد الحصص اليومية"],
+    required: [true, "University is required"],
   },
   template: {
     type: mongoose.Types.ObjectId,
     ref: "SemesterTemp",
-    required: [true, "لا بد من تحديد عدد الحصص اليومية"],
+    required: [true, "Template is required"],
   },
 });
 
