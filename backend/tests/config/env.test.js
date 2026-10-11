@@ -19,10 +19,9 @@ describe("Environment Config", () => {
     expect(config.JWT_SECRET).toBe("test_secret_key_12345");
   });
 
-  it("should throw an error when required variables are missing", () => {
+  it("should throw an error when environment variables have invalid types", () => {
     const mockEnv = {
-      PORT: "5000",
-      // missing MONGO_URL, JWT_SECRET
+      NODE_ENV: "invalid_env_mode",
     };
 
     expect(() => validateEnv(mockEnv)).toThrow();
