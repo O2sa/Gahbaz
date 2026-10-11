@@ -5,8 +5,8 @@ dotenv.config();
 
 const envSchema = z.object({
   PORT: z.coerce.number().default(5000),
-  MONGO_URL: z.string().min(1, "MONGO_URL is required"),
-  JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),
+  MONGO_URL: z.string().default("mongodb://localhost:27017/gahbaz"),
+  JWT_SECRET: z.string().default("default_dev_secret_key_gahbaz_12345"),
   JWT_LIFETIME: z.string().default("1d"),
   EMAIL_USER: z.string().default(""),
   EMAIL_PASS: z.string().default(""),
