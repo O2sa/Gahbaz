@@ -1,6 +1,16 @@
 import mongoose from "mongoose";
 
-const GradeChema = new mongoose.Schema({
+const GradeItemSchema = new mongoose.Schema(
+  {
+    key: { type: String, required: true },
+    name: { type: String, required: true },
+    maxValue: { type: Number, required: true },
+    value: { type: Number, default: 0, min: 0 },
+  },
+  { _id: false }
+);
+
+const GradeSchema = new mongoose.Schema({
   course: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Course",
@@ -11,10 +21,17 @@ const GradeChema = new mongoose.Schema({
     ref: "Student",
     required: true,
   },
-
   total: { type: Number, default: 0 },
   percent: { type: Number, default: 0 },
-
+  grades: {
+    type: [GradeItemSchema],
+    default: [
+      { key: "assignments", name: "تكاليف", maxValue: 20, value: 0 },
+      { key: "midterm", name: "نصفي", maxValue: 30, value: 0 },
+      { key: "final", name: "نهائي", maxValue: 50, value: 0 },
+    ],
+  },
+  // Legacy grade field for backward compatibility
   grade: {
     type: mongoose.Schema.Types.Mixed,
     default: {
@@ -25,27 +42,46 @@ const GradeChema = new mongoose.Schema({
   },
 });
 
-GradeChema.methods.updateGrade = function (gradeToUpdate, gradeSchema) {
+GradeSchema.methods.recalculateTotal = function () {
+  let sum = 0;
+  let maxTotal = 0;
+
+  if (this.grades && this.grades.length > 0) {
+    for (const g of this.grades) {
+      sum += Number(g.value) || 0;
+      maxTotal += Number(g.maxValue) || 0;
+    }
+  }
+
+  this.total = sum;
+  this.percent = maxTotal > 0 ? (sum / maxTotal) * 100 : 0;
+  return this;
+};
+
+GradeSchema.methods.updateGrade = function (gradeToUpdate, gradeSchema) {
   this.total = 0;
-  console.log("gradeToUpdate", gradeToUpdate);
-  console.log("gradeSchema", gradeSchema);
 
   for (const gr in gradeToUpdate) {
     const currField = Number(gradeToUpdate[gr].value);
-    if (currField > gradeSchema.grade[gr].value || currField < 0) {
-      throw new Error("Lesson not found");
+    const maxAllowed = gradeSchema?.grade?.[gr]?.value ?? 100;
+
+    if (currField > maxAllowed || currField < 0) {
+      throw new Error(`Grade value cannot exceed maximum allowed score of ${maxAllowed}`);
     } else {
-      this.grade[gr].value = currField;
+      if (this.grade && this.grade[gr]) {
+        this.grade[gr].value = currField;
+      }
       this.total += currField;
     }
   }
 
-  if (this.total > gradeSchema.total) {
-    throw new Error("Lesson not found");
+  const schemaTotal = gradeSchema?.total || 100;
+  if (this.total > schemaTotal) {
+    throw new Error(`Total grade cannot exceed ${schemaTotal}`);
   }
 
-  this.percent = (this.total / gradeSchema.total) * 100;
-
+  this.percent = (this.total / schemaTotal) * 100;
   return this.save();
 };
-export default mongoose.model("Grade", GradeChema);
+
+export default mongoose.model("Grade", GradeSchema);
