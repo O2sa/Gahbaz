@@ -47,7 +47,7 @@ SubjectSchema.methods.updateGradeSchema = function (gradeSchemaToUPdate) {
       this.gradeSchema.grade[gr].value = currField;
       total += currField;
     } else {
-      throw new Error("Lesson not found");
+      throw new Error("Grade value must be non-negative");
     }
   }
 
