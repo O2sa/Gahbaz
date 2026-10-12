@@ -22,6 +22,7 @@ import chatRouter, { messagesRouter } from "./modules/chat/chat.routes.js";
 import systemRouter from "./modules/system/system.routes.js";
 
 import { authenticateUser } from "./core/middleware/auth.middleware.js";
+import { enforceDemoReadOnly } from "./core/middleware/rbac.middleware.js";
 import errorHandlerMiddleware from "./core/middleware/error.middleware.js";
 import { sendSuccess } from "./core/utils/response.utils.js";
 
@@ -45,20 +46,23 @@ app.get("/api/v1/test", (req, res) => {
 // Unauthenticated Auth Router
 app.use("/api/v1/auth", authRouter);
 
+// Centralized authenticated pipeline: authentication + global demo read-only guard
+const authGuard = [authenticateUser, enforceDemoReadOnly];
+
 // Authenticated Domain Routers
-app.use("/api/v1/users", authenticateUser, usersRouter);
-app.use("/api/v1/colleges", authenticateUser, collegesRouter);
-app.use("/api/v1/majors", authenticateUser, majorsRouter);
-app.use("/api/v1/subjects", authenticateUser, subjectsRouter);
-app.use("/api/v1/semesters", authenticateUser, semestersRouter);
-app.use("/api/v1/courses", authenticateUser, coursesRouter);
-app.use("/api/v1/grades", authenticateUser, gradesRouter);
-app.use("/api/v1/students", authenticateUser, studentsRouter);
-app.use("/api/v1/teachers", authenticateUser, teachersRouter);
-app.use("/api/v1/admins", authenticateUser, adminsRouter);
-app.use("/api/v1/chats", authenticateUser, chatRouter);
-app.use("/api/v1/messages", authenticateUser, messagesRouter);
-app.use("/api/v1/system", authenticateUser, systemRouter);
+app.use("/api/v1/users", authGuard, usersRouter);
+app.use("/api/v1/colleges", authGuard, collegesRouter);
+app.use("/api/v1/majors", authGuard, majorsRouter);
+app.use("/api/v1/subjects", authGuard, subjectsRouter);
+app.use("/api/v1/semesters", authGuard, semestersRouter);
+app.use("/api/v1/courses", authGuard, coursesRouter);
+app.use("/api/v1/grades", authGuard, gradesRouter);
+app.use("/api/v1/students", authGuard, studentsRouter);
+app.use("/api/v1/teachers", authGuard, teachersRouter);
+app.use("/api/v1/admins", authGuard, adminsRouter);
+app.use("/api/v1/chats", authGuard, chatRouter);
+app.use("/api/v1/messages", authGuard, messagesRouter);
+app.use("/api/v1/system", authGuard, systemRouter);
 
 // Serve frontend in production if built
 const clientDist = path.resolve(__dirname, "../../client/dist");

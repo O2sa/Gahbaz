@@ -1,6 +1,6 @@
 import { Router } from "express";
 import * as ctrl from "./grades.controller.js";
-import { requireRoles, enforceDemoReadOnly } from "../../core/middleware/rbac.middleware.js";
+import { requireRoles } from "../../core/middleware/rbac.middleware.js";
 
 const router = Router();
 
@@ -12,6 +12,6 @@ router.get("/students/:studentId?", ctrl.getStudentGrades);
 router
   .route("/:gradeId")
   .get(ctrl.getGrade)
-  .patch(requireRoles("teacher", "admin", "super-admin"), enforceDemoReadOnly, ctrl.updateGrade);
+  .patch(requireRoles("teacher", "admin", "super-admin"), ctrl.updateGrade);
 
 export default router;

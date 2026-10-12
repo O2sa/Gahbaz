@@ -1,6 +1,6 @@
 import { Router } from "express";
 import * as ctrl from "./semesters.controller.js";
-import { requireRoles, enforceDemoReadOnly } from "../../core/middleware/rbac.middleware.js";
+import { requireRoles } from "../../core/middleware/rbac.middleware.js";
 import { validateRequest } from "../../core/middleware/validate.middleware.js";
 import {
   startSemesterSchema,
@@ -16,7 +16,6 @@ router
   .get(ctrl.getSemesterTemplates)
   .post(
     requireRoles("admin", "super-admin"),
-    enforceDemoReadOnly,
     validateRequest({ body: createSemesterTemplateSchema }),
     ctrl.createSemesterTemplate
   );
@@ -26,11 +25,10 @@ router
   .get(ctrl.getSemesterTemplate)
   .patch(
     requireRoles("admin", "super-admin"),
-    enforceDemoReadOnly,
     validateRequest({ body: updateSemesterTemplateSchema }),
     ctrl.updateSemesterTemplate
   )
-  .delete(requireRoles("admin", "super-admin"), enforceDemoReadOnly, ctrl.deleteSemesterTemplate);
+  .delete(requireRoles("admin", "super-admin"), ctrl.deleteSemesterTemplate);
 
 // ======================== SEMESTERS ========================
 router
@@ -38,7 +36,6 @@ router
   .get(ctrl.getAllSemesters)
   .post(
     requireRoles("admin", "super-admin"),
-    enforceDemoReadOnly,
     validateRequest({ body: startSemesterSchema }),
     ctrl.startSemester
   );
@@ -46,7 +43,6 @@ router
 router.post(
   "/start",
   requireRoles("admin", "super-admin"),
-  enforceDemoReadOnly,
   validateRequest({ body: startSemesterSchema }),
   ctrl.startSemester
 );
@@ -54,7 +50,6 @@ router.post(
 router.post(
   "/start-semester",
   requireRoles("admin", "super-admin"),
-  enforceDemoReadOnly,
   validateRequest({ body: startSemesterSchema }),
   ctrl.startSemester
 );
@@ -62,20 +57,18 @@ router.post(
 router
   .route("/:id")
   .get(ctrl.getSemester)
-  .patch(requireRoles("admin", "super-admin"), enforceDemoReadOnly, ctrl.updateSemester)
-  .delete(requireRoles("admin", "super-admin"), enforceDemoReadOnly, ctrl.deleteSemester);
+  .patch(requireRoles("admin", "super-admin"), ctrl.updateSemester)
+  .delete(requireRoles("admin", "super-admin"), ctrl.deleteSemester);
 
 router.patch(
   "/:id/end",
   requireRoles("admin", "super-admin"),
-  enforceDemoReadOnly,
   ctrl.endSemester
 );
 
 router.patch(
   "/:id/end-semester",
   requireRoles("admin", "super-admin"),
-  enforceDemoReadOnly,
   ctrl.endSemester
 );
 
