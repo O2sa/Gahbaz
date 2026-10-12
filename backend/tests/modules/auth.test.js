@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { registerUser, loginUser } from "../../src/modules/auth/auth.service.js";
-import User from "../../models/User.js";
-import University from "../../models/University.js";
+import User from "../../src/models/User.js";
+import University from "../../src/models/University.js";
 import * as passwordUtils from "../../src/core/utils/password.utils.js";
 
 describe("Auth Module Service", () => {
@@ -30,6 +30,7 @@ describe("Auth Module Service", () => {
     expect(passedData.role).toBe("student"); // Privilege escalation prevented
     expect(passedData.email).toBe("john@example.com");
     expect(res.user._id).toBe("user123");
+    expect(res.token).toBeDefined();
   });
 
   it("should reject registration if email is already registered", async () => {
@@ -54,7 +55,9 @@ describe("Auth Module Service", () => {
       university: "univ123",
     };
 
-    vi.spyOn(User, "findOne").mockResolvedValue(mockUser);
+    vi.spyOn(User, "findOne").mockReturnValue({
+      select: vi.fn().mockResolvedValue(mockUser),
+    });
     vi.spyOn(passwordUtils, "comparePassword").mockResolvedValue(true);
 
     const loginRes = await loginUser("jane@example.com", "Password123!");
@@ -70,7 +73,9 @@ describe("Auth Module Service", () => {
       password: "hashedPassword123",
     };
 
-    vi.spyOn(User, "findOne").mockResolvedValue(mockUser);
+    vi.spyOn(User, "findOne").mockReturnValue({
+      select: vi.fn().mockResolvedValue(mockUser),
+    });
     vi.spyOn(passwordUtils, "comparePassword").mockResolvedValue(false);
 
     await expect(loginUser("jane@example.com", "WrongPassword")).rejects.toThrow(
