@@ -1,68 +1,75 @@
 import mongoose from "mongoose";
-import Collage from "../../../models/Collage.js";
-import Major from "../../../models/Major.js";
-import Subject from "../../../models/Subject.js";
-import SemesterTemp from "../../../models/SemesterTemp.js";
-import Semester from "../../../models/Semester.js";
-import Course from "../../../models/Course.js";
-import Section from "../../../models/Section.js";
-import Grade from "../../../models/Grade.js";
-import Student from "../../../models/Student.js";
-import Teacher from "../../../models/Teacher.js";
-import Admin from "../../../models/Admin.js";
-import Chat from "../../../models/chatModel.js";
+import College from "../../models/College.js";
+import Major from "../../models/Major.js";
+import Subject from "../../models/Subject.js";
+import SemesterTemplate from "../../models/SemesterTemplate.js";
+import Semester from "../../models/Semester.js";
+import Course from "../../models/Course.js";
+import Section from "../../models/Section.js";
+import Grade from "../../models/Grade.js";
+import Student from "../../models/Student.js";
+import Teacher from "../../models/Teacher.js";
+import Admin from "../../models/Admin.js";
+import Chat from "../../models/Chat.js";
 
 import { NotFoundError, BadRequestError } from "../../core/errors/customErrors.js";
 import { generateSecurePassword, hashPassword } from "../../core/utils/password.utils.js";
 import sendMail from "../../config/mailer.js";
 
-// ======================== COLLAGES ========================
-export const createCollageService = async (data, universityId) => {
-  return Collage.create({ ...data, university: universityId });
+// ======================== COLLEGES ========================
+export const createCollegeService = async (data, universityId) => {
+  return College.create({ ...data, university: universityId });
 };
 
-export const getCollagesService = async (universityId) => {
-  return Collage.find({ university: universityId });
+export const getCollegesService = async (universityId) => {
+  return College.find({ university: universityId });
 };
 
-export const getCollageByIdService = async (id, universityId) => {
-  const collage = await Collage.findOne({ _id: id, university: universityId }).populate("majors");
-  if (!collage) throw new NotFoundError("Collage not found");
-  return collage;
+export const getCollegeByIdService = async (id, universityId) => {
+  const college = await College.findOne({ _id: id, university: universityId }).populate("majors");
+  if (!college) throw new NotFoundError("College not found");
+  return college;
 };
 
-export const updateCollageService = async (id, data, universityId) => {
-  const collage = await Collage.findOneAndUpdate(
+export const updateCollegeService = async (id, data, universityId) => {
+  const college = await College.findOneAndUpdate(
     { _id: id, university: universityId },
     data,
     { new: true, runValidators: true }
   );
-  if (!collage) throw new NotFoundError("Collage not found");
-  return collage;
+  if (!college) throw new NotFoundError("College not found");
+  return college;
 };
 
-export const deleteCollageService = async (id, universityId) => {
-  const collage = await Collage.findOneAndDelete({ _id: id, university: universityId });
-  if (!collage) throw new NotFoundError("Collage not found");
+export const deleteCollegeService = async (id, universityId) => {
+  const college = await College.findOneAndDelete({ _id: id, university: universityId });
+  if (!college) throw new NotFoundError("College not found");
 
-  const majors = await Major.find({ collage: collage._id });
+  const majors = await Major.find({ college: college._id });
   for (const m of majors) {
-    await SemesterTemp.deleteMany({ major: m._id });
+    await SemesterTemplate.deleteMany({ major: m._id });
   }
-  await Major.deleteMany({ collage: collage._id });
-  await Subject.deleteMany({ collage: collage._id });
-  return collage;
+  await Major.deleteMany({ college: college._id });
+  await Subject.deleteMany({ college: college._id });
+  return college;
 };
+
+// Aliases for college services
+export const createCollageService = createCollegeService;
+export const getCollagesService = getCollegesService;
+export const getCollageByIdService = getCollegeByIdService;
+export const updateCollageService = updateCollegeService;
+export const deleteCollageService = deleteCollegeService;
 
 // ======================== MAJORS ========================
 export const createMajorService = async (data, universityId) => {
   const newMajor = await Major.create(data);
-  const collage = await Collage.findById(newMajor.collage);
-  if (collage) {
+  const college = await College.findById(newMajor.college || newMajor.collage);
+  if (college) {
     const templatePromises = [];
-    for (let s = 0; s < collage.numberOfSemesters; s++) {
+    for (let s = 0; s < college.numberOfSemesters; s++) {
       templatePromises.push(
-        SemesterTemp.create({
+        SemesterTemplate.create({
           name: `الفصل ${s + 1}, ${newMajor.name}`,
           major: newMajor._id,
           index: s,
@@ -95,8 +102,35 @@ export const updateMajorService = async (id, data) => {
 export const deleteMajorService = async (id) => {
   const major = await Major.findByIdAndDelete(id);
   if (!major) throw new NotFoundError("Major not found");
-  await SemesterTemp.deleteMany({ major: major._id });
+  await SemesterTemplate.deleteMany({ major: major._id });
   return major;
+};
+
+// ======================== SEMESTER TEMPLATES ========================
+export const createSemesterTemplateService = async (data) => {
+  return SemesterTemplate.create(data);
+};
+
+export const getSemesterTemplatesService = async (filter = {}) => {
+  return SemesterTemplate.find(filter).populate("subjects");
+};
+
+export const getSemesterTemplateByIdService = async (id) => {
+  const template = await SemesterTemplate.findById(id).populate("subjects");
+  if (!template) throw new NotFoundError("Semester template not found");
+  return template;
+};
+
+export const updateSemesterTemplateService = async (id, data) => {
+  const template = await SemesterTemplate.findByIdAndUpdate(id, data, { new: true });
+  if (!template) throw new NotFoundError("Semester template not found");
+  return template;
+};
+
+export const deleteSemesterTemplateService = async (id) => {
+  const template = await SemesterTemplate.findByIdAndDelete(id);
+  if (!template) throw new NotFoundError("Semester template not found");
+  return template;
 };
 
 // ======================== SUBJECTS ========================
@@ -272,11 +306,11 @@ export const deleteStudentService = async (id, universityId) => {
   return student;
 };
 
-// ======================== SEMESTERS & TEMPLATES ========================
+// ======================== SEMESTERS ========================
 export const getAllSemestersService = async (universityId) => {
   return Semester.find({ university: universityId }).populate({
     path: "major",
-    populate: { path: "collage" },
+    populate: { path: "college" },
   });
 };
 
@@ -308,14 +342,14 @@ export const endSemesterService = async (id) => {
   const semester = await Semester.findByIdAndUpdate(id, { completed: true }, { new: true });
   if (!semester) throw new NotFoundError("Semester not found");
   if (semester.template) {
-    await SemesterTemp.findByIdAndUpdate(semester.template, { active: false });
+    await SemesterTemplate.findByIdAndUpdate(semester.template, { active: false });
   }
   return semester;
 };
 
 export const startSemesterService = async ({ semesterData, semesters }, universityId) => {
   let usedStudents = [];
-  const semesterTemplates = await SemesterTemp.find({ _id: { $in: semesters } });
+  const semesterTemplates = await SemesterTemplate.find({ _id: { $in: semesters } });
 
   for (const template of semesterTemplates) {
     const students = await Student.find({
@@ -336,7 +370,7 @@ export const startSemesterService = async ({ semesterData, semesters }, universi
       });
       await newSemester.save();
 
-      await SemesterTemp.findByIdAndUpdate(template._id, { active: true });
+      await SemesterTemplate.findByIdAndUpdate(template._id, { active: true });
 
       const newCourses = await Promise.all(
         subjects.map(async (subject) => {
@@ -357,6 +391,7 @@ export const startSemesterService = async ({ semesterData, semesters }, universi
             users: chatUsers,
             isGroupChat: true,
             groupAdmin: newCourse.teachers?.[0] || chatUsers[0],
+            university: universityId,
           });
 
           return newCourse;
@@ -422,10 +457,10 @@ export const getCoursesBySemesterService = async (semesterId) => {
 
 export const getUserCoursesService = async (user) => {
   if (user.role === "teacher") {
-    return Course.find({ teachers: user.id }).populate("sections");
+    return Course.find({ teachers: user.id || user.userId }).populate("sections");
   }
   if (user.role === "student") {
-    const student = await Student.findById(user.id);
+    const student = await Student.findById(user.id || user.userId);
     return Course.find({ semester: { $in: student?.semesters || [] } }).populate("sections");
   }
   return Course.find({}).populate("sections");
