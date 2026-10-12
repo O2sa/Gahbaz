@@ -11,6 +11,8 @@ import {
   Skeleton,
   Box,
   Divider,
+  useMantineTheme,
+  rem,
 } from '@mantine/core'
 import { IconSearch } from '@tabler/icons-react'
 import EmptyState from './EmptyState.jsx'
@@ -29,13 +31,30 @@ export default function DataTable({
   actions,
   extraFilters,
 }) {
+  const theme = useMantineTheme()
+  const isDark = theme.colorScheme === 'dark'
+
   const page = meta?.page || 1
   const limit = meta?.limit || 10
   const total = meta?.total ?? data.length
   const totalPages = meta?.totalPages || Math.ceil(total / limit) || 1
 
   return (
-    <Paper withBorder radius="md" p="md" shadow="xs">
+    <Paper
+      withBorder
+      radius="lg"
+      p="lg"
+      sx={{
+        backgroundColor: isDark
+          ? 'rgba(37, 38, 43, 0.75)'
+          : 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(12px)',
+        borderColor: isDark ? theme.colors.dark[4] : theme.colors.gray[2],
+        boxShadow: isDark
+          ? '0 4px 20px rgba(0, 0, 0, 0.3)'
+          : '0 4px 20px rgba(30, 64, 175, 0.04)',
+      }}
+    >
       {/* Search & Actions Bar */}
       <Group position="apart" mb="md" spacing="sm">
         <Group spacing="sm" sx={{ flex: 1 }}>
@@ -47,13 +66,20 @@ export default function DataTable({
               onChange={(e) => onSearchChange(e.target.value)}
               sx={{ minWidth: 260 }}
               radius="md"
+              size="sm"
             />
           )}
           {extraFilters}
         </Group>
 
         <Group spacing="xs">
-          <Badge color="gray" variant="light" size="lg">
+          <Badge
+            color="brand"
+            variant="light"
+            size="lg"
+            radius="md"
+            sx={{ fontWeight: 700 }}
+          >
             إجمالي: {total}
           </Badge>
           {actions}
@@ -61,13 +87,37 @@ export default function DataTable({
       </Group>
 
       {/* Table Content */}
-      <Box sx={{ overflowX: 'auto', minHeight: 200 }}>
+      <Box sx={{ overflowX: 'auto', minHeight: 220 }}>
         <Table
-          striped
-          highlightOnHover
-          verticalSpacing="sm"
-          horizontalSpacing="md"
-          sx={{ minWidth: 600 }}
+          verticalSpacing="md"
+          horizontalSpacing="lg"
+          sx={{
+            minWidth: 650,
+            '& thead tr th': {
+              backgroundColor: isDark
+                ? 'rgba(26, 27, 30, 0.6)'
+                : 'rgba(248, 250, 252, 0.9)',
+              color: isDark ? theme.colors.gray[4] : theme.colors.gray[7],
+              fontWeight: 700,
+              fontSize: rem(13),
+              borderBottom: `2px solid ${
+                isDark ? theme.colors.dark[4] : theme.colors.gray[2]
+              }`,
+              paddingTop: '12px !important',
+              paddingBottom: '12px !important',
+            },
+            '& tbody tr': {
+              transition: 'background-color 150ms ease',
+              borderBottom: `1px solid ${
+                isDark ? theme.colors.dark[5] : theme.colors.gray[1]
+              }`,
+              '&:hover': {
+                backgroundColor: isDark
+                  ? 'rgba(59, 130, 246, 0.08)'
+                  : 'rgba(30, 64, 175, 0.03)',
+              },
+            },
+          }}
         >
           <thead>
             <tr>
@@ -77,8 +127,6 @@ export default function DataTable({
                   style={{
                     width: col.width,
                     textAlign: col.align || 'right',
-                    fontSize: '13px',
-                    color: '#64748b',
                   }}
                 >
                   {col.title}
@@ -92,7 +140,7 @@ export default function DataTable({
                 <tr key={rIdx}>
                   {columns.map((_, cIdx) => (
                     <td key={cIdx}>
-                      <Skeleton height={20} radius="sm" />
+                      <Skeleton height={22} radius="sm" />
                     </td>
                   ))}
                 </tr>
@@ -103,7 +151,10 @@ export default function DataTable({
                   {columns.map((col, cIdx) => (
                     <td
                       key={col.key || cIdx}
-                      style={{ textAlign: col.align || 'right' }}
+                      style={{
+                        textAlign: col.align || 'right',
+                        fontSize: rem(14),
+                      }}
                     >
                       {col.render ? col.render(row, rIdx) : row[col.key]}
                     </td>
@@ -112,7 +163,7 @@ export default function DataTable({
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length} style={{ textAlign: 'center', padding: '40px 0' }}>
+                <td colSpan={columns.length} style={{ textAlign: 'center', padding: '48px 0' }}>
                   <EmptyState
                     title={emptyTitle}
                     description={emptyDescription}
@@ -127,7 +178,7 @@ export default function DataTable({
       {/* Pagination Footer */}
       {totalPages > 1 && (
         <>
-          <Divider my="sm" />
+          <Divider my="md" color={isDark ? 'dark.5' : 'gray.2'} />
           <Group position="apart" pt="xs">
             <Group spacing="xs">
               <Text size="xs" color="dimmed">
@@ -143,6 +194,7 @@ export default function DataTable({
                     { value: '50', label: '50 عنصر' },
                   ]}
                   size="xs"
+                  radius="md"
                   sx={{ width: 110 }}
                 />
               )}
