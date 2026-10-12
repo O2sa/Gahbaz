@@ -76,7 +76,7 @@ export default function AdminDashboard() {
     queryKey: ['collegesCount'],
     queryFn: async () => {
       try {
-        const res = await customFetch.get('/collages')
+        const res = await customFetch.get('/colleges')
         const items = res?.data?.colleges || res?.data?.collages || res?.data || []
         return Array.isArray(items) ? items.length : 12
       } catch {

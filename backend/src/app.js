@@ -60,6 +60,7 @@ const authGuard = [authenticateUser, enforceDemoReadOnly];
 // Authenticated Domain Routers
 app.use("/api/v1/users", authGuard, usersRouter);
 app.use("/api/v1/colleges", authGuard, collegesRouter);
+app.use("/api/v1/collages", authGuard, collegesRouter);
 app.use("/api/v1/majors", authGuard, majorsRouter);
 app.use("/api/v1/subjects", authGuard, subjectsRouter);
 app.use("/api/v1/semesters", authGuard, semestersRouter);
