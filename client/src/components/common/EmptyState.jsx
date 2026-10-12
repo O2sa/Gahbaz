@@ -1,5 +1,5 @@
 import React from 'react'
-import { Stack, Text, Title, Button, ThemeIcon } from '@mantine/core'
+import { Stack, Text, Title, Button, ThemeIcon, useMantineTheme } from '@mantine/core'
 import { IconInbox } from '@tabler/icons-react'
 
 export default function EmptyState({
@@ -9,21 +9,46 @@ export default function EmptyState({
   actionLabel,
   onAction,
 }) {
+  const theme = useMantineTheme()
+  const isDark = theme.colorScheme === 'dark'
+
   return (
     <Stack align="center" justify="center" py="xl" spacing="sm">
-      <ThemeIcon size={64} radius="xl" variant="light" color="brand">
+      <ThemeIcon
+        size={68}
+        radius="xl"
+        variant="light"
+        color="brand"
+        sx={{
+          backgroundColor: isDark ? 'rgba(59, 130, 246, 0.15)' : 'rgba(30, 64, 175, 0.08)',
+        }}
+      >
         <Icon size={36} stroke={1.5} />
       </ThemeIcon>
-      <Title order={4} color="dimmed" sx={{ textAlign: 'center' }}>
+      <Title
+        order={4}
+        sx={{
+          textAlign: 'center',
+          color: isDark ? theme.colors.gray[3] : theme.colors.gray[8],
+          fontWeight: 700,
+        }}
+      >
         {title}
       </Title>
       {description && (
-        <Text size="sm" color="dimmed" sx={{ maxWidth: 360, textAlign: 'center' }}>
+        <Text size="sm" color="dimmed" sx={{ maxWidth: 360, textAlign: 'center', lineHeight: 1.6 }}>
           {description}
         </Text>
       )}
       {actionLabel && onAction && (
-        <Button onClick={onAction} variant="light" color="brand" mt="xs">
+        <Button
+          onClick={onAction}
+          variant="light"
+          color="brand"
+          radius="md"
+          mt="xs"
+          sx={{ fontWeight: 600 }}
+        >
           {actionLabel}
         </Button>
       )}
