@@ -4,6 +4,7 @@ import { requireRoles } from "../../core/middleware/rbac.middleware.js";
 
 const router = Router();
 
+router.get("/stats", requireRoles("admin", "super-admin"), getAdminDashData);
 router.get("/adminDashData", requireRoles("admin", "super-admin"), getAdminDashData);
 router.get("/search", search);
 
