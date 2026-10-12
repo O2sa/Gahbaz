@@ -1,5 +1,5 @@
 import * as svc from "./courses.service.js";
-import { sendSuccess, sendCreated, sendNoContent } from "../../core/utils/response.utils.js";
+import { sendPaginated, sendSuccess, sendCreated, sendNoContent } from "../../core/utils/response.utils.js";
 
 export const createCourse = async (req, res) => {
   const data = await svc.createCourseService(req.body);
@@ -22,8 +22,8 @@ export const deleteCourse = async (req, res) => {
 };
 
 export const getUserCourses = async (req, res) => {
-  const data = await svc.getUserCoursesService(req.user);
-  sendSuccess(res, data);
+  const { data, meta } = await svc.getUserCoursesService(req.user, req.query);
+  sendPaginated(res, data, meta);
 };
 
 // Sections & Lessons

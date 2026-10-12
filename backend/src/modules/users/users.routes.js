@@ -2,6 +2,7 @@ import { Router } from "express";
 import * as ctrl from "./users.controller.js";
 import { validateRequest } from "../../core/middleware/validate.middleware.js";
 import { updateUserSchema, changePasswordSchema } from "./users.validator.js";
+import { paginationQuerySchema } from "../../core/utils/pagination.utils.js";
 
 const router = Router();
 
@@ -12,7 +13,7 @@ router.patch("/me/profile", validateRequest({ body: updateUserSchema }), ctrl.up
 
 router
   .route("/")
-  .get(ctrl.listUsers);
+  .get(validateRequest({ query: paginationQuerySchema }), ctrl.listUsers);
 
 router
   .route("/:id")

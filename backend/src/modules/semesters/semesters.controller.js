@@ -1,11 +1,11 @@
 import * as svc from "./semesters.service.js";
-import { sendSuccess, sendCreated, sendNoContent } from "../../core/utils/response.utils.js";
+import { sendPaginated, sendSuccess, sendCreated, sendNoContent } from "../../core/utils/response.utils.js";
 
 // Semester Templates
 export const getSemesterTemplates = async (req, res) => {
   const filter = req.query.major ? { major: req.query.major } : {};
-  const data = await svc.getSemesterTemplatesService(filter);
-  sendSuccess(res, data);
+  const { data, meta } = await svc.getSemesterTemplatesService(filter, req.query);
+  sendPaginated(res, data, meta);
 };
 
 export const getSemesterTemplate = async (req, res) => {
@@ -30,8 +30,8 @@ export const deleteSemesterTemplate = async (req, res) => {
 
 // Semesters
 export const getAllSemesters = async (req, res) => {
-  const data = await svc.getAllSemestersService(req.user.universityId);
-  sendSuccess(res, data);
+  const { data, meta } = await svc.getAllSemestersService(req.user.universityId, req.query);
+  sendPaginated(res, data, meta);
 };
 
 export const getSemester = async (req, res) => {

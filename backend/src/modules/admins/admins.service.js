@@ -1,10 +1,16 @@
 import Admin from "../../models/Admin.js";
 import { NotFoundError } from "../../core/errors/customErrors.js";
 import { generateSecurePassword, hashPassword } from "../../core/utils/password.utils.js";
+import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
 import sendMail from "../../config/mailer.js";
 
-export const getAdminsService = async (universityId) => {
-  return Admin.find({ university: universityId }).select("-password");
+export const getAdminsService = async (universityId, query = {}) => {
+  const { page, limit } = parsePagination(query);
+  return paginateQuery(Admin, { university: universityId }, {
+    page,
+    limit,
+    select: "-password",
+  });
 };
 
 export const getAdminByIdService = async (id, universityId) => {

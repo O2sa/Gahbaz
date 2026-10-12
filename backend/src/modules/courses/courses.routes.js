@@ -3,13 +3,14 @@ import * as ctrl from "./courses.controller.js";
 import { requireRoles } from "../../core/middleware/rbac.middleware.js";
 import { validateRequest } from "../../core/middleware/validate.middleware.js";
 import { createSectionSchema, createLessonSchema } from "./courses.validator.js";
+import { paginationQuerySchema } from "../../core/utils/pagination.utils.js";
 
 const router = Router();
 
 // ======================== COURSES ========================
 router
   .route("/")
-  .get(ctrl.getUserCourses)
+  .get(validateRequest({ query: paginationQuerySchema }), ctrl.getUserCourses)
   .post(requireRoles("admin", "super-admin"), ctrl.createCourse);
 
 router

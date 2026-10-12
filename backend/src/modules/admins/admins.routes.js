@@ -3,6 +3,7 @@ import * as ctrl from "./admins.controller.js";
 import { requireRoles } from "../../core/middleware/rbac.middleware.js";
 import { validateRequest } from "../../core/middleware/validate.middleware.js";
 import { createAdminSchema, updateAdminSchema } from "./admins.validator.js";
+import { paginationQuerySchema } from "../../core/utils/pagination.utils.js";
 
 const router = Router();
 
@@ -11,7 +12,7 @@ router.use(requireRoles("super-admin"));
 
 router
   .route("/")
-  .get(ctrl.getAllAdmins)
+  .get(validateRequest({ query: paginationQuerySchema }), ctrl.getAllAdmins)
   .post(validateRequest({ body: createAdminSchema }), ctrl.createAdmin);
 
 router
