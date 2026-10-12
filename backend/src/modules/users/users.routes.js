@@ -1,25 +1,31 @@
 import { Router } from "express";
 import {
+  listUsers,
   getCurrentUser,
   getUser,
   updateUser,
+  deleteUser,
   changePassword,
-  legacyGetAllUsers,
-  legacyRenameUser,
 } from "./users.controller.js";
 import { validateRequest } from "../../core/middleware/validate.middleware.js";
 import { updateUserSchema, changePasswordSchema } from "./users.validator.js";
-import { enforceDemoReadOnly } from "../../core/middleware/rbac.middleware.js";
+import { enforceDemoReadOnly, requireRoles } from "../../core/middleware/rbac.middleware.js";
 
 const router = Router();
 
+router.get("/me", getCurrentUser);
 router.get("/current-user", getCurrentUser);
-router.route("/:id").get(getUser).patch(enforceDemoReadOnly, validateRequest({ body: updateUserSchema }), updateUser);
-router.post("/:id/change-pass", enforceDemoReadOnly, validateRequest({ body: changePasswordSchema }), changePassword);
+router.patch("/me/password", enforceDemoReadOnly, validateRequest({ body: changePasswordSchema }), changePassword);
+router.patch("/me/profile", enforceDemoReadOnly, validateRequest({ body: updateUserSchema }), updateUser);
 
-// Router for legacy /api/v1/au compatibility
-export const legacyAuRouter = Router();
-legacyAuRouter.get("/allUsers", legacyGetAllUsers);
-legacyAuRouter.put("/renameUser", enforceDemoReadOnly, legacyRenameUser);
+router
+  .route("/")
+  .get(listUsers);
+
+router
+  .route("/:id")
+  .get(getUser)
+  .patch(enforceDemoReadOnly, validateRequest({ body: updateUserSchema }), updateUser)
+  .delete(enforceDemoReadOnly, deleteUser);
 
 export default router;

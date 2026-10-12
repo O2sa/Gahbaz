@@ -3,8 +3,10 @@ import {
   updateUserProfile,
   changeUserPassword,
   getCurrentUserProfile,
+  deleteUserService,
+  listUsersService,
 } from "../../src/modules/users/users.service.js";
-import User from "../../models/User.js";
+import User from "../../src/models/User.js";
 import * as passwordUtils from "../../src/core/utils/password.utils.js";
 
 describe("Users Module Service", () => {
@@ -50,7 +52,9 @@ describe("Users Module Service", () => {
       password: "hashedOldPassword",
     };
 
-    vi.spyOn(User, "findById").mockResolvedValue(mockUser);
+    vi.spyOn(User, "findById").mockReturnValue({
+      select: vi.fn().mockResolvedValue(mockUser),
+    });
     vi.spyOn(passwordUtils, "comparePassword").mockResolvedValue(false);
 
     await expect(
@@ -59,5 +63,37 @@ describe("Users Module Service", () => {
         password: "NewPassword123!",
       })
     ).rejects.toThrow("Invalid credentials");
+  });
+
+  it("should support user deletion for owner or admin", async () => {
+    vi.spyOn(User, "findByIdAndDelete").mockResolvedValue({ _id: "user123" });
+
+    const deleted = await deleteUserService("user123", "user123", false);
+    expect(deleted).toBe(true);
+  });
+
+  it("should reject user deletion by non-owner non-admin", async () => {
+    await expect(
+      deleteUserService("user123", "differentUser", false)
+    ).rejects.toThrow("Unauthorized to delete this user");
+  });
+
+  it("should list users with pagination metadata", async () => {
+    const mockUsers = [{ _id: "1", firstName: "Alice" }, { _id: "2", firstName: "Bob" }];
+    vi.spyOn(User, "find").mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        skip: vi.fn().mockReturnValue({
+          limit: vi.fn().mockReturnValue({
+            sort: vi.fn().mockResolvedValue(mockUsers),
+          }),
+        }),
+      }),
+    });
+    vi.spyOn(User, "countDocuments").mockResolvedValue(2);
+
+    const result = await listUsersService({ page: 1, limit: 10 });
+    expect(result.users).toHaveLength(2);
+    expect(result.meta.total).toBe(2);
+    expect(result.meta.totalPages).toBe(1);
   });
 });
