@@ -1,9 +1,9 @@
 import * as svc from "./teachers.service.js";
-import { sendSuccess, sendCreated, sendNoContent } from "../../core/utils/response.utils.js";
+import { sendPaginated, sendSuccess, sendCreated, sendNoContent } from "../../core/utils/response.utils.js";
 
 export const getAllTeachers = async (req, res) => {
-  const data = await svc.getTeachersService(req.user.universityId);
-  sendSuccess(res, data);
+  const { data, meta } = await svc.getTeachersService(req.user.universityId, req.query);
+  sendPaginated(res, data, meta);
 };
 
 export const getTeacher = async (req, res) => {

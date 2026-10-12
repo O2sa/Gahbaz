@@ -1,12 +1,14 @@
 import Subject from "../../models/Subject.js";
 import { NotFoundError } from "../../core/errors/customErrors.js";
+import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
 
 export const createSubjectService = async (data, universityId) => {
   return Subject.create({ ...data, university: universityId });
 };
 
-export const getSubjectsService = async (filter = {}) => {
-  return Subject.find(filter).populate("teachers");
+export const getSubjectsService = async (filter = {}, query = {}) => {
+  const { page, limit } = parsePagination(query);
+  return paginateQuery(Subject, filter, { page, limit, populate: "teachers" });
 };
 
 export const getSubjectByIdService = async (id) => {

@@ -1,11 +1,11 @@
 import * as svc from "./majors.service.js";
-import { sendSuccess, sendCreated, sendNoContent } from "../../core/utils/response.utils.js";
+import { sendPaginated, sendSuccess, sendCreated, sendNoContent } from "../../core/utils/response.utils.js";
 
 export const getMajors = async (req, res) => {
   const collegeId = req.query.college || req.query.collage;
   const filter = collegeId ? { college: collegeId } : {};
-  const data = await svc.getMajorsService(filter);
-  sendSuccess(res, data);
+  const { data, meta } = await svc.getMajorsService(filter, req.query);
+  sendPaginated(res, data, meta);
 };
 
 export const getMajor = async (req, res) => {

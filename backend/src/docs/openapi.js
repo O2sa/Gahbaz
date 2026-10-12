@@ -405,9 +405,13 @@ export const openApiSpec = {
     "/colleges": {
       get: {
         tags: ["Colleges"],
-        summary: "List colleges for university",
+        summary: "List colleges for university with pagination",
+        parameters: [
+          { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+          { name: "limit", in: "query", schema: { type: "integer", default: 20 } },
+        ],
         responses: {
-          200: { description: "List of colleges", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardSuccess" } } } },
+          200: { description: "Paginated list of colleges", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardPaginatedSuccess" } } } },
         },
       },
       post: {
@@ -476,10 +480,14 @@ export const openApiSpec = {
     "/majors": {
       get: {
         tags: ["Majors"],
-        summary: "List majors",
-        parameters: [{ name: "college", in: "query", schema: { type: "string" } }],
+        summary: "List majors with pagination",
+        parameters: [
+          { name: "college", in: "query", schema: { type: "string" } },
+          { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+          { name: "limit", in: "query", schema: { type: "integer", default: 20 } },
+        ],
         responses: {
-          200: { description: "List of majors", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardSuccess" } } } },
+          200: { description: "Paginated list of majors", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardPaginatedSuccess" } } } },
         },
       },
       post: {
@@ -526,10 +534,14 @@ export const openApiSpec = {
     "/subjects": {
       get: {
         tags: ["Subjects"],
-        summary: "List subjects",
-        parameters: [{ name: "college", in: "query", schema: { type: "string" } }],
+        summary: "List subjects with pagination",
+        parameters: [
+          { name: "college", in: "query", schema: { type: "string" } },
+          { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+          { name: "limit", in: "query", schema: { type: "integer", default: 20 } },
+        ],
         responses: {
-          200: { description: "List of subjects", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardSuccess" } } } },
+          200: { description: "Paginated list of subjects", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardPaginatedSuccess" } } } },
         },
       },
       post: {
@@ -576,9 +588,13 @@ export const openApiSpec = {
     "/semesters": {
       get: {
         tags: ["Semesters"],
-        summary: "List semesters",
+        summary: "List semesters with pagination",
+        parameters: [
+          { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+          { name: "limit", in: "query", schema: { type: "integer", default: 20 } },
+        ],
         responses: {
-          200: { description: "List of active and past semesters", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardSuccess" } } } },
+          200: { description: "Paginated list of active and past semesters", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardPaginatedSuccess" } } } },
         },
       },
       post: {
@@ -644,9 +660,13 @@ export const openApiSpec = {
     "/courses": {
       get: {
         tags: ["Courses"],
-        summary: "Get courses for current user (student/teacher)",
+        summary: "Get courses for current user with pagination",
+        parameters: [
+          { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+          { name: "limit", in: "query", schema: { type: "integer", default: 20 } },
+        ],
         responses: {
-          200: { description: "User course enrollments", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardSuccess" } } } },
+          200: { description: "Paginated user course enrollments", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardPaginatedSuccess" } } } },
         },
       },
       post: {
@@ -722,10 +742,14 @@ export const openApiSpec = {
     "/grades/course/{courseId}": {
       get: {
         tags: ["Grades"],
-        summary: "Get all grades for a course",
-        parameters: [{ name: "courseId", in: "path", required: true, schema: { type: "string" } }],
+        summary: "Get all grades for a course with pagination",
+        parameters: [
+          { name: "courseId", in: "path", required: true, schema: { type: "string" } },
+          { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+          { name: "limit", in: "query", schema: { type: "integer", default: 20 } },
+        ],
         responses: {
-          200: { description: "Course roster grades", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardSuccess" } } } },
+          200: { description: "Paginated course roster grades", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardPaginatedSuccess" } } } },
         },
       },
     },
@@ -756,9 +780,13 @@ export const openApiSpec = {
     "/students": {
       get: {
         tags: ["People & Roles"],
-        summary: "List all students in university",
+        summary: "List all students in university with pagination",
+        parameters: [
+          { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+          { name: "limit", in: "query", schema: { type: "integer", default: 20 } },
+        ],
         responses: {
-          200: { description: "Students list", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardSuccess" } } } },
+          200: { description: "Paginated students list", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardPaginatedSuccess" } } } },
         },
       },
       post: {
@@ -790,9 +818,13 @@ export const openApiSpec = {
     "/teachers": {
       get: {
         tags: ["People & Roles"],
-        summary: "List all teachers in university",
+        summary: "List all teachers in university with pagination",
+        parameters: [
+          { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+          { name: "limit", in: "query", schema: { type: "integer", default: 20 } },
+        ],
         responses: {
-          200: { description: "Teachers list", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardSuccess" } } } },
+          200: { description: "Paginated teachers list", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardPaginatedSuccess" } } } },
         },
       },
       post: {
@@ -823,9 +855,13 @@ export const openApiSpec = {
     "/admins": {
       get: {
         tags: ["People & Roles"],
-        summary: "List administrators (Super-admin only)",
+        summary: "List administrators with pagination (Super-admin only)",
+        parameters: [
+          { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+          { name: "limit", in: "query", schema: { type: "integer", default: 20 } },
+        ],
         responses: {
-          200: { description: "Admins list", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardSuccess" } } } },
+          200: { description: "Paginated admins list", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardPaginatedSuccess" } } } },
         },
       },
       post: {
@@ -856,9 +892,13 @@ export const openApiSpec = {
     "/chats": {
       get: {
         tags: ["Chat & Messaging"],
-        summary: "List chats current user participates in",
+        summary: "List chats current user participates in with pagination",
+        parameters: [
+          { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+          { name: "limit", in: "query", schema: { type: "integer", default: 20 } },
+        ],
         responses: {
-          200: { description: "User chats", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardSuccess" } } } },
+          200: { description: "Paginated user chats", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardPaginatedSuccess" } } } },
         },
       },
       post: {
@@ -908,10 +948,14 @@ export const openApiSpec = {
     "/chats/{chatId}/messages": {
       get: {
         tags: ["Chat & Messaging"],
-        summary: "Get chat message history",
-        parameters: [{ name: "chatId", in: "path", required: true, schema: { type: "string" } }],
+        summary: "Get chat message history with pagination",
+        parameters: [
+          { name: "chatId", in: "path", required: true, schema: { type: "string" } },
+          { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+          { name: "limit", in: "query", schema: { type: "integer", default: 20 } },
+        ],
         responses: {
-          200: { description: "Message history", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardSuccess" } } } },
+          200: { description: "Paginated message history", content: { "application/json": { schema: { $ref: "#/components/schemas/StandardPaginatedSuccess" } } } },
         },
       },
       post: {

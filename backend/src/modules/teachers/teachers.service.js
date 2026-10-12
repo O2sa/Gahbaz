@@ -1,10 +1,16 @@
 import Teacher from "../../models/Teacher.js";
 import { NotFoundError } from "../../core/errors/customErrors.js";
 import { generateSecurePassword, hashPassword } from "../../core/utils/password.utils.js";
+import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
 import sendMail from "../../config/mailer.js";
 
-export const getTeachersService = async (universityId) => {
-  return Teacher.find({ university: universityId }).select("-password");
+export const getTeachersService = async (universityId, query = {}) => {
+  const { page, limit } = parsePagination(query);
+  return paginateQuery(Teacher, { university: universityId }, {
+    page,
+    limit,
+    select: "-password",
+  });
 };
 
 export const getTeacherByIdService = async (id, universityId) => {

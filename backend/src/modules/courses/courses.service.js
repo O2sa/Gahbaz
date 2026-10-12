@@ -2,6 +2,7 @@ import Course from "../../models/Course.js";
 import Section from "../../models/Section.js";
 import Student from "../../models/Student.js";
 import { NotFoundError } from "../../core/errors/customErrors.js";
+import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
 
 // ======================== COURSES ========================
 export const getCourseByIdService = async (id) => {
@@ -33,15 +34,16 @@ export const getCoursesBySemesterService = async (semesterId) => {
   return Course.find({ semester: semesterId });
 };
 
-export const getUserCoursesService = async (user) => {
+export const getUserCoursesService = async (user, query = {}) => {
+  const { page, limit } = parsePagination(query);
+  let filter = {};
   if (user.role === "teacher") {
-    return Course.find({ teachers: user.id || user.userId }).populate("sections");
-  }
-  if (user.role === "student") {
+    filter = { teachers: user.id || user.userId };
+  } else if (user.role === "student") {
     const student = await Student.findById(user.id || user.userId);
-    return Course.find({ semester: { $in: student?.semesters || [] } }).populate("sections");
+    filter = { semester: { $in: student?.semesters || [] } };
   }
-  return Course.find({}).populate("sections");
+  return paginateQuery(Course, filter, { page, limit, populate: "sections" });
 };
 
 // ======================== SECTIONS & LESSONS ========================

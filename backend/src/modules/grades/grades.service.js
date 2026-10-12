@@ -2,6 +2,7 @@ import Grade from "../../models/Grade.js";
 import Course from "../../models/Course.js";
 import Student from "../../models/Student.js";
 import { NotFoundError } from "../../core/errors/customErrors.js";
+import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
 
 export const getGradeByIdService = async (id) => {
   const grade = await Grade.findById(id);
@@ -9,8 +10,9 @@ export const getGradeByIdService = async (id) => {
   return grade;
 };
 
-export const getGradesByCourseService = async (courseId) => {
-  return Grade.find({ course: courseId }).populate("student");
+export const getGradesByCourseService = async (courseId, query = {}) => {
+  const { page, limit } = parsePagination(query);
+  return paginateQuery(Grade, { course: courseId }, { page, limit, populate: "student" });
 };
 
 export const getStudentGradesService = async (studentId) => {

@@ -7,13 +7,14 @@ import {
   createSemesterTemplateSchema,
   updateSemesterTemplateSchema,
 } from "./semesters.validator.js";
+import { paginationQuerySchema } from "../../core/utils/pagination.utils.js";
 
 const router = Router();
 
 // ======================== SEMESTER TEMPLATES ========================
 router
   .route("/templates")
-  .get(ctrl.getSemesterTemplates)
+  .get(validateRequest({ query: paginationQuerySchema }), ctrl.getSemesterTemplates)
   .post(
     requireRoles("admin", "super-admin"),
     validateRequest({ body: createSemesterTemplateSchema }),
@@ -33,7 +34,7 @@ router
 // ======================== SEMESTERS ========================
 router
   .route("/")
-  .get(ctrl.getAllSemesters)
+  .get(validateRequest({ query: paginationQuerySchema }), ctrl.getAllSemesters)
   .post(
     requireRoles("admin", "super-admin"),
     validateRequest({ body: startSemesterSchema }),

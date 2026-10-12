@@ -3,13 +3,15 @@ import Major from "../../models/Major.js";
 import Subject from "../../models/Subject.js";
 import SemesterTemplate from "../../models/SemesterTemplate.js";
 import { NotFoundError } from "../../core/errors/customErrors.js";
+import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
 
 export const createCollegeService = async (data, universityId) => {
   return College.create({ ...data, university: universityId });
 };
 
-export const getCollegesService = async (universityId) => {
-  return College.find({ university: universityId });
+export const getCollegesService = async (universityId, query = {}) => {
+  const { page, limit } = parsePagination(query);
+  return paginateQuery(College, { university: universityId }, { page, limit });
 };
 
 export const getCollegeByIdService = async (id, universityId) => {
