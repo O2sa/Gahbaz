@@ -40,9 +40,9 @@ export function useGetElements(collection) {
     queryFn: async () => {
       //send api request here
       console.log(collection.join('/'))
-      const { data } = await customFetch.get(`${collection.join('/')}`) // Adjust this URL as per your API route
-      console.log('all geten elements', data)
-      return data
+      const res = await customFetch.get(`${collection.join('/')}`)
+      const payload = res?.data
+      return Array.isArray(payload?.data) ? payload.data : payload
     },
     refetchOnWindowFocus: false,
   }

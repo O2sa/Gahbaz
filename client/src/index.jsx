@@ -10,7 +10,7 @@ import { Provider } from 'react-redux'
 // import store from './store'
 import { Router, HashRouter, useLocation } from 'react-router-dom'
 
-import { makeServer } from './server.js'
+import './index.css'
 // import Testing from './test_api_comp'
 import testingStore from './lib/store'
 import store from './lib/store'
