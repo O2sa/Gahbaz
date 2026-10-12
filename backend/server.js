@@ -19,17 +19,19 @@ const io = new Server(server, {
 setupChatSocket(io);
 
 const start = async () => {
+  server.listen(env.PORT, () => {
+    console.log(`[Server] Gahbaz backend running in ${env.NODE_ENV} mode on port ${env.PORT}...`);
+    console.log(`[Docs] Swagger UI available at: http://localhost:${env.PORT}/api/docs`);
+    console.log(`[Docs] Raw OpenAPI JSON at: http://localhost:${env.PORT}/api/docs.json`);
+  });
+
   try {
     console.log("[Database] Connecting to MongoDB...");
-    await mongoose.connect(env.MONGO_URL);
+    await mongoose.connect(env.MONGO_URL, { serverSelectionTimeoutMS: 5000 });
     console.log("[Database] Connected successfully to MongoDB");
-
-    server.listen(env.PORT, () => {
-      console.log(`[Server] Gahbaz backend running in ${env.NODE_ENV} mode on port ${env.PORT}...`);
-    });
-  } catch (error) {
-    console.error("[Fatal Startup Error]", error);
-    process.exit(1);
+  } catch (dbError) {
+    console.warn(`[Database] MongoDB connection notice: ${dbError.message}`);
+    console.warn("[Database] Endpoints not requiring MongoDB (e.g. /api/docs, /api/v1/test) are fully operational.");
   }
 };
 
@@ -37,8 +39,10 @@ const start = async () => {
 const shutdown = async () => {
   console.log("\n[Server] Gracefully shutting down...");
   server.close(async () => {
-    await mongoose.connection.close();
-    console.log("[Server] Closed HTTP server and MongoDB connections.");
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.connection.close();
+    }
+    console.log("[Server] Closed HTTP server and connections.");
     process.exit(0);
   });
 };
