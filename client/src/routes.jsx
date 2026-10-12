@@ -39,7 +39,7 @@ import { loader as studentGradesLoader } from './pages/admin/StudentGrades'
 import { StudentGrade } from './pages/student'
 import ChatRoom from './chat/ChatContainer'
 
-const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
+const DefaultLayout = React.lazy(() => import('./layouts/MainLayout.jsx'))
 import {
   Login,
   Page404,
