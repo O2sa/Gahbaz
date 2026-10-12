@@ -9,6 +9,7 @@ const CourseSchema = new mongoose.Schema({
   ],
   description: {
     type: String,
+    default: "",
   },
   requirements: [
     {
@@ -22,44 +23,37 @@ const CourseSchema = new mongoose.Schema({
   },
   sections: [
     {
-      type: mongoose.Schema.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Section",
     },
   ],
   semester: {
-    type: mongoose.Schema.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "Semester",
+    index: true,
   },
   grades: [
     {
-      type: mongoose.Schema.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Grade",
     },
   ],
-  cover: String,
+  cover: {
+    type: String,
+    default: "",
+  },
   students: [
     {
       student: {
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Student",
       },
       grade: {
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Grade",
       },
     },
   ],
 });
 
-// CourseSchema.pre("remove", async function (next) {
-//   try {
-//     await Section.deleteMany({
-//       course: this._id,
-//     });
-
-//     next();
-//   } catch (err) {
-//     next(err);
-//   }
-// });
-export default Subject.discriminator("Course", CourseSchema);
+export default Subject.discriminators?.Course || Subject.discriminator("Course", CourseSchema);

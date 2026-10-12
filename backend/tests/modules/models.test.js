@@ -1,10 +1,40 @@
 import { describe, it, expect } from "vitest";
-import Grade from "../../models/Grade.js";
-import Section from "../../models/Section.js";
-import Subject from "../../models/Subject.js";
 import mongoose from "mongoose";
+import User from "../../src/models/User.js";
+import Admin from "../../src/models/Admin.js";
+import Teacher from "../../src/models/Teacher.js";
+import Student from "../../src/models/Student.js";
+import College from "../../src/models/College.js";
+import Major from "../../src/models/Major.js";
+import Subject from "../../src/models/Subject.js";
+import Course from "../../src/models/Course.js";
+import Section from "../../src/models/Section.js";
+import SemesterTemplate from "../../src/models/SemesterTemplate.js";
+import Semester from "../../src/models/Semester.js";
+import Grade from "../../src/models/Grade.js";
+import Chat from "../../src/models/Chat.js";
+import Message from "../../src/models/Message.js";
+import University from "../../src/models/University.js";
+import AuditLog from "../../src/models/AuditLog.js";
+import PerformanceMetric from "../../src/models/PerformanceMetric.js";
 
-describe("Mongoose Models Validation & Methods", () => {
+describe("Standardized Mongoose 8 Domain Models", () => {
+  it("should have correct model names and explicit collections", () => {
+    expect(User.modelName).toBe("User");
+    expect(College.collection.name).toBe("colleges");
+    expect(SemesterTemplate.collection.name).toBe("semester_templates");
+    expect(Chat.collection.name).toBe("chats");
+    expect(Message.collection.name).toBe("messages");
+    expect(AuditLog.collection.name).toBe("audit_logs");
+    expect(PerformanceMetric.collection.name).toBe("performance_metrics");
+  });
+
+  it("should support discriminators on User", () => {
+    expect(Admin.modelName).toBe("Admin");
+    expect(Teacher.modelName).toBe("Teacher");
+    expect(Student.modelName).toBe("Student");
+  });
+
   it("should calculate grade totals and percentages accurately with recalculateTotal", () => {
     const courseId = new mongoose.Types.ObjectId();
     const studentId = new mongoose.Types.ObjectId();
@@ -54,7 +84,6 @@ describe("Mongoose Models Validation & Methods", () => {
       },
     });
 
-    // Mock save
     subject.save = function () {
       return this;
     };
