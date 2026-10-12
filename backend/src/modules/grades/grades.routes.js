@@ -10,6 +10,7 @@ router.get("/course/:courseId", validateRequest({ query: paginationQuerySchema }
 router.get("/courses/:courseId", validateRequest({ query: paginationQuerySchema }), ctrl.getCourseGrades);
 router.get("/student/:studentId?", ctrl.getStudentGrades);
 router.get("/students/:studentId?", ctrl.getStudentGrades);
+router.get("/student-grades/:studentId?", ctrl.getStudentGrades);
 
 router
   .route("/:gradeId")
