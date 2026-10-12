@@ -6,12 +6,26 @@ import { accessChatSchema, sendMessageSchema, createGroupChatSchema } from "./ch
 
 const router = Router();
 
-// Legacy and standard endpoints for chats
-router.post("/accessChat", enforceDemoReadOnly, validateRequest({ body: accessChatSchema }), ctrl.accessChat);
-router.get("/fetchChats", ctrl.fetchChats);
+// Standard REST Chat endpoints
+router.route("/")
+  .get(ctrl.fetchChats)
+  .post(enforceDemoReadOnly, validateRequest({ body: accessChatSchema }), ctrl.accessChat);
+
 router.post("/group", enforceDemoReadOnly, validateRequest({ body: createGroupChatSchema }), ctrl.createGroupChat);
 
-// Message routes (also support /messages router mounting)
+// Nested REST messages under a chat
+router.route("/:chatId/messages")
+  .get(ctrl.getMessages)
+  .post(enforceDemoReadOnly, validateRequest({ body: sendMessageSchema }), ctrl.sendMessage);
+
+router.route("/:id")
+  .get(ctrl.getChat);
+
+// Aliases for chat operations
+router.post("/accessChat", enforceDemoReadOnly, validateRequest({ body: accessChatSchema }), ctrl.accessChat);
+router.get("/fetchChats", ctrl.fetchChats);
+
+// Legacy messagesRouter export for compatibility during transition
 export const messagesRouter = Router();
 messagesRouter.post("/addmsg", enforceDemoReadOnly, validateRequest({ body: sendMessageSchema }), ctrl.sendMessage);
 messagesRouter.get("/getmsg/:chatId", ctrl.getMessages);

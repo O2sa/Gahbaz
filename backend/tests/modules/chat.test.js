@@ -3,9 +3,9 @@ import {
   accessDirectChatService,
   sendMessageService,
 } from "../../src/modules/chat/chat.service.js";
-import Chat from "../../models/chatModel.js";
-import Messages from "../../models/messageModel.js";
-import User from "../../models/User.js";
+import Chat from "../../src/models/Chat.js";
+import Message from "../../src/models/Message.js";
+import User from "../../src/models/User.js";
 
 describe("Chat & Messaging Service", () => {
   beforeEach(() => {
@@ -38,7 +38,7 @@ describe("Chat & Messaging Service", () => {
     };
 
     vi.spyOn(Chat, "findOne").mockResolvedValue(mockChat);
-    vi.spyOn(Messages, "create").mockResolvedValue(mockMessage);
+    vi.spyOn(Message, "create").mockResolvedValue(mockMessage);
     vi.spyOn(Chat, "findByIdAndUpdate").mockResolvedValue(mockChat);
 
     const sent = await sendMessageService({
