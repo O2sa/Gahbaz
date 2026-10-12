@@ -9,7 +9,15 @@ import { fileURLToPath } from "node:url";
 
 import authRouter from "./modules/auth/auth.routes.js";
 import usersRouter from "./modules/users/users.routes.js";
-import academicsRouter from "./modules/academics/academics.routes.js";
+import collegesRouter from "./modules/colleges/colleges.routes.js";
+import majorsRouter from "./modules/majors/majors.routes.js";
+import subjectsRouter from "./modules/subjects/subjects.routes.js";
+import semestersRouter from "./modules/semesters/semesters.routes.js";
+import coursesRouter from "./modules/courses/courses.routes.js";
+import gradesRouter from "./modules/grades/grades.routes.js";
+import studentsRouter from "./modules/students/students.routes.js";
+import teachersRouter from "./modules/teachers/teachers.routes.js";
+import adminsRouter from "./modules/admins/admins.routes.js";
 import chatRouter, { messagesRouter } from "./modules/chat/chat.routes.js";
 import systemRouter from "./modules/system/system.routes.js";
 
@@ -39,7 +47,15 @@ app.use("/api/v1/auth", authRouter);
 
 // Authenticated Domain Routers
 app.use("/api/v1/users", authenticateUser, usersRouter);
-app.use("/api/v1", authenticateUser, academicsRouter);
+app.use("/api/v1/colleges", authenticateUser, collegesRouter);
+app.use("/api/v1/majors", authenticateUser, majorsRouter);
+app.use("/api/v1/subjects", authenticateUser, subjectsRouter);
+app.use("/api/v1/semesters", authenticateUser, semestersRouter);
+app.use("/api/v1/courses", authenticateUser, coursesRouter);
+app.use("/api/v1/grades", authenticateUser, gradesRouter);
+app.use("/api/v1/students", authenticateUser, studentsRouter);
+app.use("/api/v1/teachers", authenticateUser, teachersRouter);
+app.use("/api/v1/admins", authenticateUser, adminsRouter);
 app.use("/api/v1/chats", authenticateUser, chatRouter);
 app.use("/api/v1/messages", authenticateUser, messagesRouter);
 app.use("/api/v1/system", authenticateUser, systemRouter);

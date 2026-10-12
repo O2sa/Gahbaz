@@ -1,12 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  addLessonService,
-  updateLessonService,
-  deleteLessonService,
-} from "../../src/modules/academics/academics.service.js";
+import { addLessonService } from "../../src/modules/courses/courses.service.js";
 import Section from "../../src/models/Section.js";
 
-describe("Semesters & Sections Service", () => {
+describe("Courses & Sections Service", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
