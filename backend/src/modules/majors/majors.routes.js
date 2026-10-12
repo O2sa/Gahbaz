@@ -1,0 +1,30 @@
+import { Router } from "express";
+import * as ctrl from "./majors.controller.js";
+import { requireRoles, enforceDemoReadOnly } from "../../core/middleware/rbac.middleware.js";
+import { validateRequest } from "../../core/middleware/validate.middleware.js";
+import { createMajorSchema, updateMajorSchema } from "./majors.validator.js";
+
+const router = Router();
+
+router
+  .route("/")
+  .get(ctrl.getMajors)
+  .post(
+    requireRoles("admin", "super-admin"),
+    enforceDemoReadOnly,
+    validateRequest({ body: createMajorSchema }),
+    ctrl.createMajor
+  );
+
+router
+  .route("/:id")
+  .get(ctrl.getMajor)
+  .patch(
+    requireRoles("admin", "super-admin"),
+    enforceDemoReadOnly,
+    validateRequest({ body: updateMajorSchema }),
+    ctrl.updateMajor
+  )
+  .delete(requireRoles("admin", "super-admin"), enforceDemoReadOnly, ctrl.deleteMajor);
+
+export default router;
