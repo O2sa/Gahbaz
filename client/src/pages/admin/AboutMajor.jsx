@@ -1,67 +1,69 @@
-import React, { useEffect, useState } from 'react'
-
-import { Link, useLoaderData, useParams } from 'react-router-dom'
-
-import { Button, Skeleton } from '@mantine/core'
-import EditMajor from './EditMajor'
+import React from 'react'
+import { useParams } from 'react-router-dom'
+import { Button, Skeleton, Paper, Box, Group, Title, Text, useMantineTheme } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
 import { useGetElements } from '../crud'
+import EditMajor from './EditMajor'
 import { Helmet } from 'react-helmet'
 
-export default function AboutMajor({ queryClient, ...props }) {
+export default function AboutMajor({ queryClient }) {
   const { id: majorId } = useParams()
+  const theme = useMantineTheme()
+  const isDark = theme.colorScheme === 'dark'
 
   const {
-    data: major = [],
-    isError: isLoadingTeachersError,
-    isFetching: isFetchingTeachers,
-    isLoading: isLoadingTeachers,
-  } = useQuery(useGetElements(['majors','major', majorId]))
+    data: major = null,
+    isFetching,
+    isLoading,
+  } = useQuery(useGetElements(['majors', 'major', majorId]))
 
-  // console.log(major)
   const editCom = (
-    <Button loading={isFetchingTeachers} type="submit">
-      تعديل
+    <Button loading={isFetching} type="submit" variant="light" color="brand">
+      تعديل بيانات التخصص
     </Button>
   )
 
-
-  if (isFetchingTeachers || isLoadingTeachers) {
+  if (isFetching || isLoading) {
     return (
-      <>
-            <div
-        className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
-      >
-        <h5>{'عن التخصص'} </h5>
-        <EditMajor component={editCom} data={major} queryClient={queryClient} />
-      </div>
-        <div className="p-4">
-          <Skeleton height={8} radius="xl" />
-          <Skeleton height={8} mt={6} radius="xl" />
-          <Skeleton height={8} mt={6} width="70%" radius="xl" />
-        </div>
-      </>
+      <Paper withBorder radius="lg" p="xl">
+        <Skeleton height={28} width="30%" mb="md" />
+        <Skeleton height={14} radius="xl" mb="xs" />
+        <Skeleton height={14} radius="xl" width="60%" />
+      </Paper>
     )
   }
+
   return (
-    <>
-               <Helmet>
-            <title>{ 'منصة جهبذ |  تفاصيل التخصص' }</title>
+    <Box>
+      <Helmet>
+        <title>{`منصة جهبذ | ${major?.name || 'تفاصيل التخصص'}`}</title>
       </Helmet>
-      <div
-        className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
+
+      <Paper
+        withBorder
+        radius="lg"
+        p="xl"
+        sx={{
+          backgroundColor: isDark
+            ? 'rgba(26, 27, 30, 0.75)'
+            : 'rgba(255, 255, 255, 0.95)',
+          borderColor: isDark ? theme.colors.dark[4] : theme.colors.gray[2],
+          boxShadow: isDark
+            ? '0 4px 20px rgba(0, 0, 0, 0.25)'
+            : '0 4px 20px rgba(30, 64, 175, 0.04)',
+        }}
       >
-        <h5>{'عن التخصص'} </h5>
-        <EditMajor component={editCom} data={major} queryClient={queryClient} />
-      </div>
-      <div className="p-4">
-        {major && (
-          <>
-            <h5>{major.name}</h5>
-            <p>{major.describtion}</p>
-          </>
-        )}
-      </div>
-    </>
+        <Group position="apart" mb="lg">
+          <Title order={3} sx={{ color: isDark ? '#ffffff' : '#0f172a', fontWeight: 800 }}>
+            {major?.name || 'عن التخصص'}
+          </Title>
+          <EditMajor component={editCom} data={major} queryClient={queryClient} />
+        </Group>
+
+        <Text size="md" color={isDark ? 'gray.3' : 'gray.7'} sx={{ lineHeight: 1.8 }}>
+          {major?.describtion || major?.description || 'لا يوجد وصف مضاف لهذا التخصص حالياً.'}
+        </Text>
+      </Paper>
+    </Box>
   )
 }

@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useGetElements } from '../crud'
 import CourseInfo from './CourseInfo'
-import { Center, Loader } from '@mantine/core'
+import { Center, Loader, Box } from '@mantine/core'
 import { Helmet } from 'react-helmet'
 
 export default function Course() {
@@ -22,13 +22,11 @@ export default function Course() {
   }
 
   return (
-    <div className="bg-white">
+    <Box>
       <Helmet>
         <title>منصة جهبذ | المقرر الدراسي</title>
       </Helmet>
-      <div className="m-4 pt-5">
-        <CourseInfo course={course} />
-      </div>
-    </div>
+      <CourseInfo course={course} />
+    </Box>
   )
 }

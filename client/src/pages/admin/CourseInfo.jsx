@@ -19,13 +19,16 @@ import CourseContent from '../../components/CourseContent'
 export default function CourseInfo({ course }) {
   if (!course) return null
 
+  const theme = useMantineTheme()
+  const isDark = theme.colorScheme === 'dark'
+
   const teacherNames =
     course.teacher ??
     course.teachers?.map((t) => `${t.firstName} ${t.lastName}`).join(' • ')
 
   return (
     <Box>
-      <Paper p="xl" radius="md" withBorder mb="lg" bg="white">
+      <Paper p="xl" radius="md" withBorder mb="lg">
         <Title order={2} mb="xs">
           {course.name}
         </Title>
@@ -58,7 +61,7 @@ export default function CourseInfo({ course }) {
               sx={{ maxHeight: 350, objectFit: 'cover' }}
             />
           ) : (
-            <Paper p="xl" radius="md" bg="gray.1" sx={{ width: '100%', textAlign: 'center' }}>
+            <Paper p="xl" radius="md" bg={isDark ? 'dark.6' : 'gray.1'} sx={{ width: '100%', textAlign: 'center' }}>
               <IconPhoto size={48} color="gray" />
               <Text color="dimmed" mt="xs">
                 لا توجد صورة غلاف
@@ -77,8 +80,15 @@ export default function CourseInfo({ course }) {
         )}
 
         {course.willLearn?.length > 0 && (
-          <Paper p="lg" radius="md" bg="green.0" mt="xl" withBorder sx={{ borderColor: '#d3f9d8' }}>
-            <Title order={4} color="teal.9" mb="md">
+          <Paper
+            p="lg"
+            radius="md"
+            bg={isDark ? 'rgba(16, 185, 129, 0.12)' : 'green.0'}
+            mt="xl"
+            withBorder
+            sx={{ borderColor: isDark ? 'rgba(16, 185, 129, 0.25)' : '#d3f9d8' }}
+          >
+            <Title order={4} color={isDark ? 'teal.3' : 'teal.9'} mb="md">
               ما الذي ستتعلمه في هذه الدورة؟
             </Title>
             <Grid>
