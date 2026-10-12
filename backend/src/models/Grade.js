@@ -10,37 +10,41 @@ const GradeItemSchema = new mongoose.Schema(
   { _id: false }
 );
 
-const GradeSchema = new mongoose.Schema({
-  course: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Course",
-    required: true,
-  },
-  student: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Student",
-    required: true,
-  },
-  total: { type: Number, default: 0 },
-  percent: { type: Number, default: 0 },
-  grades: {
-    type: [GradeItemSchema],
-    default: [
-      { key: "assignments", name: "تكاليف", maxValue: 20, value: 0 },
-      { key: "midterm", name: "نصفي", maxValue: 30, value: 0 },
-      { key: "final", name: "نهائي", maxValue: 50, value: 0 },
-    ],
-  },
-  // Legacy grade field for backward compatibility
-  grade: {
-    type: mongoose.Schema.Types.Mixed,
-    default: {
-      0: { name: "تكاليف", value: 0 },
-      1: { name: "نصفي", value: 0 },
-      2: { name: "نهائي", value: 0 },
+const GradeSchema = new mongoose.Schema(
+  {
+    course: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Course",
+      required: true,
+      index: true,
+    },
+    student: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+      required: true,
+      index: true,
+    },
+    total: { type: Number, default: 0 },
+    percent: { type: Number, default: 0 },
+    grades: {
+      type: [GradeItemSchema],
+      default: [
+        { key: "assignments", name: "تكاليف", maxValue: 20, value: 0 },
+        { key: "midterm", name: "نصفي", maxValue: 30, value: 0 },
+        { key: "final", name: "نهائي", maxValue: 50, value: 0 },
+      ],
+    },
+    grade: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {
+        0: { name: "تكاليف", value: 0 },
+        1: { name: "نصفي", value: 0 },
+        2: { name: "نهائي", value: 0 },
+      },
     },
   },
-});
+  { timestamps: true }
+);
 
 GradeSchema.methods.recalculateTotal = function () {
   let sum = 0;
@@ -84,4 +88,4 @@ GradeSchema.methods.updateGrade = function (gradeToUpdate, gradeSchema) {
   return this.save();
 };
 
-export default mongoose.model("Grade", GradeSchema);
+export default mongoose.models.Grade || mongoose.model("Grade", GradeSchema);
