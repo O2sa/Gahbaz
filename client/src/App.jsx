@@ -11,9 +11,10 @@ import {
 } from 'react-router-dom'
 import './scss/style.scss'
 import { ModalsProvider } from '@mantine/modals'
-import { MantineProvider, createEmotionCache } from '@mantine/core'
-import rtlPlugin from 'stylis-plugin-rtl'
+import { MantineProvider } from '@mantine/core'
 import { Notifications } from '@mantine/notifications'
+import { mantineTheme } from './theme/index.js'
+import { rtlCache } from './theme/rtlCache.js'
 import 'dayjs/locale/ar'
 import dayjs from 'dayjs'
 
@@ -38,44 +39,15 @@ const queryClient = new QueryClient({
 
 export const router = createBrowserRouter(getRoutes(queryClient))
 
-const rtlCache = createEmotionCache({
-  key: 'mantine-rtl',
-  stylisPlugins: [rtlPlugin],
-})
-
-
 function App() {
- 
   return (
-
-      <QueryClientProvider client={queryClient}>
-        {/* <CloudinaryContext cloudName="ddng3kwfw"> */}
-        <MantineProvider
-          withGlobalStyles
-          withNormalizeCSS
-          emotionCache={rtlCache}
-          theme={{
-            dir: 'rtl',
-
-            fontFamily: 'Cairo',
-            colors: {
-              brand: [
-                '#f2eaff',
-                '#d4c4f0',
-                '#b69fe2',
-                '#9979d4',
-                '#7b52c6',
-                '#6239ad',
-                '#4c2c87',
-                '#361e62',
-                '#21123d',
-                '#0d041a',
-              ],
-            },
-            primaryColor: 'brand',
-            primaryShade: 4,
-          }}
-        >
+    <QueryClientProvider client={queryClient}>
+      <MantineProvider
+        withGlobalStyles
+        withNormalizeCSS
+        emotionCache={rtlCache}
+        theme={mantineTheme}
+      >
           <DatesProvider settings={{ locale: 'ar', firstDayOfWeek: 6, weekendDays: [4, 5] }}>
             <ModalsProvider labels={{ confirm: 'حفظ', cancel: 'إلغاء' }}>
               <Suspense fallback={loading}>
