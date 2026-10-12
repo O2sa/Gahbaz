@@ -1,79 +1,43 @@
-// GPAChart.js
-import 'chart.js/auto'
-import React, { useEffect, useState, useMemo } from 'react'
-import { Line, Bar, Pie, Chart, Scatter, Bubble } from 'react-chartjs-2'
-import { RecentMaterials } from '../../components'
-import FaveriteLinks from '../../components/FaveriteLinks'
-import { registerables } from 'chart.js'
-import { useQuery } from '@tanstack/react-query'
-import 'chartjs-adapter-date-fns'
-import {
-  IconArrowUpRight,
-  IconArrowDownRight,
-  IconSwimming,
-  IconActivity,
-  IconLayersIntersect,
-} from '@tabler/icons-react'
+import React from 'react'
+import { Box, Paper, Title, Text, SimpleGrid, ThemeIcon, Group } from '@mantine/core'
+import { IconBook, IconUsers, IconCalendar } from '@tabler/icons-react'
+import { StatCard } from '../../components/common'
 
-import {
-  MRT_GlobalFilterTextInput,
-  MRT_ToggleFiltersButton,
-  MantineReactTable,
-  useMantineReactTable,
-  MRT_EditActionButtons,
-} from 'mantine-react-table'
-import { MRT_Localization_AR } from 'mantine-react-table/locales/ar'
-// import useTable
-import {
-  ActionIcon,
-  Avatar,
-  Badge,
-  Button,
-  Flex,
-  Group,
-  Indicator,
-  RingProgress,
-  Text,
-  SimpleGrid,
-  Paper,
-  Center,
-  rem,
-  Grid,
-  Card,
-  ThemeIcon,
-  Progress,
-  Title,
-  Box,
-} from '@mantine/core'
-
-import { useCreateElement, useDeleteElement, useGetElements, useUpdateElement } from '../crud'
-import { CSpinner } from '@coreui/react'
-// Chart.register(...registerables);
-
-
-const Charts = () => {
-  // const {
-  //   data: data = [],
-  //   isError: isLoadingError,
-  //   isFetching: isFetching,
-  //   isLoading: isLoading,
-  // } = useQuery(useGetElements(['system/get-admin-dash']))
-
-  // if (isFetching || isLoading) {
-  //   return <CSpinner color="primary" />
-  // }
-
+export default function TeacherDashboard() {
   return (
-    <div>
- 
-    
+    <Box p="md">
+      <Paper p="xl" radius="md" withBorder bg="white" mb="lg">
+        <Title order={3} mb="xs">
+          مرحباً بك في لوحة تحكم المعلم
+        </Title>
+        <Text color="dimmed" size="sm">
+          يمكنك متابعة مقرراتك الدراسية، والدروس، ودرجات الطلاب من خلال القائمة الجانبية.
+        </Text>
+      </Paper>
 
-    </div>
+      <SimpleGrid cols={3} breakpoints={[{ maxWidth: 'sm', cols: 1 }]}>
+        <StatCard
+          title="الدورات النشطة"
+          value="مقرراتي"
+          description="عرض وإدارة المحاضرات والدروس"
+          icon={<IconBook size={24} />}
+          color="blue"
+        />
+        <StatCard
+          title="الطلاب"
+          value="المتابعة والتقييم"
+          description="رصد درجات الطلاب ومتابعة الأداء"
+          icon={<IconUsers size={24} />}
+          color="teal"
+        />
+        <StatCard
+          title="الفصل الحالي"
+          value="نشط"
+          description="الجدول الدراسي والخطط التعليمية"
+          icon={<IconCalendar size={24} />}
+          color="grape"
+        />
+      </SimpleGrid>
+    </Box>
   )
 }
-
-
-
-
-
-export default Charts
