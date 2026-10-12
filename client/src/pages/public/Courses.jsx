@@ -7,21 +7,19 @@ import { TeacherCourses } from '../teacher'
 const Courses = ({ queryClient }) => {
   const { user } = useDashboardContext()
 
-  const getComponent = () => {
-    if (user?.__t === 'Teacher') {
-      return <TeacherCourses queryClient={queryClient} />
-    } else if (user?.__t === 'Student') {
-      return <StudentCourses queryClient={queryClient} />
-    }
-    return null
-  }
+  const role = (user?.role || user?.__t || '').toLowerCase()
+  const isStudent = role === 'student'
 
   return (
     <div>
       <Helmet>
-        <title>منصة جهبذ | الدورات</title>
+        <title>منصة جهبذ | المقررات الدراسية</title>
       </Helmet>
-      {getComponent()}
+      {isStudent ? (
+        <StudentCourses queryClient={queryClient} />
+      ) : (
+        <TeacherCourses queryClient={queryClient} />
+      )}
     </div>
   )
 }

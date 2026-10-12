@@ -29,7 +29,13 @@ export default function TeacherCourses() {
     isLoading,
   } = useQuery(useGetElements(['courses']))
 
-  const filteredCourses = (Array.isArray(courses) ? courses : []).filter((c) => {
+  const courseList = Array.isArray(courses)
+    ? courses
+    : Array.isArray(courses?.data)
+    ? courses.data
+    : []
+
+  const filteredCourses = courseList.filter((c) => {
     if (!debouncedSearch) return true
     return (
       c.name?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
@@ -94,7 +100,7 @@ export default function TeacherCourses() {
         <Group spacing="xs" position="left">
           <Button
             component={Link}
-            to={`${row._id || row.id}`}
+            to={`/courses/${row._id || row.id}`}
             variant="light"
             size="xs"
             leftIcon={<IconInfoCircle size={14} />}
@@ -104,7 +110,7 @@ export default function TeacherCourses() {
           </Button>
           <ActionIcon
             component={Link}
-            to={`${row._id || row.id}/edit`}
+            to={`/courses/${row._id || row.id}/edit`}
             variant="subtle"
             color="brand"
             size="sm"
