@@ -30,7 +30,6 @@ import {
   Divider,
 } from '@mantine/core'
 import { IconChevronRight, IconDotsVertical, IconSearch } from '@tabler/icons-react'
-import { CDropdown, CDropdownItem, CDropdownMenu, CDropdownToggle } from '@coreui/react'
 import classes from './chat.module.css'
 import UserButton from '../NewChat/components/UserButton/UserButton'
 

@@ -19,13 +19,12 @@ import {
   Stack,
 } from '@mantine/core'
 import { GrAddCircle } from 'react-icons/gr'
-import { ChatContactsLoader, NoData } from '../../pages/LoadingComponents'
 import { useMediaQuery } from '@mantine/hooks'
 import { Carousel } from '@mantine/carousel'
 import { IconSearch } from '@tabler/icons-react'
 import ChatsList from '../NewChat/components/ChatsList/ChatsList'
-import { replaceHTML } from '../../utils/uisText'
-import { isUserActive } from '../../utils/UsersUtils'
+
+const replaceHTML = (html) => (html ? html.replace(/<[^>]*>?/gm, '') : '')
 
 function Contacts({ fetchAgain, selectedChat, socket }) {
   const { setSelectedChat, chats, user, setChats } = ChatState()

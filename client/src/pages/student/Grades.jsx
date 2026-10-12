@@ -5,13 +5,13 @@ import {
   // createRow,
   useMantineReactTable,
 } from 'mantine-react-table'
-import { ActionIcon, Button, Flex, Text, Tooltip, Box, Center, Title, Divider } from '@mantine/core'
+import { ActionIcon, Button, Flex, Text, Tooltip, Box, Center, Title, Divider, Loader } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
 import { useGetElements, useUpdateElement } from '../crud'
 import { useLoaderData, useParams } from 'react-router-dom'
 import customFetch from '../../utils/customFetch'
-import { useDashboardContext } from '../../layout/DefaultLayout'
-import { NoData, SemestersLoader } from '../LoadingComponents'
+import { useDashboardContext } from '../../layouts/MainLayout.jsx'
+import { EmptyState } from '../../components/common/index.js'
 
 export default function Grades({ queryClient }) {
   //nested data is ok, see accessorKeys in ColumnDef below
@@ -24,11 +24,15 @@ export default function Grades({ queryClient }) {
   } = useQuery(useGetElements(['grades', 'student-grades', user._id]))
 
   if (isFetching || isLoading) {
-    return <SemestersLoader />
+    return (
+      <Center py="xl">
+        <Loader size="lg" color="brand" />
+      </Center>
+    )
   }
 
   if (grades.length == 0) {
-    return <NoData />
+    return <EmptyState title="لا توجد درجات" message="لم يتم رصد درجات لك بعد." />
   }
 
   return grades.map((gr, idx) => (

@@ -4,8 +4,8 @@ import { Link, useLoaderData, useParams } from 'react-router-dom'
 
 import { useQuery } from '@tanstack/react-query'
 import { useGetElements } from '../crud'
-import { SemesterDetails } from '../../stories/SpecialComponents/SemesterDetails'
-import { CSpinner } from '@coreui/react'
+import SemesterDetails from './SemesterDetails'
+import { Center, Loader } from '@mantine/core'
 import { Helmet } from 'react-helmet'
 
 export default function Semester({ queryClient, ...props }) {
@@ -25,10 +25,12 @@ export default function Semester({ queryClient, ...props }) {
     isLoading: isLoading,
   } = useQuery(useGetElements(['courses', 'semester-courses', semesterId]))
 
-  // console.log(collage)
-
   if (isFetchingTeachers || isFetching) {
-    return <CSpinner color="primary" />
+    return (
+      <Center py="xl">
+        <Loader size="lg" color="brand" />
+      </Center>
+    )
   }
 
   return (

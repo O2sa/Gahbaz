@@ -1,7 +1,3 @@
-import axios from 'axios';
+import client from '../api/client'
 
-const customFetch = axios.create({
-  baseURL: '/api/v1',
-});
-
-export default customFetch;
+export default client

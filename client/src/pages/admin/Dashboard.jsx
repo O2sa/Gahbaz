@@ -2,8 +2,7 @@
 import 'chart.js/auto'
 import React, { useEffect, useState, useMemo } from 'react'
 import { Line, Bar, Pie, Chart, Scatter, Bubble } from 'react-chartjs-2'
-import { RecentMaterials } from '../../components'
-import FaveriteLinks from '../../components/FaveriteLinks'
+
 import { registerables } from 'chart.js'
 import { useQuery } from '@tanstack/react-query'
 import 'chartjs-adapter-date-fns'
@@ -47,7 +46,6 @@ import {
 } from '@mantine/core'
 
 import { useCreateElement, useDeleteElement, useGetElements, useUpdateElement } from '../crud'
-import { CSpinner } from '@coreui/react'
 // Chart.register(...registerables);
 
 const GPAChart = ({ data }) => {

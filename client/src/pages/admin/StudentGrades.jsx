@@ -20,7 +20,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useGetElements, useUpdateElement } from '../crud'
 import { Link, useLoaderData, useParams } from 'react-router-dom'
 import customFetch from '../../utils/customFetch'
-import { isUserActive } from '../../utils/UsersUtils'
+
 
 export const loader =
   (queryClient) =>

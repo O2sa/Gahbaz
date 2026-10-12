@@ -17,10 +17,9 @@ import { IconArrowAutofitLeft } from '@tabler/icons-react'
 import { useForm } from '@mantine/form'
 import { IconUpload } from '@tabler/icons-react'
 import UploadProfile from './UploadProfile'
-import { useDashboardContext } from '../../layout/DefaultLayout'
+import { useDashboardContext } from '../../layouts/MainLayout.jsx'
 import customFetch from '../../utils/customFetch'
 import { notifications } from '@mantine/notifications'
-import { ChatContactsLoader } from '../LoadingComponents'
 import { Helmet } from 'react-helmet'
 
 export default function Profile({ queryClient }) {
