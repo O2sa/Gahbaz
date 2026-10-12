@@ -1,10 +1,10 @@
 import os from "node:os";
-import User from "../../../models/User.js";
-import Collage from "../../../models/Collage.js";
-import Major from "../../../models/Major.js";
-import Course from "../../../models/Course.js";
-import Logger from "../../../models/Logger.js";
-import Performance from "../../../models/Performance.js";
+import User from "../../models/User.js";
+import College from "../../models/College.js";
+import Major from "../../models/Major.js";
+import Course from "../../models/Course.js";
+import AuditLog from "../../models/AuditLog.js";
+import PerformanceMetric from "../../models/PerformanceMetric.js";
 
 export const calculateThreeMonthsAgo = (from = new Date()) => {
   const d = new Date(from);
@@ -31,7 +31,7 @@ export const getSystemHealthService = () => {
   // Loadavg fallback for Windows
   let load = os.loadavg();
   let avgLoad = Array.isArray(load) && load[0] > 0 ? load[0] : 0;
-  if (avgLoad === 0 && cpus.length > 0) {
+  if (avgLoad === 0 && cpus && cpus.length > 0) {
     avgLoad = cpus.reduce((acc, cpu) => acc + (cpu.times.user / (cpu.times.idle + cpu.times.user || 1)), 0) / cpus.length;
   }
 
@@ -55,7 +55,7 @@ export const getAdminDashboardStatsService = async (universityId) => {
   });
 
   const threeDaysAgo = calculateThreeDaysAgo();
-  const loginTimes = await Logger.aggregate([
+  const loginTimes = await AuditLog.aggregate([
     { $match: { timestamp: { $gte: threeDaysAgo } } },
     {
       $group: {
@@ -71,7 +71,7 @@ export const getAdminDashboardStatsService = async (universityId) => {
   ]);
 
   const systemHealth = getSystemHealthService();
-  const metrics = await Performance.find().sort({ timestamp: -1 }).limit(50);
+  const metrics = await PerformanceMetric.find().sort({ timestamp: -1 }).limit(50);
 
   return { activeUsers, loginTimes, systemHealth, metrics };
 };
@@ -85,7 +85,7 @@ export const searchEntitiesService = async (query, user) => {
     case "teacher": {
       const courses = await Course.find({
         name: regex,
-        teachers: user.id, // Fixed: 'teachers' array instead of singular 'teacher'
+        teachers: user.id || user.userId,
       });
       return { courses };
     }
@@ -94,12 +94,12 @@ export const searchEntitiesService = async (query, user) => {
       const users = await User.find({
         $or: [{ firstName: regex }, { lastName: regex }, { email: regex }],
       }).select("-password");
-      const collages = await Collage.find({ name: regex, university: user.universityId });
+      const colleges = await College.find({ name: regex, university: user.universityId });
       const majors = await Major.find({ name: regex });
-      return { users, collages, majors };
+      return { users, colleges, collages: colleges, majors };
     }
     case "student": {
-      const student = await User.findById(user.id);
+      const student = await User.findById(user.id || user.userId);
       const courses = await Course.find({
         name: regex,
         semester: { $in: student?.semesters || [] },
