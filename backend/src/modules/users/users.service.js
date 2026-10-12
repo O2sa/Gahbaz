@@ -1,4 +1,4 @@
-import User from "../../../models/User.js";
+import User from "../../models/User.js";
 import { comparePassword, hashPassword } from "../../core/utils/password.utils.js";
 import {
   NotFoundError,
@@ -15,8 +15,43 @@ export const getCurrentUserProfile = async (userId) => {
 export const getUserById = async (targetId, requester) => {
   const user = await User.findById(targetId).select("-password");
   if (!user) throw new NotFoundError("User not found");
-  if (user.__t === "Student") await user.populate("major");
+  if (user.__t === "Student" || user.role === "student") {
+    await user.populate("major");
+  }
   return user;
+};
+
+export const listUsersService = async ({ search, role, page = 1, limit = 20, universityId }) => {
+  const query = {};
+  if (universityId) query.university = universityId;
+  if (role) query.role = role;
+  if (search) {
+    const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    query.$or = [
+      { firstName: { $regex: escaped, $options: "i" } },
+      { lastName: { $regex: escaped, $options: "i" } },
+      { email: { $regex: escaped, $options: "i" } },
+    ];
+  }
+
+  const pageNum = Math.max(1, parseInt(page, 10) || 1);
+  const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 20));
+  const skip = (pageNum - 1) * limitNum;
+
+  const [users, total] = await Promise.all([
+    User.find(query).select("-password").skip(skip).limit(limitNum).sort({ createdAt: -1 }),
+    User.countDocuments(query),
+  ]);
+
+  return {
+    users,
+    meta: {
+      page: pageNum,
+      limit: limitNum,
+      total,
+      totalPages: Math.ceil(total / limitNum) || 1,
+    },
+  };
 };
 
 export const updateUserProfile = async (targetUserId, requesterId, updateData, isRequesterAdmin = false) => {
@@ -40,8 +75,17 @@ export const updateUserProfile = async (targetUserId, requesterId, updateData, i
   return updatedUser;
 };
 
+export const deleteUserService = async (userId, requesterId, isRequesterAdmin) => {
+  if (userId !== requesterId && !isRequesterAdmin) {
+    throw new UnauthorizedError("Unauthorized to delete this user");
+  }
+  const deleted = await User.findByIdAndDelete(userId);
+  if (!deleted) throw new NotFoundError("User not found");
+  return true;
+};
+
 export const changeUserPassword = async (userId, { oldPassword, password }) => {
-  const user = await User.findById(userId);
+  const user = await User.findById(userId).select("+password");
   if (!user) throw new NotFoundError("User not found");
 
   const isMatch = await comparePassword(oldPassword, user.password);
@@ -50,16 +94,4 @@ export const changeUserPassword = async (userId, { oldPassword, password }) => {
   const hashedPassword = await hashPassword(password);
   await User.findByIdAndUpdate(userId, { password: hashedPassword });
   return { success: true };
-};
-
-export const getAllUsersForChat = async (requesterId, searchQuery) => {
-  const filter = { _id: { $ne: requesterId } };
-  if (searchQuery) {
-    filter.$or = [
-      { firstName: { $regex: searchQuery, $options: "i" } },
-      { lastName: { $regex: searchQuery, $options: "i" } },
-      { email: { $regex: searchQuery, $options: "i" } },
-    ];
-  }
-  return User.find(filter).select("-password");
 };
