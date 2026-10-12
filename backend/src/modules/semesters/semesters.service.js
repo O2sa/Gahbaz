@@ -7,14 +7,16 @@ import Subject from "../../models/Subject.js";
 import Grade from "../../models/Grade.js";
 import Chat from "../../models/Chat.js";
 import { NotFoundError } from "../../core/errors/customErrors.js";
+import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
 
 // ======================== SEMESTER TEMPLATES ========================
 export const createSemesterTemplateService = async (data) => {
   return SemesterTemplate.create(data);
 };
 
-export const getSemesterTemplatesService = async (filter = {}) => {
-  return SemesterTemplate.find(filter).populate("subjects");
+export const getSemesterTemplatesService = async (filter = {}, query = {}) => {
+  const { page, limit } = parsePagination(query);
+  return paginateQuery(SemesterTemplate, filter, { page, limit, populate: "subjects" });
 };
 
 export const getSemesterTemplateByIdService = async (id) => {
@@ -36,10 +38,15 @@ export const deleteSemesterTemplateService = async (id) => {
 };
 
 // ======================== SEMESTERS ========================
-export const getAllSemestersService = async (universityId) => {
-  return Semester.find({ university: universityId }).populate({
-    path: "major",
-    populate: { path: "college" },
+export const getAllSemestersService = async (universityId, query = {}) => {
+  const { page, limit } = parsePagination(query);
+  return paginateQuery(Semester, { university: universityId }, {
+    page,
+    limit,
+    populate: {
+      path: "major",
+      populate: { path: "college" },
+    },
   });
 };
 

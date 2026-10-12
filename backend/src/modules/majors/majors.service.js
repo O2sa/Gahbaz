@@ -2,6 +2,7 @@ import Major from "../../models/Major.js";
 import College from "../../models/College.js";
 import SemesterTemplate from "../../models/SemesterTemplate.js";
 import { NotFoundError } from "../../core/errors/customErrors.js";
+import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
 
 export const createMajorService = async (data, universityId) => {
   const newMajor = await Major.create(data);
@@ -25,8 +26,9 @@ export const createMajorService = async (data, universityId) => {
   return newMajor;
 };
 
-export const getMajorsService = async (filter = {}) => {
-  return Major.find(filter).populate("semesterTemplates");
+export const getMajorsService = async (filter = {}, query = {}) => {
+  const { page, limit } = parsePagination(query);
+  return paginateQuery(Major, filter, { page, limit, populate: "semesterTemplates" });
 };
 
 export const getMajorByIdService = async (id) => {

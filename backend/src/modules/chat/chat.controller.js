@@ -1,5 +1,5 @@
 import * as svc from "./chat.service.js";
-import { sendSuccess, sendCreated } from "../../core/utils/response.utils.js";
+import { sendPaginated, sendSuccess, sendCreated } from "../../core/utils/response.utils.js";
 
 export const accessChat = async (req, res) => {
   const currentUserId = req.user.userId || req.user.id;
@@ -10,8 +10,8 @@ export const accessChat = async (req, res) => {
 
 export const fetchChats = async (req, res) => {
   const currentUserId = req.user.userId || req.user.id;
-  const chats = await svc.fetchUserChatsService(currentUserId);
-  sendSuccess(res, chats);
+  const { data, meta } = await svc.fetchUserChatsService(currentUserId, req.query);
+  sendPaginated(res, data, meta);
 };
 
 export const getChat = async (req, res) => {
@@ -46,6 +46,6 @@ export const sendMessage = async (req, res) => {
 export const getMessages = async (req, res) => {
   const currentUserId = req.user.userId || req.user.id;
   const chatId = req.params.chatId || req.params.id;
-  const messages = await svc.getChatMessagesService(chatId, currentUserId);
-  sendSuccess(res, messages);
+  const { data, meta } = await svc.getChatMessagesService(chatId, currentUserId, req.query);
+  sendPaginated(res, data, meta);
 };

@@ -3,12 +3,17 @@ import Semester from "../../models/Semester.js";
 import Grade from "../../models/Grade.js";
 import { NotFoundError } from "../../core/errors/customErrors.js";
 import { generateSecurePassword, hashPassword } from "../../core/utils/password.utils.js";
+import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
 import sendMail from "../../config/mailer.js";
 
-export const getStudentsService = async (universityId) => {
-  return Student.find({ university: universityId })
-    .select("-password")
-    .populate("major");
+export const getStudentsService = async (universityId, query = {}) => {
+  const { page, limit } = parsePagination(query);
+  return paginateQuery(Student, { university: universityId }, {
+    page,
+    limit,
+    select: "-password",
+    populate: "major",
+  });
 };
 
 export const getStudentByIdService = async (id, universityId) => {

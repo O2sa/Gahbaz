@@ -2,6 +2,7 @@ import Chat from "../../models/Chat.js";
 import Message from "../../models/Message.js";
 import User from "../../models/User.js";
 import { NotFoundError, UnauthorizedError, BadRequestError } from "../../core/errors/customErrors.js";
+import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
 
 export const accessDirectChatService = async (currentUserId, targetUserId, universityId) => {
   if (!targetUserId) throw new BadRequestError("Target userId is required");
@@ -38,17 +39,29 @@ export const accessDirectChatService = async (currentUserId, targetUserId, unive
     .populate("groupAdmin", "-password");
 };
 
-export const fetchUserChatsService = async (userId) => {
-  const chats = await Chat.find({ users: { $elemMatch: { $eq: userId } } })
-    .populate("users", "-password")
-    .populate("groupAdmin", "-password")
-    .populate("latestMessage")
-    .sort({ updatedAt: -1 });
+export const fetchUserChatsService = async (userId, query = {}) => {
+  const { page, limit } = parsePagination(query);
+  const result = await paginateQuery(
+    Chat,
+    { users: { $elemMatch: { $eq: userId } } },
+    {
+      page,
+      limit,
+      sort: { updatedAt: -1 },
+      populate: [
+        { path: "users", select: "-password" },
+        { path: "groupAdmin", select: "-password" },
+        { path: "latestMessage" },
+      ],
+    }
+  );
 
-  return User.populate(chats, {
+  result.data = await User.populate(result.data, {
     path: "latestMessage.sender",
     select: "lastName firstName avatar email",
   });
+
+  return result;
 };
 
 export const getChatByIdService = async (chatId, currentUserId) => {
@@ -108,16 +121,27 @@ export const sendMessageService = async ({ senderId, chatId, content, attachment
   return message;
 };
 
-export const getChatMessagesService = async (chatId, currentUserId) => {
+export const getChatMessagesService = async (chatId, currentUserId, query = {}) => {
   const chat = await Chat.findOne({ _id: chatId, users: { $elemMatch: { $eq: currentUserId } } });
   if (!chat) {
     throw new UnauthorizedError("You are not a member of this chat");
   }
 
-  return Message.find({ chat: chatId })
-    .populate("sender", "email avatar lastName firstName")
-    .populate({
-      path: "chat",
-      populate: { path: "latestMessage", populate: { path: "sender", select: "firstName lastName email" } },
-    });
+  const { page, limit } = parsePagination(query);
+  return paginateQuery(
+    Message,
+    { chat: chatId },
+    {
+      page,
+      limit,
+      sort: { createdAt: 1 },
+      populate: [
+        { path: "sender", select: "email avatar lastName firstName" },
+        {
+          path: "chat",
+          populate: { path: "latestMessage", populate: { path: "sender", select: "firstName lastName email" } },
+        },
+      ],
+    }
+  );
 };

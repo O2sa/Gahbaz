@@ -3,12 +3,13 @@ import * as ctrl from "./colleges.controller.js";
 import { requireRoles } from "../../core/middleware/rbac.middleware.js";
 import { validateRequest } from "../../core/middleware/validate.middleware.js";
 import { createCollegeSchema, updateCollegeSchema } from "./colleges.validator.js";
+import { paginationQuerySchema } from "../../core/utils/pagination.utils.js";
 
 const router = Router();
 
 router
   .route("/")
-  .get(ctrl.getColleges)
+  .get(validateRequest({ query: paginationQuerySchema }), ctrl.getColleges)
   .post(
     requireRoles("admin", "super-admin"),
     validateRequest({ body: createCollegeSchema }),

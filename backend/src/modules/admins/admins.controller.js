@@ -1,9 +1,9 @@
 import * as svc from "./admins.service.js";
-import { sendSuccess, sendCreated, sendNoContent } from "../../core/utils/response.utils.js";
+import { sendPaginated, sendSuccess, sendCreated, sendNoContent } from "../../core/utils/response.utils.js";
 
 export const getAllAdmins = async (req, res) => {
-  const data = await svc.getAdminsService(req.user.universityId);
-  sendSuccess(res, data);
+  const { data, meta } = await svc.getAdminsService(req.user.universityId, req.query);
+  sendPaginated(res, data, meta);
 };
 
 export const getAdmin = async (req, res) => {

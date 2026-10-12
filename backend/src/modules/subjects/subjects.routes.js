@@ -3,12 +3,13 @@ import * as ctrl from "./subjects.controller.js";
 import { requireRoles } from "../../core/middleware/rbac.middleware.js";
 import { validateRequest } from "../../core/middleware/validate.middleware.js";
 import { createSubjectSchema, updateSubjectSchema } from "./subjects.validator.js";
+import { paginationQuerySchema } from "../../core/utils/pagination.utils.js";
 
 const router = Router();
 
 router
   .route("/")
-  .get(ctrl.getSubjects)
+  .get(validateRequest({ query: paginationQuerySchema }), ctrl.getSubjects)
   .post(
     requireRoles("admin", "super-admin"),
     validateRequest({ body: createSubjectSchema }),

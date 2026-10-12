@@ -1,11 +1,11 @@
 import * as svc from "./subjects.service.js";
-import { sendSuccess, sendCreated, sendNoContent } from "../../core/utils/response.utils.js";
+import { sendPaginated, sendSuccess, sendCreated, sendNoContent } from "../../core/utils/response.utils.js";
 
 export const getSubjects = async (req, res) => {
   const collegeId = req.query.college || req.query.collage;
   const filter = collegeId ? { college: collegeId } : {};
-  const data = await svc.getSubjectsService(filter);
-  sendSuccess(res, data);
+  const { data, meta } = await svc.getSubjectsService(filter, req.query);
+  sendPaginated(res, data, meta);
 };
 
 export const getSubject = async (req, res) => {
