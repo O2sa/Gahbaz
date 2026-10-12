@@ -10,6 +10,7 @@
     "server": "nodemon server",
     "client": "cd client && npm start",
     "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
+    "seed": "node src/seeds/seedFullDemoData.js",
     "test": "vitest run",
     "test:watch": "vitest"
   },
