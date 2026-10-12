@@ -1,9 +1,9 @@
-import Chat from "../../../models/chatModel.js";
-import Messages from "../../../models/messageModel.js";
-import User from "../../../models/User.js";
+import Chat from "../../models/Chat.js";
+import Message from "../../models/Message.js";
+import User from "../../models/User.js";
 import { NotFoundError, UnauthorizedError, BadRequestError } from "../../core/errors/customErrors.js";
 
-export const accessDirectChatService = async (currentUserId, targetUserId) => {
+export const accessDirectChatService = async (currentUserId, targetUserId, universityId) => {
   if (!targetUserId) throw new BadRequestError("Target userId is required");
 
   let isChat = await Chat.findOne({
@@ -30,6 +30,7 @@ export const accessDirectChatService = async (currentUserId, targetUserId) => {
     chatName: `${targetUser.firstName || "Direct"} ${targetUser.lastName || "Chat"}`,
     isGroupChat: false,
     users: [currentUserId, targetUserId],
+    university: universityId,
   });
 
   return Chat.findById(createdChat._id)
@@ -50,7 +51,16 @@ export const fetchUserChatsService = async (userId) => {
   });
 };
 
-export const createGroupChatService = async (groupName, users, currentUserId) => {
+export const getChatByIdService = async (chatId, currentUserId) => {
+  const chat = await Chat.findOne({ _id: chatId, users: { $elemMatch: { $eq: currentUserId } } })
+    .populate("users", "-password")
+    .populate("groupAdmin", "-password")
+    .populate("latestMessage");
+  if (!chat) throw new NotFoundError("Chat not found or access denied");
+  return chat;
+};
+
+export const createGroupChatService = async (groupName, users, currentUserId, universityId) => {
   let userList = typeof users === "string" ? JSON.parse(users) : users;
   if (!Array.isArray(userList) || userList.length < 1) {
     throw new BadRequestError("More than 1 user is required to form a group chat");
@@ -66,6 +76,7 @@ export const createGroupChatService = async (groupName, users, currentUserId) =>
     isGroupChat: true,
     groupAdmin: currentUserId,
     groupPic: "default-group.svg",
+    university: universityId,
   });
 
   return Chat.findById(groupChat._id)
@@ -79,7 +90,7 @@ export const sendMessageService = async ({ senderId, chatId, content, attachment
     throw new UnauthorizedError("You are not a member of this chat");
   }
 
-  let message = await Messages.create({
+  let message = await Message.create({
     sender: senderId,
     content: content || "",
     chat: chatId,
@@ -103,7 +114,7 @@ export const getChatMessagesService = async (chatId, currentUserId) => {
     throw new UnauthorizedError("You are not a member of this chat");
   }
 
-  return Messages.find({ chat: chatId })
+  return Message.find({ chat: chatId })
     .populate("sender", "email avatar lastName firstName")
     .populate({
       path: "chat",
