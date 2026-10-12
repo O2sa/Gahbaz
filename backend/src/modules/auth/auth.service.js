@@ -1,10 +1,11 @@
-import User from "../../../models/User.js";
-import University from "../../../models/University.js";
+import User from "../../models/User.js";
+import University from "../../models/University.js";
 import { hashPassword, comparePassword } from "../../core/utils/password.utils.js";
 import { createJWT } from "../../core/utils/token.utils.js";
 import {
   BadRequestError,
   UnauthenticatedError,
+  NotFoundError,
 } from "../../core/errors/customErrors.js";
 
 export const registerUser = async (data) => {
@@ -33,11 +34,18 @@ export const registerUser = async (data) => {
   };
 
   const user = await User.create(sanitizedData);
-  return { user };
+  const token = createJWT({
+    userId: user._id.toString(),
+    email: user.email,
+    role: "student",
+    universityId: universityId.toString(),
+  });
+
+  return { user, token };
 };
 
 export const loginUser = async (email, password) => {
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).select("+password");
   if (!user) {
     throw new UnauthenticatedError("Invalid credentials");
   }
@@ -47,16 +55,27 @@ export const loginUser = async (email, password) => {
     throw new UnauthenticatedError("Invalid credentials");
   }
 
-  const role = user.__t ? user.__t.toLowerCase() : user.role || "student";
+  const role = user.role || "student";
   const isDemoUser = ["student@test.com", "teacher@tech.com", "admin@test.com"].includes(user.email);
 
   const token = createJWT({
     userId: user._id.toString(),
     email: user.email,
-    role: user.role || role,
+    role,
     universityId: user.university?.toString(),
     isDemoUser,
   });
 
-  return { token, user, role: user.__t || user.role || "Student" };
+  const userObj = user.toObject ? user.toObject() : { ...user };
+  delete userObj.password;
+
+  return { token, user: userObj, role };
+};
+
+export const getCurrentUserService = async (userId) => {
+  const user = await User.findById(userId).populate("university");
+  if (!user) {
+    throw new NotFoundError("User not found");
+  }
+  return user;
 };

@@ -1,8 +1,9 @@
-import { registerUser, loginUser } from "./auth.service.js";
+import { registerUser, loginUser, getCurrentUserService } from "./auth.service.js";
+import { sendSuccess, sendCreated } from "../../core/utils/response.utils.js";
 
 export const register = async (req, res) => {
   const result = await registerUser(req.body);
-  res.status(201).json({ msg: "User registered successfully", user: result.user });
+  sendCreated(res, { user: result.user, token: result.token });
 };
 
 export const login = async (req, res) => {
@@ -17,7 +18,7 @@ export const login = async (req, res) => {
     sameSite: "lax",
   });
 
-  res.status(200).json({ msg: "user logged in", role });
+  sendSuccess(res, { user, role, token });
 };
 
 export const logout = (req, res) => {
@@ -25,5 +26,10 @@ export const logout = (req, res) => {
     httpOnly: true,
     expires: new Date(Date.now()),
   });
-  res.status(200).json({ msg: "user logged out!" });
+  sendSuccess(res, { message: "User logged out successfully" });
+};
+
+export const getMe = async (req, res) => {
+  const user = await getCurrentUserService(req.user.userId);
+  sendSuccess(res, user);
 };
