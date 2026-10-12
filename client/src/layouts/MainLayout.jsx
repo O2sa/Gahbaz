@@ -68,12 +68,13 @@ export default function MainLayout() {
             backgroundColor:
               theme.colorScheme === 'dark'
                 ? theme.colors.dark[8]
-                : theme.colors.gray[0],
+                : '#f8fafc',
             minHeight: '100vh',
+            transition: 'background-color 0.25s ease',
           },
         })}
       >
-        <Container fluid px="sm" py="xs" sx={{ position: 'relative', minHeight: '80vh' }}>
+        <Container fluid px={{ base: 'xs', sm: 'md' }} py="xs" sx={{ position: 'relative', minHeight: '80vh' }}>
           <LoadingOverlay visible={isPageLoading} overlayBlur={2} />
           <Suspense
             fallback={

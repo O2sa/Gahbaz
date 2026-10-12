@@ -6,6 +6,8 @@ import {
   NavLink,
   Box,
   Divider,
+  useMantineTheme,
+  rem,
 } from '@mantine/core'
 import {
   IconDashboard,
@@ -14,7 +16,6 @@ import {
   IconCertificate,
   IconBook,
   IconCalendarEvent,
-  IconTemplate,
   IconSchool,
   IconUserCheck,
   IconShieldCheck,
@@ -25,6 +26,8 @@ import { useNavigate, useLocation } from 'react-router-dom'
 export default function AppNavbar({ opened, setOpened, user }) {
   const navigate = useNavigate()
   const location = useLocation()
+  const theme = useMantineTheme()
+  const isDark = theme.colorScheme === 'dark'
 
   const handleNav = (path) => {
     navigate(path)
@@ -35,6 +38,7 @@ export default function AppNavbar({ opened, setOpened, user }) {
 
   const role = user?.role || 'admin'
   const isAdmin = role === 'admin'
+  const isStudent = role === 'student'
 
   const isActive = (path) => {
     if (path === '/') {
@@ -43,119 +47,186 @@ export default function AppNavbar({ opened, setOpened, user }) {
     return location.pathname.startsWith(path)
   }
 
+  const navLinkStyle = (path) => {
+    const active = isActive(path)
+    return {
+      borderRadius: theme.radius.md,
+      margin: `${rem(3)} 0`,
+      fontWeight: active ? 700 : 500,
+      fontSize: 14,
+      transition: 'all 160ms cubic-bezier(0.4, 0, 0.2, 1)',
+      backgroundColor: active
+        ? isDark
+          ? 'rgba(59, 130, 246, 0.18)'
+          : 'rgba(30, 64, 175, 0.08)'
+        : 'transparent',
+      color: active
+        ? isDark
+          ? '#93c5fd'
+          : theme.colors.brand[8]
+        : isDark
+        ? theme.colors.dark[1]
+        : theme.colors.gray[7],
+      borderRight: active
+        ? `3px solid ${isDark ? '#3b82f6' : theme.colors.brand[6]}`
+        : '3px solid transparent',
+      '&:hover': {
+        backgroundColor: isDark
+          ? theme.colors.dark[5]
+          : theme.colors.gray[1],
+        transform: 'translateX(-2px)',
+      },
+    }
+  }
+
   return (
     <Navbar
       p="xs"
       hiddenBreakpoint="sm"
       hidden={!opened}
       width={{ sm: 260 }}
+      sx={{
+        backgroundColor: isDark
+          ? 'rgba(26, 27, 30, 0.95)'
+          : 'rgba(255, 255, 255, 0.95)',
+        borderLeft: `1px solid ${
+          isDark ? theme.colors.dark[5] : theme.colors.gray[2]
+        }`,
+      }}
     >
       <Navbar.Section grow component={ScrollArea} mx="-xs" px="xs">
         {/* Section: Overview */}
         <Box mb="xs">
-          <Text size="xs" weight={700} color="dimmed" px="xs" mb={4}>
+          <Text
+            size="xs"
+            weight={700}
+            color={isDark ? 'gray.5' : 'dimmed'}
+            px="xs"
+            mb={6}
+            sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
+          >
             الرئيسية
           </Text>
           <NavLink
             label="لوحة التحكم"
-            icon={<IconDashboard size={18} stroke={1.5} />}
+            icon={<IconDashboard size={19} stroke={1.6} />}
             active={isActive('/')}
             onClick={() => handleNav('/')}
-            variant="light"
+            sx={navLinkStyle('/')}
+          />
+          <NavLink
+            label="المقررات والدورات"
+            icon={<IconBook size={19} stroke={1.6} />}
+            active={isActive('/courses')}
+            onClick={() => handleNav('/courses')}
+            sx={navLinkStyle('/courses')}
+          />
+          <NavLink
+            label="المحادثات الأكاديمية"
+            icon={<IconMessageDots size={19} stroke={1.6} />}
+            active={isActive('/chat')}
+            onClick={() => handleNav('/chat')}
+            sx={navLinkStyle('/chat')}
           />
           <NavLink
             label="الملف الشخصي"
-            icon={<IconUser size={18} stroke={1.5} />}
+            icon={<IconUser size={19} stroke={1.6} />}
             active={isActive('/profile')}
             onClick={() => handleNav('/profile')}
-            variant="light"
-          />
-          <NavLink
-            label="المحادثات"
-            icon={<IconMessageDots size={18} stroke={1.5} />}
-            active={isActive('/chat')}
-            onClick={() => handleNav('/chat')}
-            variant="light"
+            sx={navLinkStyle('/profile')}
           />
         </Box>
 
-        <Divider my="xs" />
-
-        {/* Section: Academics */}
-        <Box mb="xs">
-          <Text size="xs" weight={700} color="dimmed" px="xs" mb={4}>
-            الأكاديميا
-          </Text>
-          {isAdmin && (
-            <>
+        {/* Section: Academics (Admin) */}
+        {isAdmin && (
+          <>
+            <Divider my="xs" color={isDark ? 'dark.5' : 'gray.2'} />
+            <Box mb="xs">
+              <Text
+                size="xs"
+                weight={700}
+                color={isDark ? 'gray.5' : 'dimmed'}
+                px="xs"
+                mb={6}
+                sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
+              >
+                الإدارة الأكاديمية
+              </Text>
               <NavLink
-                label="الكليات"
-                icon={<IconBuildingSkyscraper size={18} stroke={1.5} />}
+                label="الكليات والأقسام"
+                icon={<IconBuildingSkyscraper size={19} stroke={1.6} />}
                 active={isActive('/collages')}
                 onClick={() => handleNav('/collages')}
-                variant="light"
-              />
-              <NavLink
-                label="التخصصات"
-                icon={<IconCertificate size={18} stroke={1.5} />}
-                active={isActive('/majors')}
-                onClick={() => handleNav('/majors')}
-                variant="light"
-              />
-              <NavLink
-                label="المواد الدراسية"
-                icon={<IconBook size={18} stroke={1.5} />}
-                active={isActive('/subjects')}
-                onClick={() => handleNav('/subjects')}
-                variant="light"
+                sx={navLinkStyle('/collages')}
               />
               <NavLink
                 label="الفصول الدراسية"
-                icon={<IconCalendarEvent size={18} stroke={1.5} />}
+                icon={<IconCalendarEvent size={19} stroke={1.6} />}
                 active={isActive('/semesters')}
                 onClick={() => handleNav('/semesters')}
-                variant="light"
+                sx={navLinkStyle('/semesters')}
               />
-              <NavLink
-                label="خطط الفصول"
-                icon={<IconTemplate size={18} stroke={1.5} />}
-                active={isActive('/semestersTemplate')}
-                onClick={() => handleNav('/semestersTemplate')}
-                variant="light"
-              />
-            </>
-          )}
-        </Box>
+            </Box>
 
-        {isAdmin && (
-          <>
-            <Divider my="xs" />
-
-            {/* Section: Users */}
+            <Divider my="xs" color={isDark ? 'dark.5' : 'gray.2'} />
+            {/* Section: Users (Admin) */}
             <Box mb="xs">
-              <Text size="xs" weight={700} color="dimmed" px="xs" mb={4}>
-                إدارة المستخدمين
+              <Text
+                size="xs"
+                weight={700}
+                color={isDark ? 'gray.5' : 'dimmed'}
+                px="xs"
+                mb={6}
+                sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
+              >
+                المستخدمون والصلاحيات
               </Text>
               <NavLink
                 label="الطلاب"
-                icon={<IconSchool size={18} stroke={1.5} />}
-                active={isActive('/students')}
-                onClick={() => handleNav('/students')}
-                variant="light"
+                icon={<IconSchool size={19} stroke={1.6} />}
+                active={isActive('/users/students')}
+                onClick={() => handleNav('/users/students')}
+                sx={navLinkStyle('/users/students')}
               />
               <NavLink
-                label="الأساتذة"
-                icon={<IconUserCheck size={18} stroke={1.5} />}
-                active={isActive('/teachers')}
-                onClick={() => handleNav('/teachers')}
-                variant="light"
+                label="أعضاء هيئة التدريس"
+                icon={<IconUserCheck size={19} stroke={1.6} />}
+                active={isActive('/users/teachers')}
+                onClick={() => handleNav('/users/teachers')}
+                sx={navLinkStyle('/users/teachers')}
               />
               <NavLink
-                label="الإداريون"
-                icon={<IconShieldCheck size={18} stroke={1.5} />}
-                active={isActive('/admins')}
-                onClick={() => handleNav('/admins')}
-                variant="light"
+                label="إداريو النظام"
+                icon={<IconShieldCheck size={19} stroke={1.6} />}
+                active={isActive('/users') && !isActive('/users/students') && !isActive('/users/teachers')}
+                onClick={() => handleNav('/users')}
+                sx={navLinkStyle('/users')}
+              />
+            </Box>
+          </>
+        )}
+
+        {/* Section: Student specific */}
+        {isStudent && (
+          <>
+            <Divider my="xs" color={isDark ? 'dark.5' : 'gray.2'} />
+            <Box mb="xs">
+              <Text
+                size="xs"
+                weight={700}
+                color={isDark ? 'gray.5' : 'dimmed'}
+                px="xs"
+                mb={6}
+                sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
+              >
+                الأكاديميا
+              </Text>
+              <NavLink
+                label="سجل الدرجات"
+                icon={<IconCertificate size={19} stroke={1.6} />}
+                active={isActive('/grades')}
+                onClick={() => handleNav('/grades')}
+                sx={navLinkStyle('/grades')}
               />
             </Box>
           </>
