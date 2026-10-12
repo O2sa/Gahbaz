@@ -1,348 +1,330 @@
-import { useMemo, useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import {
-  MRT_GlobalFilterTextInput,
-  MRT_ToggleFiltersButton,
-  MantineReactTable,
-  useMantineReactTable,
-  MRT_EditActionButtons,
-} from 'mantine-react-table'
-import { Link, useLoaderData, useParams } from 'react-router-dom'
-
-// import useTable
-import {
-  ActionIcon,
   Button,
-  Flex,
-  Text,
-  Tooltip,
-  Title,
-  Box,
-  Menu,
-  Badge,
-  MantineProvider,
-  Anchor,
-  Stack,
-  TextInput,
-  MultiSelect,
-  Select,
   Group,
-  Indicator,
+  ActionIcon,
+  Modal,
+  TextInput,
+  Stack,
+  Text,
+  Badge,
   Avatar,
 } from '@mantine/core'
-import { IconUserCircle, IconSend, IconInfoCircle, IconArrowBarRight } from '@tabler/icons-react'
+import { useForm } from '@mantine/form'
+import { useDisclosure, useDebouncedValue } from '@mantine/hooks'
+import { IconPlus, IconPencil, IconTrash, IconSchool } from '@tabler/icons-react'
 import {
-  QueryClient,
-  QueryClientProvider,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+  DataTable,
+  PageHeader,
+  ConfirmModal,
+} from '../../components/common/index.js'
+import {
+  useStudents,
+  useCreateStudent,
+  useUpdateStudent,
+  useDeleteStudent,
+} from '../../hooks/useStudents.js'
+import dayjs from 'dayjs'
 
-import { IconEdit, IconTrash } from '@tabler/icons-react'
-import { useCreateElement, useDeleteElement, useGetElements, useUpdateElement } from '../crud'
-import { modals } from '@mantine/modals'
-import { isUserActive } from '../../utils/UsersUtils'
+export default function Students() {
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const [search, setSearch] = useState('')
+  const [debouncedSearch] = useDebouncedValue(search, 350)
 
-export default function Students({ queryClient }) {
-  //call CREATE hook
-  const { id: collageId } = useParams()
-  const { mutateAsync: createStudent, isLoading: isCreatingStudent } = useCreateElement(
-    queryClient,
-    ['students'],
-  )
+  // Modals state
+  const [addOpened, { open: openAdd, close: closeAdd }] = useDisclosure(false)
+  const [editStudent, setEditStudent] = useState(null)
+  const [deleteId, setDeleteId] = useState(null)
 
-  const {
-    data: students = [],
-    isError: isLoadingStudentsError,
-    isFetching: isFetchingStudents,
-    isLoading: isLoadingStudents,
-  } = useQuery(useGetElements(['students']))
-  const {
-    data: majors = [],
-    isFetching: isFetchingTeachers,
-    isLoading: isLoadingTeachers,
-  } = useQuery(useGetElements(['majors']))
+  // API hooks
+  const { data: studentsRes, isLoading } = useStudents({
+    page,
+    limit,
+    search: debouncedSearch,
+  })
 
-  // console.log(students)
-  const { mutateAsync: updateStudent, isLoading: isUpdatingStudent } = useUpdateElement(
-    queryClient,
-    ['students'],
-  )
-  const { mutateAsync: deleteStudent, isLoading: isDeletingStudent } = useDeleteElement(
-    queryClient,
-    ['students'],
-  )
+  const createMutation = useCreateStudent()
+  const updateMutation = useUpdateStudent()
+  const deleteMutation = useDeleteStudent()
 
-  const majorsForSelect = getMultiSelectData(majors)
-  const [editingRowData, setEditingRowData] = useState({}) // State for new row data
-
-  const handleCreateStudent = async ({ values, row, table, exitCreatingMode }) => {
-    // console.log(newRowData)
-    await createStudent({ ...newRowData })
-    modals.closeAll()
-    table.setCreatingRow(false)
-  }
-
-  const [newRowData, setNewrowData] = useState({}) // State for new row data
-
-  //UPDATE action
-  const handleSaveStudent = async ({ values, row, table }) => {
-    await updateStudent({ ...values, ...editingRowData, _id: row.id })
-    table.setEditingRow(null) //exit editing mode
-  }
-
-  //DELETE action
-  const openDeleteConfirmModal = (row) => deleteStudent(row.id)
-
-  const columns = useMemo(
-    () => [
-      {
-        id: 'index',
-        enableEditing: false,
-        accessorFn: (row, rowIndex) => rowIndex + 1,
-        header: '#',
-      },
-      {
-        accessorKey: 'name',
-        id: 'name',
-        header: 'الأسم',
-
-        Cell: ({ cell, row }) => {
-          const item = row.original
-          return (
-            <Link to={'/users/' + item._id}>
-              <Group gap="sm" noWrap>
-                <Indicator disabled={!isUserActive(row.original.lastActivity)}>
-                  <Avatar  size={40} src={item.avatar} radius={40} />
-                </Indicator>
-                <div>
-                  <Text fz="sm" fw={500}>
-                    {`${item.firstName} ${item.lastName}`}
-                  </Text>
-                  <Text fz="xs" c="dimmed">
-                    {item.email}
-                  </Text>
-                </div>
-              </Group>
-            </Link>
-          )
-        },
-      },
-
-      {
-        accessorKey: 'email',
-        header: 'الأسم',
-      },
-      {
-        accessorKey: 'phone',
-        header: 'رقم الهاتف',
-      },
-
-      {
-        accessorKey: 'comingSemester',
-        header: 'الفصل القادم',
-      },
-
-      {
-        accessorKey: 'major',
-        Cell: ({ cell }) => {
-          if (!cell.getValue()) return ''
-          return cell.getValue().name
-        },
-        enableEditing: false,
-        header: 'التخصص',
-      },
-    
-    ],
-    [],
-  )
-
-  const table = useMantineReactTable({
-    columns: columns,
-    data: students,
-    // enableColumnFilterModes: true,
-    enableColumnOrdering: true,
-    enableFacetedValues: true,
-    enableGrouping: true,
-    enablePinning: true,
-    enableEditing: true,
-    enableRowSelection:false,
-    onHoveredRowChange:()=>null,
-    createDisplayMode: 'modal',
-    editDisplayMode: 'modal',
-    enableRowActions: true,
-    getRowId: (row) => row._id,
-    paginationDisplayMode: 'pages',
-    positionToolbarAlertBanner: 'bottom',
-
-    mantineToolbarAlertBannerProps: isLoadingStudentsError
-      ? {
-          color: 'red',
-          children: 'خطأ في تحميل البيانات',
-        }
-      : undefined,
-
-   
-    onCreatingRowSave: handleCreateStudent,
-    onEditingRowSave: handleSaveStudent,
-    renderRowActions: ({ row, table }) => (
-      <Flex gap="md">
-        <Tooltip label="تعديل">
-          <ActionIcon onClick={() => table.setEditingRow(row)}>
-            <IconEdit />
-          </ActionIcon>
-        </Tooltip>
-        <Tooltip label="حذف">
-          <ActionIcon color="red" onClick={() => openDeleteConfirmModal(row)}>
-            <IconTrash />
-          </ActionIcon>
-        </Tooltip>
-      </Flex>
-    ),
-    renderCreateRowModalContent: ({ internalEditComponents, row, table }) => (
-      <Stack>
-        <Title order={5}>تعديل</Title>
-        <TextInput
-          withAsterisk
-          label="الاسم الأول"
-          name="firstName"
-          id="firstName"
-          placeholder="الاسم الأول"
-          onChange={(e) => setNewrowData({ ...newRowData, firstName: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="الاسم الاخير"
-          name="lastName"
-          id="lastName"
-          onChange={(e) => setNewrowData({ ...newRowData, lastName: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="رقم الهاتف"
-          name="phone"
-          id="phone"
-          placeholder="الرقم"
-          onChange={(e) => setNewrowData({ ...newRowData, phone: e.target.value })}
-        />
-        <TextInput
-          withAsterisk
-          label="الايميل"
-          name="email"
-          id="email"
-          placeholder=" الايميل"
-          onChange={(e) => setNewrowData({ ...newRowData, email: e.target.value })}
-        />{' '}
-        <Select
-          data={majorsForSelect}
-          label="التخصص"
-          // placeholder="Pick all that you like"
-          name="major"
-          id="major"
-          onChange={(selectedValue) => setNewrowData({ ...newRowData, major: selectedValue })}
-        />
-        <Flex justify="flex-end">
-          <MRT_EditActionButtons row={row} table={table} variant="text" />{' '}
-        </Flex>
-      </Stack>
-    ),
-    renderEditRowModalContent: ({ internalEditComponents, row, table }) => (
-      <Stack>
-        <Title order={5}>تعديل</Title>
-        <TextInput
-          withAsterisk
-          label="الاسم الأول"
-          name="firstName"
-          id="firstName"
-          defaultValue={row?.original?.firstName}
-          placeholder="الاسم الأول"
-          onChange={(e) => setEditingRowData({ ...editingRowData, firstName: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="الاسم الاخير"
-          name="lastName"
-          defaultValue={row?.original?.lastName}
-          id="lastName"
-          onChange={(e) => setEditingRowData({ ...editingRowData, lastName: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="الايميل"
-          name="email"
-          id="email"
-          defaultValue={row?.original?.email}
-          placeholder=" الايميل"
-          onChange={(e) => setEditingRowData({ ...editingRowData, email: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="الهاتف"
-          name="phone"
-          id="phone"
-          placeholder="الهاتف"
-          defaultValue={row?.original?.phone}
-          onChange={(e) => setEditingRowData({ ...editingRowData, phone: e.target.value })}
-        />
-        {/* <MultiSelect
-          data={majorsForSelect}
-          label="المعلمون"
-          // placeholder="Pick all that you like"
-          defaultValue={row?.original?.major}
-          name="major"
-          id="teachers"
-          onChange={(selectedValue) => setNewrowData({ ...newRowData, teachers: selectedValue })}
-        /> */}
-        <Flex justify="flex-end">
-          <MRT_EditActionButtons row={row} table={table} variant="text" />{' '}
-        </Flex>
-      </Stack>
-    ),
-    mantineCreateRowModalProps: {
-      centered: true,
-      closeButtonProps: {},
-      onClose: () => setNewrowData({}),
+  // Add Form
+  const addForm = useForm({
+    initialValues: {
+      name: '',
+      email: '',
+      studentId: '',
     },
-    mantineEditRowModalProps: {
-      centered: true,
-      onClose: () => setEditingRowData({}),
-    },
-    renderTopToolbarCustomActions: ({ table }) => (
-      <Button
-        onClick={() => {
-          table.setCreatingRow(true)
-        }}
-      >
-        إنشاء طالب جديد
-      </Button>
-    ),
-
-    renderRowActionMenuItems: ({ row }) => (
-      <Box>
-        <ActionIcon
-        // onClick={() => setEditingRowData({ students: row.getAllCells()[2].getValue() })}
-        >
-          <IconEdit />
-        </ActionIcon>
-        <ActionIcon onClick={() => console.info('Delete')}>{/* <DeleteI /> */}</ActionIcon>
-      </Box>
-    ),
-    state: {
-      isLoading: isLoadingStudents,
-      isSaving: isCreatingStudent || isUpdatingStudent,
-      showAlertBanner: isLoadingStudentsError,
-      showProgressBars: isFetchingStudents,
+    validate: {
+      name: (val) => (!val?.trim() ? 'اسم الطالب مطلوب' : null),
+      email: (val) => (!val?.includes('@') ? 'البريد الإلكتروني غير صالح' : null),
     },
   })
 
-  return <MantineReactTable table={table} />
-}
+  // Edit Form
+  const editForm = useForm({
+    initialValues: {
+      name: '',
+      email: '',
+      studentId: '',
+    },
+    validate: {
+      name: (val) => (!val?.trim() ? 'اسم الطالب مطلوب' : null),
+    },
+  })
 
-const getMultiSelectData = (students) =>
-  Object.values(students).map((sub) => ({ value: sub._id, label: sub.name }))
+  const handleAddSubmit = async (values) => {
+    try {
+      await createMutation.mutateAsync(values)
+      addForm.reset()
+      closeAdd()
+    } catch (err) {
+      // Handled in hook notifications
+    }
+  }
 
-const getSelectedValues = (elements, ids) => {
-  const filterdElements = elements.filter((val) => ids.includes(val.value))
-  console.log('filterdElements', filterdElements)
-  return filterdElements
+  const handleEditOpen = (row) => {
+    setEditStudent(row)
+    editForm.setValues({
+      name: row.name || row.userName || '',
+      email: row.email || '',
+      studentId: row.studentId || '',
+    })
+  }
+
+  const handleEditSubmit = async (values) => {
+    if (!editStudent) return
+    try {
+      await updateMutation.mutateAsync({
+        id: editStudent._id || editStudent.id,
+        data: values,
+      })
+      setEditStudent(null)
+    } catch (err) {
+      // Handled in hook notifications
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteId) return
+    try {
+      await deleteMutation.mutateAsync(deleteId)
+      setDeleteId(null)
+    } catch (err) {
+      // Handled in hook notifications
+    }
+  }
+
+  const columns = [
+    {
+      key: 'name',
+      title: 'الطالب',
+      render: (row) => {
+        const studentName = row.name || row.userName || 'طالب'
+        return (
+          <Group spacing="sm">
+            <Avatar color="brand" radius="xl" size="sm">
+              {studentName.charAt(0)}
+            </Avatar>
+            <div>
+              <Text weight={600} size="sm">
+                {studentName}
+              </Text>
+              <Text size="xs" color="dimmed">
+                {row.email}
+              </Text>
+            </div>
+          </Group>
+        )
+      },
+    },
+    {
+      key: 'studentId',
+      title: 'الرقم الأكاديمي',
+      align: 'center',
+      render: (row) => (
+        <Badge color="gray" variant="outline" size="sm">
+          {row.studentId || row._id?.slice(-6) || '—'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'status',
+      title: 'الحالة',
+      align: 'center',
+      render: (row) => (
+        <Badge color="teal" variant="light" size="sm">
+          منتظم
+        </Badge>
+      ),
+    },
+    {
+      key: 'createdAt',
+      title: 'تاريخ التسجيل',
+      align: 'center',
+      render: (row) => (
+        <Text size="xs" color="dimmed">
+          {row.createdAt ? dayjs(row.createdAt).format('YYYY/MM/DD') : '—'}
+        </Text>
+      ),
+    },
+    {
+      key: 'actions',
+      title: 'الإجراءات',
+      align: 'left',
+      render: (row) => (
+        <Group spacing={6} position="left">
+          <ActionIcon
+            color="brand"
+            variant="light"
+            size="sm"
+            onClick={() => handleEditOpen(row)}
+            title="تعديل بيانات الطالب"
+          >
+            <IconPencil size={15} />
+          </ActionIcon>
+          <ActionIcon
+            color="red"
+            variant="light"
+            size="sm"
+            onClick={() => setDeleteId(row._id || row.id)}
+            title="حذف الطالب"
+          >
+            <IconTrash size={15} />
+          </ActionIcon>
+        </Group>
+      ),
+    },
+  ]
+
+  return (
+    <>
+      <PageHeader
+        title="دليل الطلاب"
+        description="إدارة الطلاب المسجلين والبيانات الأكاديمية والنتائج"
+        breadcrumbs={[
+          { title: 'الرئيسية', href: '/' },
+          { title: 'الطلاب' },
+        ]}
+        action={
+          <Button
+            leftIcon={<IconPlus size={16} />}
+            color="brand"
+            onClick={openAdd}
+          >
+            تسجيل طالب جديد
+          </Button>
+        }
+      />
+
+      <DataTable
+        columns={columns}
+        data={studentsRes?.data || []}
+        meta={studentsRes?.meta}
+        isLoading={isLoading}
+        search={search}
+        onSearchChange={(val) => {
+          setSearch(val)
+          setPage(1)
+        }}
+        onPageChange={setPage}
+        onLimitChange={(l) => {
+          setLimit(l)
+          setPage(1)
+        }}
+        emptyTitle="لا يوجد طلاب مسجلين"
+        emptyDescription="ابدأ بتسجيل طلاب جدد في النظام لإدراجهم في المقررات."
+      />
+
+      {/* Add Student Modal */}
+      <Modal
+        opened={addOpened}
+        onClose={closeAdd}
+        title={<Text weight={700}>تسجيل طالب جديد</Text>}
+      >
+        <form onSubmit={addForm.onSubmit(handleAddSubmit)}>
+          <Stack spacing="md">
+            <TextInput
+              label="اسم الطالب الكامل"
+              placeholder="مثال: أحمد محمد علي"
+              required
+              {...addForm.getInputProps('name')}
+            />
+            <TextInput
+              label="البريد الإلكتروني"
+              placeholder="ahmed@example.com"
+              required
+              {...addForm.getInputProps('email')}
+            />
+            <TextInput
+              label="الرقم الأكاديمي"
+              placeholder="20261001"
+              {...addForm.getInputProps('studentId')}
+            />
+            <Group position="right" mt="md">
+              <Button variant="default" onClick={closeAdd}>
+                إلغاء
+              </Button>
+              <Button
+                type="submit"
+                color="brand"
+                loading={createMutation.isPending}
+              >
+                تسجيل
+              </Button>
+            </Group>
+          </Stack>
+        </form>
+      </Modal>
+
+      {/* Edit Student Modal */}
+      <Modal
+        opened={Boolean(editStudent)}
+        onClose={() => setEditStudent(null)}
+        title={<Text weight={700}>تعديل بيانات الطالب</Text>}
+      >
+        <form onSubmit={editForm.onSubmit(handleEditSubmit)}>
+          <Stack spacing="md">
+            <TextInput
+              label="اسم الطالب"
+              required
+              {...editForm.getInputProps('name')}
+            />
+            <TextInput
+              label="البريد الإلكتروني"
+              required
+              {...editForm.getInputProps('email')}
+            />
+            <TextInput
+              label="الرقم الأكاديمي"
+              {...editForm.getInputProps('studentId')}
+            />
+            <Group position="right" mt="md">
+              <Button variant="default" onClick={() => setEditStudent(null)}>
+                إلغاء
+              </Button>
+              <Button
+                type="submit"
+                color="brand"
+                loading={updateMutation.isPending}
+              >
+                حفظ التعديلات
+              </Button>
+            </Group>
+          </Stack>
+        </form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        opened={Boolean(deleteId)}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDeleteConfirm}
+        title="حذف الطالب"
+        message="هل أنت متأكد من حذف هذا الطالب من النظام؟"
+        confirmLabel="حذف الطالب"
+        isLoading={deleteMutation.isPending}
+      />
+    </>
+  )
 }

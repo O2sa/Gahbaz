@@ -1,221 +1,322 @@
-import React, { useEffect, useMemo, useState } from 'react'
-
-import { TabsLinks } from '../../stories/Tabs/Tabs'
-import { BsStack } from 'react-icons/bs'
-
-import { useParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { useDeleteElement, useGetElements, useUpdateElement } from '../crud'
-
-import { TabsBody } from '../../stories/Tabs/TabsBody'
-import { Link, NavLink } from 'react-router-dom'
-import { TbListDetails } from 'react-icons/tb'
+import React, { useState } from 'react'
 import {
-  CTableBody,
-  CTableHead,
-  CTabContent,
-  CTableRow,
-  CTable,
-  CTableDataCell,
-  CTableHeaderCell,
-  CSpinner,
-} from '@coreui/react'
-import { MantineReactTable, useMantineReactTable } from 'mantine-react-table'
-import { ActionIcon, Badge, Box, Button, Flex, Group } from '@mantine/core'
+  Button,
+  Group,
+  ActionIcon,
+  Modal,
+  TextInput,
+  Stack,
+  Text,
+  Badge,
+  Switch,
+} from '@mantine/core'
+import { useForm } from '@mantine/form'
+import { useDisclosure, useDebouncedValue } from '@mantine/hooks'
+import { IconPlus, IconPencil, IconTrash, IconCalendarEvent } from '@tabler/icons-react'
 import {
-  IconArrowAutofitRight,
-  IconArrowBarLeft,
-  IconDetails,
-  IconEdit,
-  IconInfoCircle,
-  IconPhoto,
-  IconTrash,
-} from '@tabler/icons-react'
-import { Tooltip } from 'chart.js'
-import StartSemester from './StartSemester'
-import { SemestersLoader } from '../LoadingComponents'
-import customFetch from '../../utils/customFetch'
-import { MdPinEnd } from 'react-icons/md'
-import { Helmet } from 'react-helmet'
+  DataTable,
+  PageHeader,
+  ConfirmModal,
+} from '../../components/common/index.js'
+import {
+  useSemesters,
+  useCreateSemester,
+  useUpdateSemester,
+  useDeleteSemester,
+} from '../../hooks/useSemesters.js'
+import dayjs from 'dayjs'
 
-export default function Semesters({ queryClient }) {
-  const {
-    data: semesters = [],
-    isError: isLoadingTeachersError,
-    isFetching: isFetchingTeachers,
-    isLoading: isLoadingTeachers,
-  } = useQuery(useGetElements(['semesters']))
-  const { mutateAsync: updateSemester, isLoading: isUpdating } = useUpdateElement(queryClient, [
-    'semesters',
-  ])
+export default function Semesters() {
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const [search, setSearch] = useState('')
+  const [debouncedSearch] = useDebouncedValue(search, 350)
 
+  // Modals state
+  const [addOpened, { open: openAdd, close: closeAdd }] = useDisclosure(false)
+  const [editSemester, setEditSemester] = useState(null)
+  const [deleteId, setDeleteId] = useState(null)
 
+  // API hooks
+  const { data: semestersRes, isLoading } = useSemesters({
+    page,
+    limit,
+    search: debouncedSearch,
+  })
 
-  if (isFetchingTeachers || isLoadingTeachers) {
-    return (
-      <Box p={'md'} bg={'white'}>
+  const createMutation = useCreateSemester()
+  const updateMutation = useUpdateSemester()
+  const deleteMutation = useDeleteSemester()
 
-        <div
-          className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
-        >
-          <h5>{' الفصول الحالية'} </h5>
-          <StartSemester queryClient={queryClient}>
-            <Button>بدأ فصل جديد</Button>
-          </StartSemester>
-        </div>
-        <SemestersLoader />{' '}
-      </Box>
-    )
-  }
-
-  return (
-    <>
-                     <Helmet>
-            <title>{ 'منصة جهبذ |  الفصول الدراسية' }</title>
-      </Helmet>
-      <div
-        className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
-      >
-        <h5>{' الفصول الحالية'} </h5>
-        <StartSemester queryClient={queryClient}>
-          <Button>بدأ فصل جديد</Button>
-        </StartSemester>
-      </div>
-      <SemestersTable queryClient={queryClient} semesters={semesters} />{' '}
-    </>
-  )
-}
-
-const SemestersTable = ({ semesters, queryClient }) => {
-  const { mutateAsync: deleteStudent, isLoading: isDeletingStudent } = useDeleteElement(
-    queryClient,
-    ['semesters'],
-  )
-  
-  const handleEnd = async (id) => {
-    await customFetch.patch(`semesters/${id}/end-semester`)
-    queryClient.invalidateQueries({ queryKey: ['semesters'] })
-  }
-  const openDeleteConfirmModal = (row) => deleteStudent(row.id)
-
-  const columns = useMemo(
-    () => [
-      {
-        id: 'index',
-        enableEditing: false,
-        accessorFn: (row, rowIndex) => rowIndex + 1,
-        header: '#',
-      },
-      {
-        accessorKey: 'name',
-        id: 'name',
-        header: 'الأسم',
-      },
-      {
-        accessorKey: 'students',
-        header: 'الطلاب',
-        Cell: ({ cell }) => {
-          if (!cell.getValue()) return ''
-          return cell.getValue().length
-        },
-      },
-      {
-        accessorKey: 'courses',
-        header: ' الدورات ',
-        Cell: ({ cell }) => {
-          if (!cell.getValue()) return ''
-          return cell.getValue().length
-        },
-      },
-      {
-        accessorKey: 'endDate',
-        header: 'الفترة',
-        Cell: ({ cell, row }) => {
-          if (!cell.getValue()) return ''
-          return (
-            <>
-              <Badge>{new Date(row.original.startDate).toLocaleDateString()}</Badge>
-              <br />
-              إلى
-              <br />
-              <Badge>{new Date(row.original.endDate).toLocaleDateString()}</Badge>
-            </>
-          )
-        },
-      },
-      {
-        accessorKey: 'completed',
-        header: 'الحالة',
-        Cell: ({ cell }) => {
-          // if (!cell.getValue()) return ''
-          return (
-            <Badge color={cell?.getValue() ? 'green' : 'blue'}>
-              {cell?.getValue() ? 'مكتمل' : ' ما زال'}
-            </Badge>
-          )
-        },
-      },
-      {
-        accessorKey: 'details',
-        header: 'الحالة',
-        Cell: ({ cell, row }) => {
-          return (
-            <Group>
-              <Link to={row.original._id}>
-                <Button
-                  variant="light"
-                  leftIcon={<IconInfoCircle size={14} />}
-                  rightIcon={<IconArrowBarLeft size={14} />}
-                >
-                  عرض التفاصيل
-                </Button>
-              </Link>
-              <Button
-                variant="light"
-                onClick={() => handleEnd(row.original._id)}
-                color="red"
-                leftIcon={<MdPinEnd size={14} />}
-              >
-                انهاء الفصل
-              </Button>
-            </Group>
-          )
-        },
-      },
-    ],
-    [],
-  )
-
-  const table = useMantineReactTable({
-    columns: columns,
-    data: semesters,
-    enableColumnOrdering: true,
-    enableFacetedValues: true,
-    enableGrouping: true,
-    enablePinning: true,
-    enableRowActions: true,
-    getRowId: (row) => row._id,
-    paginationDisplayMode: 'pages',
-    positionToolbarAlertBanner: 'bottom',
-
-    mantinePaginationProps: {
-      radius: 'xl',
-      size: 'lg',
+  // Add Form
+  const addForm = useForm({
+    initialValues: {
+      name: '',
+      academicYear: `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
+      isActive: true,
     },
-
-    renderRowActionMenuItems: ({ row }) => (
-      <Flex>
-        <ActionIcon color="red" onClick={() => openDeleteConfirmModal(row)}>
-          <IconTrash />
-        </ActionIcon>
-      </Flex>
-    ),
-    mantineTableContainerProps: {
-      sx: {
-        minHeight: '500px',
-      },
+    validate: {
+      name: (val) => (!val?.trim() ? 'اسم الفصل مطلوب' : null),
     },
   })
 
-  return <MantineReactTable table={table} />
+  // Edit Form
+  const editForm = useForm({
+    initialValues: {
+      name: '',
+      academicYear: '',
+      isActive: false,
+    },
+    validate: {
+      name: (val) => (!val?.trim() ? 'اسم الفصل مطلوب' : null),
+    },
+  })
+
+  const handleAddSubmit = async (values) => {
+    try {
+      await createMutation.mutateAsync(values)
+      addForm.reset()
+      closeAdd()
+    } catch (err) {
+      // Handled in notifications
+    }
+  }
+
+  const handleEditOpen = (row) => {
+    setEditSemester(row)
+    editForm.setValues({
+      name: row.name || '',
+      academicYear: row.academicYear || '',
+      isActive: Boolean(row.isActive),
+    })
+  }
+
+  const handleEditSubmit = async (values) => {
+    if (!editSemester) return
+    try {
+      await updateMutation.mutateAsync({
+        id: editSemester._id || editSemester.id,
+        data: values,
+      })
+      setEditSemester(null)
+    } catch (err) {
+      // Handled in notifications
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteId) return
+    try {
+      await deleteMutation.mutateAsync(deleteId)
+      setDeleteId(null)
+    } catch (err) {
+      // Handled in notifications
+    }
+  }
+
+  const columns = [
+    {
+      key: 'name',
+      title: 'الفصل الدراسي',
+      render: (row) => (
+        <Group spacing="xs">
+          <IconCalendarEvent size={18} color="#7c3aed" />
+          <Text weight={600} size="sm">
+            {row.name}
+          </Text>
+        </Group>
+      ),
+    },
+    {
+      key: 'academicYear',
+      title: 'العام الأكاديمي',
+      align: 'center',
+      render: (row) => (
+        <Badge color="gray" variant="outline" size="sm">
+          {row.academicYear || '—'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'isActive',
+      title: 'الحالة',
+      align: 'center',
+      render: (row) => (
+        <Badge
+          color={row.isActive ? 'teal' : 'gray'}
+          variant={row.isActive ? 'filled' : 'light'}
+          size="sm"
+        >
+          {row.isActive ? 'نشط حالياً' : 'مكتمل / غير نشط'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'createdAt',
+      title: 'تاريخ الإنشاء',
+      align: 'center',
+      render: (row) => (
+        <Text size="xs" color="dimmed">
+          {row.createdAt ? dayjs(row.createdAt).format('YYYY/MM/DD') : '—'}
+        </Text>
+      ),
+    },
+    {
+      key: 'actions',
+      title: 'الإجراءات',
+      align: 'left',
+      render: (row) => (
+        <Group spacing={6} position="left">
+          <ActionIcon
+            color="brand"
+            variant="light"
+            size="sm"
+            onClick={() => handleEditOpen(row)}
+            title="تعديل الفصل"
+          >
+            <IconPencil size={15} />
+          </ActionIcon>
+          <ActionIcon
+            color="red"
+            variant="light"
+            size="sm"
+            onClick={() => setDeleteId(row._id || row.id)}
+            title="حذف الفصل"
+          >
+            <IconTrash size={15} />
+          </ActionIcon>
+        </Group>
+      ),
+    },
+  ]
+
+  return (
+    <>
+      <PageHeader
+        title="الفصول الدراسية"
+        description="إدارة وتتبع الفصول والسنوات الدراسية ومتابعة الفصول النشطة"
+        breadcrumbs={[
+          { title: 'الرئيسية', href: '/' },
+          { title: 'الفصول الدراسية' },
+        ]}
+        action={
+          <Button
+            leftIcon={<IconPlus size={16} />}
+            color="brand"
+            onClick={openAdd}
+          >
+            بدء فصل دراسي جديد
+          </Button>
+        }
+      />
+
+      <DataTable
+        columns={columns}
+        data={semestersRes?.data || []}
+        meta={semestersRes?.meta}
+        isLoading={isLoading}
+        search={search}
+        onSearchChange={(val) => {
+          setSearch(val)
+          setPage(1)
+        }}
+        onPageChange={setPage}
+        onLimitChange={(l) => {
+          setLimit(l)
+          setPage(1)
+        }}
+        emptyTitle="لا توجد فصول دراسية"
+        emptyDescription="ابدأ بإنشاء فصل دراسي جديد لتفعيل المواد والجداول."
+      />
+
+      {/* Add Semester Modal */}
+      <Modal
+        opened={addOpened}
+        onClose={closeAdd}
+        title={<Text weight={700}>إنشاء فصل دراسي جديد</Text>}
+      >
+        <form onSubmit={addForm.onSubmit(handleAddSubmit)}>
+          <Stack spacing="md">
+            <TextInput
+              label="اسم الفصل الدراسي"
+              placeholder="مثال: الفصل الدراسي الأول"
+              required
+              {...addForm.getInputProps('name')}
+            />
+            <TextInput
+              label="العام الأكاديمي"
+              placeholder="2026-2027"
+              required
+              {...addForm.getInputProps('academicYear')}
+            />
+            <Switch
+              label="تعيين كفصل دراسي نشط حالياً"
+              {...addForm.getInputProps('isActive', { type: 'checkbox' })}
+            />
+            <Group position="right" mt="md">
+              <Button variant="default" onClick={closeAdd}>
+                إلغاء
+              </Button>
+              <Button
+                type="submit"
+                color="brand"
+                loading={createMutation.isPending}
+              >
+                إنشاء
+              </Button>
+            </Group>
+          </Stack>
+        </form>
+      </Modal>
+
+      {/* Edit Semester Modal */}
+      <Modal
+        opened={Boolean(editSemester)}
+        onClose={() => setEditSemester(null)}
+        title={<Text weight={700}>تعديل الفصل الدراسي</Text>}
+      >
+        <form onSubmit={editForm.onSubmit(handleEditSubmit)}>
+          <Stack spacing="md">
+            <TextInput
+              label="اسم الفصل الدراسي"
+              required
+              {...editForm.getInputProps('name')}
+            />
+            <TextInput
+              label="العام الأكاديمي"
+              required
+              {...editForm.getInputProps('academicYear')}
+            />
+            <Switch
+              label="الفصل نشط حالياً"
+              {...editForm.getInputProps('isActive', { type: 'checkbox' })}
+            />
+            <Group position="right" mt="md">
+              <Button variant="default" onClick={() => setEditSemester(null)}>
+                إلغاء
+              </Button>
+              <Button
+                type="submit"
+                color="brand"
+                loading={updateMutation.isPending}
+              >
+                حفظ التعديلات
+              </Button>
+            </Group>
+          </Stack>
+        </form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        opened={Boolean(deleteId)}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDeleteConfirm}
+        title="حذف الفصل الدراسي"
+        message="هل أنت متأكد من حذف هذا الفصل الدراسي؟"
+        confirmLabel="حذف الفصل"
+        isLoading={deleteMutation.isPending}
+      />
+    </>
+  )
 }
