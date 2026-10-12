@@ -12,7 +12,7 @@ export const RootLayout = () => {
   const [breadcrumbs, setBreadcrumbs] = useState([])
 
   useEffect(() => {
-    initGA('G-P7SYZGRE0X')
+    initGA(import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-P7SYZGRE0X')
   }, [])
 
   useEffect(() => {
