@@ -1,26 +1,27 @@
-export const mantineTheme = {
+export const getMantineTheme = (colorScheme = 'light') => ({
+  colorScheme,
   dir: 'rtl',
   fontFamily: 'Cairo, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   headings: {
     fontFamily: 'Cairo, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    fontWeight: 600,
+    fontWeight: 700,
   },
   colors: {
     brand: [
-      '#f4f0fd',
-      '#e4d9fa',
-      '#cbb6f5',
-      '#b08eef',
-      '#9664e8',
-      '#7c3aed',
-      '#6d28d9',
-      '#5b21b6',
-      '#4c1d95',
-      '#1e1338',
+      '#eff6ff',
+      '#dbeafe',
+      '#bfdbfe',
+      '#93c5fd',
+      '#60a5fa',
+      '#3b82f6',
+      '#2563eb',
+      '#1d4ed8',
+      '#1e40af',
+      '#1e3a8a',
     ],
   },
   primaryColor: 'brand',
-  primaryShade: 5,
+  primaryShade: { light: 8, dark: 5 },
   defaultRadius: 'md',
   components: {
     Button: {
@@ -59,6 +60,7 @@ export const mantineTheme = {
       },
     },
   },
-}
+})
 
+export const mantineTheme = getMantineTheme('light')
 export default mantineTheme
