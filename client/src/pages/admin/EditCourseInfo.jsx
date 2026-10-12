@@ -98,7 +98,7 @@ export const EditCourseInfo = ({ queryClient }) => {
   }
 
   return (
-    <Paper p="xl" radius="md" withBorder bg="white" m="md">
+    <Paper p="xl" radius="md" withBorder m="md">
       <Title order={3} mb="lg">
         تعديل بيانات الدورة
       </Title>

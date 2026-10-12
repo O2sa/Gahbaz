@@ -5,7 +5,7 @@ import { IconBook, IconPencil } from '@tabler/icons-react'
 
 export const SemesterDetails = ({ courses = [] }) => {
   return (
-    <Paper p="lg" radius="md" withBorder bg="white">
+    <Paper p="lg" radius="md" withBorder>
       <Group position="apart" mb="md">
         <Group>
           <ThemeIcon size="lg" radius="md" color="brand">
@@ -30,7 +30,7 @@ export const SemesterDetails = ({ courses = [] }) => {
               sx={(theme) => ({
                 transition: 'background-color 150ms ease',
                 '&:hover': {
-                  backgroundColor: theme.colors.gray[0],
+                  backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[0],
                 },
               })}
             >

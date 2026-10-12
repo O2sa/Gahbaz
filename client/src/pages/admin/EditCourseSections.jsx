@@ -45,7 +45,7 @@ export const EditCourseSections = ({ queryClient }) => {
 
   return (
     <Box p="md">
-      <Paper p="xl" radius="md" withBorder bg="white">
+      <Paper p="xl" radius="md" withBorder>
         <Group position="apart" mb="lg">
           <Title order={3}>أقسام ودروس الدورة</Title>
           <AddSection queryClient={queryClient}>
