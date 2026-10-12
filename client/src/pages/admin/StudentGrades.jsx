@@ -15,6 +15,7 @@ import {
   Group,
   Indicator,
   Avatar,
+  useMantineTheme,
 } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
 import { useGetElements, useUpdateElement } from '../crud'
@@ -182,17 +183,46 @@ const GradesTable = ({ grades, queryClient }) => {
   }
   console.log('tableData', tableData)
 
+  const theme = useMantineTheme()
+  const isDark = theme.colorScheme === 'dark'
+
   return (
-    // <MantineProvider dir="rtl">
     <MantineReactTable
       columns={columns}
       data={tableData}
-      editDisplayMode="row" //default
+      editDisplayMode="row"
       enableEditing
       getRowId={(row) => row.id}
       onEditingRowSave={handleSaveRow}
+      mantinePaperProps={{
+        sx: {
+          backgroundColor: isDark
+            ? 'rgba(26, 27, 30, 0.75)'
+            : 'rgba(255, 255, 255, 0.95)',
+          borderColor: isDark ? theme.colors.dark[4] : theme.colors.gray[2],
+          boxShadow: isDark
+            ? '0 4px 20px rgba(0, 0, 0, 0.25)'
+            : '0 4px 20px rgba(30, 64, 175, 0.04)',
+        },
+      }}
+      mantineTableProps={{
+        sx: {
+          backgroundColor: 'transparent',
+        },
+      }}
+      mantineTableHeadCellProps={{
+        sx: {
+          backgroundColor: isDark ? theme.colors.dark[6] : theme.colors.gray[0],
+          color: isDark ? theme.colors.dark[0] : theme.colors.gray[8],
+          fontWeight: 700,
+        },
+      }}
+      mantineTableBodyCellProps={{
+        sx: {
+          color: isDark ? theme.colors.dark[0] : theme.colors.gray[8],
+        },
+      }}
     />
-    // {/* </MantineProvider> */}
   )
 }
 

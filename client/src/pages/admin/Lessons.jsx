@@ -15,7 +15,7 @@ import { IoMdTime } from 'react-icons/io'
 import { Link, Outlet, useLoaderData, useParams } from 'react-router-dom'
 import { useGetElements } from '../crud'
 import { useQuery } from '@tanstack/react-query'
-import { Box, Button, Drawer, Grid, Group, Text, Loader, Center } from '@mantine/core'
+import { Box, Button, Drawer, Grid, Group, Text, Loader, Center, ActionIcon } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { Helmet } from 'react-helmet'
 
@@ -71,15 +71,17 @@ export default function Lessons({ ...props }) {
       </Helmet>
       <div>
         <div className="mb-4 d-flex justify-content-between align-items-center">
-          <div className="d-flex">
-            <Link to={`/courses/${courseId}`}>
-              <div
-                className="bg-white rounded-circle me-3 d-flex justify-content-center align-items-center"
-                style={{ height: '50px', width: '50px' }}
-              >
-                <FaArrowRight size={'16'} />
-              </div>
-            </Link>
+          <Group align="center">
+            <ActionIcon
+              component={Link}
+              to={`/courses/${courseId}`}
+              size={48}
+              radius="xl"
+              variant="default"
+              mr="md"
+            >
+              <FaArrowRight size={16} />
+            </ActionIcon>
             <div>
               <h4> {course.name}</h4>
               <div>
@@ -93,7 +95,7 @@ export default function Lessons({ ...props }) {
                 </div>
               </div>
             </div>
-          </div>
+          </Group>
 
           <Group position='right' >
             <div className="d-block d-xl-none">

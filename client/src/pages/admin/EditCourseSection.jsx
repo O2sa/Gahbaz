@@ -82,7 +82,7 @@ export default function EditCourseSection({
       {section.lessons?.length > 0 ? (
         <Stack spacing="xs" pl="md">
           {section.lessons.map((lesson, index) => (
-            <Paper key={lesson._id || index} p="sm" radius="sm" withBorder bg="white">
+            <Paper key={lesson._id || index} p="sm" radius="sm" withBorder>
               <Group position="apart">
                 <Group>
                   <ThemeIcon size="md" radius="sm" color="gray" variant="light">
