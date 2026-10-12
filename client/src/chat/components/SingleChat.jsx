@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react'
 // import { ToastContainer, toast } from "react-toastify";
 
 import axios from 'axios'
-import { v4 as uuidv4 } from 'uuid'
 
 import { ChatState } from '../context/ChatProvider'
 import { recieveMessageRoute, sendMessageRoute } from '../utils/APIRoutes'
