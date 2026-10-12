@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
-  createCollageService,
-  getCollagesService,
+  createCollegeService,
+  getCollegesService,
   getSubjectByIdService,
   createStudentService,
 } from "../../src/modules/academics/academics.service.js";
-import Collage from "../../models/Collage.js";
-import Subject from "../../models/Subject.js";
-import Student from "../../models/Student.js";
+import College from "../../src/models/College.js";
+import Subject from "../../src/models/Subject.js";
+import Student from "../../src/models/Student.js";
 import * as mailer from "../../src/config/mailer.js";
 
 describe("Academics Domain CRUD", () => {
@@ -15,17 +15,17 @@ describe("Academics Domain CRUD", () => {
     vi.restoreAllMocks();
   });
 
-  it("should create collage scoped to university", async () => {
-    const mockCollage = {
+  it("should create college scoped to university", async () => {
+    const mockCollege = {
       _id: "col123",
       name: "Engineering",
       numberOfSemesters: 8,
       university: "univ123",
     };
 
-    vi.spyOn(Collage, "create").mockResolvedValue(mockCollage);
+    vi.spyOn(College, "create").mockResolvedValue(mockCollege);
 
-    const result = await createCollageService(
+    const result = await createCollegeService(
       { name: "Engineering", numberOfSemesters: 8 },
       "univ123"
     );
