@@ -1,322 +1,330 @@
-import { useMemo, useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import {
-  MRT_GlobalFilterTextInput,
-  MRT_ToggleFiltersButton,
-  MantineReactTable,
-  useMantineReactTable,
-  MRT_EditActionButtons,
-} from 'mantine-react-table'
-import { Link, useLoaderData, useParams } from 'react-router-dom'
-
-// import useTable
-import {
-  ActionIcon,
   Button,
-  Flex,
-  Text,
-  Tooltip,
-  Title,
-  Box,
-  Menu,
-  Badge,
-  MantineProvider,
-  Anchor,
-  Stack,
-  TextInput,
-  MultiSelect,
   Group,
-  Indicator,
+  ActionIcon,
+  Modal,
+  TextInput,
+  Stack,
+  Text,
+  Badge,
   Avatar,
 } from '@mantine/core'
-import { IconUserCircle, IconSend } from '@tabler/icons-react'
+import { useForm } from '@mantine/form'
+import { useDisclosure, useDebouncedValue } from '@mantine/hooks'
+import { IconPlus, IconPencil, IconTrash, IconUserCheck } from '@tabler/icons-react'
 import {
-  QueryClient,
-  QueryClientProvider,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+  DataTable,
+  PageHeader,
+  ConfirmModal,
+} from '../../components/common/index.js'
+import {
+  useTeachers,
+  useCreateTeacher,
+  useUpdateTeacher,
+  useDeleteTeacher,
+} from '../../hooks/useTeachers.js'
+import dayjs from 'dayjs'
 
-import { IconEdit, IconTrash } from '@tabler/icons-react'
-import { useCreateElement, useDeleteElement, useGetElements, useUpdateElement } from '../crud'
-import { modals } from '@mantine/modals'
-import { isUserActive } from '../../utils/UsersUtils'
+export default function Teachers() {
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const [search, setSearch] = useState('')
+  const [debouncedSearch] = useDebouncedValue(search, 350)
 
-export default function Teachers({ queryClient }) {
-  //call CREATE hook
-  const { id: collageId } = useParams()
-  const { mutateAsync: createTeacher, isLoading: isCreatingTeacher } = useCreateElement(
-    queryClient,
-    ['teachers'],
-  )
+  // Modals state
+  const [addOpened, { open: openAdd, close: closeAdd }] = useDisclosure(false)
+  const [editTeacher, setEditTeacher] = useState(null)
+  const [deleteId, setDeleteId] = useState(null)
 
-  const {
-    data: teachers = [],
-    isError: isLoadingTeachersError,
-    isFetching: isFetchingTeachers,
-    isLoading: isLoadingTeachers,
-  } = useQuery(useGetElements(['teachers']))
+  // API hooks
+  const { data: teachersRes, isLoading } = useTeachers({
+    page,
+    limit,
+    search: debouncedSearch,
+  })
 
-  // console.log(teachers)
-  const { mutateAsync: updateTeacher, isLoading: isUpdatingTeacher } = useUpdateElement(
-    queryClient,
-    ['teachers'],
-  )
-  const { mutateAsync: deleteTeacher, isLoading: isDeletingTeacher } = useDeleteElement(
-    queryClient,
-    ['teachers'],
-  )
+  const createMutation = useCreateTeacher()
+  const updateMutation = useUpdateTeacher()
+  const deleteMutation = useDeleteTeacher()
 
-  // const teachersForSelect = getMultiSelectData(teachers)
-  const [editingRowData, setEditingRowData] = useState({}) // State for new row data
-
-  const handleCreateTeacher = async ({ values, row, table, exitCreatingMode }) => {
-    // console.log(newRowData)
-    await createTeacher({ ...newRowData, collage: collageId })
-    modals.closeAll()
-    table.setCreatingRow(false)
-  }
-
-  const [newRowData, setNewrowData] = useState({}) // State for new row data
-
-  //UPDATE action
-  const handleSaveTeacher = async ({ values, row, table }) => {
-    await updateTeacher({ ...values, ...editingRowData, _id: row.id })
-    table.setEditingRow(null) //exit editing mode
-  }
-
-  //DELETE action
-  const openDeleteConfirmModal = (row) => deleteTeacher(row.id)
-
-  const columns = useMemo(
-    () => [
-      {
-        id: 'index',
-        enableEditing: false,
-        accessorFn: (row, rowIndex) => rowIndex + 1,
-        header: '#',
-      },
-      {
-        accessorKey: 'name',
-        id: 'name',
-        header: 'الأسم',
-        enableEditing: false,
-
-        Cell: ({ cell, row }) => {
-          const item = row.original
-          return (
-            <Link to={'/users/' + item._id}>
-              <Group gap="sm" noWrap>
-                <Indicator disabled={!isUserActive(row.original.lastActivity)}>
-                  <Avatar  size={40} src={item.avatar} radius={40} />
-                </Indicator>
-                <div>
-                  <Text fz="sm" fw={500}>
-                    {`${item.firstName} ${item.lastName}`}
-                  </Text>
-                  <Text fz="xs" c="dimmed">
-                    {item.email}
-                  </Text>
-                </div>
-              </Group>
-            </Link>
-          )
-        },
-      },
-
-      {
-        accessorKey: 'email',
-        id: 'email',
-        header: 'الإيميل',
-        enableEditing: false ,
-
-      },
-
-      {
-        accessorKey: 'phone',
-        id: 'phone',
-        enableEditing: false ,
-
-        header: 'رقم الهاتف',
-      },
-    ],
-    [],
-  )
-
-  const table = useMantineReactTable({
-    columns: columns,
-    data: teachers,
-    // enableColumnFilterModes: true,
-    enableColumnOrdering: true,
-    enableFacetedValues: true,
-    enableGrouping: true,
-    enablePinning: true,
-    enableEditing: true,
-    createDisplayMode: 'modal',
-    editDisplayMode: 'modal',
-    enableRowActions: true,
-    getRowId: (row) => row._id,
-    paginationDisplayMode: 'pages',
-    positionToolbarAlertBanner: 'bottom',
-    mantinePaginationProps: {
-      radius: 'xl',
-      size: 'lg',
+  // Add Form
+  const addForm = useForm({
+    initialValues: {
+      name: '',
+      email: '',
+      department: '',
     },
-    mantineToolbarAlertBannerProps: isLoadingTeachersError
-      ? {
-          color: 'red',
-          children: 'خطأ في تحميل البيانات',
-        }
-      : undefined,
-    mantineTableContainerProps: {
-      sx: {
-        minHeight: '500px',
-      },
-    },
-
-    onCreatingRowSave: handleCreateTeacher,
-    onEditingRowSave: handleSaveTeacher,
-    renderRowActions: ({ row, table }) => (
-      <Flex gap="md">
-        <Tooltip label="تعديل">
-          <ActionIcon onClick={() => table.setEditingRow(row)}>
-            <IconEdit />
-          </ActionIcon>
-        </Tooltip>
-        <Tooltip label="حذف">
-          <ActionIcon color="red" onClick={() => openDeleteConfirmModal(row)}>
-            <IconTrash />
-          </ActionIcon>
-        </Tooltip>
-      </Flex>
-    ),
-    renderCreateRowModalContent: ({ internalEditComponents, row, table }) => (
-      <Stack>
-        <Title order={5}>My Custom Edit Modal</Title>
-        <TextInput
-          withAsterisk
-          label="الاسم الأول"
-          name="firstName"
-          id="firstName"
-          placeholder="الاسم الأول"
-          onChange={(e) => setNewrowData({ ...newRowData, firstName: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="الاسم الاخير"
-          name="lastName"
-          id="lastName"
-          onChange={(e) => setNewrowData({ ...newRowData, lastName: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="الايميل"
-          name="email"
-          id="email"
-          placeholder=" الايميل"
-          onChange={(e) => setNewrowData({ ...newRowData, email: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="الهاتف"
-          name="phone"
-          id="phone"
-          placeholder="الهاتف"
-          onChange={(e) => setNewrowData({ ...newRowData, phone: e.target.value })}
-        />
-        <Flex justify="flex-end">
-          <MRT_EditActionButtons row={row} table={table} variant="text" />{' '}
-        </Flex>
-      </Stack>
-    ),
-    renderEditRowModalContent: ({ internalEditComponents, row, table }) => (
-      <Stack>
-        <Title order={5}>My Custom Edit Modal</Title>
-        <TextInput
-          withAsterisk
-          label="الاسم الأول"
-          name="firstName"
-          id="firstName"
-          defaultValue={row?.original?.firstName}
-          placeholder="الاسم الأول"
-          onChange={(e) => setEditingRowData({ ...editingRowData, firstName: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="الاسم الاخير"
-          name="lastName"
-          defaultValue={row?.original?.lastName}
-          id="lastName"
-          onChange={(e) => setEditingRowData({ ...editingRowData, lastName: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="الايميل"
-          name="email"
-          id="email"
-          defaultValue={row?.original?.email}
-          placeholder=" الايميل"
-          onChange={(e) => setEditingRowData({ ...editingRowData, email: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="الهاتف"
-          name="phone"
-          id="phone"
-          placeholder="الهاتف"
-          defaultValue={row?.original?.phone}
-          onChange={(e) => setEditingRowData({ ...editingRowData, phone: e.target.value })}
-        />
-        <Flex justify="flex-end">
-          <MRT_EditActionButtons row={row} table={table} variant="text" />{' '}
-        </Flex>
-      </Stack>
-    ),
-    mantineCreateRowModalProps: {
-      centered: true,
-      closeButtonProps: {},
-      onClose: () => setNewrowData({}),
-    },
-    mantineEditRowModalProps: {
-      centered: true,
-      onClose: () => setEditingRowData({}),
-    },
-    renderTopToolbarCustomActions: ({ table }) => (
-      <Button
-        onClick={() => {
-          table.setCreatingRow(true)
-        }}
-      >
-        إنشاء مستخدم جديد
-      </Button>
-    ),
-
-    renderRowActionMenuItems: ({ row }) => (
-      <Box>
-        <ActionIcon
-        // onClick={() => setEditingRowData({ teachers: row.getAllCells()[2].getValue() })}
-        >
-          <IconEdit />
-        </ActionIcon>
-        <ActionIcon onClick={() => console.info('Delete')}>{/* <DeleteI /> */}</ActionIcon>
-      </Box>
-    ),
-    state: {
-      isLoading: isLoadingTeachers,
-      isSaving: isCreatingTeacher || isUpdatingTeacher || isDeletingTeacher,
-      showAlertBanner: isLoadingTeachersError,
-      showProgressBars: isFetchingTeachers,
+    validate: {
+      name: (val) => (!val?.trim() ? 'اسم الأستاذ مطلوب' : null),
+      email: (val) => (!val?.includes('@') ? 'البريد الإلكتروني غير صالح' : null),
     },
   })
 
-  return <MantineReactTable table={table} />
-}
+  // Edit Form
+  const editForm = useForm({
+    initialValues: {
+      name: '',
+      email: '',
+      department: '',
+    },
+    validate: {
+      name: (val) => (!val?.trim() ? 'اسم الأستاذ مطلوب' : null),
+    },
+  })
 
-const getMultiSelectData = (teachers) =>
-  Object.values(teachers).map((sub) => ({ value: sub._id, label: sub.name }))
+  const handleAddSubmit = async (values) => {
+    try {
+      await createMutation.mutateAsync(values)
+      addForm.reset()
+      closeAdd()
+    } catch (err) {
+      // Handled in hook notifications
+    }
+  }
 
-const getSelectedValues = (elements, ids) => {
-  const filterdElements = elements.filter((val) => ids.includes(val.value))
-  console.log('filterdElements', filterdElements)
-  return filterdElements
+  const handleEditOpen = (row) => {
+    setEditTeacher(row)
+    editForm.setValues({
+      name: row.name || row.userName || '',
+      email: row.email || '',
+      department: row.department || '',
+    })
+  }
+
+  const handleEditSubmit = async (values) => {
+    if (!editTeacher) return
+    try {
+      await updateMutation.mutateAsync({
+        id: editTeacher._id || editTeacher.id,
+        data: values,
+      })
+      setEditTeacher(null)
+    } catch (err) {
+      // Handled in hook notifications
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteId) return
+    try {
+      await deleteMutation.mutateAsync(deleteId)
+      setDeleteId(null)
+    } catch (err) {
+      // Handled in hook notifications
+    }
+  }
+
+  const columns = [
+    {
+      key: 'name',
+      title: 'عضو هيئة التدريس',
+      render: (row) => {
+        const teacherName = row.name || row.userName || 'أستاذ'
+        return (
+          <Group spacing="sm">
+            <Avatar color="blue" radius="xl" size="sm">
+              {teacherName.charAt(0)}
+            </Avatar>
+            <div>
+              <Text weight={600} size="sm">
+                {teacherName}
+              </Text>
+              <Text size="xs" color="dimmed">
+                {row.email}
+              </Text>
+            </div>
+          </Group>
+        )
+      },
+    },
+    {
+      key: 'department',
+      title: 'القسم الأكاديمي',
+      align: 'center',
+      render: (row) => (
+        <Badge color="violet" variant="light" size="sm">
+          {row.department || 'عام'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'status',
+      title: 'الحالة',
+      align: 'center',
+      render: () => (
+        <Badge color="teal" variant="light" size="sm">
+          نشط
+        </Badge>
+      ),
+    },
+    {
+      key: 'createdAt',
+      title: 'تاريخ الإضافة',
+      align: 'center',
+      render: (row) => (
+        <Text size="xs" color="dimmed">
+          {row.createdAt ? dayjs(row.createdAt).format('YYYY/MM/DD') : '—'}
+        </Text>
+      ),
+    },
+    {
+      key: 'actions',
+      title: 'الإجراءات',
+      align: 'left',
+      render: (row) => (
+        <Group spacing={6} position="left">
+          <ActionIcon
+            color="brand"
+            variant="light"
+            size="sm"
+            onClick={() => handleEditOpen(row)}
+            title="تعديل بيانات الأستاذ"
+          >
+            <IconPencil size={15} />
+          </ActionIcon>
+          <ActionIcon
+            color="red"
+            variant="light"
+            size="sm"
+            onClick={() => setDeleteId(row._id || row.id)}
+            title="حذف الأستاذ"
+          >
+            <IconTrash size={15} />
+          </ActionIcon>
+        </Group>
+      ),
+    },
+  ]
+
+  return (
+    <>
+      <PageHeader
+        title="هيئة التدريس"
+        description="إدارة الأساتذة والمحاضرين وتوزيع المقررات والأقسام الأكاديمية"
+        breadcrumbs={[
+          { title: 'الرئيسية', href: '/' },
+          { title: 'الأساتذة' },
+        ]}
+        action={
+          <Button
+            leftIcon={<IconPlus size={16} />}
+            color="brand"
+            onClick={openAdd}
+          >
+            إضافة أستاذ جديد
+          </Button>
+        }
+      />
+
+      <DataTable
+        columns={columns}
+        data={teachersRes?.data || []}
+        meta={teachersRes?.meta}
+        isLoading={isLoading}
+        search={search}
+        onSearchChange={(val) => {
+          setSearch(val)
+          setPage(1)
+        }}
+        onPageChange={setPage}
+        onLimitChange={(l) => {
+          setLimit(l)
+          setPage(1)
+        }}
+        emptyTitle="لا يوجد أساتذة مسجلين"
+        emptyDescription="ابدأ بإضافة أعضاء هيئة التدريس لتعيين المقررات لهم."
+      />
+
+      {/* Add Teacher Modal */}
+      <Modal
+        opened={addOpened}
+        onClose={closeAdd}
+        title={<Text weight={700}>إضافة أستاذ جديد</Text>}
+      >
+        <form onSubmit={addForm.onSubmit(handleAddSubmit)}>
+          <Stack spacing="md">
+            <TextInput
+              label="الاسم الكامل"
+              placeholder="مثال: د. خالد عبدالرحمن"
+              required
+              {...addForm.getInputProps('name')}
+            />
+            <TextInput
+              label="البريد الإلكتروني"
+              placeholder="khaled@example.com"
+              required
+              {...addForm.getInputProps('email')}
+            />
+            <TextInput
+              label="القسم / التخصص"
+              placeholder="علوم الحاسوب"
+              {...addForm.getInputProps('department')}
+            />
+            <Group position="right" mt="md">
+              <Button variant="default" onClick={closeAdd}>
+                إلغاء
+              </Button>
+              <Button
+                type="submit"
+                color="brand"
+                loading={createMutation.isPending}
+              >
+                إضافة
+              </Button>
+            </Group>
+          </Stack>
+        </form>
+      </Modal>
+
+      {/* Edit Teacher Modal */}
+      <Modal
+        opened={Boolean(editTeacher)}
+        onClose={() => setEditTeacher(null)}
+        title={<Text weight={700}>تعديل بيانات الأستاذ</Text>}
+      >
+        <form onSubmit={editForm.onSubmit(handleEditSubmit)}>
+          <Stack spacing="md">
+            <TextInput
+              label="الاسم الكامل"
+              required
+              {...editForm.getInputProps('name')}
+            />
+            <TextInput
+              label="البريد الإلكتروني"
+              required
+              {...editForm.getInputProps('email')}
+            />
+            <TextInput
+              label="القسم / التخصص"
+              {...editForm.getInputProps('department')}
+            />
+            <Group position="right" mt="md">
+              <Button variant="default" onClick={() => setEditTeacher(null)}>
+                إلغاء
+              </Button>
+              <Button
+                type="submit"
+                color="brand"
+                loading={updateMutation.isPending}
+              >
+                حفظ التعديلات
+              </Button>
+            </Group>
+          </Stack>
+        </form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        opened={Boolean(deleteId)}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDeleteConfirm}
+        title="حذف الأستاذ"
+        message="هل أنت متأكد من حذف هذا الأستاذ من النظام؟"
+        confirmLabel="حذف"
+        isLoading={deleteMutation.isPending}
+      />
+    </>
+  )
 }
