@@ -6,7 +6,13 @@ import { paginateQuery, parsePagination } from "../../core/utils/pagination.util
 
 export const getGradeByIdService = async (id) => {
   const grade = await Grade.findById(id);
-  if (!grade) throw new NotFoundError("Grade not found");
+  if (!grade) {
+    const courseGrades = await Grade.find({ course: id }).populate("student");
+    if (courseGrades && courseGrades.length > 0) {
+      return courseGrades;
+    }
+    throw new NotFoundError("Grade not found");
+  }
   return grade;
 };
 

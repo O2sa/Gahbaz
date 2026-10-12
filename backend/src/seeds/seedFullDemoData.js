@@ -588,14 +588,14 @@ export const seedFullDemoData = async () => {
     isGroupChat: true,
     groupAdmin: teacherDemo._id,
     university: university._id,
-    users: [teacherDemo._id, studentDemo._id, createdStudents[1]._id, createdStudents[2]._id],
+    users: [mainAdmin._id, teacherDemo._id, studentDemo._id, createdStudents[1]._id, createdStudents[2]._id],
   });
 
   const msg1 = await Message.create({
     content: "السلام عليكم ورحمة الله وبركاته، مرحباً بكم جميعاً في مقرر هندسة البرمجيات المتقدمة. تم رفع توصيف المقرر والوحدات الأولى على المنصة.",
     sender: teacherDemo._id,
     chat: seChat._id,
-    readBy: [studentDemo._id],
+    readBy: [studentDemo._id, mainAdmin._id],
     createdAt: new Date(Date.now() - 48 * 3600 * 1000),
   });
 
@@ -603,7 +603,7 @@ export const seedFullDemoData = async () => {
     content: "وعليكم السلام دكتور فهد، أهلاً بك. هل تم تحديد موعد تسليم المشروع الفصلي للوحدة الأولى؟",
     sender: studentDemo._id,
     chat: seChat._id,
-    readBy: [teacherDemo._id],
+    readBy: [teacherDemo._id, mainAdmin._id],
     createdAt: new Date(Date.now() - 24 * 3600 * 1000),
   });
 
@@ -611,12 +611,39 @@ export const seedFullDemoData = async () => {
     content: "نعم عبدالله، موعد التسليم بعد أسبوعين من الآن، وسيتم تخصيص جزء من المحاضرة القادمة للإجابة على أي استفسارات تخص المعمارية.",
     sender: teacherDemo._id,
     chat: seChat._id,
-    readBy: [studentDemo._id],
+    readBy: [studentDemo._id, mainAdmin._id],
     createdAt: new Date(Date.now() - 2 * 3600 * 1000),
   });
 
   seChat.latestMessage = msg3._id;
   await seChat.save();
+
+  // Admin Direct Chat with Teacher
+  const adminDirectChat = await Chat.create({
+    chatName: "تنسيق متطلبات الاعتماد الأكاديمي لمقررات الخريف",
+    isGroupChat: false,
+    university: university._id,
+    users: [mainAdmin._id, teacherDemo._id],
+  });
+
+  const adminMsg1 = await Message.create({
+    content: "د. فهد، نرجو مراجعة مخرجات تعلم مقرر SE310 واعتمادها في لوحة التحكم.",
+    sender: mainAdmin._id,
+    chat: adminDirectChat._id,
+    readBy: [teacherDemo._id],
+    createdAt: new Date(Date.now() - 12 * 3600 * 1000),
+  });
+
+  const adminMsg2 = await Message.create({
+    content: "تمت المراجعة والتأكد من مطابقة جميع معايير ABET، وسأقوم برفع تقرير التقييم اليوم.",
+    sender: teacherDemo._id,
+    chat: adminDirectChat._id,
+    readBy: [mainAdmin._id],
+    createdAt: new Date(Date.now() - 1 * 3600 * 1000),
+  });
+
+  adminDirectChat.latestMessage = adminMsg2._id;
+  await adminDirectChat.save();
 
   // 15. Real-Time Performance Metrics
   console.log("📈 [Seed] Generating Real-Time Server Performance Metrics...");
