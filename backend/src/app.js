@@ -20,6 +20,7 @@ import teachersRouter from "./modules/teachers/teachers.routes.js";
 import adminsRouter from "./modules/admins/admins.routes.js";
 import chatRouter, { messagesRouter } from "./modules/chat/chat.routes.js";
 import systemRouter from "./modules/system/system.routes.js";
+import swaggerRouter, { openApiSpec } from "./docs/swagger.js";
 
 import { authenticateUser } from "./core/middleware/auth.middleware.js";
 import { enforceDemoReadOnly } from "./core/middleware/rbac.middleware.js";
@@ -37,6 +38,13 @@ app.use(mongoSanitize());
 
 // Static file serving for images
 app.use("/images", express.static(path.resolve(__dirname, "../../images")));
+
+// OpenAPI / Swagger Documentation
+app.get("/api/docs.json", (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.json(openApiSpec);
+});
+app.use("/api/docs", swaggerRouter);
 
 // Health test route
 app.get("/api/v1/test", (req, res) => {
