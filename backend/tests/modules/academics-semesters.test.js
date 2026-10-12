@@ -4,7 +4,7 @@ import {
   updateLessonService,
   deleteLessonService,
 } from "../../src/modules/academics/academics.service.js";
-import Section from "../../models/Section.js";
+import Section from "../../src/models/Section.js";
 
 describe("Semesters & Sections Service", () => {
   beforeEach(() => {

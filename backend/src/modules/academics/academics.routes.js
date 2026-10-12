@@ -6,27 +6,31 @@ import * as val from "./academics.validator.js";
 
 const router = Router();
 
-// ======================== COLLAGES ========================
+// ======================== COLLEGES ========================
 router
-  .route("/collages")
-  .get(ctrl.getCollages)
+  .route("/colleges")
+  .get(ctrl.getColleges)
   .post(
     requireRoles("admin", "super-admin"),
     enforceDemoReadOnly,
     validateRequest({ body: val.createCollageSchema }),
-    ctrl.createCollage
+    ctrl.createCollege
   );
 
 router
-  .route("/collages/:id")
-  .get(ctrl.getCollage)
+  .route("/colleges/:id")
+  .get(ctrl.getCollege)
   .patch(
     requireRoles("admin", "super-admin"),
     enforceDemoReadOnly,
     validateRequest({ body: val.updateCollageSchema }),
-    ctrl.updateCollage
+    ctrl.updateCollege
   )
-  .delete(requireRoles("admin", "super-admin"), enforceDemoReadOnly, ctrl.deleteCollage);
+  .delete(requireRoles("admin", "super-admin"), enforceDemoReadOnly, ctrl.deleteCollege);
+
+// Legacy collages aliases
+router.route("/collages").get(ctrl.getColleges).post(requireRoles("admin", "super-admin"), enforceDemoReadOnly, ctrl.createCollege);
+router.route("/collages/:id").get(ctrl.getCollege).patch(requireRoles("admin", "super-admin"), enforceDemoReadOnly, ctrl.updateCollege).delete(requireRoles("admin", "super-admin"), enforceDemoReadOnly, ctrl.deleteCollege);
 
 // ======================== MAJORS ========================
 router
@@ -49,6 +53,18 @@ router
     ctrl.updateMajor
   )
   .delete(requireRoles("admin", "super-admin"), enforceDemoReadOnly, ctrl.deleteMajor);
+
+// ======================== SEMESTER TEMPLATES ========================
+router
+  .route("/semester-templates")
+  .get(ctrl.getSemesterTemplates)
+  .post(requireRoles("admin", "super-admin"), enforceDemoReadOnly, ctrl.createSemesterTemplate);
+
+router
+  .route("/semester-templates/:id")
+  .get(ctrl.getSemesterTemplate)
+  .patch(requireRoles("admin", "super-admin"), enforceDemoReadOnly, ctrl.updateSemesterTemplate)
+  .delete(requireRoles("admin", "super-admin"), enforceDemoReadOnly, ctrl.deleteSemesterTemplate);
 
 // ======================== SUBJECTS ========================
 router
