@@ -1,16 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  createCollegeService,
-  getCollegesService,
-  getSubjectByIdService,
-  createStudentService,
-} from "../../src/modules/academics/academics.service.js";
+import { createCollegeService } from "../../src/modules/colleges/colleges.service.js";
+import { getSubjectByIdService } from "../../src/modules/subjects/subjects.service.js";
+import { createStudentService } from "../../src/modules/students/students.service.js";
 import College from "../../src/models/College.js";
 import Subject from "../../src/models/Subject.js";
 import Student from "../../src/models/Student.js";
 import * as mailer from "../../src/config/mailer.js";
 
-describe("Academics Domain CRUD", () => {
+describe("Domain Modules CRUD (Colleges, Subjects, Students)", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
