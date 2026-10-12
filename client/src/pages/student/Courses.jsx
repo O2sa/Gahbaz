@@ -23,7 +23,11 @@ export default function StudentCourses() {
     isLoading,
   } = useQuery(useGetElements(['courses']))
 
-  const courseList = Array.isArray(courses) ? courses : []
+  const courseList = Array.isArray(courses)
+    ? courses
+    : Array.isArray(courses?.data)
+    ? courses.data
+    : []
 
   if (isLoading) {
     return (
@@ -93,7 +97,7 @@ export default function StudentCourses() {
 
               <Button
                 component={Link}
-                to={`/course/${course._id || course.id}`}
+                to={`/courses/${course._id || course.id}`}
                 variant="light"
                 color="brand"
                 fullWidth

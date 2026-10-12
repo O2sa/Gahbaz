@@ -39,6 +39,7 @@ export default function AppNavbar({ opened, setOpened, user }) {
   const role = user?.role || 'admin'
   const isAdmin = role === 'admin'
   const isStudent = role === 'student'
+  const isTeacher = role === 'teacher'
 
   const isActive = (path) => {
     if (path === '/') {
@@ -166,6 +167,13 @@ export default function AppNavbar({ opened, setOpened, user }) {
                 onClick={() => handleNav('/semesters')}
                 sx={navLinkStyle('/semesters')}
               />
+              <NavLink
+                label="المقررات الدراسية"
+                icon={<IconBook size={19} stroke={1.6} />}
+                active={isActive('/courses')}
+                onClick={() => handleNav('/courses')}
+                sx={navLinkStyle('/courses')}
+              />
             </Box>
 
             <Divider my="xs" color={isDark ? 'dark.5' : 'gray.2'} />
@@ -206,6 +214,32 @@ export default function AppNavbar({ opened, setOpened, user }) {
           </>
         )}
 
+        {/* Section: Teacher specific */}
+        {isTeacher && (
+          <>
+            <Divider my="xs" color={isDark ? 'dark.5' : 'gray.2'} />
+            <Box mb="xs">
+              <Text
+                size="xs"
+                weight={700}
+                color={isDark ? 'gray.5' : 'dimmed'}
+                px="xs"
+                mb={6}
+                sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
+              >
+                التدريس الأكاديمي
+              </Text>
+              <NavLink
+                label="المقررات المسندة"
+                icon={<IconBook size={19} stroke={1.6} />}
+                active={isActive('/courses')}
+                onClick={() => handleNav('/courses')}
+                sx={navLinkStyle('/courses')}
+              />
+            </Box>
+          </>
+        )}
+
         {/* Section: Student specific */}
         {isStudent && (
           <>
@@ -221,6 +255,13 @@ export default function AppNavbar({ opened, setOpened, user }) {
               >
                 الأكاديميا
               </Text>
+              <NavLink
+                label="مقرراتي الدراسية"
+                icon={<IconBook size={19} stroke={1.6} />}
+                active={isActive('/courses')}
+                onClick={() => handleNav('/courses')}
+                sx={navLinkStyle('/courses')}
+              />
               <NavLink
                 label="سجل الدرجات"
                 icon={<IconCertificate size={19} stroke={1.6} />}
