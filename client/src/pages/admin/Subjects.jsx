@@ -1,460 +1,317 @@
-import { useMemo, useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import {
-  MRT_GlobalFilterTextInput,
-  MRT_ToggleFiltersButton,
-  MantineReactTable,
-  useMantineReactTable,
-  MRT_EditActionButtons,
-} from 'mantine-react-table'
-import { Link, useLoaderData, useParams } from 'react-router-dom'
-
-// import useTable
-import {
-  ActionIcon,
   Button,
-  Flex,
-  Text,
-  Tooltip,
-  Title,
-  Box,
-  Menu,
-  Badge,
-  MantineProvider,
-  Anchor,
-  Stack,
-  TextInput,
-  MultiSelect,
-  Grid,
-  Modal,
   Group,
+  ActionIcon,
+  Modal,
+  TextInput,
   NumberInput,
+  Stack,
+  Text,
+  Badge,
 } from '@mantine/core'
+import { useForm } from '@mantine/form'
+import { useDisclosure, useDebouncedValue } from '@mantine/hooks'
+import { IconPlus, IconPencil, IconTrash, IconBook } from '@tabler/icons-react'
 import {
-  IconUserCircle,
-  IconSend,
-  IconArrowLeftCircle,
-  IconArrowBarLeft,
-} from '@tabler/icons-react'
+  DataTable,
+  PageHeader,
+  ConfirmModal,
+} from '../../components/common/index.js'
 import {
-  QueryClient,
-  QueryClientProvider,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+  useSubjects,
+  useCreateSubject,
+  useUpdateSubject,
+  useDeleteSubject,
+} from '../../hooks/useSubjects.js'
+import dayjs from 'dayjs'
 
-import { IconEdit, IconTrash } from '@tabler/icons-react'
-import { useCreateElement, useDeleteElement, useGetElements, useUpdateElement } from '../crud'
-import { modals } from '@mantine/modals'
-import { CiEdit } from 'react-icons/ci'
-import { useDisclosure } from '@mantine/hooks'
+export default function Subjects() {
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const [search, setSearch] = useState('')
+  const [debouncedSearch] = useDebouncedValue(search, 350)
 
-export default function Subjects({ queryClient }) {
-  //call CREATE hook
-  const { id: collageId } = useParams()
-  const { mutateAsync: createSubject, isLoading: isCreatingSubject } = useCreateElement(
-    queryClient,
-    ['subjects', collageId],
-  )
+  // Modals state
+  const [addOpened, { open: openAdd, close: closeAdd }] = useDisclosure(false)
+  const [editSubject, setEditSubject] = useState(null)
+  const [deleteId, setDeleteId] = useState(null)
 
-  const {
-    data: subjects = [],
-    isError: isLoadingSubjectsError,
-    isFetching: isFetchingSubjects,
-    isLoading: isLoadingSubjects,
-  } = useQuery(useGetElements(['subjects', collageId]))
-  const {
-    data: teachers = [],
-    isFetching: isFetchingTeachers,
-    isLoading: isLoadingTeachers,
-  } = useQuery(useGetElements(['teachers']))
+  // API hooks
+  const { data: subjectsRes, isLoading } = useSubjects({
+    page,
+    limit,
+    search: debouncedSearch,
+  })
 
-  // console.log(subjects)
-  const { mutateAsync: updateSubject, isLoading: isUpdatingSubject } = useUpdateElement(
-    queryClient,
-    ['subjects', collageId],
-  )
-  const { mutateAsync: deleteSubject, isLoading: isDeletingSubject } = useDeleteElement(
-    queryClient,
-    ['subjects', collageId],
-  )
+  const createMutation = useCreateSubject()
+  const updateMutation = useUpdateSubject()
+  const deleteMutation = useDeleteSubject()
 
-  const teachersForSelect = getMultiSelectData(teachers)
-  const [editingRowData, setEditingRowData] = useState({}) // State for new row data
-  const [gradeSchema, setGradeSchema] = useState({}) // State for new row data
-
-  const handleCreateSubject = async ({ values, row, table, exitCreatingMode }) => {
-    // console.log(newRowData)
-    await createSubject({ ...newRowData, collage: collageId })
-    modals.closeAll()
-    table.setCreatingRow(false)
-  }
-
-  const [newRowData, setNewrowData] = useState({}) // State for new row data
-
-  //UPDATE action
-  const handleSaveSubject = async ({ values, row, table }) => {
-    await updateSubject({ ...values, ...editingRowData, _id: row.id })
-    table.setEditingRow(null) //exit editing mode
-  }
-
-  //DELETE action
-  const openDeleteConfirmModal = (row) => deleteSubject(row.id)
-
-  const columns = useMemo(
-    () => [
-      {
-        id: 'index',
-        enableEditing: false,
-        accessorFn: (row, rowIndex) => rowIndex + 1,
-        header: '#',
-      },
-      {
-        accessorKey: 'name',
-        header: 'الأسم',
-        enableEditing: false,
-      },
-      {
-        accessorKey: 'subtitle',
-        header: 'العنوان الفرعي',
-        enableEditing: false,
-      },
-      {
-        accessorKey: 'category',
-        header: 'التصنيف',
-        enableEditing: false,
-      },
-      {
-        accessorKey: 'teachers',
-        enableEditing: false,
-
-        Cell: ({ cell, row }) => {
-          if (!cell.getValue()) return ''
-
-          return row.original.teachers?.map((val) => (
-            <Badge>{`${val.firstName} ${val.lastName}`}</Badge>
-          ))
-        },
-        header: 'المعلمون',
-      },
-      {
-        accessorKey: 'gradeSchema',
-        Cell: ({ cell, row }) => {
-          if (!cell.getValue()) return ''
-          const elements = cell.getValue().grade
-          const keys = Object.keys(cell.getValue().grade)
-          const grades = keys?.map((ele) => (
-            <Badge>{`${elements[ele]?.name ?? ''}: ${elements[ele]?.value ?? ''} `}</Badge>
-          ))
-          return (
-            <>
-              {grades}
-              <Badge m={'sm'} color="green">{`المجموع: ${cell.getValue()?.total ?? ''} `}</Badge>
-              <EditSchema
-                queryClient={queryClient}
-                gradeSchema={cell.getValue()}
-                subjectId={row.original._id}
-              >
-                <Button
-                  m={'md'}
-                  variant="subtle"
-                  leftIcon={<CiEdit size={14} />}
-                  rightIcon={<IconArrowBarLeft size={14} />}
-                >
-                  تعديل
-                </Button>
-              </EditSchema>
-            </>
-          )
-        },
-        header: 'هيكلية الدرجات',
-      },
-    ],
-    [],
-  )
-
-  const table = useMantineReactTable({
-    columns: columns,
-    data: subjects,
-    // enableColumnFilterModes: true,
-    enableColumnOrdering: true,
-    enableFacetedValues: true,
-    enableGrouping: true,
-    enablePinning: true,
-    enableEditing: true,
-    createDisplayMode: 'modal',
-    editDisplayMode: 'modal',
-    enableRowActions: true,
-    getRowId: (row) => row._id,
-    paginationDisplayMode: 'pages',
-    positionToolbarAlertBanner: 'bottom',
-    mantinePaginationProps: {
-      radius: 'xl',
-      size: 'lg',
+  // Add Form
+  const addForm = useForm({
+    initialValues: {
+      name: '',
+      code: '',
+      credits: 3,
     },
-    mantineToolbarAlertBannerProps: isLoadingSubjectsError
-      ? {
-          color: 'red',
-          children: 'خطأ في تحميل البيانات',
-        }
-      : undefined,
-    mantineTableContainerProps: {
-      sx: {
-        minHeight: '500px',
-      },
-    },
-
-    onCreatingRowSave: handleCreateSubject,
-    onEditingRowSave: handleSaveSubject,
-    renderRowActions: ({ row, table }) => (
-      <Flex gap="md">
-        <Tooltip label="تعديل">
-          <ActionIcon onClick={() => table.setEditingRow(row)}>
-            <IconEdit />
-          </ActionIcon>
-        </Tooltip>
-        <Tooltip label="حذف">
-          <ActionIcon color="red" onClick={() => openDeleteConfirmModal(row)}>
-            <IconTrash />
-          </ActionIcon>
-        </Tooltip>
-      </Flex>
-    ),
-    renderCreateRowModalContent: ({ internalEditComponents, row, table }) => (
-      <Stack>
-        <Title order={5}>إنشاء</Title>
-        <TextInput
-          withAsterisk
-          label="الأسم"
-          name="name"
-          id="name"
-          // placeholder="اسم الكلية"
-          onChange={(e) => setNewrowData({ ...newRowData, name: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="العنوان الفرعي"
-          name="subtitle"
-          id="subtitle"
-          // placeholder=" subtitle"
-          onChange={(e) => setNewrowData({ ...newRowData, subtitle: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="التصنيف"
-          name="category"
-          id="category"
-          // placeholder="اسم الكلية"
-          onChange={(e) => setNewrowData({ ...newRowData, category: e.target.value })}
-        />
-        <MultiSelect
-          data={teachersForSelect}
-          label="المعلمون"
-          // placeholder="Pick all that you like"
-          name="teachers"
-          id="teachers"
-          onChange={(selectedValue) => setNewrowData({ ...newRowData, teachers: selectedValue })}
-        />
-        <Flex justify="flex-end">
-          <MRT_EditActionButtons row={row} table={table} variant="text" />{' '}
-        </Flex>
-      </Stack>
-    ),
-    renderEditRowModalContent: ({ internalEditComponents, row, table }) => (
-      <Stack>
-        <Title order={5}>تعديل</Title>
-        <TextInput
-          withAsterisk
-          label="الأسم"
-          name="name"
-          defaultValue={row?.original.name}
-          id="name"
-          // placeholder="اسم الكلية"
-          onChange={(e) => setEditingRowData({ ...editingRowData, name: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="العنوان الفرعي"
-          name="subtitle"
-          defaultValue={row?.original.subtitle}
-          id="subtitle"
-          // placeholder=" subtitle"
-          onChange={(e) => setEditingRowData({ ...editingRowData, subtitle: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="التصنيف"
-          name="category"
-          defaultValue={row?.original.category}
-          id="category"
-          // placeholder="اسم الكلية"
-          onChange={(e) => setEditingRowData({ ...editingRowData, category: e.target.value })}
-        />
-        <MultiSelect
-          data={teachersForSelect}
-          label="المعلمون"
-          // placeholder="Pick all that you like"
-          // defaultValue={row?.getAllCells()[5]?.getValue()}
-          name="teachers"
-          id="teachers"
-          onChange={(selectedValue) =>
-            setEditingRowData({ ...editingRowData, teachers: selectedValue })
-          }
-        />
-        <Flex justify="flex-end">
-          <MRT_EditActionButtons row={row} table={table} variant="text" />{' '}
-        </Flex>
-      </Stack>
-    ),
-    mantineCreateRowModalProps: {
-      centered: true,
-      closeButtonProps: {},
-      onClose: () => setNewrowData({}),
-    },
-    mantineEditRowModalProps: {
-      centered: true,
-      onClose: () => setEditingRowData({}),
-    },
-    renderTopToolbarCustomActions: ({ table }) => (
-      <Button
-        onClick={() => {
-          table.setCreatingRow(true)
-        }}
-      >
-        إنشاء{' '}
-      </Button>
-    ),
-
-    renderRowActionMenuItems: ({ row }) => (
-      <Box>
-        <ActionIcon
-        // onClick={() => setEditingRowData({ subjects: row.getAllCells()[2].getValue() })}
-        >
-          <IconEdit />
-        </ActionIcon>
-        <ActionIcon onClick={() => console.info('Delete')}>{/* <DeleteI /> */}</ActionIcon>
-      </Box>
-    ),
-    state: {
-      isLoading: isLoadingSubjects,
-      isSaving: isCreatingSubject || isUpdatingSubject,
-      showAlertBanner: isLoadingSubjectsError,
-      showProgressBars: isFetchingSubjects,
+    validate: {
+      name: (val) => (!val?.trim() ? 'اسم المادة مطلوب' : null),
     },
   })
 
-  return <MantineReactTable table={table} />
-}
+  // Edit Form
+  const editForm = useForm({
+    initialValues: {
+      name: '',
+      code: '',
+      credits: 3,
+    },
+    validate: {
+      name: (val) => (!val?.trim() ? 'اسم المادة مطلوب' : null),
+    },
+  })
 
-const getMultiSelectData = (subjects) =>
-  Object.values(subjects).map((sub) => ({
-    value: sub._id,
-    label: `${sub.firstName} ${sub.lastName}`,
-  }))
+  const handleAddSubmit = async (values) => {
+    try {
+      await createMutation.mutateAsync(values)
+      addForm.reset()
+      closeAdd()
+    } catch (err) {
+      // Handled in notifications
+    }
+  }
 
-const getTheTotal = (elements) => {
-  let total = 0
-  for (const ele in elements) total += elements[ele].value
-  return total
-}
-
-function EditSchema({ children, queryClient, gradeSchema, subjectId }) {
-  const { id: collageId } = useParams()
-
-  const { mutateAsync: updateSubject, isLoading: isUpdatingSubject } = useUpdateElement(
-    queryClient,
-    ['subjects', collageId],
-  )
-  // const te = useCreateElement(queryClient)
-  const [fields, setFields] = useState(gradeSchema)
-  console.log('fields', fields)
-  // console.log('fields', gradeSchema)
-
-  const [opened, { open, close }] = useDisclosure(false)
-  // console.log(isCreatingCollage)
-  // console.log('isCreatingCollage')
-  const addField = () => {
-    const key = Object.keys(fields.grade).length
-    setFields({
-      ...fields,
-      total: Object.keys(fields.grade)?.reduce((ac, val) => fields.grade[val].value + ac, 0) + 10,
-
-      grade: { ...fields.grade, [key]: { name: '', value: 10 } },
+  const handleEditOpen = (row) => {
+    setEditSubject(row)
+    editForm.setValues({
+      name: row.name || '',
+      code: row.code || '',
+      credits: row.credits || 3,
     })
   }
-  const handleCloseModal = () => {
-    close()
+
+  const handleEditSubmit = async (values) => {
+    if (!editSubject) return
+    try {
+      await updateMutation.mutateAsync({
+        id: editSubject._id || editSubject.id,
+        data: values,
+      })
+      setEditSubject(null)
+    } catch (err) {
+      // Handled in notifications
+    }
   }
 
-  const handleSubmit = async (values) => {
-    console.log('values')
-    console.log(values)
+  const handleDeleteConfirm = async () => {
+    if (!deleteId) return
     try {
-      const res = await updateSubject({ gradeSchema: fields, _id: subjectId })
-      close()
-    } catch (error) {}
+      await deleteMutation.mutateAsync(deleteId)
+      setDeleteId(null)
+    } catch (err) {
+      // Handled in notifications
+    }
   }
+
+  const columns = [
+    {
+      key: 'name',
+      title: 'المادة الدراسية',
+      render: (row) => (
+        <Group spacing="xs">
+          <IconBook size={18} color="#7c3aed" />
+          <div>
+            <Text weight={600} size="sm">
+              {row.name}
+            </Text>
+            {row.code && (
+              <Text size="xs" color="dimmed">
+                رمز المادة: {row.code}
+              </Text>
+            )}
+          </div>
+        </Group>
+      ),
+    },
+    {
+      key: 'credits',
+      title: 'الساعات المعتمدة',
+      align: 'center',
+      render: (row) => (
+        <Badge color="violet" variant="light" size="sm">
+          {row.credits || 3} ساعات
+        </Badge>
+      ),
+    },
+    {
+      key: 'createdAt',
+      title: 'تاريخ الإنشاء',
+      align: 'center',
+      render: (row) => (
+        <Text size="xs" color="dimmed">
+          {row.createdAt ? dayjs(row.createdAt).format('YYYY/MM/DD') : '—'}
+        </Text>
+      ),
+    },
+    {
+      key: 'actions',
+      title: 'الإجراءات',
+      align: 'left',
+      render: (row) => (
+        <Group spacing={6} position="left">
+          <ActionIcon
+            color="brand"
+            variant="light"
+            size="sm"
+            onClick={() => handleEditOpen(row)}
+            title="تعديل المادة"
+          >
+            <IconPencil size={15} />
+          </ActionIcon>
+          <ActionIcon
+            color="red"
+            variant="light"
+            size="sm"
+            onClick={() => setDeleteId(row._id || row.id)}
+            title="حذف المادة"
+          >
+            <IconTrash size={15} />
+          </ActionIcon>
+        </Group>
+      ),
+    },
+  ]
 
   return (
-    <Group position="center">
-      <Modal centered={true} title="إنشاء كلية" opened={opened} onClose={close}>
-        <>
-          {/* <form onSubmit={form.onSubmit(handleSubmit)}> */}
-          <Group>
-            {Object.keys(fields.grade)?.map((val, idx) => (
-              <Group noWrap>
-                <TextInput
-                  onChange={(e) =>
-                    setFields({
-                      ...fields,
-                      grade: {
-                        ...fields.grade,
-                        [val]: { ...fields.grade[val], name: e.target.value },
-                      },
-                    })
-                  }
-                  placeholder="اسم الحقل"
-                  defaultValue={fields.grade[val].name}
-                  withAsterisk
-                />{' '}
-                <NumberInput
-                  placeholder="قيمة الحقل"
-                  onChange={(e) => {
-                    console.log(e)
-                    setFields({
-                      ...fields,
-                      grade: {
-                        ...fields.grade,
-                        [val]: { ...fields.grade[val], value: e },
-                      },
-                      total: Object.keys(fields.grade)?.reduce(
-                        (ac, val) => fields.grade[val].value + ac,
-                        0,
-                      ),
-                    })
-                  }}
-                  defaultValue={fields.grade[val].value}
-                  withAsterisk
-                />
-              </Group>
-            ))}
-            <Badge radius={'xl'} fullWidth color="green" h={32}>
-              {':المجموع' + fields.total}
-            </Badge>
-            <Button variant="light" onClick={addField} fullWidth>
-              إضافة حقل
-            </Button>
-          </Group>
+    <>
+      <PageHeader
+        title="المواد الدراسية"
+        description="إدارة الخطة الأكاديمية والمقررات والساعات المعتمدة"
+        breadcrumbs={[
+          { title: 'الرئيسية', href: '/' },
+          { title: 'المواد الدراسية' },
+        ]}
+        action={
+          <Button
+            leftIcon={<IconPlus size={16} />}
+            color="brand"
+            onClick={openAdd}
+          >
+            إضافة مادة جديدة
+          </Button>
+        }
+      />
 
-          <Group position="right" mt="md">
-            <Button onClick={handleSubmit} loading={isUpdatingSubject} type="submit">
-              حفط
-            </Button>
-          </Group>
-          {/* </form> */}
-        </>
+      <DataTable
+        columns={columns}
+        data={subjectsRes?.data || []}
+        meta={subjectsRes?.meta}
+        isLoading={isLoading}
+        search={search}
+        onSearchChange={(val) => {
+          setSearch(val)
+          setPage(1)
+        }}
+        onPageChange={setPage}
+        onLimitChange={(l) => {
+          setLimit(l)
+          setPage(1)
+        }}
+        emptyTitle="لا توجد مواد دراسية"
+        emptyDescription="ابدأ بإضافة مواد دراسية لتضمينها في الخطط والفصول الأكاديمية."
+      />
+
+      {/* Add Subject Modal */}
+      <Modal
+        opened={addOpened}
+        onClose={closeAdd}
+        title={<Text weight={700}>إضافة مادة جديدة</Text>}
+      >
+        <form onSubmit={addForm.onSubmit(handleAddSubmit)}>
+          <Stack spacing="md">
+            <TextInput
+              label="اسم المادة الدراسية"
+              placeholder="مثال: هندسة البرمجيات المتقدمة"
+              required
+              {...addForm.getInputProps('name')}
+            />
+            <TextInput
+              label="رمز / كود المادة"
+              placeholder="CS301"
+              {...addForm.getInputProps('code')}
+            />
+            <NumberInput
+              label="عدد الساعات المعتمدة"
+              min={1}
+              max={6}
+              {...addForm.getInputProps('credits')}
+            />
+            <Group position="right" mt="md">
+              <Button variant="default" onClick={closeAdd}>
+                إلغاء
+              </Button>
+              <Button
+                type="submit"
+                color="brand"
+                loading={createMutation.isPending}
+              >
+                إضافة
+              </Button>
+            </Group>
+          </Stack>
+        </form>
       </Modal>
-      <Group onClick={open}>{children}</Group>
-    </Group>
+
+      {/* Edit Subject Modal */}
+      <Modal
+        opened={Boolean(editSubject)}
+        onClose={() => setEditSubject(null)}
+        title={<Text weight={700}>تعديل المادة الدراسية</Text>}
+      >
+        <form onSubmit={editForm.onSubmit(handleEditSubmit)}>
+          <Stack spacing="md">
+            <TextInput
+              label="اسم المادة"
+              required
+              {...editForm.getInputProps('name')}
+            />
+            <TextInput
+              label="رمز / كود المادة"
+              {...editForm.getInputProps('code')}
+            />
+            <NumberInput
+              label="عدد الساعات المعتمدة"
+              min={1}
+              max={6}
+              {...editForm.getInputProps('credits')}
+            />
+            <Group position="right" mt="md">
+              <Button variant="default" onClick={() => setEditSubject(null)}>
+                إلغاء
+              </Button>
+              <Button
+                type="submit"
+                color="brand"
+                loading={updateMutation.isPending}
+              >
+                حفظ التعديلات
+              </Button>
+            </Group>
+          </Stack>
+        </form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        opened={Boolean(deleteId)}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDeleteConfirm}
+        title="حذف المادة"
+        message="هل أنت متأكد من حذف هذه المادة الدراسية؟"
+        confirmLabel="حذف"
+        isLoading={deleteMutation.isPending}
+      />
+    </>
   )
 }

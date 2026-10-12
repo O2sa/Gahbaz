@@ -28,12 +28,8 @@ import {
   UserProfile,
 } from './pages/admin'
 
-import { EditCourseInfo } from './stories/SpecialComponents/EditCourseInfo'
-// import { EditCourseSection } from './stories/SpecialComponents/EditCourseSection'
-
-import { EditCourseSections } from './stories/SpecialComponents/EditCourseSections'
-
-import { loader as courseInfoEditLoader } from './stories/SpecialComponents/EditCourseInfo'
+import { EditCourseInfo, loader as courseInfoEditLoader } from './pages/admin/EditCourseInfo'
+import { EditCourseSections } from './pages/admin/EditCourseSections'
 import { loader as studentGradesLoader } from './pages/admin/StudentGrades'
 
 import { StudentGrade } from './pages/student'
@@ -53,7 +49,7 @@ import {
 } from './pages/public'
 
 import { loader as lessonsLoader } from './pages/admin/Lessons'
-import { MainLayout } from './layout/MainComponent'
+import { RootLayout } from './layouts/RootLayout'
 export default function getRoutes(queryClient, user) {
   // const { user } = useDashboardContext()
 
@@ -61,7 +57,7 @@ export default function getRoutes(queryClient, user) {
     {
       path: '/',
       name: 'الرئيسية',
-      element: <MainLayout queryClient={queryClient} />,
+      element: <RootLayout queryClient={queryClient} />,
       errorElement: <Error />,
       children: [
         {  path: 'landing', name: 'صفحة البدء', element: <Landing /> },

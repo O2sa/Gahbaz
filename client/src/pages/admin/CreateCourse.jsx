@@ -1,28 +1,12 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 // import { SpecialCard } from '../components/Specialcard'
-// import { CButton, CCol, CRow } from '@coreui/react'
-import Model from '../../stories/components/Model'
-import {
-  CCol,
-  CRow,
-  CForm,
-  CFormControlValidation,
-  CFormLabel,
-  CInputGroup,
-  CInputGroupText,
-  CFormSelect,
-  CFormFeedback,
-  CFormCheck,
-  CButton,
-  CFormTextarea,
-  CFormInput,
-} from '@coreui/react'
+
 
 import { BsStack } from 'react-icons/bs'
 
 import { useLocation, useParams } from 'react-router-dom'
-import { TabsLinks } from '../../stories/Tabs/Tabs'
+import { TabsLinks } from '../../components/TabsLinks'
 import { BsInfoSquare } from "react-icons/bs";
 import { GiLevelEndFlag } from "react-icons/gi";
 

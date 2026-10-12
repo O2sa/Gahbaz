@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react'
 
-import { useDispatch, useSelector } from 'react-redux'
-
-import { TabsLinks } from '../../stories/Tabs/Tabs'
+import { TabsLinks } from '../../components/TabsLinks'
  
 import { BsStack } from 'react-icons/bs'
 import { Tabs } from '@mantine/core'

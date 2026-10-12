@@ -1,5 +1,6 @@
-import RecentMaterials from './RecentMaterials.jsx'
-import FaveriteLinks from './FaveriteLinks.jsx'
+import TabsLinks from './TabsLinks'
+import CourseContent from './CourseContent'
+import Editor from './Editor'
 
-export { RecentMaterials, FaveriteLinks }
-export default { RecentMaterials, FaveriteLinks }
+export { TabsLinks, CourseContent, Editor }
+export default { TabsLinks, CourseContent, Editor }

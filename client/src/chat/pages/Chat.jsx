@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef, forwardRef } from 'react'
-import 'react-toastify/dist/ReactToastify.css'
-import { ToastContainer, toast } from 'react-toastify'
+
 import { SlMagnifier } from 'react-icons/sl'
 import { IoIosArrowBack } from 'react-icons/io'
 import { GrFormClose } from 'react-icons/gr'
@@ -36,7 +35,6 @@ import {
   Title,
   Text,
 } from '@mantine/core'
-import { ChatContactsLoader } from '../../pages/LoadingComponents'
 import { useMediaQuery } from '@mantine/hooks'
 
 

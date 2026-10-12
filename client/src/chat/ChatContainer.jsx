@@ -1,24 +1,18 @@
 import React from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import ChatProvider from './context/ChatProvider'
-// import './chat_styles.css'
-// import 'react-chat-elements/dist/main.css'
-import { Box, Flex, ScrollArea, TextInput, Button, Paper } from '@mantine/core'
-
-import Chat from './pages/Chat'
-import Authorization from './pages/Authorization'
+import { Box } from '@mantine/core'
 import { Helmet } from 'react-helmet'
+import ChatProvider from './context/ChatProvider'
+import Chat from './pages/Chat'
 
 export default function ChatRoom() {
   return (
     <ChatProvider>
-                                 <Helmet>
-            <title>{ 'منصة جهبذ | المحادثات' }</title>
+      <Helmet>
+        <title>منصة جهبذ | المحادثات</title>
       </Helmet>
-      <Box className="">
+      <Box>
         <Chat />
       </Box>
-
     </ChatProvider>
   )
 }

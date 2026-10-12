@@ -1,24 +1,35 @@
-import { Image, Container, Title, Text, Button, SimpleGrid } from '@mantine/core';
-import image from '../../assets/images/not-found.svg';
-
+import React from 'react'
+import { Container, Title, Text, Button, Center, Stack, ThemeIcon } from '@mantine/core'
+import { IconAlertTriangle } from '@tabler/icons-react'
+import { useNavigate } from 'react-router-dom'
 
 export default function Error() {
+  const navigate = useNavigate()
+
   return (
-    <Container >
-      <SimpleGrid spacing={{ base: 40, sm: 80 }} cols={{ base: 1, sm: 2 }}>
-        <Image src={image.src}  />
-        <div>
-          <Title >Something is not right...</Title>
-          <Text c="dimmed" size="lg">
-            Page you are trying to open does not exist. You may have mistyped the address, or the
-            page has been moved to another URL. If you think this is an error contact support.
+    <Container size="sm" py={80}>
+      <Center>
+        <Stack align="center" spacing="md" sx={{ textAlign: 'center' }}>
+          <ThemeIcon size={80} radius="xl" color="red" variant="light">
+            <IconAlertTriangle size={48} />
+          </ThemeIcon>
+
+          <Title order={2}>حدث خطأ غير متوقع</Title>
+
+          <Text color="dimmed" size="md" sx={{ maxWidth: 450 }}>
+            نعتذر، حدث خطأ أثناء معالجة طلبك. يمكنك المحاولة مرة أخرى أو العودة إلى الصفحة الرئيسية.
           </Text>
-          <Button variant="outline" size="md" mt="xl" >
-            Get back to home page
+
+          <Button
+            size="md"
+            mt="md"
+            onClick={() => navigate('/')}
+            variant="filled"
+          >
+            العودة إلى الصفحة الرئيسية
           </Button>
-        </div>
-        <Image src={image.src}  />
-      </SimpleGrid>
+        </Stack>
+      </Center>
     </Container>
-  );
+  )
 }
