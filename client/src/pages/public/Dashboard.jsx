@@ -9,20 +9,20 @@ const Dashboard = ({ queryClient }) => {
   const { user } = useDashboardContext()
 
   const getComponent = () => {
-    if (user?.__t === 'Admin') {
-      return <AdminDashboard queryClient={queryClient} />
-    } else if (user?.__t === 'Teacher') {
+    const role = (user?.role || user?.__t || 'admin').toLowerCase()
+    if (role === 'teacher') {
       return <TeacherDashboard queryClient={queryClient} />
-    } else if (user?.__t === 'Student') {
+    } else if (role === 'student') {
       return <StudentDashboard queryClient={queryClient} />
     }
-    return null
+    // Default to admin dashboard
+    return <AdminDashboard queryClient={queryClient} />
   }
 
   return (
     <div>
       <Helmet>
-        <title>منصة جهبذ | الرئيسية</title>
+        <title>منصة جهبذ | لوحة التحكم</title>
       </Helmet>
       {getComponent()}
     </div>
