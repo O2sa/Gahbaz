@@ -1,101 +1,112 @@
-import React, { useState } from 'react'
-import PropTypes from 'prop-types'
-// import { SpecialCard } from '../components/Specialcard'
-// import { CButton, CCol, CRow } from '@coreui/react'
-import Model from '../../stories/components/Model'
+import React from 'react'
 import {
-  CCol,
-  CRow,
-  CForm,
-  CFormControlValidation,
-  CFormLabel,
-  CInputGroup,
-  CInputGroupText,
-  CFormSelect,
-  CFormFeedback,
-  CFormCheck,
-  CButton,
-  CFormTextarea,
-  CFormInput,
-  CSpinner,
-} from '@coreui/react'
-
-import { useParams } from 'react-router-dom'
-import { CourseCard } from '../../stories/SpecialComponents/CourseCard'
+  SimpleGrid,
+  Card,
+  Image,
+  Text,
+  Badge,
+  Button,
+  Group,
+  Stack,
+  Loader,
+  Center,
+} from '@mantine/core'
+import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { useGetElements } from '../crud'
+import { useGetElements } from '../crud.js'
+import { PageHeader, EmptyState } from '../../components/common/index.js'
+import { IconBook, IconArrowLeft } from '@tabler/icons-react'
 
-export default function Courses  ({  ...props }) {
-  // var courses = [
-  //   {
-  //     name: ' تصميم وتحليل النظم الادارية',
-  //     semester: '',
-  //     secince: 'Computer Science',
-  //     teacher: 'علي صالح',
-  //     compeleted: false,
-  //     id: 1,
-  //   },
-  //   {
-  //     name: ' تصميم وتحليل النظم الادارية',
-  //     semester: '',
-  //     secince: 'Computer Science',
-  //     teacher: 'علي صالح',
-  //     compeleted: true,
-  //     id: 1,
-  //   },
-  //   {
-  //     name: ' تصميم وتحليل النظم الادارية',
-  //     semester: '',
-  //     secince: 'Computer Science',
-  //     teacher: 'علي صالح',
-  //     compeleted: false,
-  //     id: 1,
-  //   },
-  //   {
-  //     name: ' تصميم وتحليل النظم الادارية',
-  //     semester: '',
-  //     secince: 'Computer Science',
-  //     teacher: 'علي صالح',
-  //     compeleted: true,
-  //     id: 1,
-  //   },
-  // ]
-
-
+export default function StudentCourses() {
   const {
     data: courses = [],
-    isError: isLoadingTeachersError,
-    isFetching: isFetchingTeachers,
-    isLoading: isLoadingTeachers,
+    isLoading,
   } = useQuery(useGetElements(['courses']))
 
-  if (isFetchingTeachers) {
-    return <CSpinner color="primary" />
-  }
+  const courseList = Array.isArray(courses) ? courses : []
 
-  if (courses.length == 0) {
+  if (isLoading) {
     return (
-      <div
-        className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
-      >
-        <h5>{'عن الكلية'} </h5>
-      </div>
+      <Center py="xl">
+        <Loader size="lg" color="brand" />
+      </Center>
     )
   }
+
   return (
-    <div className="bg-white p-4">
-      <div className="filters">
-        <div>
-          <h4> الدورات</h4>{' '}
-        </div>
-      </div>
-      <div className=" row row-cols-auto justify-content-center mt-5 ">
-        {courses.map((course, idx) => (
-          <div key={idx} className="mb-4">
-            <CourseCard course={course} />
-          </div>
-        ))}
-      </div>
-    </div>
+    <>
+      <PageHeader
+        title="المقررات المسجلة"
+        description="استعراض المقررات الدراسية والمحاضرات والمصادر التعليمية"
+        breadcrumbs={[
+          { title: 'الرئيسية', href: '/' },
+          { title: 'مقرراتي الدراسية' },
+        ]}
+      />
+
+      {courseList.length === 0 ? (
+        <EmptyState
+          title="لا توجد مقررات دراسية مسجلة"
+          description="لم يتم تسجيلك في أي مقررات دراسية للفصل الحالي."
+        />
+      ) : (
+        <SimpleGrid
+          cols={3}
+          spacing="lg"
+          breakpoints={[
+            { maxWidth: 'md', cols: 2, spacing: 'md' },
+            { maxWidth: 'xs', cols: 1, spacing: 'sm' },
+          ]}
+        >
+          {courseList.map((course, idx) => (
+            <Card
+              key={course._id || course.id || idx}
+              shadow="sm"
+              padding="lg"
+              radius="md"
+              withBorder
+            >
+              <Group position="apart" mb="xs">
+                <Badge color="brand" variant="light">
+                  {course.category || 'مقرر دراسي'}
+                </Badge>
+                <Badge
+                  color={course.completed ? 'teal' : 'blue'}
+                  variant="dot"
+                >
+                  {course.completed ? 'مكتمل' : 'مستمر'}
+                </Badge>
+              </Group>
+
+              <Group spacing="xs" mb="sm">
+                <IconBook size={20} color="#7c3aed" />
+                <Text weight={600} size="md" lineClamp={1}>
+                  {course.name}
+                </Text>
+              </Group>
+
+              {course.teacher && (
+                <Text size="xs" color="dimmed" mb="md">
+                  الأستاذ: {typeof course.teacher === 'object' ? course.teacher.name : course.teacher}
+                </Text>
+              )}
+
+              <Button
+                component={Link}
+                to={`/course/${course._id || course.id}`}
+                variant="light"
+                color="brand"
+                fullWidth
+                mt="md"
+                radius="md"
+                rightIcon={<IconArrowLeft size={16} />}
+              >
+                الدخول للمقرر
+              </Button>
+            </Card>
+          ))}
+        </SimpleGrid>
+      )}
+    </>
   )
 }
