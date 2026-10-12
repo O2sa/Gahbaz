@@ -1,168 +1,156 @@
-import React, { useEffect, useMemo, useState } from 'react'
-
-import { TabsLinks } from '../../stories/Tabs/Tabs'
-import { BsStack } from 'react-icons/bs'
-
-import { useParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { useDeleteElement, useGetElements } from '../crud'
-
-import { TabsBody } from '../../stories/Tabs/TabsBody'
-import { Link, NavLink } from 'react-router-dom'
-import { TbListDetails } from 'react-icons/tb'
+import React, { useState } from 'react'
 import {
-  CTableBody,
-  CTableHead,
-  CTabContent,
-  CTableRow,
-  CTable,
-  CTableDataCell,
-  CTableHeaderCell,
-  CSpinner,
-} from '@coreui/react'
-import { MantineReactTable, useMantineReactTable } from 'mantine-react-table'
-import { ActionIcon, Badge, Box, Button, Flex, Group } from '@mantine/core'
+  Group,
+  Button,
+  ActionIcon,
+  Badge,
+  Text,
+} from '@mantine/core'
+import { Link } from 'react-router-dom'
 import {
-  IconArrowAutofitRight,
-  IconArrowBarLeft,
-  IconDetails,
-  IconEdit,
   IconInfoCircle,
-  IconPhoto,
-  IconTrash,
+  IconPencil,
+  IconBook,
+  IconArrowLeft,
 } from '@tabler/icons-react'
-import { Tooltip } from 'chart.js'
-import { useDashboardContext } from '../../layout/DefaultLayout'
+import { useQuery } from '@tanstack/react-query'
+import { useGetElements } from '../crud.js'
+import { DataTable, PageHeader } from '../../components/common/index.js'
+import { useDebouncedValue } from '@mantine/hooks'
 
-export default function Courses({ queryClient }) {
-  const { user } = useDashboardContext()
+export default function TeacherCourses() {
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const [search, setSearch] = useState('')
+  const [debouncedSearch] = useDebouncedValue(search, 350)
+
   const {
     data: courses = [],
-    isError: isLoadingTeachersError,
-    isFetching: isFetchingTeachers,
-    isLoading: isLoadingTeachers,
+    isLoading,
   } = useQuery(useGetElements(['courses']))
 
-  if (isFetchingTeachers) {
-    return <CSpinner color="primary" />
-  }
-
-  if (courses.length == 0) {
+  const filteredCourses = (Array.isArray(courses) ? courses : []).filter((c) => {
+    if (!debouncedSearch) return true
     return (
-      <div
-        className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
-      >
-        <h5>{'عن الكلية'} </h5>
-      </div>
+      c.name?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+      c.category?.toLowerCase().includes(debouncedSearch.toLowerCase())
     )
-  }
-  return <SemestersTable queryClient={queryClient} courses={courses} />
-}
+  })
 
-const SemestersTable = ({ courses, queryClient }) => {
-  const columns = useMemo(
-    () => [
-      {
-        id: 'index',
-        enableEditing: false,
-        accessorFn: (row, rowIndex) => rowIndex + 1,
-        header: '#',
-      },
-      {
-        accessorKey: 'name',
-        id: 'name',
-        header: 'الدورة',
-      },
-      {
-        accessorKey: 'subtitle',
-        header: 'الإيميل',
-      },
-      {
-        accessorKey: 'category',
-        header: 'category',
-      },
-
-      {
-        accessorKey: 'details',
-        header: 'الحالة',
-        Cell: ({ cell, row }) => {
-          return (
-            <Group>
-              <Link to={`${row.original._id}`}>
-                <Button
-                  variant="light"
-                  leftIcon={<IconInfoCircle size={14} />}
-                  rightIcon={<IconArrowBarLeft size={14} />}
-                >
-                  عرض التفاصيل
-                </Button>
-              </Link>{' '}
-              <Link to={`${row.original._id}/edit`}>
-                <Button
-                  variant="light"
-                  leftIcon={<IconInfoCircle size={14} />}
-                  rightIcon={<IconArrowBarLeft size={14} />}
-                >
-                 تعديل
-                </Button>
-              </Link>
-            </Group>
-          )
-        },
-      },
-    ],
-    [],
+  const paginatedCourses = filteredCourses.slice(
+    (page - 1) * limit,
+    page * limit
   )
 
-  const table = useMantineReactTable({
-    columns: columns,
-    data: courses,
-    enableColumnOrdering: true,
-    enableFacetedValues: true,
-    enableGrouping: true,
-    enablePinning: true,
-    enableRowActions: true,
-    getRowId: (row) => row._id,
-    paginationDisplayMode: 'pages',
-    positionToolbarAlertBanner: 'bottom',
-    mantinePaginationProps: {
-      radius: 'xl',
-      size: 'lg',
+  const columns = [
+    {
+      key: 'name',
+      title: 'المقرر الدراسي',
+      render: (row) => (
+        <Group spacing="xs">
+          <IconBook size={18} color="#7c3aed" />
+          <div>
+            <Text weight={600} size="sm">
+              {row.name}
+            </Text>
+            {row.subtitle && (
+              <Text size="xs" color="dimmed">
+                {row.subtitle}
+              </Text>
+            )}
+          </div>
+        </Group>
+      ),
     },
-    // renderRowActions: ({ row, table }) => (
-    //   <Flex gap="md">
-
-    //     <Tooltip label="حذف">
-    // <ActionIcon color="red" onClick={() => openDeleteConfirmModal(row)}>
-    //         <IconTrash />
-    //       </ActionIcon>
-    //     </Tooltip>
-    //   </Flex>
-    // ),
-    renderRowActionMenuItems: ({ row }) => (
-      <Flex>
-        <Link to={`${row.original._id}/edit`}>
-          <ActionIcon color="red">
-            <IconTrash />
+    {
+      key: 'category',
+      title: 'التصنيف / القسم',
+      align: 'center',
+      render: (row) => (
+        <Badge color="violet" variant="light" size="sm">
+          {row.category || 'عام'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'status',
+      title: 'الحالة',
+      align: 'center',
+      render: (row) => (
+        <Badge
+          color={row.completed ? 'gray' : 'teal'}
+          variant="light"
+          size="sm"
+        >
+          {row.completed ? 'مكتمل' : 'قيد التدريس'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'actions',
+      title: 'الإجراءات',
+      align: 'left',
+      render: (row) => (
+        <Group spacing="xs" position="left">
+          <Button
+            component={Link}
+            to={`${row._id || row.id}`}
+            variant="light"
+            size="xs"
+            leftIcon={<IconInfoCircle size={14} />}
+            rightIcon={<IconArrowLeft size={14} />}
+          >
+            عرض التفاصيل
+          </Button>
+          <ActionIcon
+            component={Link}
+            to={`${row._id || row.id}/edit`}
+            variant="subtle"
+            color="brand"
+            size="sm"
+            title="تعديل المقرر"
+          >
+            <IconPencil size={15} />
           </ActionIcon>
-        </Link>
-      </Flex>
-    ),
-    mantineTableContainerProps: {
-      sx: {
-        minHeight: '500px',
-      },
+        </Group>
+      ),
     },
-  })
+  ]
 
   return (
     <>
-      <div
-        className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
-      >
-        <h5>{'عن الكلية'} </h5>
-      </div>
-      <MantineReactTable table={table} />
+      <PageHeader
+        title="المقررات الدراسية"
+        description="إدارة ومتابعة المقررات والمحتوى الأكاديمي المسند للتدريس"
+        breadcrumbs={[
+          { title: 'الرئيسية', href: '/' },
+          { title: 'المقررات' },
+        ]}
+      />
+
+      <DataTable
+        columns={columns}
+        data={paginatedCourses}
+        meta={{
+          page,
+          limit,
+          total: filteredCourses.length,
+          totalPages: Math.ceil(filteredCourses.length / limit) || 1,
+        }}
+        isLoading={isLoading}
+        search={search}
+        onSearchChange={(val) => {
+          setSearch(val)
+          setPage(1)
+        }}
+        onPageChange={setPage}
+        onLimitChange={(l) => {
+          setLimit(l)
+          setPage(1)
+        }}
+        emptyTitle="لا توجد مقررات دراسية"
+        emptyDescription="لم يتم العثور على أي مقررات مسندة إليك حالياً."
+      />
     </>
   )
 }
