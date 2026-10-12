@@ -1,31 +1,23 @@
 import { Router } from "express";
-import {
-  listUsers,
-  getCurrentUser,
-  getUser,
-  updateUser,
-  deleteUser,
-  changePassword,
-} from "./users.controller.js";
+import * as ctrl from "./users.controller.js";
 import { validateRequest } from "../../core/middleware/validate.middleware.js";
 import { updateUserSchema, changePasswordSchema } from "./users.validator.js";
-import { enforceDemoReadOnly, requireRoles } from "../../core/middleware/rbac.middleware.js";
 
 const router = Router();
 
-router.get("/me", getCurrentUser);
-router.get("/current-user", getCurrentUser);
-router.patch("/me/password", enforceDemoReadOnly, validateRequest({ body: changePasswordSchema }), changePassword);
-router.patch("/me/profile", enforceDemoReadOnly, validateRequest({ body: updateUserSchema }), updateUser);
+router.get("/me", ctrl.getCurrentUser);
+router.get("/current-user", ctrl.getCurrentUser);
+router.patch("/me/password", validateRequest({ body: changePasswordSchema }), ctrl.changePassword);
+router.patch("/me/profile", validateRequest({ body: updateUserSchema }), ctrl.updateUser);
 
 router
   .route("/")
-  .get(listUsers);
+  .get(ctrl.listUsers);
 
 router
   .route("/:id")
-  .get(getUser)
-  .patch(enforceDemoReadOnly, validateRequest({ body: updateUserSchema }), updateUser)
-  .delete(enforceDemoReadOnly, deleteUser);
+  .get(ctrl.getUser)
+  .patch(validateRequest({ body: updateUserSchema }), ctrl.updateUser)
+  .delete(ctrl.deleteUser);
 
 export default router;
