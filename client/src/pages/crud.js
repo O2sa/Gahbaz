@@ -42,7 +42,7 @@ export function useGetElements(collection) {
       console.log(collection.join('/'))
       const res = await customFetch.get(`${collection.join('/')}`)
       const payload = res?.data
-      return Array.isArray(payload?.data) ? payload.data : payload
+      return payload?.data !== undefined ? payload.data : payload
     },
     refetchOnWindowFocus: false,
   }
