@@ -15,7 +15,7 @@ import { IoMdTime } from 'react-icons/io'
 import { Link, Outlet, useLoaderData, useParams } from 'react-router-dom'
 import { useGetElements } from '../crud'
 import { useQuery } from '@tanstack/react-query'
-import { Box, Button, Drawer, Grid, Group, Text, Loader, Center, ActionIcon } from '@mantine/core'
+import { Box, Button, Drawer, Grid, Group, Text, Loader, Center, ActionIcon, useMantineTheme } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { Helmet } from 'react-helmet'
 
@@ -32,11 +32,10 @@ export const loader =
   }
 
 export default function Lessons({ ...props }) {
-  // const { courseId } = useParams()
-  // console.log('courseId', courseId)
-  // console.log('lessonId', lessonId)
-
   const courseId = useLoaderData()
+  const theme = useMantineTheme()
+  const isDark = theme.colorScheme === 'dark'
+
   const {
     data: course = [],
     isError: isLoadingError,
@@ -52,22 +51,24 @@ export default function Lessons({ ...props }) {
     )
   }
 
+  const courseData = course?.data || course
+  const sections = courseData?.sections || []
+
   const [nextLesson, setNextLesson] = useState(null)
   const [opened, { open, close }] = useDisclosure(false)
-  // console.log('nextLesson', nextLesson)
 
-  const getLessonsNum = course?.sections?.reduce(
-    (acc, section) => acc + section?.lessons?.length,
+  const getLessonsNum = sections.reduce(
+    (acc, section) => acc + (section?.lessons?.length || 0),
     0,
   )
 
   const courseSyllbus = (
-    <CourseContent close={close} setNextLesson={setNextLesson} to={''} sections={course.sections} />
+    <CourseContent close={close} setNextLesson={setNextLesson} to={''} sections={sections} />
   )
   return (
     <>
-                               <Helmet>
-            <title>{ 'منصة جهبذ | الدروس' }</title>
+      <Helmet>
+        <title>{`منصة جهبذ | ${courseData?.name || 'الدروس'}`}</title>
       </Helmet>
       <div>
         <div className="mb-4 d-flex justify-content-between align-items-center">
@@ -83,52 +84,56 @@ export default function Lessons({ ...props }) {
               <FaArrowRight size={16} />
             </ActionIcon>
             <div>
-              <h4> {course.name}</h4>
+              <h4 style={{ color: isDark ? '#ffffff' : '#0f172a' }}>{courseData?.name}</h4>
               <div>
                 <div>
                   <MdFolderCopy size={'20'} className={` me-2 text-primary`} />
-                  <span className={`me-3`}>{`${course.sections.length} أقسام `}</span>
+                  <span className={`me-3`}>{`${sections.length} أقسام `}</span>
                   <BiSolidVideos size={'20'} className={` me-2 text-primary`} />
                   <span className={`me-3`}>{`${getLessonsNum} دروس`}</span>
-                  {/* <IoMdTime size={'20'} className={` me-2 text-warning`} />
-                  <span className={`me-3`}>{`الدورات`}</span> */}
                 </div>
               </div>
             </div>
           </Group>
 
-          <Group position='right' >
+          <Group position="right">
             <div className="d-block d-xl-none">
               <Button onClick={open} variant="default" color="brand">
-                محتويات الدورة
+                محتويات المقرر
               </Button>
             </div>
 
             {nextLesson ? (
               <Link to={nextLesson}>
-                <Button className="" >
-                  الدرس التالي
-                </Button>
+                <Button>الدرس التالي</Button>
               </Link>
-            ) : (
-              ''
-            )}
+            ) : null}
           </Group>
         </div>
         <Grid>
-          <Grid.Col bg={'white'} sx={{ minHeight: '100vh' }} span={12} lg={9} gap={'md'} p={'md'}>
+          <Grid.Col
+            sx={{
+              minHeight: '100vh',
+              backgroundColor: isDark ? 'rgba(26, 27, 30, 0.7)' : '#ffffff',
+              borderRadius: 12,
+              border: `1px solid ${isDark ? theme.colors.dark[4] : theme.colors.gray[2]}`,
+            }}
+            span={12}
+            lg={9}
+            gap={'md'}
+            p={'md'}
+          >
             {getLessonsNum > 0 ? (
-              <Outlet context={course.sections} />
+              <Outlet context={sections} />
             ) : (
-              <Text> لا يوجد دروس بعد</Text>
+              <Text color="dimmed">لا توجد دروس بعد</Text>
             )}
           </Grid.Col>
 
           <Grid.Col span={12} lg={3}>
-            {course.sections && course.sections.length > 0 && getLessonsNum > 0 ? (
+            {sections.length > 0 && getLessonsNum > 0 ? (
               <>
-                {' '}
-                <div className=" d-none d-xl-block ">{courseSyllbus} </div>
+                <div className="d-none d-xl-block">{courseSyllbus}</div>
                 <div className="d-block d-xl-none">
                   <Drawer
                     position="right"

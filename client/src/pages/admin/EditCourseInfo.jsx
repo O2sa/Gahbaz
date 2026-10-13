@@ -42,6 +42,8 @@ export const EditCourseInfo = ({ queryClient }) => {
     courseId,
   ])
 
+  const courseData = course?.data || course
+
   const [formData, setFormData] = useState({
     describtion: '',
     willLearn: [],
@@ -49,11 +51,11 @@ export const EditCourseInfo = ({ queryClient }) => {
   })
 
   useEffect(() => {
-    if (course) {
+    if (courseData && Object.keys(courseData).length > 0) {
       setFormData({
-        describtion: course.describtion || '',
-        willLearn: course.willLearn ? [...course.willLearn] : [],
-        requirements: course.requirements ? [...course.requirements] : [],
+        describtion: courseData.description || courseData.describtion || '',
+        willLearn: courseData.willLearn ? [...courseData.willLearn] : [],
+        requirements: courseData.requirements ? [...courseData.requirements] : [],
       })
     }
   }, [course])
