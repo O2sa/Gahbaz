@@ -1,16 +1,30 @@
 import mongoose from "mongoose";
 import User from "../models/User.js";
+import Admin from "../models/Admin.js";
+import University from "../models/University.js";
 import { hashPassword } from "../core/utils/password.utils.js";
 import env from "../config/env.js";
 
 const demoUsers = [
   {
-    firstName: "Demo",
-    lastName: "Admin",
+    firstName: "عبدالرحمن",
+    lastName: "الغامدي",
     email: "admin@test.com",
     plainPassword: "admin@test.com",
     role: "admin",
     isAdmin: true,
+    permissions: "rw",
+    kind: "Admin",
+  },
+  {
+    firstName: "مدير",
+    lastName: "الجامعة",
+    email: "univ.admin@gahbaz.edu",
+    plainPassword: "Password123!",
+    role: "admin",
+    isAdmin: true,
+    permissions: "rw",
+    kind: "Admin",
   },
   {
     firstName: "Demo",
@@ -19,6 +33,7 @@ const demoUsers = [
     plainPassword: "teacher@tech.com",
     role: "teacher",
     isAdmin: false,
+    kind: "Teacher",
   },
   {
     firstName: "Demo",
@@ -27,6 +42,7 @@ const demoUsers = [
     plainPassword: "student@test.com",
     role: "student",
     isAdmin: false,
+    kind: "Student",
   },
 ];
 
@@ -35,6 +51,8 @@ export const seedDemoUsers = async () => {
   if (isDirectRun || mongoose.connection.readyState === 0) {
     await mongoose.connect(env.MONGO_URL);
   }
+
+  const primaryUniversity = await University.findOne();
 
   for (const demo of demoUsers) {
     const existing = await User.findOne({ email: demo.email });
@@ -48,12 +66,20 @@ export const seedDemoUsers = async () => {
         password: hashedPassword,
         role: demo.role,
         isAdmin: demo.isAdmin,
+        kind: demo.kind,
+        permissions: demo.permissions,
+        ...(primaryUniversity ? { university: primaryUniversity._id } : {}),
       });
       console.log(`[Seed] Created demo user: ${demo.email}`);
     } else {
       existing.password = hashedPassword;
       existing.role = demo.role;
       existing.isAdmin = demo.isAdmin;
+      if (demo.kind) existing.kind = demo.kind;
+      if (demo.permissions) existing.permissions = demo.permissions;
+      if (primaryUniversity && !existing.university) {
+        existing.university = primaryUniversity._id;
+      }
       await existing.save();
       console.log(`[Seed] Updated demo user password: ${demo.email}`);
     }

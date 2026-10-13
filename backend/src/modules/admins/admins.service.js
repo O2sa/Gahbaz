@@ -20,29 +20,54 @@ export const getAdminByIdService = async (id, universityId) => {
 };
 
 export const createAdminService = async (data, universityId) => {
-  const tempPassword = generateSecurePassword(8);
-  const hashedPassword = await hashPassword(tempPassword);
+  let firstName = data.firstName;
+  let lastName = data.lastName;
+  if (!firstName && data.name) {
+    const parts = data.name.trim().split(/\s+/);
+    firstName = parts[0] || "مدير";
+    lastName = parts.slice(1).join(" ") || "جامعي";
+  }
+
+  const rawPassword = data.password || generateSecurePassword(8);
+  const hashedPassword = await hashPassword(rawPassword);
 
   const admin = await Admin.create({
     ...data,
+    firstName: firstName || "مدير",
+    lastName: lastName || "الجامعة",
     university: universityId,
     role: "admin",
+    isAdmin: true,
+    kind: "Admin",
+    permissions: data.permissions || "rw",
     password: hashedPassword,
   });
 
-  await sendMail(
-    admin.email,
-    "Gahbaz Admin Account Created",
-    `Your admin account has been created with temporary password: ${tempPassword}\nPlease change it upon login.`
-  );
+  try {
+    await sendMail(
+      admin.email,
+      "Gahbaz Admin Account Created",
+      `Your admin account has been created with temporary password: ${rawPassword}\nPlease change it upon login.`
+    );
+  } catch (err) {
+    console.warn("[Admin Service] Mail sending skipped:", err.message);
+  }
 
   return Admin.findById(admin._id).select("-password");
 };
 
 export const updateAdminService = async (id, data, universityId) => {
+  let updateData = { ...data };
+  if (!updateData.firstName && updateData.name) {
+    const parts = updateData.name.trim().split(/\s+/);
+    updateData.firstName = parts[0];
+    updateData.lastName = parts.slice(1).join(" ") || updateData.lastName;
+    delete updateData.name;
+  }
+
   const updatedAdmin = await Admin.findOneAndUpdate(
     { _id: id, university: universityId },
-    data,
+    updateData,
     { new: true }
   ).select("-password");
   if (!updatedAdmin) throw new NotFoundError("Admin not found");
