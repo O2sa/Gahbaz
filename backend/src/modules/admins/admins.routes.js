@@ -7,8 +7,8 @@ import { paginationQuerySchema } from "../../core/utils/pagination.utils.js";
 
 const router = Router();
 
-// Protect all admin endpoints for super-admin in one place
-router.use(requireRoles("super-admin"));
+// Protect all admin endpoints for admin and super-admin
+router.use(requireRoles("admin", "super-admin"));
 
 router
   .route("/")
