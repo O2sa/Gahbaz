@@ -18,20 +18,27 @@ export const getCollageSubjectsService = async (id, query = {}) => {
   return getSubjectsService({ college: collegeId }, query);
 };
 
-export const getSubjectByIdService = async (id) => {
-  const subject = await Subject.findById(id).populate("teachers");
+export const getSubjectByIdService = async (id, universityId = null) => {
+  let subject;
+  if (universityId) {
+    subject = await Subject.findOne({ _id: id, university: universityId }).populate("teachers");
+  } else {
+    subject = await Subject.findById(id).populate("teachers");
+  }
   if (!subject) throw new NotFoundError("Subject not found");
   return subject;
 };
 
-export const updateSubjectService = async (id, data) => {
-  const subject = await Subject.findByIdAndUpdate(id, data, { new: true });
+export const updateSubjectService = async (id, data, universityId = null) => {
+  const query = universityId ? { _id: id, university: universityId } : { _id: id };
+  const subject = await Subject.findOneAndUpdate(query, data, { new: true });
   if (!subject) throw new NotFoundError("Subject not found");
   return subject;
 };
 
-export const deleteSubjectService = async (id) => {
-  const subject = await Subject.findByIdAndDelete(id);
+export const deleteSubjectService = async (id, universityId = null) => {
+  const query = universityId ? { _id: id, university: universityId } : { _id: id };
+  const subject = await Subject.findOneAndDelete(query);
   if (!subject) throw new NotFoundError("Subject not found");
   return subject;
 };
