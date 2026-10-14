@@ -233,10 +233,10 @@ All of these currently 404 because the API expected root query parameters.
 - Modify: `backend/src/modules/chat/chat.service.js`
 - Test: `backend/tests/modules/auto-course-chat.test.js`
 
-- [ ] **Step 1: Create helper `ensureCourseChatChannel(courseId)` in chat service**
-- [ ] **Step 2: Trigger channel creation when course is created or semester started**
-- [ ] **Step 3: Sync student roster when students are added or dropped**
-- [ ] **Step 4: Verify with tests and commit**
+- [x] **Step 1: Create helper `ensureCourseChatChannel(courseId)` in chat service**
+- [x] **Step 2: Trigger channel creation when course is created or semester started**
+- [x] **Step 3: Sync student roster when students are added or dropped**
+- [x] **Step 4: Verify with tests and commit**
 
 ---
 
