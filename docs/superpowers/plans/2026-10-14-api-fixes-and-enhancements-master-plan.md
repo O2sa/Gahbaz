@@ -182,9 +182,9 @@ All of these currently 404 because the API expected root query parameters.
 - Modify: `backend/src/modules/courses/courses.service.js`
 - Test: `backend/tests/modules/cascade-delete.test.js`
 
-- [ ] **Step 1: Write test verifying deleting a course deletes its sections and grade records**
-- [ ] **Step 2: Add cleanup logic or Mongoose pre-hook to remove child records**
-- [ ] **Step 3: Verify and commit changes**
+- [x] **Step 1: Write test verifying deleting a course deletes its sections and grade records**
+- [x] **Step 2: Add cleanup logic or Mongoose pre-hook to remove child records**
+- [x] **Step 3: Verify and commit changes**
 
 ---
 
