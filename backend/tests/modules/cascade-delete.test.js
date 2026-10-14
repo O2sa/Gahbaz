@@ -5,6 +5,7 @@ import Course from "../../src/models/Course.js";
 import Section from "../../src/models/Section.js";
 import Grade from "../../src/models/Grade.js";
 import Semester from "../../src/models/Semester.js";
+import Chat from "../../src/models/Chat.js";
 import College from "../../src/models/College.js";
 import Major from "../../src/models/Major.js";
 import Subject from "../../src/models/Subject.js";
@@ -27,6 +28,7 @@ describe("Cascade Deletion Safeguards (Task 3.2)", () => {
     const deleteSectionsSpy = vi.spyOn(Section, "deleteMany").mockResolvedValue({ deletedCount: 3 });
     const deleteGradesSpy = vi.spyOn(Grade, "deleteMany").mockResolvedValue({ deletedCount: 15 });
     const updateSemesterSpy = vi.spyOn(Semester, "updateMany").mockResolvedValue({ modifiedCount: 1 });
+    const deleteChatSpy = vi.spyOn(Chat, "deleteMany").mockResolvedValue({ deletedCount: 1 });
 
     const deleted = await deleteCourseService(courseId, "univ123");
 
@@ -37,6 +39,7 @@ describe("Cascade Deletion Safeguards (Task 3.2)", () => {
       { courses: courseId },
       { $pull: { courses: courseId } }
     );
+    expect(deleteChatSpy).toHaveBeenCalledWith({ course: courseId });
   });
 
   it("deleteCollegeService should cascade delete majors, templates, and subjects", async () => {
