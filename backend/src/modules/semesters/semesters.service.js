@@ -139,6 +139,8 @@ export const startSemesterService = async ({ semesterData, semesters }, universi
               subtitle: subject.subtitle,
               category: subject.category,
               gradeSchema: subject.gradeSchema,
+              creditHours: subject.creditHours || 3,
+              prerequisites: subject.prerequisites || [],
               semester: newSemester._id,
               teachers: subject.teachers,
               university: universityId,

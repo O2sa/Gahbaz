@@ -46,6 +46,17 @@ export default function StudentCourses() {
           { title: 'الرئيسية', href: '/' },
           { title: 'مقرراتي الدراسية' },
         ]}
+        action={
+          <Button
+            component={Link}
+            to="/enrollment"
+            variant="filled"
+            color="brand"
+            radius="md"
+          >
+            بوابة الحذف والإضافة
+          </Button>
+        }
       />
 
       {courseList.length === 0 ? (
