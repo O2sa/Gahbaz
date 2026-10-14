@@ -13,6 +13,8 @@ router
   .get(validateRequest({ query: paginationQuerySchema }), ctrl.getUserCourses)
   .post(requireRoles("admin", "super-admin"), ctrl.createCourse);
 
+router.get("/semester-courses/:semesterId", ctrl.getSemesterCourses);
+
 router
   .route("/:id")
   .get(ctrl.getCourse)

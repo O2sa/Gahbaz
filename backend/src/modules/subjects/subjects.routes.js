@@ -16,6 +16,9 @@ router
     ctrl.createSubject
   );
 
+router.get("/collage-subjects/:id", ctrl.getCollageSubjects);
+router.get("/college-subjects/:id", ctrl.getCollageSubjects);
+
 router
   .route("/:id")
   .get(ctrl.getSubject)

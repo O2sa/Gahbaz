@@ -16,6 +16,8 @@ router
     ctrl.createMajor
   );
 
+router.get("/major/:id", ctrl.getMajor);
+
 router
   .route("/:id")
   .get(ctrl.getMajor)

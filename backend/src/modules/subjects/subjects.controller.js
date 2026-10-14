@@ -8,6 +8,11 @@ export const getSubjects = async (req, res) => {
   sendPaginated(res, data, meta);
 };
 
+export const getCollageSubjects = async (req, res) => {
+  const { data, meta } = await svc.getCollageSubjectsService(req.params.id, req.query);
+  sendPaginated(res, data, meta);
+};
+
 export const getSubject = async (req, res) => {
   const data = await svc.getSubjectByIdService(req.params.id);
   sendSuccess(res, data);
