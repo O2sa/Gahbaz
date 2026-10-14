@@ -128,11 +128,11 @@ All of these currently 404 because the API expected root query parameters.
 - Modify: `backend/src/modules/subjects/subjects.service.js`
 - Test: `backend/tests/core/tenant-isolation.test.js`
 
-- [ ] **Step 1: Write test verifying a user from University A receives 404/Forbidden when querying University B's course or subject ID**
-- [ ] **Step 2: Add `{ university: universityId }` to all find, update, and delete queries in `courses.service.js`**
-- [ ] **Step 3: Add tenant check to `subjects.service.js`**
-- [ ] **Step 4: Verify with `npm test`**
-- [ ] **Step 5: Commit changes**
+- [x] **Step 1: Write test verifying a user from University A receives 404/Forbidden when querying University B's course or subject ID**
+- [x] **Step 2: Add `{ university: universityId }` to all find, update, and delete queries in `courses.service.js`**
+- [x] **Step 3: Add tenant check to `subjects.service.js`**
+- [x] **Step 4: Verify with `npm test`**
+- [x] **Step 5: Commit changes**
 
 ---
 

@@ -5,8 +5,15 @@ import { NotFoundError } from "../../core/errors/customErrors.js";
 import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
 
 // ======================== COURSES ========================
-export const getCourseByIdService = async (id) => {
-  const course = await Course.findById(id).populate("sections").populate("teachers");
+export const getCourseByIdService = async (id, universityId = null) => {
+  let course;
+  if (universityId) {
+    course = await Course.findOne({ _id: id, university: universityId })
+      .populate("sections")
+      .populate("teachers");
+  } else {
+    course = await Course.findById(id).populate("sections").populate("teachers");
+  }
   if (!course) throw new NotFoundError("Course not found");
   const sections = await Section.find({ course: id });
   course.sections = sections;
@@ -17,14 +24,16 @@ export const createCourseService = async (data) => {
   return Course.create(data);
 };
 
-export const updateCourseService = async (id, data) => {
-  const course = await Course.findByIdAndUpdate(id, data, { new: true });
+export const updateCourseService = async (id, data, universityId = null) => {
+  const query = universityId ? { _id: id, university: universityId } : { _id: id };
+  const course = await Course.findOneAndUpdate(query, data, { new: true });
   if (!course) throw new NotFoundError("Course not found");
   return course;
 };
 
-export const deleteCourseService = async (id) => {
-  const course = await Course.findByIdAndDelete(id);
+export const deleteCourseService = async (id, universityId = null) => {
+  const query = universityId ? { _id: id, university: universityId } : { _id: id };
+  const course = await Course.findOneAndDelete(query);
   if (!course) throw new NotFoundError("Course not found");
   await Section.deleteMany({ course: course._id });
   return course;
