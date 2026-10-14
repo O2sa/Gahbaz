@@ -93,3 +93,11 @@ export const deleteLessonService = async (sectionId, lessonId) => {
   await section.deleteLesson(lessonId);
   return section;
 };
+
+export const getLessonService = async (sectionId, lessonId) => {
+  const section = await Section.findById(sectionId);
+  if (!section) throw new NotFoundError("Section not found");
+  const lesson = section.lessons?.id ? section.lessons.id(lessonId) : section.lessons?.find?.((l) => (l._id || l.id)?.toString() === lessonId);
+  if (!lesson) throw new NotFoundError("Lesson not found");
+  return lesson;
+};

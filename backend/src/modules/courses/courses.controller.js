@@ -33,8 +33,16 @@ export const createSection = async (req, res) => {
 };
 
 export const getSection = async (req, res) => {
-  const data = await svc.getSectionByIdService(req.params.id);
-  sendSuccess(res, data);
+  try {
+    const data = await svc.getSectionByIdService(req.params.id);
+    return sendSuccess(res, data);
+  } catch (err) {
+    const courseSections = await svc.getSectionsByCourseService(req.params.id);
+    if (courseSections && courseSections.length > 0) {
+      return sendSuccess(res, courseSections);
+    }
+    throw err;
+  }
 };
 
 export const updateSection = async (req, res) => {
@@ -45,6 +53,11 @@ export const updateSection = async (req, res) => {
 export const deleteSection = async (req, res) => {
   await svc.deleteSectionService(req.params.id);
   sendNoContent(res);
+};
+
+export const getLesson = async (req, res) => {
+  const data = await svc.getLessonService(req.params.sectionId, req.params.lessonId);
+  sendSuccess(res, data);
 };
 
 export const addLesson = async (req, res) => {
