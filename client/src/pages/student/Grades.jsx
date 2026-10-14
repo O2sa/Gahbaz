@@ -11,7 +11,9 @@ import { useGetElements, useUpdateElement } from '../crud'
 import { useLoaderData, useParams } from 'react-router-dom'
 import customFetch from '../../utils/customFetch'
 import { useDashboardContext } from '../../layouts/MainLayout.jsx'
-import { EmptyState } from '../../components/common/index.js'
+import { Link } from 'react-router-dom'
+import { IconCertificate } from '@tabler/icons-react'
+import { PageHeader, EmptyState } from '../../components/common/index.js'
 
 export default function Grades({ queryClient }) {
   //nested data is ok, see accessorKeys in ColumnDef below
@@ -31,21 +33,46 @@ export default function Grades({ queryClient }) {
     )
   }
 
-  if (grades.length == 0) {
-    return <EmptyState title="لا توجد درجات" message="لم يتم رصد درجات لك بعد." />
-  }
+  return (
+    <>
+      <PageHeader
+        title="كشف الدرجات الأكاديمية"
+        description="استعراض درجات الفصول الدراسية والسجل الأكاديمي الشامل"
+        breadcrumbs={[
+          { title: 'الرئيسية', href: '/' },
+          { title: 'الدرجات' },
+        ]}
+        action={
+          <Button
+            component={Link}
+            to="/transcript"
+            variant="filled"
+            color="brand"
+            radius="md"
+            leftIcon={<IconCertificate size={16} />}
+          >
+            السجل الأكاديمي والمعدل التراكمي
+          </Button>
+        }
+      />
 
-  return grades.map((gr, idx) => (
-    <Box mb={'xl'} key={idx}>
-      <Title order={3} m={'lg'}>
-        {`${gr.semester.name} - ${new Date(
-          gr.semester.startDate,
-        ).toLocaleDateString()} => ${new Date(gr.semester.endDate).toLocaleDateString()}`}{' '}
-      </Title>
-      <GradesTable grades={gr.grades} />
-      <Divider />
-    </Box>
-  ))
+      {grades.length === 0 ? (
+        <EmptyState title="لا توجد درجات" message="لم يتم رصد درجات لك بعد." />
+      ) : (
+        grades.map((gr, idx) => (
+          <Box mb={'xl'} key={idx}>
+            <Title order={3} m={'lg'}>
+              {`${gr.semester.name} - ${new Date(
+                gr.semester.startDate,
+              ).toLocaleDateString()} => ${new Date(gr.semester.endDate).toLocaleDateString()}`}{' '}
+            </Title>
+            <GradesTable grades={gr.grades} />
+            <Divider />
+          </Box>
+        ))
+      )}
+    </>
+  )
 }
 
 const GradesTable = ({ grades }) => {
