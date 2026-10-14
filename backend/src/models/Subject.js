@@ -44,6 +44,11 @@ const SubjectSchema = new mongoose.Schema(
         ref: "Teacher",
       },
     ],
+    university: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "University",
+      index: true,
+    },
   },
   {
     timestamps: true,

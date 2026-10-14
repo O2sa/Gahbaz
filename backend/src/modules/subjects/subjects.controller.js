@@ -14,21 +14,25 @@ export const getCollageSubjects = async (req, res) => {
 };
 
 export const getSubject = async (req, res) => {
-  const data = await svc.getSubjectByIdService(req.params.id);
+  const universityId = req.user?.role === "super-admin" ? null : req.user?.universityId;
+  const data = await svc.getSubjectByIdService(req.params.id, universityId);
   sendSuccess(res, data);
 };
 
 export const createSubject = async (req, res) => {
-  const data = await svc.createSubjectService(req.body, req.user.universityId);
+  const universityId = req.user?.role === "super-admin" ? req.body.university : req.user?.universityId;
+  const data = await svc.createSubjectService(req.body, universityId);
   sendCreated(res, data);
 };
 
 export const updateSubject = async (req, res) => {
-  const data = await svc.updateSubjectService(req.params.id, req.body);
+  const universityId = req.user?.role === "super-admin" ? null : req.user?.universityId;
+  const data = await svc.updateSubjectService(req.params.id, req.body, universityId);
   sendSuccess(res, data);
 };
 
 export const deleteSubject = async (req, res) => {
-  await svc.deleteSubjectService(req.params.id);
+  const universityId = req.user?.role === "super-admin" ? null : req.user?.universityId;
+  await svc.deleteSubjectService(req.params.id, universityId);
   sendNoContent(res);
 };

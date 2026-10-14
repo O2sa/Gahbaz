@@ -2,22 +2,26 @@ import * as svc from "./courses.service.js";
 import { sendPaginated, sendSuccess, sendCreated, sendNoContent } from "../../core/utils/response.utils.js";
 
 export const createCourse = async (req, res) => {
-  const data = await svc.createCourseService(req.body);
+  const universityId = req.user?.role === "super-admin" ? req.body.university : req.user?.universityId;
+  const data = await svc.createCourseService({ ...req.body, university: universityId });
   sendCreated(res, data);
 };
 
 export const getCourse = async (req, res) => {
-  const data = await svc.getCourseByIdService(req.params.id);
+  const universityId = req.user?.role === "super-admin" ? null : req.user?.universityId;
+  const data = await svc.getCourseByIdService(req.params.id, universityId);
   sendSuccess(res, data);
 };
 
 export const updateCourse = async (req, res) => {
-  const data = await svc.updateCourseService(req.params.id, req.body);
+  const universityId = req.user?.role === "super-admin" ? null : req.user?.universityId;
+  const data = await svc.updateCourseService(req.params.id, req.body, universityId);
   sendSuccess(res, data);
 };
 
 export const deleteCourse = async (req, res) => {
-  await svc.deleteCourseService(req.params.id);
+  const universityId = req.user?.role === "super-admin" ? null : req.user?.universityId;
+  await svc.deleteCourseService(req.params.id, universityId);
   sendNoContent(res);
 };
 
