@@ -3,6 +3,7 @@ import Section from "../../models/Section.js";
 import Student from "../../models/Student.js";
 import Grade from "../../models/Grade.js";
 import Semester from "../../models/Semester.js";
+import Chat from "../../models/Chat.js";
 import { NotFoundError } from "../../core/errors/customErrors.js";
 import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
 
@@ -23,7 +24,20 @@ export const getCourseByIdService = async (id, universityId = null) => {
 };
 
 export const createCourseService = async (data) => {
-  return Course.create(data);
+  const course = await Course.create(data);
+  try {
+    await Chat.create({
+      chatName: `دورة ${course.name}`,
+      course: course._id,
+      isGroupChat: true,
+      users: [...(course.teachers || [])],
+      groupAdmin: course.teachers?.[0] || null,
+      university: course.university,
+    });
+  } catch (err) {
+    // Non-fatal if chat creation encounters issues
+  }
+  return course;
 };
 
 export const updateCourseService = async (id, data, universityId = null) => {
@@ -43,6 +57,7 @@ export const deleteCourseService = async (id, universityId = null) => {
     { courses: course._id },
     { $pull: { courses: course._id } }
   );
+  await Chat.deleteMany({ course: course._id });
   return course;
 };
 

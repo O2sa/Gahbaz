@@ -29,6 +29,11 @@ const ChatSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    course: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Course",
+      index: true,
+    },
     university: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "University",
