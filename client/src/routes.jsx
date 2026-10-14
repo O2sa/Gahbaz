@@ -32,7 +32,7 @@ import { EditCourseInfo, loader as courseInfoEditLoader } from './pages/admin/Ed
 import { EditCourseSections } from './pages/admin/EditCourseSections'
 import { loader as studentGradesLoader } from './pages/admin/StudentGrades'
 
-import { StudentGrade } from './pages/student'
+import { StudentGrade, CourseRegistration } from './pages/student'
 import ChatRoom from './chat/ChatContainer'
 
 import DefaultLayout from './layouts/MainLayout.jsx'
@@ -233,6 +233,7 @@ export default function getRoutes(queryClient, user) {
     
             //student
             { path: 'grades', name: 'الدرجات', element: <StudentGrade /> },
+            { path: 'enrollment', name: 'الحذف والإضافة', element: <CourseRegistration /> },
           ],
           
         },

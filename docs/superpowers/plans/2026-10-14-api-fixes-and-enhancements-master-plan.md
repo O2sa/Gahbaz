@@ -257,11 +257,11 @@ All of these currently 404 because the API expected root query parameters.
 - `POST /api/v1/enrollment/register` -> Enrolls student in selected course (validating total credit hours)
 - `POST /api/v1/enrollment/drop` -> Drops course during active Add/Drop window
 
-- [ ] **Step 1: Implement enrollment validation service (credit hours & prerequisites)**
-- [ ] **Step 2: Register routes and controllers**
-- [ ] **Step 3: Write tests verifying credit limit violations are rejected**
-- [ ] **Step 4: Build client self-service registration UI**
-- [ ] **Step 5: Commit changes**
+- [x] **Step 1: Implement enrollment validation service (credit hours & prerequisites)**
+- [x] **Step 2: Register routes and controllers**
+- [x] **Step 3: Write tests verifying credit limit violations are rejected**
+- [x] **Step 4: Build client self-service registration UI**
+- [x] **Step 5: Commit changes**
 
 ---
 
