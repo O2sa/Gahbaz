@@ -165,9 +165,9 @@ All of these currently 404 because the API expected root query parameters.
 - Modify: `backend/src/modules/semesters/semesters.service.js`
 - Test: `backend/tests/modules/semester-transaction.test.js`
 
-- [ ] **Step 1: Write test asserting no partial courses or records remain if a middle step fails**
-- [ ] **Step 2: Wrap `startSemesterService` in `mongoose.startSession()` with `withTransaction()`**
-- [ ] **Step 3: Test and commit changes**
+- [x] **Step 1: Write test asserting no partial courses or records remain if a middle step fails**
+- [x] **Step 2: Wrap `startSemesterService` in `mongoose.startSession()` with `withTransaction()`**
+- [x] **Step 3: Test and commit changes**
 
 ---
 

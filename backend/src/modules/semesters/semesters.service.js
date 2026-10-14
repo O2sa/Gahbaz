@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Semester from "../../models/Semester.js";
 import SemesterTemplate from "../../models/SemesterTemplate.js";
 import Student from "../../models/Student.js";
@@ -103,79 +104,88 @@ export const endSemesterService = async (id) => {
 };
 
 export const startSemesterService = async ({ semesterData, semesters }, universityId) => {
-  let usedStudents = [];
-  const semesterTemplates = await SemesterTemplate.find({ _id: { $in: semesters } });
+  const session = await mongoose.startSession();
+  try {
+    let result = { success: true };
+    await session.withTransaction(async () => {
+      let usedStudents = [];
+      const semesterTemplates = await SemesterTemplate.find({ _id: { $in: semesters } }).session(session);
 
-  for (const template of semesterTemplates) {
-    const students = await Student.find({
-      comingSemester: template.index,
-      major: template.major,
-      _id: { $nin: usedStudents },
-    });
+      for (const template of semesterTemplates) {
+        const students = await Student.find({
+          comingSemester: template.index,
+          major: template.major,
+          _id: { $nin: usedStudents },
+        }).session(session);
 
-    if (students.length > 0 && template.subjects.length > 0) {
-      const subjects = await Subject.find({ _id: { $in: template.subjects } });
+        if (students.length > 0 && template.subjects.length > 0) {
+          const subjects = await Subject.find({ _id: { $in: template.subjects } }).session(session);
 
-      const newSemester = new Semester({
-        name: template.name,
-        major: template.major,
-        template: template._id,
-        university: universityId,
-        ...semesterData,
-      });
-      await newSemester.save();
-
-      await SemesterTemplate.findByIdAndUpdate(template._id, { active: true });
-
-      const newCourses = await Promise.all(
-        subjects.map(async (subject) => {
-          const newCourse = new Course({
-            name: subject.name,
-            subtitle: subject.subtitle,
-            category: subject.category,
-            gradeSchema: subject.gradeSchema,
-            semester: newSemester._id,
-            teachers: subject.teachers,
-          });
-          await newCourse.save();
-
-          // Create group chat
-          const chatUsers = [...students.map((s) => s._id), ...(newCourse.teachers || [])];
-          await Chat.create({
-            chatName: `دورة ${newCourse.name}`,
-            users: chatUsers,
-            isGroupChat: true,
-            groupAdmin: newCourse.teachers?.[0] || chatUsers[0],
+          const newSemester = new Semester({
+            name: template.name,
+            major: template.major,
+            template: template._id,
             university: universityId,
+            ...semesterData,
           });
+          await newSemester.save({ session });
 
-          return newCourse;
-        })
-      );
+          await SemesterTemplate.findByIdAndUpdate(template._id, { active: true }, { session });
 
-      for (const student of students) {
-        student.comingSemester += 1;
-        student.semesters.push(newSemester._id);
-        await student.save();
-
-        await Promise.all(
-          newCourses.map(async (course) => {
-            const newGrade = new Grade({
-              student: student._id,
-              course: course._id,
+          const newCourses = [];
+          for (const subject of subjects) {
+            const newCourse = new Course({
+              name: subject.name,
+              subtitle: subject.subtitle,
+              category: subject.category,
+              gradeSchema: subject.gradeSchema,
+              semester: newSemester._id,
+              teachers: subject.teachers,
+              university: universityId,
             });
-            await newGrade.save();
-          })
-        );
+            await newCourse.save({ session });
+
+            const chatUsers = [...students.map((s) => s._id), ...(newCourse.teachers || [])];
+            await Chat.create(
+              [
+                {
+                  chatName: `دورة ${newCourse.name}`,
+                  users: chatUsers,
+                  isGroupChat: true,
+                  groupAdmin: newCourse.teachers?.[0] || chatUsers[0],
+                  university: universityId,
+                },
+              ],
+              { session }
+            );
+
+            newCourses.push(newCourse);
+          }
+
+          for (const student of students) {
+            student.comingSemester += 1;
+            student.semesters.push(newSemester._id);
+            await student.save({ session });
+
+            for (const course of newCourses) {
+              const newGrade = new Grade({
+                student: student._id,
+                course: course._id,
+              });
+              await newGrade.save({ session });
+            }
+          }
+
+          newSemester.courses = newCourses.map((c) => c._id);
+          newSemester.students = students.map((s) => s._id);
+          await newSemester.save({ session });
+
+          usedStudents = [...usedStudents, ...students.map((s) => s._id)];
+        }
       }
-
-      newSemester.courses = newCourses.map((c) => c._id);
-      newSemester.students = students.map((s) => s._id);
-      await newSemester.save();
-
-      usedStudents = [...usedStudents, ...students.map((s) => s._id)];
-    }
+    });
+    return result;
+  } finally {
+    await session.endSession();
   }
-
-  return { success: true };
 };
