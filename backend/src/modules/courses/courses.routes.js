@@ -1,5 +1,6 @@
 import { Router } from "express";
 import * as ctrl from "./courses.controller.js";
+import assignmentsRouter from "../assignments/assignments.routes.js";
 import { requireRoles } from "../../core/middleware/rbac.middleware.js";
 import { validateRequest } from "../../core/middleware/validate.middleware.js";
 import { createSectionSchema, createLessonSchema } from "./courses.validator.js";
@@ -14,6 +15,8 @@ router
   .post(requireRoles("admin", "super-admin"), ctrl.createCourse);
 
 router.get("/semester-courses/:semesterId", ctrl.getSemesterCourses);
+
+router.use("/:courseId/assignments", assignmentsRouter);
 
 router
   .route("/:id")
