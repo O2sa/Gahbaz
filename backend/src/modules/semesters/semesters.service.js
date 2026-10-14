@@ -6,17 +6,36 @@ import Section from "../../models/Section.js";
 import Subject from "../../models/Subject.js";
 import Grade from "../../models/Grade.js";
 import Chat from "../../models/Chat.js";
+import Major from "../../models/Major.js";
 import { NotFoundError } from "../../core/errors/customErrors.js";
 import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
 
 // ======================== SEMESTER TEMPLATES ========================
 export const createSemesterTemplateService = async (data) => {
-  return SemesterTemplate.create(data);
+  const payload = { ...data };
+  if (!payload.name) {
+    payload.name = `Semester ${payload.index || 1}`;
+  }
+  return SemesterTemplate.create(payload);
 };
 
 export const getSemesterTemplatesService = async (filter = {}, query = {}) => {
   const { page, limit } = parsePagination(query);
   return paginateQuery(SemesterTemplate, filter, { page, limit, populate: "subjects" });
+};
+
+export const getSemesterTemplatesByMajorOrIdService = async (id, query = {}) => {
+  const majorExists = await Major.exists({ _id: id });
+  if (majorExists) {
+    return getSemesterTemplatesService({ major: id }, query);
+  }
+
+  const template = await SemesterTemplate.findById(id).populate("subjects");
+  if (template) {
+    return template;
+  }
+
+  return getSemesterTemplatesService({ major: id }, query);
 };
 
 export const getSemesterTemplateByIdService = async (id) => {

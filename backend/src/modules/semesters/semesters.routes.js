@@ -31,6 +31,9 @@ router
   )
   .delete(requireRoles("admin", "super-admin"), ctrl.deleteSemesterTemplate);
 
+// Client alias for SemesterTemplateDetails.jsx
+router.get("/semester-template/:id", ctrl.getSemesterTemplate);
+
 // ======================== SEMESTERS ========================
 router
   .route("/")
