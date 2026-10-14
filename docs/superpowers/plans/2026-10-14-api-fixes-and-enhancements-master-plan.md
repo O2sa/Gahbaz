@@ -145,11 +145,11 @@ All of these currently 404 because the API expected root query parameters.
 - Modify: `backend/src/modules/auth/auth.routes.js`
 - Modify: `backend/package.json` (add `express-rate-limit`)
 
-- [ ] **Step 1: Install `express-rate-limit`**
-- [ ] **Step 2: Create auth limiter (5 attempts per 15 minutes per IP)**
-- [ ] **Step 3: Attach limiter to `/api/v1/auth/login` and `/register`**
-- [ ] **Step 4: Write test verifying 429 Too Many Requests response after limit exceeded**
-- [ ] **Step 5: Commit changes**
+- [x] **Step 1: Install `express-rate-limit`**
+- [x] **Step 2: Create auth limiter (5 attempts per 15 minutes per IP)**
+- [x] **Step 3: Attach limiter to `/api/v1/auth/login` and `/register`**
+- [x] **Step 4: Write test verifying 429 Too Many Requests response after limit exceeded**
+- [x] **Step 5: Commit changes**
 
 ---
 
