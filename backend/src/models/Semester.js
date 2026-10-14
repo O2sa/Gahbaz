@@ -50,6 +50,9 @@ const SemesterSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    addDropDeadline: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );

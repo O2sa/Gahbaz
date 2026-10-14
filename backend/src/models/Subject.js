@@ -49,6 +49,18 @@ const SubjectSchema = new mongoose.Schema(
       ref: "University",
       index: true,
     },
+    creditHours: {
+      type: Number,
+      default: 3,
+      min: 1,
+      max: 10,
+    },
+    prerequisites: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Subject",
+      },
+    ],
   },
   {
     timestamps: true,
