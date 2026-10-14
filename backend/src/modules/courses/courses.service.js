@@ -1,6 +1,8 @@
 import Course from "../../models/Course.js";
 import Section from "../../models/Section.js";
 import Student from "../../models/Student.js";
+import Grade from "../../models/Grade.js";
+import Semester from "../../models/Semester.js";
 import { NotFoundError } from "../../core/errors/customErrors.js";
 import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
 
@@ -36,6 +38,11 @@ export const deleteCourseService = async (id, universityId = null) => {
   const course = await Course.findOneAndDelete(query);
   if (!course) throw new NotFoundError("Course not found");
   await Section.deleteMany({ course: course._id });
+  await Grade.deleteMany({ course: course._id });
+  await Semester.updateMany(
+    { courses: course._id },
+    { $pull: { courses: course._id } }
+  );
   return course;
 };
 
