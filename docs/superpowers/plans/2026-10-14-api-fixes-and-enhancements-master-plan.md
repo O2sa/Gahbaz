@@ -42,11 +42,11 @@
 - `PATCH /api/v1/sections/:sectionId/lessons/:lessonId` -> updates a lesson
 - `DELETE /api/v1/sections/:sectionId/lessons/:lessonId` -> deletes a lesson
 
-- [ ] **Step 1: Write integration tests for `/api/v1/sections`**
-- [ ] **Step 2: Create `sections.routes.js` and delegate to existing controller methods**
-- [ ] **Step 3: Mount `app.use("/api/v1/sections", authGuard, sectionsRouter)` in `app.js`**
-- [ ] **Step 4: Run `npm test` to verify all 6 endpoints pass**
-- [ ] **Step 5: Commit changes**
+- [x] **Step 1: Write integration tests for `/api/v1/sections`**
+- [x] **Step 2: Create `sections.routes.js` and delegate to existing controller methods**
+- [x] **Step 3: Mount `app.use("/api/v1/sections", authGuard, sectionsRouter)` in `app.js`**
+- [x] **Step 4: Run `npm test` to verify all 6 endpoints pass**
+- [x] **Step 5: Commit changes**
 
 ---
 
@@ -64,11 +64,11 @@
 - `GET /api/v1/semester-templates/:majorId` -> returns list of semester templates for that major
 - `GET /api/v1/semesters/semester-template/:id` -> returns single semester template by ID
 
-- [ ] **Step 1: Write integration tests for `/api/v1/semester-templates/:majorId`**
-- [ ] **Step 2: Add route aliases in `semesters.routes.js` and mount `/api/v1/semester-templates` in `app.js`**
-- [ ] **Step 3: Support major ID filter in controller if passed as route param**
-- [ ] **Step 4: Verify with `npm test`**
-- [ ] **Step 5: Commit changes**
+- [x] **Step 1: Write integration tests for `/api/v1/semester-templates/:majorId`**
+- [x] **Step 2: Add route aliases in `semesters.routes.js` and mount `/api/v1/semester-templates` in `app.js`**
+- [x] **Step 3: Support major ID filter in controller if passed as route param**
+- [x] **Step 4: Verify with `npm test`**
+- [x] **Step 5: Commit changes**
 
 ---
 
