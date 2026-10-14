@@ -214,12 +214,12 @@ All of these currently 404 because the API expected root query parameters.
 - `GET /api/v1/assignments/:id/submissions` -> Teacher views all submissions
 - `PATCH /api/v1/submissions/:id/grade` -> Teacher grades submission and updates Grade document
 
-- [ ] **Step 1: Create Assignment and Submission Mongoose models**
-- [ ] **Step 2: Implement Zod validators and business services**
-- [ ] **Step 3: Register routes in `app.js`**
-- [ ] **Step 4: Write comprehensive tests and verify with `npm test`**
-- [ ] **Step 5: Connect client UI components**
-- [ ] **Step 6: Commit changes**
+- [x] **Step 1: Create Assignment and Submission Mongoose models**
+- [x] **Step 2: Implement Zod validators and business services**
+- [x] **Step 3: Register routes in `app.js`**
+- [x] **Step 4: Write comprehensive tests and verify with `npm test`**
+- [x] **Step 5: Connect client UI components**
+- [x] **Step 6: Commit changes**
 
 ---
 
