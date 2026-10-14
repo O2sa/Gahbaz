@@ -26,6 +26,11 @@ export const getUserCourses = async (req, res) => {
   sendPaginated(res, data, meta);
 };
 
+export const getSemesterCourses = async (req, res) => {
+  const data = await svc.getCoursesBySemesterService(req.params.semesterId);
+  sendSuccess(res, data);
+};
+
 // Sections & Lessons
 export const createSection = async (req, res) => {
   const data = await svc.createSectionService(req.body);

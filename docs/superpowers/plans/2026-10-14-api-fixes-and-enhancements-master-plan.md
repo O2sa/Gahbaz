@@ -86,12 +86,12 @@ All of these currently 404 because the API expected root query parameters.
 - Modify: `backend/src/modules/majors/majors.routes.js`
 - Test: `backend/tests/modules/academic-aliases.test.js`
 
-- [ ] **Step 1: Write integration tests verifying all 3 alias routes return 200 with data**
-- [ ] **Step 2: Add `router.get("/semester-courses/:semesterId", ...)` in `courses.routes.js`**
-- [ ] **Step 3: Add `router.get("/collage-subjects/:majorId", ...)` in `subjects.routes.js`**
-- [ ] **Step 4: Add `router.get("/major/:id", ...)` in `majors.routes.js`**
-- [ ] **Step 5: Run `npm test` and verify**
-- [ ] **Step 6: Commit changes**
+- [x] **Step 1: Write integration tests verifying all 3 alias routes return 200 with data**
+- [x] **Step 2: Add `router.get("/semester-courses/:semesterId", ...)` in `courses.routes.js`**
+- [x] **Step 3: Add `router.get("/collage-subjects/:majorId", ...)` in `subjects.routes.js`**
+- [x] **Step 4: Add `router.get("/major/:id", ...)` in `majors.routes.js`**
+- [x] **Step 5: Run `npm test` and verify**
+- [x] **Step 6: Commit changes**
 
 ---
 
