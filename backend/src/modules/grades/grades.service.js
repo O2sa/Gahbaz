@@ -5,15 +5,22 @@ import { NotFoundError } from "../../core/errors/customErrors.js";
 import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
 
 export const getGradeByIdService = async (id) => {
-  const grade = await Grade.findById(id);
-  if (!grade) {
-    const courseGrades = await Grade.find({ course: id }).populate("student");
-    if (courseGrades && courseGrades.length > 0) {
-      return courseGrades;
-    }
-    throw new NotFoundError("Grade not found");
+  const isCourse = await Course.exists({ _id: id });
+  if (isCourse) {
+    return Grade.find({ course: id }).populate("student");
   }
-  return grade;
+
+  const grade = await Grade.findById(id);
+  if (grade) {
+    return grade;
+  }
+
+  const courseGrades = await Grade.find({ course: id }).populate("student");
+  if (courseGrades && courseGrades.length > 0) {
+    return courseGrades;
+  }
+
+  throw new NotFoundError("Grade not found");
 };
 
 export const getGradesByCourseService = async (courseId, query = {}) => {

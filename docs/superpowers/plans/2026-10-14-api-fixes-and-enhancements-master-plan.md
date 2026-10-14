@@ -108,10 +108,10 @@ All of these currently 404 because the API expected root query parameters.
 **Interfaces:**
 - `GET /api/v1/grades/:id`: Checks if `:id` is a `Course` ID. If so, returns course gradebook (`getCourseGrades`). If it's a Grade document, returns single grade.
 
-- [ ] **Step 1: Write test checking `GET /api/v1/grades/:courseId` returns course grades**
-- [ ] **Step 2: Update controller/service to intelligently resolve course gradebook fallback**
-- [ ] **Step 3: Run `npm test`**
-- [ ] **Step 4: Commit changes**
+- [x] **Step 1: Write test checking `GET /api/v1/grades/:courseId` returns course grades**
+- [x] **Step 2: Update controller/service to intelligently resolve course gradebook fallback**
+- [x] **Step 3: Run `npm test`**
+- [x] **Step 4: Commit changes**
 
 ---
 
