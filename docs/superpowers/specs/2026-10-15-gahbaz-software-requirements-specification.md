@@ -66,6 +66,11 @@ Traditional university operations require extensive in-person administrative pre
 
 **Gahbaz** eliminates these manual operational bottlenecks by providing an end-to-end cloud platform allowing university administrators, professors, and students to conduct and manage the entire higher education lifecycle remotely with zero paper dependency.
 
+> [!IMPORTANT]
+> **Foundational Principle: Major-Driven Automatic Course Assignment**  
+> In Gahbaz, students never undergo tedious, manual, course-by-course registration for their standard curriculum. Each student is matriculated into an academic **Major** (`student.major`). The Major maintains a predefined benchmark study plan (`SemesterTemplate`) for every academic level (Level 1, Level 2, ...).  
+> When university administrators initiate a new semester for that major, the platform **automatically instantiates the courses and assigns them directly to all enrolled students at that level**. Immediately upon term launch, the student's class schedule, syllabus, gradebook entries, and discussion channels are active and populated without any student intervention.
+
 ### 1.3 System Scope & Boundaries
 - **In Scope:**
   - Multi-tenant university partitioning with strict tenant boundary enforcement.
@@ -560,6 +565,11 @@ The table below strictly defines operational permissions by persona:
 ---
 
 ### 5.6 Student Course Enrollment & Add/Drop Portal
+
+> [!NOTE]
+> **Operational Context:**  
+> As defined in §5.4 (`FR-SEM-001`), core course assignment is **100% automated upon semester launch** by the student's major. The Add/Drop Portal documented below serves as a **secondary adjustment window** allowing students to make optional modifications during the active enrollment period (e.g., dropping an optional course, balancing load between 12 and 19 credit hours, or registering for an elective or retake course).
+
 - **FR-ENR-001: Available Courses Discovery**
   - **Endpoint:** `GET /api/v1/enrollment/available-courses`
   - **Actor:** Enrolled `student`
