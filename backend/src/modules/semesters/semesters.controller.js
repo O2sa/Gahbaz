@@ -3,9 +3,19 @@ import { sendPaginated, sendSuccess, sendCreated, sendNoContent } from "../../co
 
 // Semester Templates
 export const getSemesterTemplates = async (req, res) => {
-  const filter = req.query.major ? { major: req.query.major } : {};
+  const majorId = req.params.majorId || req.query.major;
+  const filter = majorId ? { major: majorId } : {};
   const { data, meta } = await svc.getSemesterTemplatesService(filter, req.query);
   sendPaginated(res, data, meta);
+};
+
+export const getSemesterTemplatesByMajorOrId = async (req, res) => {
+  const { id } = req.params;
+  const result = await svc.getSemesterTemplatesByMajorOrIdService(id, req.query);
+  if (result && Array.isArray(result.data)) {
+    return sendPaginated(res, result.data, result.meta);
+  }
+  return sendSuccess(res, result);
 };
 
 export const getSemesterTemplate = async (req, res) => {
@@ -14,7 +24,11 @@ export const getSemesterTemplate = async (req, res) => {
 };
 
 export const createSemesterTemplate = async (req, res) => {
-  const data = await svc.createSemesterTemplateService(req.body);
+  const payload = { ...req.body };
+  if (req.params.majorId && !payload.major) {
+    payload.major = req.params.majorId;
+  }
+  const data = await svc.createSemesterTemplateService(payload);
   sendCreated(res, data);
 };
 
