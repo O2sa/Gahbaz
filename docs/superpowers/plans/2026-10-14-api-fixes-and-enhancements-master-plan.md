@@ -281,11 +281,11 @@ All of these currently 404 because the API expected root query parameters.
 **Interfaces:**
 - `GET /api/v1/students/:id/transcript` -> Returns term-by-term breakdown, credit units, grade letters, SGPA, and cumulative CGPA (4.0 & 5.0 scales).
 
-- [ ] **Step 1: Implement GPA calculation algorithms in `gpa.utils.js`**
-- [ ] **Step 2: Implement transcript service grouping grades by academic semester**
-- [ ] **Step 3: Register route and verify with unit tests**
-- [ ] **Step 4: Build student transcript view in client**
-- [ ] **Step 5: Commit changes**
+- [x] **Step 1: Implement GPA calculation algorithms in `gpa.utils.js`**
+- [x] **Step 2: Implement transcript service grouping grades by academic semester**
+- [x] **Step 3: Register route and verify with unit tests**
+- [x] **Step 4: Build student transcript view in client**
+- [x] **Step 5: Commit changes**
 
 ---
 
