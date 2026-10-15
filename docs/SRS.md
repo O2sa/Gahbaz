@@ -284,7 +284,7 @@ graph TD
 | `major` | ObjectId | Yes | Ref: `Major`, Indexed | Program for which this template applies |
 | `index` | Number | Yes | Default: `1` | Level index sequence (1, 2, 3...) |
 | `active` | Boolean | Yes | Default: `false` | Indicates whether template is currently active |
-| `subjects` | Array[ObjectId] | No | Ref: `Subject` | Master subjects prescribed for this academic level |
+| `subjects` | Array[ObjectId] | No | Ref: `Subject` | Master catalog subjects prescribed for this academic level. All subjects are strictly **mandatory core requirements** contributing to the student's graduation credits and final GPA. |
 
 ---
 
@@ -519,7 +519,7 @@ The table below strictly defines operational permissions by persona:
   - **Business Rules (ACID Multi-Document Transaction):**
     1. Open atomic MongoDB session (`mongoose.startSession()`) and start transaction.
     2. For each selected `SemesterTemplate`:
-       a. Identify eligible student cohort: Students where `major === template.major` and `comingSemester === template.index`.
+       a. Identify eligible student cohort: Students where `major === template.major` and `comingSemester === template.index` (unconditionally enrolled; no administrative hold flags in this baseline).
        b. Create active `Semester` record bound to `universityId`.
        c. Mark `SemesterTemplate.active = true`.
        d. For each catalog `Subject` in the template:
@@ -683,6 +683,10 @@ The table below strictly defines operational permissions by persona:
       - $3.00 \le \text{CGPA} < 3.50 \implies \text{جيد جداً (Very Good)}$
       - $2.00 \le \text{CGPA} < 3.00 \implies \text{جيد (Good Standing)}$
       - $\text{CGPA} < 2.00 \implies \text{تحت الملاحظة الأكاديمية (Academic Probation)}$
+    - **Failed Course Policy:**
+      - When a student fails a course ($\text{Grade} < 60\%$, letter grade `F`, 0.00 grade points), the failing result is permanently factored into the term SGPA and career CGPA.
+      - Quality points contributed = 0, credit hours are counted in `Attempted Credits`, and `Earned Credits` = 0.
+      - In this baseline, the system does not enforce automated retake scheduling, probation registration blocks, or academic suspension; the student continues their program progression according to their major's level sequence.
 
 - **FR-TRN-002: Official Printable Academic Transcript Retrieval**
   - **Endpoints:** `GET /api/v1/transcripts/my-transcript` | `GET /api/v1/transcripts/student/:studentId`
