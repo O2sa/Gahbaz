@@ -6,6 +6,7 @@ import {
   Modal,
   TextInput,
   NumberInput,
+  Select,
   Stack,
   Text,
   Badge,
@@ -13,6 +14,7 @@ import {
 import { useForm } from '@mantine/form'
 import { useDisclosure, useDebouncedValue } from '@mantine/hooks'
 import { IconPlus, IconPencil, IconTrash, IconBook } from '@tabler/icons-react'
+import { useParams } from 'react-router-dom'
 import {
   DataTable,
   PageHeader,
@@ -24,9 +26,12 @@ import {
   useUpdateSubject,
   useDeleteSubject,
 } from '../../hooks/useSubjects.js'
+import { useColleges } from '../../hooks/useColleges.js'
 import dayjs from 'dayjs'
 
 export default function Subjects() {
+  const { id: collegeId } = useParams()
+
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
   const [search, setSearch] = useState('')
@@ -38,11 +43,19 @@ export default function Subjects() {
   const [deleteId, setDeleteId] = useState(null)
 
   // API hooks
-  const { data: subjectsRes, isLoading } = useSubjects({
+  const queryParams = {
     page,
     limit,
     search: debouncedSearch,
-  })
+    ...(collegeId ? { college: collegeId } : {}),
+  }
+  const { data: subjectsRes, isLoading } = useSubjects(queryParams)
+  const { data: collegesRes } = useColleges({ limit: 100 })
+
+  const collegeOptions = (collegesRes?.data || []).map((c) => ({
+    value: c._id || c.id,
+    label: c.name,
+  }))
 
   const createMutation = useCreateSubject()
   const updateMutation = useUpdateSubject()
@@ -53,10 +66,12 @@ export default function Subjects() {
     initialValues: {
       name: '',
       code: '',
-      credits: 3,
+      creditHours: 3,
+      college: collegeId || '',
     },
     validate: {
       name: (val) => (!val?.trim() ? 'اسم المادة مطلوب' : null),
+      creditHours: (val) => (val < 1 || val > 10 ? 'عدد الساعات بين 1 و 10' : null),
     },
   })
 
@@ -65,16 +80,21 @@ export default function Subjects() {
     initialValues: {
       name: '',
       code: '',
-      credits: 3,
+      creditHours: 3,
+      college: '',
     },
     validate: {
       name: (val) => (!val?.trim() ? 'اسم المادة مطلوب' : null),
+      creditHours: (val) => (val < 1 || val > 10 ? 'عدد الساعات بين 1 و 10' : null),
     },
   })
 
   const handleAddSubmit = async (values) => {
     try {
-      await createMutation.mutateAsync(values)
+      await createMutation.mutateAsync({
+        ...values,
+        credits: values.creditHours,
+      })
       addForm.reset()
       closeAdd()
     } catch (err) {
@@ -87,7 +107,8 @@ export default function Subjects() {
     editForm.setValues({
       name: row.name || '',
       code: row.code || '',
-      credits: row.credits || 3,
+      creditHours: row.creditHours || row.credits || 3,
+      college: row.college?._id || row.college || '',
     })
   }
 
@@ -96,7 +117,10 @@ export default function Subjects() {
     try {
       await updateMutation.mutateAsync({
         id: editSubject._id || editSubject.id,
-        data: values,
+        data: {
+          ...values,
+          credits: values.creditHours,
+        },
       })
       setEditSubject(null)
     } catch (err) {
@@ -135,12 +159,22 @@ export default function Subjects() {
       ),
     },
     {
-      key: 'credits',
+      key: 'college',
+      title: 'الكلية التابعة',
+      align: 'center',
+      render: (row) => (
+        <Badge color="blue" variant="light" size="sm">
+          {row.college?.name || 'عام'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'creditHours',
       title: 'الساعات المعتمدة',
       align: 'center',
       render: (row) => (
         <Badge color="violet" variant="light" size="sm">
-          {row.credits || 3} ساعات
+          {row.creditHours || row.credits || 3} ساعات
         </Badge>
       ),
     },
@@ -186,17 +220,21 @@ export default function Subjects() {
   return (
     <>
       <PageHeader
-        title="المواد الدراسية"
-        description="إدارة الخطة الأكاديمية والمقررات والساعات المعتمدة"
+        title="دليل المواد الأكاديمية (Catalog Subjects)"
+        description="إدارة المواد الدراسية التأسيسية، الرموز الأكاديمية، والساعات المعتمدة"
         breadcrumbs={[
           { title: 'الرئيسية', href: '/' },
-          { title: 'المواد الدراسية' },
+          ...(collegeId ? [{ title: 'الكليات', href: '/collages' }] : []),
+          { title: 'دليل المواد الأكاديمية' },
         ]}
         action={
           <Button
             leftIcon={<IconPlus size={16} />}
             color="brand"
-            onClick={openAdd}
+            onClick={() => {
+              addForm.setFieldValue('college', collegeId || collegeOptions[0]?.value || '')
+              openAdd()
+            }}
           >
             إضافة مادة جديدة
           </Button>
@@ -218,34 +256,42 @@ export default function Subjects() {
           setLimit(l)
           setPage(1)
         }}
-        emptyTitle="لا توجد مواد دراسية"
-        emptyDescription="ابدأ بإضافة مواد دراسية لتضمينها في الخطط والفصول الأكاديمية."
+        emptyTitle="لا توجد مواد مسجلة"
+        emptyDescription="ابدأ بإضافة مواد دراسية لتضمينها في الخطط الدراسية وقوالب الفصول."
       />
 
       {/* Add Subject Modal */}
       <Modal
         opened={addOpened}
         onClose={closeAdd}
-        title={<Text weight={700}>إضافة مادة جديدة</Text>}
+        title={<Text weight={700}>إضافة مادة دراسية جديدة</Text>}
       >
         <form onSubmit={addForm.onSubmit(handleAddSubmit)}>
           <Stack spacing="md">
             <TextInput
-              label="اسم المادة الدراسية"
+              label="اسم المادة"
               placeholder="مثال: هندسة البرمجيات المتقدمة"
               required
               {...addForm.getInputProps('name')}
             />
             <TextInput
-              label="رمز / كود المادة"
-              placeholder="CS301"
+              label="رمز المادة (Course Code)"
+              placeholder="مثال: CS101"
               {...addForm.getInputProps('code')}
             />
+            <Select
+              label="الكلية التابعة"
+              placeholder="اختر الكلية"
+              data={collegeOptions}
+              searchable
+              {...addForm.getInputProps('college')}
+            />
             <NumberInput
-              label="عدد الساعات المعتمدة"
+              label="الساعات المعتمدة"
               min={1}
-              max={6}
-              {...addForm.getInputProps('credits')}
+              max={10}
+              required
+              {...addForm.getInputProps('creditHours')}
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={closeAdd}>
@@ -277,14 +323,22 @@ export default function Subjects() {
               {...editForm.getInputProps('name')}
             />
             <TextInput
-              label="رمز / كود المادة"
+              label="رمز المادة"
               {...editForm.getInputProps('code')}
             />
+            <Select
+              label="الكلية التابعة"
+              placeholder="اختر الكلية"
+              data={collegeOptions}
+              searchable
+              {...editForm.getInputProps('college')}
+            />
             <NumberInput
-              label="عدد الساعات المعتمدة"
+              label="الساعات المعتمدة"
               min={1}
-              max={6}
-              {...editForm.getInputProps('credits')}
+              max={10}
+              required
+              {...editForm.getInputProps('creditHours')}
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={() => setEditSubject(null)}>
@@ -308,7 +362,7 @@ export default function Subjects() {
         onClose={() => setDeleteId(null)}
         onConfirm={handleDeleteConfirm}
         title="حذف المادة"
-        message="هل أنت متأكد من حذف هذه المادة الدراسية؟"
+        message="هل أنت متأكد من حذف هذه المادة؟ قد يؤثر ذلك على قوالب الفصول المرتبطة بها."
         confirmLabel="حذف"
         isLoading={deleteMutation.isPending}
       />

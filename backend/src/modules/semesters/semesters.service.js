@@ -63,10 +63,13 @@ export const getAllSemestersService = async (universityId, query = {}) => {
   return paginateQuery(Semester, { university: universityId }, {
     page,
     limit,
-    populate: {
-      path: "major",
-      populate: { path: "college" },
-    },
+    populate: [
+      {
+        path: "major",
+        populate: { path: "college" },
+      },
+      "courses",
+    ],
   });
 };
 

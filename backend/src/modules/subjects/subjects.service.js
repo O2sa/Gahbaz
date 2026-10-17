@@ -9,7 +9,7 @@ export const createSubjectService = async (data, universityId) => {
 
 export const getSubjectsService = async (filter = {}, query = {}) => {
   const { page, limit } = parsePagination(query);
-  return paginateQuery(Subject, filter, { page, limit, populate: "teachers" });
+  return paginateQuery(Subject, filter, { page, limit, populate: ["teachers", "college"] });
 };
 
 export const getCollageSubjectsService = async (id, query = {}) => {

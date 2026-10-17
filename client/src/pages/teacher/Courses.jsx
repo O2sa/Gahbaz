@@ -37,9 +37,13 @@ export default function TeacherCourses() {
 
   const filteredCourses = courseList.filter((c) => {
     if (!debouncedSearch) return true
+    const term = debouncedSearch.toLowerCase()
     return (
-      c.name?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      c.category?.toLowerCase().includes(debouncedSearch.toLowerCase())
+      c.name?.toLowerCase().includes(term) ||
+      c.code?.toLowerCase().includes(term) ||
+      c.category?.toLowerCase().includes(term) ||
+      c.semester?.name?.toLowerCase().includes(term) ||
+      c.semester?.major?.name?.toLowerCase().includes(term)
     )
   })
 
@@ -56,12 +60,21 @@ export default function TeacherCourses() {
         <Group spacing="xs">
           <IconBook size={18} color="#7c3aed" />
           <div>
-            <Text weight={600} size="sm">
-              {row.name}
-            </Text>
-            {row.subtitle && (
+            <Link
+              to={`/courses/${row._id || row.id}`}
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              <Text
+                weight={600}
+                size="sm"
+                sx={{ '&:hover': { color: '#7c3aed', textDecoration: 'underline' } }}
+              >
+                {row.name}
+              </Text>
+            </Link>
+            {row.code && (
               <Text size="xs" color="dimmed">
-                {row.subtitle}
+                رمز المادة: {row.code}
               </Text>
             )}
           </div>
@@ -69,12 +82,57 @@ export default function TeacherCourses() {
       ),
     },
     {
-      key: 'category',
-      title: 'التصنيف / القسم',
+      key: 'semester',
+      title: 'الفصل الدراسي',
+      align: 'center',
+      render: (row) => (
+        <Badge color="blue" variant="light" size="sm">
+          {row.semester?.name || 'عام'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'program',
+      title: 'التخصص والكلية',
+      align: 'center',
+      render: (row) => {
+        const majorName = row.semester?.major?.name
+        const collegeName = row.semester?.major?.college?.name || row.college?.name
+        if (!majorName && !collegeName) return <Text size="xs" color="dimmed">—</Text>
+        return (
+          <Badge color="indigo" variant="outline" size="sm">
+            {majorName ? `${majorName} • ${collegeName || ''}` : collegeName}
+          </Badge>
+        )
+      },
+    },
+    {
+      key: 'teachers',
+      title: 'مدرس المقرر',
+      align: 'center',
+      render: (row) => {
+        const tList = row.teachers || []
+        if (tList.length === 0) return <Text size="xs" color="dimmed">لم يعين مدرس</Text>
+        return (
+          <Text size="xs" weight={500}>
+            {tList
+              .map((t) =>
+                typeof t === 'object'
+                  ? `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.name
+                  : t
+              )
+              .join('، ')}
+          </Text>
+        )
+      },
+    },
+    {
+      key: 'creditHours',
+      title: 'الساعات',
       align: 'center',
       render: (row) => (
         <Badge color="violet" variant="light" size="sm">
-          {row.category || 'عام'}
+          {row.creditHours || row.credits || 3} س
         </Badge>
       ),
     },
@@ -126,8 +184,8 @@ export default function TeacherCourses() {
   return (
     <>
       <PageHeader
-        title="المقررات الدراسية"
-        description="إدارة ومتابعة المقررات والمحتوى الأكاديمي المسند للتدريس"
+        title="المقررات الدراسية المفتوحة"
+        description="إدارة ومتابعة المقررات الدراسية، الفصول التابعة لها، وأعضاء هيئة التدريس المسندين"
         breadcrumbs={[
           { title: 'الرئيسية', href: '/' },
           { title: 'المقررات' },
@@ -155,7 +213,7 @@ export default function TeacherCourses() {
           setPage(1)
         }}
         emptyTitle="لا توجد مقررات دراسية"
-        emptyDescription="لم يتم العثور على أي مقررات مسندة إليك حالياً."
+        emptyDescription="لم يتم العثور على أي مقررات نشطة في النظام حالياً."
       />
     </>
   )

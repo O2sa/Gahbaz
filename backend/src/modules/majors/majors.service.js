@@ -28,11 +28,11 @@ export const createMajorService = async (data, universityId) => {
 
 export const getMajorsService = async (filter = {}, query = {}) => {
   const { page, limit } = parsePagination(query);
-  return paginateQuery(Major, filter, { page, limit, populate: "semesterTemplates" });
+  return paginateQuery(Major, filter, { page, limit, populate: ["semesterTemplates", "college"] });
 };
 
 export const getMajorByIdService = async (id) => {
-  const major = await Major.findById(id).populate("semesterTemplates");
+  const major = await Major.findById(id).populate(["semesterTemplates", "college"]);
   if (!major) throw new NotFoundError("Major not found");
   return major;
 };
