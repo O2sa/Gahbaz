@@ -103,23 +103,85 @@ export const endSemesterService = async (id) => {
   return semester;
 };
 
-export const startSemesterService = async ({ semesterData, semesters }, universityId) => {
+export const startSemesterService = async ({ semesterData, semesters = [], majors = [] }, universityId) => {
   const session = await mongoose.startSession();
   try {
     let result = { success: true };
     await session.withTransaction(async () => {
       let usedStudents = [];
-      const semesterTemplates = await SemesterTemplate.find({ _id: { $in: semesters } }).session(session);
+      const resolvedConfigs = [];
+
+      // 1. Process `majors` array if provided
+      if (Array.isArray(majors) && majors.length > 0) {
+        for (const m of majors) {
+          if (m.allSemesters) {
+            const allTemplates = await SemesterTemplate.find({ major: m.majorId }).session(session);
+            for (const t of allTemplates) {
+              resolvedConfigs.push({
+                templateId: t._id.toString(),
+                customSubjects: null, // default to all template subjects
+              });
+            }
+          } else if (Array.isArray(m.semesters)) {
+            for (const semItem of m.semesters) {
+              const tId = semItem.templateId || semItem._id || semItem.id || semItem;
+              if (tId) {
+                resolvedConfigs.push({
+                  templateId: tId.toString(),
+                  customSubjects: Array.isArray(semItem.subjects) ? semItem.subjects : null,
+                });
+              }
+            }
+          }
+        }
+      }
+
+      // 2. Process `semesters` array (supports string IDs, objects, legacy calls)
+      if (Array.isArray(semesters) && semesters.length > 0) {
+        for (const s of semesters) {
+          if (typeof s === "string" || s instanceof mongoose.Types.ObjectId) {
+            resolvedConfigs.push({
+              templateId: s.toString(),
+              customSubjects: null,
+            });
+          } else if (s && typeof s === "object") {
+            const tId = s.templateId || s._id || s.id;
+            if (tId) {
+              resolvedConfigs.push({
+                templateId: tId.toString(),
+                customSubjects: Array.isArray(s.subjects) ? s.subjects : null,
+              });
+            }
+          }
+        }
+      }
+
+      // De-duplicate by templateId
+      const uniqueConfigsMap = new Map();
+      for (const cfg of resolvedConfigs) {
+        if (!uniqueConfigsMap.has(cfg.templateId)) {
+          uniqueConfigsMap.set(cfg.templateId, cfg);
+        }
+      }
+      const finalConfigs = Array.from(uniqueConfigsMap.values());
+      const templateIds = finalConfigs.map((c) => c.templateId);
+
+      const semesterTemplates = await SemesterTemplate.find({ _id: { $in: templateIds } }).session(session);
 
       for (const template of semesterTemplates) {
+        const config = uniqueConfigsMap.get(template._id.toString());
+        const targetSubjectIds = (config?.customSubjects && config.customSubjects.length > 0)
+          ? config.customSubjects
+          : template.subjects;
+
         const students = await Student.find({
           comingSemester: template.index,
           major: template.major,
           _id: { $nin: usedStudents },
         }).session(session);
 
-        if (students.length > 0 && template.subjects.length > 0) {
-          const subjects = await Subject.find({ _id: { $in: template.subjects } }).session(session);
+        if (students.length > 0 && targetSubjectIds && targetSubjectIds.length > 0) {
+          const subjects = await Subject.find({ _id: { $in: targetSubjectIds } }).session(session);
 
           const newSemester = new Semester({
             name: template.name,

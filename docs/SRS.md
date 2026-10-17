@@ -506,23 +506,60 @@ The table below strictly defines operational permissions by persona:
 ---
 
 ### 5.4 Academic Semester Lifecycle & Term Launch
-- **FR-SEM-001: One-Click Term Launch (`startSemesterService`)**
+- **FR-SEM-001: Flexible Multi-Tier Term Launch (`startSemesterService`)**
   - **Endpoint:** `POST /api/v1/semesters/startSemester`
   - **Actor:** `admin`, `super-admin`
+  - **Hierarchical Selection Flow:**
+    1. **Tier 1 (Major Scope):** Administrator selects one or more Academic Majors to activate for this operational term.
+    2. **Tier 2 (Semester / Level Scope):** For each selected Major, the administrator can:
+       - Toggle **"Select All Semesters"** (`allSemesters: true`) to automatically launch all curriculum levels (Levels 1 through $N$) defined for that program.
+       - OR manually select specific levels/semesters (e.g., Level 1 and Level 3 only).
+    3. **Tier 3 (Subject Customization):** For each semester template being launched:
+       - **Default Mode:** Keep all subjects prescribed in `SemesterTemplate.subjects` (recommended standard).
+       - **Customized Mode:** Select a specific subset of subjects to include in this term's active course offerings (e.g., omitting or substituting specific subjects).
   - **Input Schema:**
     ```json
     {
-      "semesterData": { "name": "Fall 2026", "startDate": "2026-09-01", "endDate": "2027-01-15", "addDropDeadline": "2026-09-21" },
-      "semesters": ["templateId_1", "templateId_2"]
+      "semesterData": {
+        "name": "Fall Semester 2026/2027",
+        "startDate": "2026-09-01T00:00:00.000Z",
+        "endDate": "2027-01-15T23:59:59.000Z",
+        "addDropDeadline": "2026-09-20T23:59:59.000Z"
+      },
+      "majors": [
+        {
+          "majorId": "64f1a2b3c4d5e6f7a8b9c001",
+          "allSemesters": true
+        },
+        {
+          "majorId": "64f1a2b3c4d5e6f7a8b9c002",
+          "semesters": [
+            {
+              "templateId": "64f1a2b3c4d5e6f7a8b9c011"
+            },
+            {
+              "templateId": "64f1a2b3c4d5e6f7a8b9c012",
+              "subjects": ["64f1a2b3c4d5e6f7a8b9c101", "64f1a2b3c4d5e6f7a8b9c102"]
+            }
+          ]
+        }
+      ],
+      "semesters": [
+        "64f1a2b3c4d5e6f7a8b9c099"
+      ]
     }
     ```
   - **Business Rules (ACID Multi-Document Transaction):**
     1. Open atomic MongoDB session (`mongoose.startSession()`) and start transaction.
-    2. For each selected `SemesterTemplate`:
+    2. Resolve target semester templates and subject configurations:
+       - For majors with `allSemesters: true`: query all `SemesterTemplate` records belonging to `majorId`. Subjects default to `template.subjects`.
+       - For majors with explicit `semesters`: resolve each template and its optional custom `subjects` array (defaults to `template.subjects` if omitted/empty).
+       - For direct `semesters` array: support legacy template IDs and objects with custom subjects.
+    3. For each resolved `SemesterTemplate`:
        a. Identify eligible student cohort: Students where `major === template.major` and `comingSemester === template.index` (unconditionally enrolled; no administrative hold flags in this baseline).
        b. Create active `Semester` record bound to `universityId`.
        c. Mark `SemesterTemplate.active = true`.
-       d. For each catalog `Subject` in the template:
+       d. For each resolved catalog `Subject` (either custom selected subjects or template default subjects):
           - Instantiate an active `Course` offering copying `name`, `code`, `creditHours`, `prerequisites`, `gradeSchema`, `teachers`.
           - Provision dedicated course discussion room (`Chat`) with instructor as `groupAdmin` and enrolled cohort as members.
        e. For each student in the cohort:
@@ -530,7 +567,7 @@ The table below strictly defines operational permissions by persona:
           - Append `newSemester._id` to `student.semesters`.
           - Instantiate initialized `Grade` records (`total: 0, percent: 0`) for each generated course and link to `Course.students`.
        f. Attach generated courses and student list to `Semester`.
-    3. Commit transaction. If any failure occurs, rollback all modifications cleanly.
+    4. Commit transaction. If any failure occurs, rollback all modifications cleanly.
   - **Success Response (200):** `{ success: true, message: "Semesters and courses started successfully" }`
 
 - **FR-SEM-002: Semester Finalization & Deletion Safeguards**
