@@ -19,6 +19,9 @@ export const semestersApi = {
   getTemplates: async (params = {}) => {
     return apiClient.get('/semesters/templates', { params })
   },
+  startSemester: async (data) => {
+    return apiClient.post('/semesters/startSemester', data)
+  },
 }
 
 export default semestersApi

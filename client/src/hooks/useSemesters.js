@@ -61,3 +61,20 @@ export function useDeleteSemester() {
     },
   })
 }
+
+export function useStartSemester() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data) => semestersApi.startSemester(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['semesters'] })
+      queryClient.invalidateQueries({ queryKey: ['courses'] })
+      notifications.show({
+        title: 'تم بنجاح',
+        message: 'تم إطلاق الفصول وتوليد المقررات وتسجيل الطلاب بنجاح!',
+        color: 'teal',
+      })
+    },
+  })
+}
+

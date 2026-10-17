@@ -90,7 +90,6 @@ export default function getRoutes(queryClient, user) {
               path: 'collages',
               name: 'إدارة الكليات',
               element: <Collages queryClient={queryClient} />,
-              // loader: collagesLoader(queryClient),
             },
             {
               path: 'collages/:id',
@@ -98,16 +97,14 @@ export default function getRoutes(queryClient, user) {
               element: <CollageInfo queryClient={queryClient} />,
               children: [
                 {
-                  // path: 'about',
                   index: true,
-                  name: 'عن الكية',
+                  name: 'عن الكلية',
                   element: <AboutCollage queryClient={queryClient} />,
                 },
                 {
                   path: 'majors',
                   name: 'التخصصات',
                   element: <Majors queryClient={queryClient} />,
-                  children: [],
                 },
                 {
                   path: 'subjects',
@@ -116,29 +113,54 @@ export default function getRoutes(queryClient, user) {
                 },
               ],
             },
-    
             {
-              path: 'chat',
-              name: 'المحادثات',
-              element: <ChatRoom queryClient={queryClient} />,
-            },
-            {
-              path: 'collages/:id/majors/:id',
+              path: 'collages/:collageId/majors/:majorId',
               name: 'التخصص',
               element: <MajorInfo queryClient={queryClient} />,
               children: [
                 {
-                  // path: 'about',
                   index: true,
                   name: 'عن التخصص',
                   element: <AboutMajor queryClient={queryClient} />,
                 },
                 {
                   path: 'semesterTemplates',
-                  name: 'قوالب التخصص',
+                  name: 'الخطة الدراسية',
                   element: <SemestersTemplate queryClient={queryClient} />,
                 },
               ],
+            },
+            {
+              path: 'majors',
+              name: 'إدارة التخصصات',
+              element: <Majors queryClient={queryClient} />,
+            },
+            {
+              path: 'majors/:majorId',
+              name: 'التخصص',
+              element: <MajorInfo queryClient={queryClient} />,
+              children: [
+                {
+                  index: true,
+                  name: 'عن التخصص',
+                  element: <AboutMajor queryClient={queryClient} />,
+                },
+                {
+                  path: 'semesterTemplates',
+                  name: 'الخطة الدراسية',
+                  element: <SemestersTemplate queryClient={queryClient} />,
+                },
+              ],
+            },
+            {
+              path: 'majors/:majorId/semesterTemplates',
+              name: 'الخطة الدراسية للتخصص',
+              element: <SemestersTemplate queryClient={queryClient} />,
+            },
+            {
+              path: 'subjects',
+              name: 'دليل المواد الأكاديمية',
+              element: <Subjects queryClient={queryClient} />,
             },
             {
               path: '/users',

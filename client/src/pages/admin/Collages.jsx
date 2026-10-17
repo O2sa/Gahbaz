@@ -12,7 +12,8 @@ import {
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useDisclosure, useDebouncedValue } from '@mantine/hooks'
-import { IconPlus, IconPencil, IconTrash, IconBuildingSkyscraper } from '@tabler/icons-react'
+import { IconPlus, IconPencil, IconTrash, IconBuildingSkyscraper, IconEye } from '@tabler/icons-react'
+import { Link } from 'react-router-dom'
 import {
   DataTable,
   PageHeader,
@@ -119,9 +120,14 @@ export default function Collages() {
       render: (row) => (
         <Group spacing="xs">
           <IconBuildingSkyscraper size={18} color="#7c3aed" />
-          <Text weight={600} size="sm">
-            {row.name}
-          </Text>
+          <Link
+            to={`/collages/${row._id || row.id}`}
+            style={{ textDecoration: 'none', color: 'inherit' }}
+          >
+            <Text weight={600} size="sm" sx={{ '&:hover': { color: '#7c3aed', textDecoration: 'underline' } }}>
+              {row.name}
+            </Text>
+          </Link>
         </Group>
       ),
     },
@@ -150,7 +156,17 @@ export default function Collages() {
       title: 'الإجراءات',
       align: 'left',
       render: (row) => (
-        <Group spacing={6} position="left">
+        <Group spacing={8} position="left">
+          <Button
+            component={Link}
+            to={`/collages/${row._id || row.id}`}
+            size="xs"
+            variant="light"
+            color="brand"
+            leftIcon={<IconEye size={14} />}
+          >
+            استعراض التخصصات والمواد
+          </Button>
           <ActionIcon
             color="brand"
             variant="light"

@@ -15,6 +15,7 @@ import {
   IconBuildingSkyscraper,
   IconCertificate,
   IconBook,
+  IconBooks,
   IconCalendarEvent,
   IconSchool,
   IconUserCheck,
@@ -161,6 +162,20 @@ export default function AppNavbar({ opened, setOpened, user }) {
                 sx={navLinkStyle('/collages')}
               />
               <NavLink
+                label="التخصصات والبرامج"
+                icon={<IconCertificate size={19} stroke={1.6} />}
+                active={isActive('/majors')}
+                onClick={() => handleNav('/majors')}
+                sx={navLinkStyle('/majors')}
+              />
+              <NavLink
+                label="دليل المواد الأكاديمية"
+                icon={<IconBooks size={19} stroke={1.6} />}
+                active={isActive('/subjects')}
+                onClick={() => handleNav('/subjects')}
+                sx={navLinkStyle('/subjects')}
+              />
+              <NavLink
                 label="الفصول الدراسية"
                 icon={<IconCalendarEvent size={19} stroke={1.6} />}
                 active={isActive('/semesters')}
@@ -168,7 +183,7 @@ export default function AppNavbar({ opened, setOpened, user }) {
                 sx={navLinkStyle('/semesters')}
               />
               <NavLink
-                label="المقررات الدراسية"
+                label="المقررات المفتوحة"
                 icon={<IconBook size={19} stroke={1.6} />}
                 active={isActive('/courses')}
                 onClick={() => handleNav('/courses')}

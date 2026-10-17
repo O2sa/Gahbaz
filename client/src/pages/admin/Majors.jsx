@@ -5,13 +5,21 @@ import {
   ActionIcon,
   Modal,
   TextInput,
+  Select,
   Stack,
   Text,
   Badge,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useDisclosure, useDebouncedValue } from '@mantine/hooks'
-import { IconPlus, IconPencil, IconTrash, IconCertificate } from '@tabler/icons-react'
+import {
+  IconPlus,
+  IconPencil,
+  IconTrash,
+  IconCertificate,
+  IconFileAnalytics,
+} from '@tabler/icons-react'
+import { useParams, Link } from 'react-router-dom'
 import {
   DataTable,
   PageHeader,
@@ -23,9 +31,12 @@ import {
   useUpdateMajor,
   useDeleteMajor,
 } from '../../hooks/useMajors.js'
+import { useColleges } from '../../hooks/useColleges.js'
 import dayjs from 'dayjs'
 
 export default function Majors() {
+  const { id: collegeId } = useParams()
+
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
   const [search, setSearch] = useState('')
@@ -37,11 +48,19 @@ export default function Majors() {
   const [deleteId, setDeleteId] = useState(null)
 
   // API hooks
-  const { data: majorsRes, isLoading } = useMajors({
+  const queryParams = {
     page,
     limit,
     search: debouncedSearch,
-  })
+    ...(collegeId ? { college: collegeId } : {}),
+  }
+  const { data: majorsRes, isLoading } = useMajors(queryParams)
+  const { data: collegesRes } = useColleges({ limit: 100 })
+
+  const collegeOptions = (collegesRes?.data || []).map((c) => ({
+    value: c._id || c.id,
+    label: c.name,
+  }))
 
   const createMutation = useCreateMajor()
   const updateMutation = useUpdateMajor()
@@ -52,9 +71,11 @@ export default function Majors() {
     initialValues: {
       name: '',
       department: '',
+      college: collegeId || '',
     },
     validate: {
       name: (val) => (!val?.trim() ? 'اسم التخصص مطلوب' : null),
+      college: (val) => (!val ? 'يرجى اختيار الكلية' : null),
     },
   })
 
@@ -63,9 +84,11 @@ export default function Majors() {
     initialValues: {
       name: '',
       department: '',
+      college: '',
     },
     validate: {
       name: (val) => (!val?.trim() ? 'اسم التخصص مطلوب' : null),
+      college: (val) => (!val ? 'يرجى اختيار الكلية' : null),
     },
   })
 
@@ -84,6 +107,7 @@ export default function Majors() {
     editForm.setValues({
       name: row.name || '',
       department: row.department || '',
+      college: row.college?._id || row.college || '',
     })
   }
 
@@ -117,19 +141,38 @@ export default function Majors() {
       render: (row) => (
         <Group spacing="xs">
           <IconCertificate size={18} color="#7c3aed" />
-          <Text weight={600} size="sm">
-            {row.name}
-          </Text>
+          <Link
+            to={`/majors/${row._id || row.id}/semesterTemplates`}
+            style={{ textDecoration: 'none', color: 'inherit' }}
+          >
+            <Text
+              weight={600}
+              size="sm"
+              sx={{ '&:hover': { color: '#7c3aed', textDecoration: 'underline' } }}
+            >
+              {row.name}
+            </Text>
+          </Link>
         </Group>
       ),
     },
     {
-      key: 'department',
-      title: 'القسم الأكاديمي',
+      key: 'college',
+      title: 'الكلية التابع لها',
       align: 'center',
       render: (row) => (
-        <Badge color="violet" variant="light" size="sm">
-          {row.department || row.college?.name || 'عام'}
+        <Badge color="blue" variant="light" size="sm">
+          {row.college?.name || row.department || 'الكلية الرئيسية'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'semesterTemplates',
+      title: 'الخطة الدراسية',
+      align: 'center',
+      render: (row) => (
+        <Badge color="teal" variant="outline" size="sm">
+          {row.semesterTemplates?.length || 0} فصول / مستويات
         </Badge>
       ),
     },
@@ -148,7 +191,17 @@ export default function Majors() {
       title: 'الإجراءات',
       align: 'left',
       render: (row) => (
-        <Group spacing={6} position="left">
+        <Group spacing={8} position="left">
+          <Button
+            component={Link}
+            to={`/majors/${row._id || row.id}/semesterTemplates`}
+            size="xs"
+            variant="light"
+            color="brand"
+            leftIcon={<IconFileAnalytics size={14} />}
+          >
+            الخطة الدراسية والقوالب
+          </Button>
           <ActionIcon
             color="brand"
             variant="light"
@@ -175,17 +228,21 @@ export default function Majors() {
   return (
     <>
       <PageHeader
-        title="التخصصات الأكاديمية"
-        description="إدارة التخصصات والبرامج الدراسية وتوزيع المواد"
+        title="التخصصات والبرامج الأكاديمية"
+        description="إدارة التخصصات، ربطها بالكليات، وإعداد الخطط الدراسية وقوالب الفصول"
         breadcrumbs={[
           { title: 'الرئيسية', href: '/' },
+          ...(collegeId ? [{ title: 'الكليات', href: '/collages' }] : []),
           { title: 'التخصصات' },
         ]}
         action={
           <Button
             leftIcon={<IconPlus size={16} />}
             color="brand"
-            onClick={openAdd}
+            onClick={() => {
+              addForm.setFieldValue('college', collegeId || collegeOptions[0]?.value || '')
+              openAdd()
+            }}
           >
             إضافة تخصص جديد
           </Button>
@@ -215,7 +272,7 @@ export default function Majors() {
       <Modal
         opened={addOpened}
         onClose={closeAdd}
-        title={<Text weight={700}>إضافة تخصص جديد</Text>}
+        title={<Text weight={700}>إضافة تخصص أكاديمي جديد</Text>}
       >
         <form onSubmit={addForm.onSubmit(handleAddSubmit)}>
           <Stack spacing="md">
@@ -225,8 +282,16 @@ export default function Majors() {
               required
               {...addForm.getInputProps('name')}
             />
+            <Select
+              label="الكلية التابع لها التخصص"
+              placeholder="اختر الكلية"
+              data={collegeOptions}
+              required
+              searchable
+              {...addForm.getInputProps('college')}
+            />
             <TextInput
-              label="القسم الأكاديمي"
+              label="القسم الأكاديمي (اختياري)"
               placeholder="مثال: قسم علوم الحاسوب"
               {...addForm.getInputProps('department')}
             />
@@ -259,6 +324,14 @@ export default function Majors() {
               required
               {...editForm.getInputProps('name')}
             />
+            <Select
+              label="الكلية التابع لها التخصص"
+              placeholder="اختر الكلية"
+              data={collegeOptions}
+              required
+              searchable
+              {...editForm.getInputProps('college')}
+            />
             <TextInput
               label="القسم الأكاديمي"
               {...editForm.getInputProps('department')}
@@ -285,7 +358,7 @@ export default function Majors() {
         onClose={() => setDeleteId(null)}
         onConfirm={handleDeleteConfirm}
         title="حذف التخصص"
-        message="هل أنت متأكد من حذف هذا التخصص الأكاديمي؟"
+        message="هل أنت متأكد من حذف هذا التخصص الأكاديمي؟ سيؤدي ذلك لحذف قوالب الفصول المرتبطة به."
         confirmLabel="حذف"
         isLoading={deleteMutation.isPending}
       />

@@ -7,13 +7,13 @@ import {
   Card,
   Badge,
   Button,
-  Group,
   List,
   ThemeIcon,
   Tabs,
   Stack,
   SimpleGrid,
   Box,
+  Grid
 } from '@mantine/core'
 import {
   IconCheck,
