@@ -104,4 +104,111 @@ describe("Semester ACID Transactions (Task 3.1)", () => {
 
     expect(mockSession.endSession).toHaveBeenCalled();
   });
+
+  it("should support selecting majors with allSemesters: true", async () => {
+    const mockSession = {
+      withTransaction: vi.fn().mockImplementation(async (callback) => callback()),
+      endSession: vi.fn().mockResolvedValue(true),
+    };
+    vi.spyOn(mongoose, "startSession").mockResolvedValue(mockSession);
+
+    const mockTemplate1 = {
+      _id: "tmpl1",
+      name: "Level 1",
+      major: "major1",
+      index: 1,
+      subjects: ["sub1"],
+    };
+
+    vi.spyOn(SemesterTemplate, "find")
+      .mockReturnValueOnce({
+        session: vi.fn().mockResolvedValue([mockTemplate1]),
+      })
+      .mockReturnValueOnce({
+        session: vi.fn().mockResolvedValue([mockTemplate1]),
+      });
+
+    vi.spyOn(Student, "find").mockReturnValue({
+      session: vi.fn().mockResolvedValue([]),
+    });
+
+    const result = await startSemesterService(
+      {
+        semesterData: { endDate: "2026-12-31" },
+        majors: [{ majorId: "major1", allSemesters: true }],
+      },
+      "univ123"
+    );
+
+    expect(result.success).toBe(true);
+  });
+
+  it("should support selecting custom subjects per semester template instead of default", async () => {
+    const mockSession = {
+      withTransaction: vi.fn().mockImplementation(async (callback) => callback()),
+      endSession: vi.fn().mockResolvedValue(true),
+    };
+    vi.spyOn(mongoose, "startSession").mockResolvedValue(mockSession);
+
+    const mockTemplate = {
+      _id: "tmpl2",
+      name: "Level 2",
+      major: "major1",
+      index: 2,
+      subjects: ["subDefault1", "subDefault2"],
+    };
+
+    const mockStudent = {
+      _id: "student2",
+      comingSemester: 2,
+      major: "major1",
+      semesters: [],
+      save: vi.fn().mockResolvedValue(true),
+    };
+
+    const mockCustomSubject = {
+      _id: "subCustom1",
+      name: "Advanced Web Technologies",
+      teachers: ["teacher1"],
+      gradeSchema: {},
+    };
+
+    vi.spyOn(SemesterTemplate, "find").mockReturnValue({
+      session: vi.fn().mockResolvedValue([mockTemplate]),
+    });
+    vi.spyOn(Student, "find").mockReturnValue({
+      session: vi.fn().mockResolvedValue([mockStudent]),
+    });
+    const subjectFindSpy = vi.spyOn(Subject, "find").mockReturnValue({
+      session: vi.fn().mockResolvedValue([mockCustomSubject]),
+    });
+    vi.spyOn(SemesterTemplate, "findByIdAndUpdate").mockResolvedValue(true);
+    vi.spyOn(Semester.prototype, "save").mockResolvedValue(true);
+    vi.spyOn(Course.prototype, "save").mockResolvedValue(true);
+    vi.spyOn(Grade.prototype, "save").mockResolvedValue(true);
+    vi.spyOn(Chat, "create").mockResolvedValue(true);
+
+    const result = await startSemesterService(
+      {
+        semesterData: { endDate: "2026-12-31" },
+        majors: [
+          {
+            majorId: "major1",
+            semesters: [
+              {
+                templateId: "tmpl2",
+                subjects: ["subCustom1"], // override default ["subDefault1", "subDefault2"]
+              },
+            ],
+          },
+        ],
+      },
+      "univ123"
+    );
+
+    expect(result.success).toBe(true);
+    expect(subjectFindSpy).toHaveBeenCalledWith({
+      _id: { $in: ["subCustom1"] },
+    });
+  });
 });
