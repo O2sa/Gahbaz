@@ -73,8 +73,21 @@ export const getUserCoursesService = async (user, query = {}) => {
   } else if (user.role === "student") {
     const student = await Student.findById(user.id || user.userId);
     filter = { semester: { $in: student?.semesters || [] } };
+  } else if (user.role === "admin" && user.universityId) {
+    filter = { university: user.universityId };
   }
-  return paginateQuery(Course, filter, { page, limit, populate: "sections" });
+  return paginateQuery(Course, filter, {
+    page,
+    limit,
+    populate: [
+      "sections",
+      "teachers",
+      {
+        path: "semester",
+        populate: { path: "major", populate: { path: "college" } },
+      },
+    ],
+  });
 };
 
 // ======================== SECTIONS & LESSONS ========================

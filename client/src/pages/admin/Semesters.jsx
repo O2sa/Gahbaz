@@ -9,10 +9,23 @@ import {
   Text,
   Badge,
   Switch,
+  MultiSelect,
+  Alert,
+  Paper,
+  Divider,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useDisclosure, useDebouncedValue } from '@mantine/hooks'
-import { IconPlus, IconPencil, IconTrash, IconCalendarEvent } from '@tabler/icons-react'
+import {
+  IconPlus,
+  IconPencil,
+  IconTrash,
+  IconCalendarEvent,
+  IconBook,
+  IconRocket,
+  IconInfoCircle,
+} from '@tabler/icons-react'
+import { Link } from 'react-router-dom'
 import {
   DataTable,
   PageHeader,
@@ -20,10 +33,11 @@ import {
 } from '../../components/common/index.js'
 import {
   useSemesters,
-  useCreateSemester,
   useUpdateSemester,
   useDeleteSemester,
+  useStartSemester,
 } from '../../hooks/useSemesters.js'
+import { useMajors } from '../../hooks/useMajors.js'
 import dayjs from 'dayjs'
 
 export default function Semesters() {
@@ -33,7 +47,7 @@ export default function Semesters() {
   const [debouncedSearch] = useDebouncedValue(search, 350)
 
   // Modals state
-  const [addOpened, { open: openAdd, close: closeAdd }] = useDisclosure(false)
+  const [startOpened, { open: openStart, close: closeStart }] = useDisclosure(false)
   const [editSemester, setEditSemester] = useState(null)
   const [deleteId, setDeleteId] = useState(null)
 
@@ -43,20 +57,30 @@ export default function Semesters() {
     limit,
     search: debouncedSearch,
   })
+  const { data: majorsRes } = useMajors({ limit: 100 })
 
-  const createMutation = useCreateSemester()
+  const majorOptions = (majorsRes?.data || []).map((m) => ({
+    value: m._id || m.id,
+    label: `${m.name} (${m.college?.name || 'الكلية'})`,
+  }))
+
+  const startMutation = useStartSemester()
   const updateMutation = useUpdateSemester()
   const deleteMutation = useDeleteSemester()
 
-  // Add Form
-  const addForm = useForm({
+  // Start Semester Wizard Form
+  const startForm = useForm({
     initialValues: {
-      name: '',
-      academicYear: `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`,
-      isActive: true,
+      name: `فصل الخريف ${new Date().getFullYear()}/${new Date().getFullYear() + 1}`,
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: new Date(Date.now() + 120 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      addDropDeadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      selectedMajors: [],
+      allSemesters: true,
     },
     validate: {
-      name: (val) => (!val?.trim() ? 'اسم الفصل مطلوب' : null),
+      name: (val) => (!val?.trim() ? 'مسمى الفصل الدراسي مطلوب' : null),
+      selectedMajors: (val) => (val.length === 0 ? 'يرجى اختيار تخصص واحد على الأقل' : null),
     },
   })
 
@@ -64,19 +88,30 @@ export default function Semesters() {
   const editForm = useForm({
     initialValues: {
       name: '',
-      academicYear: '',
-      isActive: false,
+      completed: false,
     },
     validate: {
       name: (val) => (!val?.trim() ? 'اسم الفصل مطلوب' : null),
     },
   })
 
-  const handleAddSubmit = async (values) => {
+  const handleStartSubmit = async (values) => {
     try {
-      await createMutation.mutateAsync(values)
-      addForm.reset()
-      closeAdd()
+      const payload = {
+        semesterData: {
+          name: values.name,
+          startDate: new Date(values.startDate),
+          endDate: new Date(values.endDate),
+          addDropDeadline: new Date(values.addDropDeadline),
+        },
+        majors: values.selectedMajors.map((mId) => ({
+          majorId: mId,
+          allSemesters: Boolean(values.allSemesters),
+        })),
+      }
+      await startMutation.mutateAsync(payload)
+      startForm.reset()
+      closeStart()
     } catch (err) {
       // Handled in notifications
     }
@@ -86,8 +121,7 @@ export default function Semesters() {
     setEditSemester(row)
     editForm.setValues({
       name: row.name || '',
-      academicYear: row.academicYear || '',
-      isActive: Boolean(row.isActive),
+      completed: Boolean(row.completed),
     })
   }
 
@@ -121,44 +155,65 @@ export default function Semesters() {
       render: (row) => (
         <Group spacing="xs">
           <IconCalendarEvent size={18} color="#7c3aed" />
-          <Text weight={600} size="sm">
-            {row.name}
-          </Text>
+          <Link
+            to={`/semesters/${row._id || row.id}`}
+            style={{ textDecoration: 'none', color: 'inherit' }}
+          >
+            <Text
+              weight={600}
+              size="sm"
+              sx={{ '&:hover': { color: '#7c3aed', textDecoration: 'underline' } }}
+            >
+              {row.name}
+            </Text>
+          </Link>
         </Group>
       ),
     },
     {
-      key: 'academicYear',
-      title: 'العام الأكاديمي',
+      key: 'major',
+      title: 'التخصص والكلية',
       align: 'center',
       render: (row) => (
-        <Badge color="gray" variant="outline" size="sm">
-          {row.academicYear || '—'}
+        <Badge color="blue" variant="light" size="sm">
+          {row.major?.name ? `${row.major.name} • ${row.major.college?.name || 'الكلية'}` : 'عام'}
         </Badge>
       ),
     },
     {
-      key: 'isActive',
-      title: 'الحالة',
+      key: 'courses',
+      title: 'المقررات المفتوحة',
       align: 'center',
       render: (row) => (
-        <Badge
-          color={row.isActive ? 'teal' : 'gray'}
-          variant={row.isActive ? 'filled' : 'light'}
-          size="sm"
-        >
-          {row.isActive ? 'نشط حالياً' : 'مكتمل / غير نشط'}
+        <Badge color="violet" variant="outline" size="sm">
+          {row.courses?.length || 0} مقرر
         </Badge>
       ),
     },
     {
-      key: 'createdAt',
-      title: 'تاريخ الإنشاء',
+      key: 'dates',
+      title: 'الفترة الزمنية',
       align: 'center',
       render: (row) => (
         <Text size="xs" color="dimmed">
-          {row.createdAt ? dayjs(row.createdAt).format('YYYY/MM/DD') : '—'}
+          {row.startDate ? dayjs(row.startDate).format('YYYY/MM/DD') : '—'}
+          {' إلى '}
+          {row.endDate ? dayjs(row.endDate).format('YYYY/MM/DD') : '—'}
         </Text>
+      ),
+    },
+    {
+      key: 'completed',
+      title: 'الحالة التشغيلية',
+      align: 'center',
+      render: (row) => (
+        <Badge
+          color={row.completed ? 'gray' : 'teal'}
+          variant={row.completed ? 'light' : 'filled'}
+          size="sm"
+        >
+          {row.completed ? 'مكتمل' : 'نشط حالياً'}
+        </Badge>
       ),
     },
     {
@@ -166,7 +221,17 @@ export default function Semesters() {
       title: 'الإجراءات',
       align: 'left',
       render: (row) => (
-        <Group spacing={6} position="left">
+        <Group spacing={8} position="left">
+          <Button
+            component={Link}
+            to={`/semesters/${row._id || row.id}`}
+            size="xs"
+            variant="light"
+            color="brand"
+            leftIcon={<IconBook size={14} />}
+          >
+            استعراض المقررات
+          </Button>
           <ActionIcon
             color="brand"
             variant="light"
@@ -193,19 +258,24 @@ export default function Semesters() {
   return (
     <>
       <PageHeader
-        title="الفصول الدراسية"
-        description="إدارة وتتبع الفصول والسنوات الدراسية ومتابعة الفصول النشطة"
+        title="الفصول الدراسية التشغيلية (Academic Semesters)"
+        description="إطلاق الفصول الدراسية، توليد المقررات، وتعيين الجداول وقنوات المحادثة للطلاب تلقائياً"
         breadcrumbs={[
           { title: 'الرئيسية', href: '/' },
           { title: 'الفصول الدراسية' },
         ]}
         action={
           <Button
-            leftIcon={<IconPlus size={16} />}
+            leftIcon={<IconRocket size={16} />}
             color="brand"
-            onClick={openAdd}
+            onClick={() => {
+              if (majorOptions.length > 0 && startForm.values.selectedMajors.length === 0) {
+                startForm.setFieldValue('selectedMajors', [majorOptions[0].value])
+              }
+              openStart()
+            }}
           >
-            بدء فصل دراسي جديد
+            بدء فصل دراسي جديد (إطلاق المقررات)
           </Button>
         }
       />
@@ -225,44 +295,91 @@ export default function Semesters() {
           setLimit(l)
           setPage(1)
         }}
-        emptyTitle="لا توجد فصول دراسية"
-        emptyDescription="ابدأ بإنشاء فصل دراسي جديد لتفعيل المواد والجداول."
+        emptyTitle="لا توجد فصول دراسية مطلقة بعد"
+        emptyDescription="اضغط على زر (بدء فصل دراسي جديد) لاختيار التخصصات وإطلاق المقررات وتسكين الطلاب فوراً."
       />
 
-      {/* Add Semester Modal */}
+      {/* Start Semester Multi-Tier Launch Wizard Modal */}
       <Modal
-        opened={addOpened}
-        onClose={closeAdd}
-        title={<Text weight={700}>إنشاء فصل دراسي جديد</Text>}
+        opened={startOpened}
+        onClose={closeStart}
+        size="lg"
+        title={
+          <Group spacing="xs">
+            <IconRocket size={20} color="#7c3aed" />
+            <Text weight={700}>معالج إطلاق الفصل الدراسي والمقررات</Text>
+          </Group>
+        }
       >
-        <form onSubmit={addForm.onSubmit(handleAddSubmit)}>
+        <form onSubmit={startForm.onSubmit(handleStartSubmit)}>
           <Stack spacing="md">
+            <Alert
+              icon={<IconInfoCircle size={16} />}
+              title="التسجيل الآلي التلقائي"
+              color="indigo"
+              radius="md"
+            >
+              عند بدء الفصل الدراسي، سيقوم النظام تلقائياً بتوليد المقررات الدراسية بناءً على الخطة المعتمدة وتسكين طلاب التخصص المقيدين وتجهيز قنوات المحادثة وسجلات الدرجات فوراً بدون أي إجراء ورقي.
+            </Alert>
+
             <TextInput
-              label="اسم الفصل الدراسي"
-              placeholder="مثال: الفصل الدراسي الأول"
+              label="مسمى الفصل الدراسي"
+              placeholder="مثال: فصل الخريف 2026/2027"
               required
-              {...addForm.getInputProps('name')}
+              {...startForm.getInputProps('name')}
             />
-            <TextInput
-              label="العام الأكاديمي"
-              placeholder="2026-2027"
+
+            <MultiSelect
+              label="التخصصات الأكاديمية المراد إطلاق فصولها"
+              placeholder="اختر تخصصاً أو أكثر"
+              data={majorOptions}
               required
-              {...addForm.getInputProps('academicYear')}
+              searchable
+              clearable
+              {...startForm.getInputProps('selectedMajors')}
             />
+
             <Switch
-              label="تعيين كفصل دراسي نشط حالياً"
-              {...addForm.getInputProps('isActive', { type: 'checkbox' })}
+              label="إطلاق جميع المستويات الأكاديمية للتخصص المختار (All Semesters)"
+              description="تفعيل جميع قوالب الخطة الدراسية للتخصص دفعة واحدة (المستوى 1، 2، 3 ...)"
+              {...startForm.getInputProps('allSemesters', { type: 'checkbox' })}
             />
-            <Group position="right" mt="md">
-              <Button variant="default" onClick={closeAdd}>
+
+            <Divider my="xs" label="الجدول الزمني للترم الدراسي" labelPosition="center" />
+
+            <Group grow>
+              <TextInput
+                label="تاريخ بداية الفصل"
+                type="date"
+                required
+                {...startForm.getInputProps('startDate')}
+              />
+              <TextInput
+                label="تاريخ نهاية الفصل"
+                type="date"
+                required
+                {...startForm.getInputProps('endDate')}
+              />
+            </Group>
+
+            <TextInput
+              label="الموعد النهائي للحذف والإضافة (Add/Drop Deadline)"
+              type="date"
+              required
+              {...startForm.getInputProps('addDropDeadline')}
+            />
+
+            <Group position="right" mt="lg">
+              <Button variant="default" onClick={closeStart}>
                 إلغاء
               </Button>
               <Button
                 type="submit"
                 color="brand"
-                loading={createMutation.isPending}
+                leftIcon={<IconRocket size={16} />}
+                loading={startMutation.isPending}
               >
-                إنشاء
+                تأكيد وإطلاق الفصل الدراسي
               </Button>
             </Group>
           </Stack>
@@ -282,14 +399,9 @@ export default function Semesters() {
               required
               {...editForm.getInputProps('name')}
             />
-            <TextInput
-              label="العام الأكاديمي"
-              required
-              {...editForm.getInputProps('academicYear')}
-            />
             <Switch
-              label="الفصل نشط حالياً"
-              {...editForm.getInputProps('isActive', { type: 'checkbox' })}
+              label="تعيين الفصل كفصل مكتمل / منتهي"
+              {...editForm.getInputProps('completed', { type: 'checkbox' })}
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={() => setEditSemester(null)}>
@@ -313,7 +425,7 @@ export default function Semesters() {
         onClose={() => setDeleteId(null)}
         onConfirm={handleDeleteConfirm}
         title="حذف الفصل الدراسي"
-        message="هل أنت متأكد من حذف هذا الفصل الدراسي؟"
+        message="هل أنت متأكد من حذف هذا الفصل الدراسي؟ سيتم حذف جميع المقررات وقنوات المحادثة وسجلات الدرجات المرتبطة به بالتتابع."
         confirmLabel="حذف الفصل"
         isLoading={deleteMutation.isPending}
       />
