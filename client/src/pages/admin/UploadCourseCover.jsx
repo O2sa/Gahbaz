@@ -15,9 +15,7 @@ import { useDisclosure } from '@mantine/hooks'
 import { useParams } from 'react-router-dom'
 import { IconPhoto, IconUpload, IconX } from '@tabler/icons-react'
 import { notifications } from '@mantine/notifications'
-
-const cloudName = 'ddng3kwfw'
-const uploadPreset = 't01knn9d'
+import { uploadMedia } from '../../utils/mediaUpload'
 
 export default function UploadCourseCover({ children, queryClient }) {
   const { courseId } = useParams()
@@ -34,18 +32,11 @@ export default function UploadCourseCover({ children, queryClient }) {
     if (!selectedFile) return
     setIsUploading(true)
 
-    const formData = new FormData()
-    formData.append('file', selectedFile)
-    formData.append('upload_preset', uploadPreset)
-
-    const url = `https://api.cloudinary.com/v1_1/${cloudName}/upload`
-
     try {
-      const response = await axios.post(url, formData)
-      const data = response.data
-      if (data?.secure_url) {
+      const media = await uploadMedia(selectedFile, { folder: 'covers' })
+      if (media?.url) {
         await client.patch(`courses/${courseId}`, {
-          cover: data.secure_url,
+          cover: media.url,
         })
         if (queryClient) {
           queryClient.invalidateQueries(['courses', courseId])
@@ -71,7 +62,16 @@ export default function UploadCourseCover({ children, queryClient }) {
   const previews = () => {
     if (!selectedFile) return null
     const imageUrl = URL.createObjectURL(selectedFile)
-    return <Image src={imageUrl} mt="md" radius="md" onLoad={() => URL.revokeObjectURL(imageUrl)} />
+    return (
+      <Image
+        src={imageUrl}
+        height={180}
+        fit="cover"
+        mt="md"
+        radius="md"
+        onLoad={() => URL.revokeObjectURL(imageUrl)}
+      />
+    )
   }
 
   return (
