@@ -25,6 +25,7 @@ import teachersRouter from "./modules/teachers/teachers.routes.js";
 import adminsRouter from "./modules/admins/admins.routes.js";
 import chatRouter, { messagesRouter } from "./modules/chat/chat.routes.js";
 import systemRouter from "./modules/system/system.routes.js";
+import mediaRouter from "./modules/media/media.routes.js";
 import swaggerRouter, { openApiSpec } from "./docs/swagger.js";
 
 import { authenticateUser } from "./core/middleware/auth.middleware.js";
@@ -41,8 +42,10 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(mongoSanitize());
 
-// Static file serving for images
+// Static file serving for images and uploads
 app.use("/images", express.static(path.resolve(__dirname, "../../images")));
+const uploadDir = path.resolve(process.cwd(), process.env.UPLOAD_DIR || "uploads");
+app.use("/uploads", express.static(uploadDir));
 
 // OpenAPI / Swagger Documentation
 app.get("/api/docs.json", (req, res) => {
@@ -82,6 +85,7 @@ app.use("/api/v1/admins", authGuard, adminsRouter);
 app.use("/api/v1/chats", authGuard, chatRouter);
 app.use("/api/v1/messages", authGuard, messagesRouter);
 app.use("/api/v1/system", authGuard, systemRouter);
+app.use("/api/v1/media", mediaRouter);
 
 // Serve frontend in production if built
 const clientDist = path.resolve(__dirname, "../../client/dist");
