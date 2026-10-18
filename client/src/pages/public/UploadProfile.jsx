@@ -8,14 +8,13 @@ import { useDisclosure } from '@mantine/hooks'
 import { useParams } from 'react-router-dom'
 import { IconPhoto, IconUpload, IconX } from '@tabler/icons-react'
 
-// import Progress from 'progress'; // Progress library for visual feedback
-const cloudName = 'ddng3kwfw'
-const uploadPreset = 't01knn9d'
+import { uploadMedia } from '../../utils/mediaUpload'
 
 export default function UploadProfile({ children, queryClient, user }) {
   const [opened, { open, close }] = useDisclosure(false)
   const [selectedFile, setSelectedFile] = useState(null)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [isUploading, setIsUploading] = useState(false)
 
   const handleFileChange = (e) => {
     const file = e[0]
@@ -24,45 +23,43 @@ export default function UploadProfile({ children, queryClient, user }) {
 
   const handleUpload = async () => {
     if (!selectedFile) return
-
-    const formData = new FormData()
-
-    formData.append('file', selectedFile)
-    formData.append('upload_preset', uploadPreset)
-
-    const url = `https://api.cloudinary.com/v1_1/${cloudName}/upload`
+    setIsUploading(true)
 
     try {
-      const response = await axios.post(url, formData, {
-        // headers,
-
-        onUploadProgress: (event) => {
-          const percentCompleted = Math.round((event.loaded * 100) / event.total)
-          setUploadProgress(percentCompleted)
-          // console.log(percentCompleted) // Update progress bar
-        },
+      const media = await uploadMedia(selectedFile, {
+        folder: 'avatars',
+        onProgress: setUploadProgress,
       })
-      const { data } = response
-      if (data) {
-        const url = data.secure_url
-
+      if (media?.url) {
         await customFetch.patch(`users/${user._id}`, {
-          avatar: url,
+          avatar: media.url,
         })
-        queryClient.invalidateQueries(['users', 'current-user'])
-
-        // close()
+        if (queryClient) {
+          queryClient.invalidateQueries(['users', 'current-user'])
+        }
+        close()
       }
     } catch (error) {
-      console.error(error)
+      console.error('Failed to upload avatar:', error)
     } finally {
-      // progress.terminate(); // Clear progress bar
+      setIsUploading(false)
+      setUploadProgress(0)
     }
   }
 
   const previews = () => {
+    if (!selectedFile) return null
     const imageUrl = URL.createObjectURL(selectedFile)
-    return <Image src={imageUrl} onLoad={() => URL.revokeObjectURL(imageUrl)} />
+    return (
+      <Image
+        src={imageUrl}
+        height={180}
+        fit="cover"
+        radius="md"
+        mt="md"
+        onLoad={() => URL.revokeObjectURL(imageUrl)}
+      />
+    )
   }
 
   return (
@@ -111,7 +108,7 @@ export default function UploadProfile({ children, queryClient, user }) {
           {selectedFile && previews()}
         </Dropzone>
         <Group>
-          <Button fullWidth m={'md'} type="button" onClick={handleUpload} disabled={!selectedFile}>
+          <Button fullWidth m={'md'} type="button" onClick={handleUpload} loading={isUploading} disabled={!selectedFile}>
             رفع الصورة
           </Button>
         </Group>

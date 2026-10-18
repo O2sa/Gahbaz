@@ -8,6 +8,7 @@ import {
   Modal,
   rem,
   Center,
+  useMantineTheme,
 } from '@mantine/core'
 import { Dropzone } from '@mantine/dropzone'
 import client from '../../api/client'
@@ -15,9 +16,7 @@ import { useDisclosure } from '@mantine/hooks'
 import { useParams } from 'react-router-dom'
 import { IconUpload, IconVideo, IconX } from '@tabler/icons-react'
 import { notifications } from '@mantine/notifications'
-
-const cloudName = 'ddng3kwfw'
-const uploadPreset = 't01knn9d'
+import { uploadMedia } from '../../utils/mediaUpload'
 
 const getVideoDuration = (file, setDuration) => {
   if (file) {
@@ -36,6 +35,8 @@ const getVideoDuration = (file, setDuration) => {
 
 export default function UploadVideo({ children, sectionId, queryClient, lesson = {} }) {
   const { courseId } = useParams()
+  const theme = useMantineTheme()
+  const isDark = theme.colorScheme === 'dark'
   const [opened, { open, close }] = useDisclosure(false)
   const [duration, setDuration] = useState(0)
   const [selectedFile, setSelectedFile] = useState(null)
@@ -52,27 +53,16 @@ export default function UploadVideo({ children, sectionId, queryClient, lesson =
     if (!selectedFile) return
     setIsUploading(true)
 
-    const formData = new FormData()
-    formData.append('file', selectedFile)
-    formData.append('upload_preset', uploadPreset)
-
-    const url = `https://api.cloudinary.com/v1_1/${cloudName}/upload`
-
     try {
-      const response = await axios.post(url, formData, {
-        onUploadProgress: (event) => {
-          if (event.total) {
-            const percentCompleted = Math.round((event.loaded * 100) / event.total)
-            setUploadProgress(percentCompleted)
-          }
-        },
+      const media = await uploadMedia(selectedFile, {
+        folder: 'videos',
+        onProgress: setUploadProgress,
       })
 
-      const data = response.data
-      if (data?.secure_url) {
+      if (media?.url) {
         await client.patch(`sections/${sectionId}/lessons/${lesson._id}`, {
           video: {
-            url: data.secure_url,
+            url: media.url,
             duration: duration / 60,
           },
         })
@@ -84,7 +74,7 @@ export default function UploadVideo({ children, sectionId, queryClient, lesson =
         notifications.show({
           title: 'تم بنجاح',
           message: 'تم رفع الفيديو بنجاح',
-          color: 'green',
+          color: 'teal',
         })
         close()
       }
@@ -96,6 +86,7 @@ export default function UploadVideo({ children, sectionId, queryClient, lesson =
       })
     } finally {
       setIsUploading(false)
+      setUploadProgress(0)
     }
   }
 
@@ -103,7 +94,26 @@ export default function UploadVideo({ children, sectionId, queryClient, lesson =
 
   return (
     <>
-      <Modal opened={opened} size="lg" onClose={close} title="رفع فيديو الدرس" centered>
+      <Modal
+        opened={opened}
+        size="lg"
+        onClose={close}
+        title={
+          <Text weight={700} size="md" sx={{ color: isDark ? '#ffffff' : '#0f172a' }}>
+            رفع فيديو الدرس
+          </Text>
+        }
+        centered
+        styles={{
+          content: {
+            backgroundColor: isDark ? '#1a1b1e' : '#ffffff',
+          },
+          header: {
+            backgroundColor: isDark ? '#1a1b1e' : '#ffffff',
+            borderBottom: `1px solid ${isDark ? theme.colors.dark[4] : theme.colors.gray[2]}`,
+          },
+        }}
+      >
         <Dropzone
           disabled={isVideoAlreadyUploaded}
           onDrop={handleFileChange}
@@ -112,6 +122,13 @@ export default function UploadVideo({ children, sectionId, queryClient, lesson =
           maxFiles={1}
           maxSize={100 * 1024 * 1024}
           accept={{ 'video/*': [] }}
+          sx={{
+            backgroundColor: isDark ? 'rgba(37, 38, 43, 0.7)' : undefined,
+            borderColor: isDark ? theme.colors.dark[4] : undefined,
+            '&:hover': {
+              backgroundColor: isDark ? 'rgba(37, 38, 43, 0.9)' : undefined,
+            },
+          }}
         >
           <Group position="center" spacing="xl" style={{ minHeight: 180, pointerEvents: 'none' }}>
             <Dropzone.Accept>
@@ -122,25 +139,40 @@ export default function UploadVideo({ children, sectionId, queryClient, lesson =
             </Dropzone.Reject>
             <Dropzone.Idle>
               <Center>
-                <IconVideo style={{ width: rem(48), height: rem(48) }} stroke={1.5} />
+                <IconVideo
+                  style={{ width: rem(48), height: rem(48) }}
+                  color={isDark ? '#60a5fa' : theme.colors.brand[6]}
+                  stroke={1.5}
+                />
               </Center>
             </Dropzone.Idle>
 
             <div>
-              <Text size="md" align="center">
+              <Text
+                size="md"
+                align="center"
+                sx={{ color: isDark ? '#f1f5f9' : '#0f172a', fontWeight: 600 }}
+              >
                 {isVideoAlreadyUploaded
                   ? 'تم رفع الفيديو مسبقاً'
                   : 'انقر لاختيار مقطع فيديو أو اسحب الملف هنا'}
               </Text>
               <Text size="xs" color="dimmed" align="center" mt={4}>
-                الحد الأقصى 100 ميجابايت
+                الحد الأقصى 100 ميجابايت (صيغة MP4 أو WebM)
               </Text>
             </div>
           </Group>
         </Dropzone>
 
         {uploadProgress > 0 && (
-          <Progress m="md" value={uploadProgress} label={`${uploadProgress}%`} size="xl" radius="xl" />
+          <Progress
+            m="md"
+            value={uploadProgress}
+            label={`${uploadProgress}%`}
+            size="xl"
+            radius="xl"
+            color="brand"
+          />
         )}
 
         <Group position="apart" mt="lg">
@@ -151,6 +183,7 @@ export default function UploadVideo({ children, sectionId, queryClient, lesson =
             onClick={handleUpload}
             loading={isUploading}
             disabled={!selectedFile || isVideoAlreadyUploaded}
+            color="brand"
           >
             بدء الرفع
           </Button>
