@@ -41,7 +41,7 @@
   - `getDownloadUrl(key, options)`
   - `deleteFile(key)`
 
-- [ ] **Step 1: Write failing unit test for storage driver factory and fallback**
+- [x] **Step 1: Write failing unit test for storage driver factory and fallback**
 
 Create `backend/tests/services/storage.test.js`:
 ```javascript
@@ -101,12 +101,12 @@ describe('StorageService & Driver Factory', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pnpm test tests/services/storage.test.js` in `backend`  
 Expected: FAIL (Cannot find module `storage.service.js`)
 
-- [ ] **Step 3: Implement driver abstraction, drivers, and StorageService**
+- [x] **Step 3: Implement driver abstraction, drivers, and StorageService**
 
 1. Install AWS SDK S3 dependencies in backend:
 ```bash
@@ -128,12 +128,12 @@ Calculates SHA1 upload signature using `crypto.createHash('sha1')` and returns C
 6. Implement `backend/src/services/storage/storage.service.js`:
 Factory class that inspects `process.env` and instantiates the proper driver with automatic fallback to `LocalDiskDriver`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `pnpm test tests/services/storage.test.js` in `backend`  
 Expected: PASS (All 4 tests passing)
 
-- [ ] **Step 5: Commit changes**
+- [x] **Step 5: Commit changes**
 
 ```bash
 git add backend/src/services/storage/ backend/tests/services/storage.test.js backend/package.json pnpm-lock.yaml
@@ -164,7 +164,7 @@ git commit -m "feat(storage): implement storage driver abstraction with local, S
 - `DELETE /api/v1/media/:fileKey`:
   - Deletes asset from active storage provider.
 
-- [ ] **Step 1: Write failing integration test for media endpoints**
+- [x] **Step 1: Write failing integration test for media endpoints**
 
 Create `backend/tests/modules/media-routes.test.js`:
 ```javascript
@@ -207,12 +207,12 @@ describe('Media API Endpoints', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pnpm test tests/modules/media-routes.test.js` in `backend`  
 Expected: FAIL (404 Not Found)
 
-- [ ] **Step 3: Implement controller, video range streaming, and routes**
+- [x] **Step 3: Implement controller, video range streaming, and routes**
 
 1. Create `backend/src/middlewares/rangeStream.middleware.js`:
 Handles `req.headers.range`, reads file stats via `fs.stat`, computes chunk boundaries, sends status code `206 Partial Content`, and streams with `fs.createReadStream(filePath, { start, end })`.
@@ -229,12 +229,12 @@ Mounts routes with authMiddleware and multer file upload.
 
 4. Register routes in `backend/src/routes.js` and serve static `uploads/` in `backend/src/app.js`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `pnpm test tests/modules/media-routes.test.js` in `backend`  
 Expected: PASS
 
-- [ ] **Step 5: Commit changes**
+- [x] **Step 5: Commit changes**
 
 ```bash
 git add backend/src/modules/media/ backend/src/middlewares/rangeStream.middleware.js backend/tests/modules/media-routes.test.js backend/src/routes.js backend/src/app.js
@@ -257,20 +257,20 @@ git commit -m "feat(media): add media upload, presigning, streaming, and access 
   - `PUBLIC_URL`: `z.string().default("http://localhost:5000")`
   - Optional cloud configs: `WASABI_ACCESS_KEY_ID`, `WASABI_SECRET_ACCESS_KEY`, `WASABI_REGION`, `WASABI_BUCKET_NAME`, `WASABI_ENDPOINT`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `AWS_BUCKET_NAME`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
 
-- [ ] **Step 1: Write test for storage env schema**
+- [x] **Step 1: Write test for storage env schema**
 
 Add test cases in `backend/tests/config/env.test.js` validating that missing cloud credentials gracefully default `STORAGE_PROVIDER` to `"local"`.
 
-- [ ] **Step 2: Update `env.js` schema**
+- [x] **Step 2: Update `env.js` schema**
 
 Update Zod validation in `backend/src/config/env.js` with defaults.
 
-- [ ] **Step 3: Run env tests**
+- [x] **Step 3: Run env tests**
 
 Run: `pnpm test tests/config/env.test.js` in `backend`  
 Expected: PASS
 
-- [ ] **Step 4: Commit changes**
+- [x] **Step 4: Commit changes**
 
 ```bash
 git add backend/src/config/env.js backend/tests/config/env.test.js
@@ -287,7 +287,7 @@ git commit -m "feat(config): add storage provider and cloud service keys to env 
 **Interfaces:**
 - `uploadMedia(file, { folder, isPrivate, onProgress })`: Promise<{ url, key, provider, size, mimeType }>
 
-- [ ] **Step 1: Implement `client/src/utils/mediaUpload.js`**
+- [x] **Step 1: Implement `client/src/utils/mediaUpload.js`**
 
 Implement `uploadMedia` supporting:
 1. Fetching upload intent from `/media/presigned-url` via `client` axios instance.
@@ -296,12 +296,12 @@ Implement `uploadMedia` supporting:
 4. Multipart fallback upload to `/media/upload` via `client.post` with `onUploadProgress`.
 5. Returns a uniform object `{ url, key, provider, size, mimeType }`.
 
-- [ ] **Step 2: Verify build in client**
+- [x] **Step 2: Verify build in client**
 
 Run: `npm run build` in `client`  
 Expected: Success with 0 errors.
 
-- [ ] **Step 3: Commit changes**
+- [x] **Step 3: Commit changes**
 
 ```bash
 git add client/src/utils/mediaUpload.js
@@ -320,7 +320,7 @@ git commit -m "feat(client): implement universal uploadMedia helper utility"
 **Interfaces:**
 - Replace hardcoded Cloudinary credentials (`cloudName = 'ddng3kwfw'`, `uploadPreset = 't01knn9d'`) and direct URLs with `uploadMedia(file, { folder: '...' })`.
 
-- [ ] **Step 1: Refactor `UploadCourseCover.jsx`**
+- [x] **Step 1: Refactor `UploadCourseCover.jsx`**
 
 Replace custom axios call with:
 ```javascript
@@ -328,7 +328,7 @@ const { url } = await uploadMedia(selectedFile, { folder: 'covers' });
 await client.patch(`courses/${courseId}`, { cover: url });
 ```
 
-- [ ] **Step 2: Refactor `UploadVideo.jsx`**
+- [x] **Step 2: Refactor `UploadVideo.jsx`**
 
 Replace custom axios call with:
 ```javascript
@@ -338,7 +338,7 @@ await client.patch(`sections/${sectionId}/lessons/${lesson._id}`, {
 });
 ```
 
-- [ ] **Step 3: Refactor `UploadProfile.jsx`**
+- [x] **Step 3: Refactor `UploadProfile.jsx`**
 
 Replace custom axios call with:
 ```javascript
@@ -346,12 +346,12 @@ const { url } = await uploadMedia(selectedFile, { folder: 'avatars' });
 await client.patch(`users/profile`, { avatar: url });
 ```
 
-- [ ] **Step 4: Verify client build**
+- [x] **Step 4: Verify client build**
 
 Run: `npm run build` in `client`  
 Expected: Exit code 0, 0 bundling errors.
 
-- [ ] **Step 5: Commit changes**
+- [x] **Step 5: Commit changes**
 
 ```bash
 git add client/src/pages/admin/UploadCourseCover.jsx client/src/pages/admin/UploadVideo.jsx client/src/pages/public/UploadProfile.jsx
@@ -365,17 +365,17 @@ git commit -m "refactor(client): migrate cover, video, and avatar upload compone
 **Files:**
 - Verification only
 
-- [ ] **Step 1: Run all backend tests**
+- [x] **Step 1: Run all backend tests**
 
 Run: `pnpm test` in `backend`  
 Expected: All tests pass (100% green, 28+ test files, 120+ tests).
 
-- [ ] **Step 2: Run client production build**
+- [x] **Step 2: Run client production build**
 
 Run: `npm run build` in `client`  
 Expected: Vite build succeeds with 0 errors.
 
-- [ ] **Step 3: Final git status check & commit**
+- [x] **Step 3: Final git status check & commit**
 
 ```bash
 git status
