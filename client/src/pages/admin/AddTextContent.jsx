@@ -1,6 +1,6 @@
 import React from 'react'
 import { useDisclosure } from '@mantine/hooks'
-import { Modal, Group, Button, Box } from '@mantine/core'
+import { Modal, Group, Button, Box, Text, useMantineTheme } from '@mantine/core'
 import { Editor } from '../../components/Editor'
 import { useEditor } from '@tiptap/react'
 import Highlight from '@tiptap/extension-highlight'
@@ -21,9 +21,21 @@ function calculateReadingTimeFromHTML(htmlContent, averageWPM = 200) {
   return Math.max(1, Math.ceil(wordCount / averageWPM))
 }
 
-export function AddTextContent({ children, sectionId, queryClient, lesson = {} }) {
+export function AddTextContent({
+  children,
+  sectionId,
+  queryClient,
+  lesson = {},
+  opened: controlledOpened,
+  onClose: controlledOnClose,
+}) {
   const { courseId } = useParams()
-  const [opened, { open, close }] = useDisclosure(false)
+  const theme = useMantineTheme()
+  const isDark = theme.colorScheme === 'dark'
+  const [internalOpened, { open, close: internalClose }] = useDisclosure(false)
+  const isControlled = controlledOpened !== undefined
+  const opened = isControlled ? controlledOpened : internalOpened
+  const close = isControlled ? controlledOnClose : internalClose
 
   const editor = useEditor({
     extensions: [
@@ -54,7 +66,7 @@ export function AddTextContent({ children, sectionId, queryClient, lesson = {} }
       notifications.show({
         title: 'تم الحفظ',
         message: 'تم حفظ المحتوى النصي بنجاح',
-        color: 'green',
+        color: 'teal',
       })
       close()
     } catch (error) {
@@ -68,8 +80,27 @@ export function AddTextContent({ children, sectionId, queryClient, lesson = {} }
 
   return (
     <>
-      <Modal opened={opened} size="xl" onClose={close} title="إضافة محتوى نصي للدرس" centered>
-        <Box sx={{ minHeight: 350 }}>
+      <Modal
+        opened={opened}
+        size="xl"
+        onClose={close}
+        title={
+          <Text weight={700} size="md" sx={{ color: isDark ? '#ffffff' : '#0f172a' }}>
+            تحرير المحتوى النصي للدرس
+          </Text>
+        }
+        centered
+        styles={{
+          content: {
+            backgroundColor: isDark ? '#1a1b1e' : '#ffffff',
+          },
+          header: {
+            backgroundColor: isDark ? '#1a1b1e' : '#ffffff',
+            borderBottom: `1px solid ${isDark ? theme.colors.dark[4] : theme.colors.gray[2]}`,
+          },
+        }}
+      >
+        <Box sx={{ minHeight: 350, paddingTop: 10 }}>
           <Editor editor={editor} />
         </Box>
 
@@ -77,15 +108,17 @@ export function AddTextContent({ children, sectionId, queryClient, lesson = {} }
           <Button variant="default" onClick={close}>
             إلغاء
           </Button>
-          <Button onClick={handleSubmit}>
-            حفظ وإغلاق
+          <Button color="brand" onClick={handleSubmit}>
+            حفظ التغييرات
           </Button>
         </Group>
       </Modal>
 
-      <div onClick={open} style={{ display: 'inline-block', cursor: 'pointer' }}>
-        {children}
-      </div>
+      {children && (
+        <div onClick={open} style={{ display: 'inline-block', cursor: 'pointer' }}>
+          {children}
+        </div>
+      )}
     </>
   )
 }

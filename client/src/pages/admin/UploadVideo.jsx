@@ -33,11 +33,21 @@ const getVideoDuration = (file, setDuration) => {
   }
 }
 
-export default function UploadVideo({ children, sectionId, queryClient, lesson = {} }) {
+export default function UploadVideo({
+  children,
+  sectionId,
+  queryClient,
+  lesson = {},
+  opened: controlledOpened,
+  onClose: controlledOnClose,
+}) {
   const { courseId } = useParams()
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
-  const [opened, { open, close }] = useDisclosure(false)
+  const [internalOpened, { open, close: internalClose }] = useDisclosure(false)
+  const isControlled = controlledOpened !== undefined
+  const opened = isControlled ? controlledOpened : internalOpened
+  const close = isControlled ? controlledOnClose : internalClose
   const [duration, setDuration] = useState(0)
   const [selectedFile, setSelectedFile] = useState(null)
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -190,9 +200,11 @@ export default function UploadVideo({ children, sectionId, queryClient, lesson =
         </Group>
       </Modal>
 
-      <div onClick={open} style={{ display: 'inline-block', cursor: 'pointer' }}>
-        {children}
-      </div>
+      {children && (
+        <div onClick={open} style={{ display: 'inline-block', cursor: 'pointer' }}>
+          {children}
+        </div>
+      )}
     </>
   )
 }
