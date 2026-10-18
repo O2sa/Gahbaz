@@ -26,4 +26,22 @@ describe("Environment Config", () => {
 
     expect(() => validateEnv(mockEnv)).toThrow();
   });
+
+  it("should default STORAGE_PROVIDER to local when not provided", () => {
+    const mockEnv = {};
+    const config = validateEnv(mockEnv);
+    expect(config.STORAGE_PROVIDER).toBe("local");
+    expect(config.UPLOAD_DIR).toBe("uploads");
+    expect(config.PUBLIC_URL).toBe("http://localhost:5000");
+  });
+
+  it("should accept valid cloud STORAGE_PROVIDER like wasabi, s3, cloudinary", () => {
+    const mockEnv = {
+      STORAGE_PROVIDER: "wasabi",
+      WASABI_BUCKET_NAME: "my-bucket",
+    };
+    const config = validateEnv(mockEnv);
+    expect(config.STORAGE_PROVIDER).toBe("wasabi");
+    expect(config.WASABI_BUCKET_NAME).toBe("my-bucket");
+  });
 });
