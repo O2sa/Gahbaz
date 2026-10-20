@@ -20,28 +20,46 @@ export const getTeacherByIdService = async (id, universityId) => {
 };
 
 export const createTeacherService = async (data, universityId) => {
-  const tempPassword = generateSecurePassword(8);
-  const hashedPassword = await hashPassword(tempPassword);
+  const name = data.name || `${data.firstName || ''} ${data.lastName || ''}`.trim();
+  const rawPassword = data.password || generateSecurePassword(8);
+  const hashedPassword = await hashPassword(rawPassword);
 
   const teacher = await Teacher.create({
     ...data,
+    name,
     university: universityId,
     password: hashedPassword,
+    role: "teacher",
   });
 
-  await sendMail(
-    teacher.email,
-    "Gahbaz Teacher Account Created",
-    `Your teacher account has been created with temporary password: ${tempPassword}\nPlease change it upon login.`
-  );
+  try {
+    await sendMail(
+      teacher.email,
+      "Gahbaz Teacher Account Created",
+      `Your teacher account has been created with temporary password: ${rawPassword}\nPlease change it upon login.`
+    );
+  } catch {
+    // Non-blocking mail failure
+  }
 
-  return Teacher.findById(teacher._id).select("-password");
+  const saved = await Teacher.findById(teacher._id).select("-password");
+  return {
+    teacher: saved || teacher,
+    tempPassword: rawPassword,
+  };
 };
 
 export const updateTeacherService = async (id, data, universityId) => {
+  const updatePayload = { ...data };
+  if (data.name) {
+    updatePayload.name = data.name.trim();
+  } else if (data.firstName || data.lastName) {
+    updatePayload.name = `${data.firstName || ''} ${data.lastName || ''}`.trim();
+  }
+
   const updatedTeacher = await Teacher.findOneAndUpdate(
     { _id: id, university: universityId },
-    data,
+    updatePayload,
     { new: true }
   ).select("-password");
   if (!updatedTeacher) throw new NotFoundError("Teacher not found");

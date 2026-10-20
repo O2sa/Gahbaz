@@ -1,16 +1,32 @@
 import { z } from "zod";
+import { userNameSchema } from "../../core/validators/user.validator.js";
 
-export const createTeacherSchema = z.object({
-  firstName: z.string().min(2, "First name must be at least 2 characters"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters"),
-  email: z.string().email("Invalid email format"),
-  title: z.string().optional(),
-  phone: z.union([z.number(), z.string()]).optional(),
-});
+export const createTeacherSchema = z
+  .object({
+    name: userNameSchema.optional(),
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    email: z.string().email("Invalid email format"),
+    title: z.string().optional(),
+    phone: z.union([z.number(), z.string()]).optional(),
+    password: z.string().min(6, "Password must be at least 6 characters").optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.name) return true;
+      return Boolean(data.firstName && data.lastName);
+    },
+    {
+      message: "الاسم مطلوب",
+      path: ["name"],
+    }
+  );
 
 export const updateTeacherSchema = z.object({
-  firstName: z.string().min(2).optional(),
-  lastName: z.string().min(2).optional(),
+  name: userNameSchema.optional(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
   title: z.string().optional(),
   phone: z.union([z.number(), z.string()]).optional(),
 });
+
