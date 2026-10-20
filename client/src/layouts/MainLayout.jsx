@@ -1,4 +1,4 @@
-import React, { useState, createContext, useContext, Suspense } from 'react'
+import React, { useState, createContext, useContext, Suspense, useEffect } from 'react'
 import { AppShell, Container, LoadingOverlay, Loader, Center } from '@mantine/core'
 import { Outlet, useNavigate, useNavigation } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -22,25 +22,39 @@ export default function MainLayout() {
   const {
     data: userData,
     isLoading: isUserLoading,
+    isError,
   } = useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
-      try {
-        const res = await authApi.getCurrentUser()
-        return res?.data?.user || res?.user || res?.data || res
-      } catch (err) {
-        return { name: 'المسؤول', role: 'admin' }
+      const res = await authApi.getCurrentUser()
+      const u = res?.data?.user || res?.user || res?.data || res
+      if (!u || (!u.role && !u._id)) {
+        throw new Error('Unauthenticated')
       }
+      return u
     },
-    staleTime: 1000 * 60 * 10,
+    staleTime: 0,
+    cacheTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
     retry: false,
   })
 
-  const user = userData || { name: 'المسؤول', role: 'admin' }
+  // Redirect to login if user session is invalid or missing
+  useEffect(() => {
+    if (!isUserLoading && (isError || !userData)) {
+      queryClient.clear()
+      navigate('/login')
+    }
+  }, [isUserLoading, isError, userData, navigate, queryClient])
+
+  const user = userData || null
 
   const logoutUser = async () => {
     try {
       await authApi.logout()
+    } catch (err) {
+      // ignore
     } finally {
       queryClient.clear()
       navigate('/login')
@@ -49,7 +63,7 @@ export default function MainLayout() {
 
   const isPageLoading = navigation.state === 'loading'
 
-  if (isUserLoading) {
+  if (isUserLoading || !user) {
     return (
       <Center sx={{ height: '100vh', width: '100vw' }}>
         <Loader size="xl" color="brand" />

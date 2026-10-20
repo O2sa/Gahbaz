@@ -18,6 +18,7 @@ import {
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { Link, useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { notifications } from '@mantine/notifications'
 import { Helmet } from 'react-helmet'
 import customFetch from '../../utils/customFetch'
@@ -35,6 +36,7 @@ import {
 const Login = () => {
   const navigate = useNavigate()
   const theme = useMantineTheme()
+  const queryClient = useQueryClient()
   const isDark = theme.colorScheme === 'dark'
   const [loading, setLoading] = useState(false)
 
@@ -53,6 +55,8 @@ const Login = () => {
     setLoading(true)
     try {
       await customFetch.post('/auth/login', values)
+      queryClient.clear()
+      await queryClient.resetQueries()
       notifications.show({
         title: 'تم تسجيل الدخول بنجاح',
         message: 'مرحباً بك مجدداً في منصة جهبذ الأكاديمية',
