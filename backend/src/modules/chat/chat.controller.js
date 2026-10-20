@@ -49,3 +49,14 @@ export const getMessages = async (req, res) => {
   const { data, meta } = await svc.getChatMessagesService(chatId, currentUserId, req.query);
   sendPaginated(res, data, meta);
 };
+
+export const getCourseChat = async (req, res) => {
+  const currentUserId = req.user.userId || req.user.id;
+  const chat = await svc.getCourseChatService(
+    req.params.courseId,
+    currentUserId,
+    req.user.universityId
+  );
+  sendSuccess(res, chat);
+};
+
