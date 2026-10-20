@@ -20,21 +20,13 @@ export const getAdminByIdService = async (id, universityId) => {
 };
 
 export const createAdminService = async (data, universityId) => {
-  let firstName = data.firstName;
-  let lastName = data.lastName;
-  if (!firstName && data.name) {
-    const parts = data.name.trim().split(/\s+/);
-    firstName = parts[0] || "مدير";
-    lastName = parts.slice(1).join(" ") || "جامعي";
-  }
-
+  const name = data.name || `${data.firstName || ''} ${data.lastName || ''}`.trim() || "مدير الجامعة";
   const rawPassword = data.password || generateSecurePassword(8);
   const hashedPassword = await hashPassword(rawPassword);
 
   const admin = await Admin.create({
     ...data,
-    firstName: firstName || "مدير",
-    lastName: lastName || "الجامعة",
+    name,
     university: universityId,
     role: "admin",
     isAdmin: true,
@@ -53,16 +45,22 @@ export const createAdminService = async (data, universityId) => {
     console.warn("[Admin Service] Mail sending skipped:", err.message);
   }
 
-  return Admin.findById(admin._id).select("-password");
+  const saved = await Admin.findById(admin._id).select("-password");
+  const target = saved || admin;
+  const obj = typeof target.toObject === "function" ? target.toObject() : target;
+  return {
+    ...obj,
+    admin: obj,
+    tempPassword: rawPassword,
+  };
 };
 
 export const updateAdminService = async (id, data, universityId) => {
   let updateData = { ...data };
-  if (!updateData.firstName && updateData.name) {
-    const parts = updateData.name.trim().split(/\s+/);
-    updateData.firstName = parts[0];
-    updateData.lastName = parts.slice(1).join(" ") || updateData.lastName;
-    delete updateData.name;
+  if (updateData.name) {
+    updateData.name = updateData.name.trim();
+  } else if (updateData.firstName || updateData.lastName) {
+    updateData.name = `${updateData.firstName || ''} ${updateData.lastName || ''}`.trim();
   }
 
   const updatedAdmin = await Admin.findOneAndUpdate(
