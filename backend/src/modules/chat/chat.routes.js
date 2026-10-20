@@ -18,6 +18,8 @@ router.route("/:chatId/messages")
   .get(validateRequest({ query: paginationQuerySchema }), ctrl.getMessages)
   .post(validateRequest({ body: sendMessageSchema }), ctrl.sendMessage);
 
+router.get("/course/:courseId", ctrl.getCourseChat);
+
 router.route("/:id")
   .get(ctrl.getChat);
 
