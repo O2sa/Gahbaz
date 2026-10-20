@@ -111,21 +111,23 @@ describe("Assignment & Submissions Engine (Task 4.1)", () => {
     expect(res.body.data.fileUrl).toBe("http://example.com/raft_implementation.zip");
   });
 
-  it("GET /api/v1/assignments/:id/submissions should allow teacher to view submissions", async () => {
+  it("GET /api/v1/assignments/:id/submissions should allow teacher to view submissions with student name and avatar", async () => {
     const assignmentId = "64f1a2b3c4d5e6f7a8b9c0d2";
     const mockSubmissions = [
       {
         _id: "sub1",
-        student: { firstName: "Ali", lastName: "Ahmed", email: "ali@test.com" },
+        student: { name: "علي أحمد", firstName: "Ali", lastName: "Ahmed", email: "ali@test.com", avatar: "https://wasabi.test/avatar.png" },
         fileUrl: "http://example.com/file1.zip",
         status: "submitted",
       },
     ];
 
+    const populateMock = vi.fn().mockReturnValue({
+      sort: vi.fn().mockResolvedValue(mockSubmissions),
+    });
+
     vi.spyOn(Submission, "find").mockReturnValue({
-      populate: vi.fn().mockReturnValue({
-        sort: vi.fn().mockResolvedValue(mockSubmissions),
-      }),
+      populate: populateMock,
     });
 
     const res = await request(app)
@@ -135,7 +137,9 @@ describe("Assignment & Submissions Engine (Task 4.1)", () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data).toHaveLength(1);
-    expect(res.body.data[0].student.firstName).toBe("Ali");
+    expect(res.body.data[0].student.name).toBe("علي أحمد");
+    expect(res.body.data[0].student.avatar).toBe("https://wasabi.test/avatar.png");
+    expect(populateMock).toHaveBeenCalledWith("student", "name firstName lastName email avatar");
   });
 
   it("PATCH /api/v1/assignments/submissions/:submissionId/grade should allow teacher to grade submission", async () => {
