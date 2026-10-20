@@ -76,7 +76,9 @@ export const submitAssignmentService = async ({ assignmentId, studentId, univers
 export const getAssignmentSubmissionsService = async (assignmentId, universityId = null) => {
   const filter = { assignment: assignmentId };
   if (universityId) filter.university = universityId;
-  return Submission.find(filter).populate("student", "firstName lastName email").sort({ submittedAt: -1 });
+  return Submission.find(filter)
+    .populate("student", "name firstName lastName email avatar")
+    .sort({ submittedAt: -1 });
 };
 
 export const getStudentSubmissionService = async (assignmentId, studentId) => {
