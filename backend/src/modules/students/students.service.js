@@ -50,9 +50,13 @@ export const createStudentService = async (data, universityId) => {
     // Non-blocking mail failure
   }
 
-  const saved = await Student.findById(student._id).select("-password").populate("major");
+  const query = Student.findById(student._id).select("-password");
+  const saved = query && typeof query.populate === "function" ? await query.populate("major") : await query;
+  const target = saved || student;
+  const obj = typeof target.toObject === "function" ? target.toObject() : target;
   return {
-    student: saved || student,
+    ...obj,
+    student: obj,
     tempPassword: rawPassword,
   };
 };

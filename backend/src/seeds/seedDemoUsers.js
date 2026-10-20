@@ -7,6 +7,7 @@ import env from "../config/env.js";
 
 const demoUsers = [
   {
+    name: "عبدالرحمن الغامدي",
     firstName: "عبدالرحمن",
     lastName: "الغامدي",
     email: "admin@test.com",
@@ -17,6 +18,7 @@ const demoUsers = [
     kind: "Admin",
   },
   {
+    name: "مدير الجامعة",
     firstName: "مدير",
     lastName: "الجامعة",
     email: "univ.admin@gahbaz.edu",
@@ -27,6 +29,7 @@ const demoUsers = [
     kind: "Admin",
   },
   {
+    name: "Demo Teacher",
     firstName: "Demo",
     lastName: "Teacher",
     email: "teacher@tech.com",
@@ -36,6 +39,7 @@ const demoUsers = [
     kind: "Teacher",
   },
   {
+    name: "Demo Student",
     firstName: "Demo",
     lastName: "Student",
     email: "student@test.com",
@@ -60,6 +64,7 @@ export const seedDemoUsers = async () => {
 
     if (!existing) {
       await User.create({
+        name: demo.name,
         firstName: demo.firstName,
         lastName: demo.lastName,
         email: demo.email,
@@ -72,6 +77,7 @@ export const seedDemoUsers = async () => {
       });
       console.log(`[Seed] Created demo user: ${demo.email}`);
     } else {
+      existing.name = demo.name || existing.name;
       existing.password = hashedPassword;
       existing.role = demo.role;
       existing.isAdmin = demo.isAdmin;

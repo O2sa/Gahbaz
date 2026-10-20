@@ -28,9 +28,11 @@ export const listUsersService = async ({ search, role, page = 1, limit = 20, uni
   if (search) {
     const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     query.$or = [
+      { name: { $regex: escaped, $options: "i" } },
       { firstName: { $regex: escaped, $options: "i" } },
       { lastName: { $regex: escaped, $options: "i" } },
       { email: { $regex: escaped, $options: "i" } },
+      { phone: { $regex: escaped, $options: "i" } },
     ];
   }
 
@@ -61,10 +63,21 @@ export const updateUserProfile = async (targetUserId, requesterId, updateData, i
 
   // Whitelist safe fields
   const safeUpdates = {};
-  if (updateData.firstName) safeUpdates.firstName = updateData.firstName;
-  if (updateData.lastName) safeUpdates.lastName = updateData.lastName;
-  if (updateData.phone) safeUpdates.phone = updateData.phone;
-  if (updateData.avatar) safeUpdates.avatar = updateData.avatar;
+  if (updateData.name) {
+    safeUpdates.name = updateData.name.trim();
+  }
+  if (updateData.firstName) {
+    safeUpdates.firstName = updateData.firstName.trim();
+    if (!safeUpdates.name) safeUpdates.name = safeUpdates.firstName;
+  }
+  if (updateData.lastName) {
+    safeUpdates.lastName = updateData.lastName.trim();
+    if (!safeUpdates.name && safeUpdates.firstName) {
+      safeUpdates.name = `${safeUpdates.firstName} ${safeUpdates.lastName}`.trim();
+    }
+  }
+  if (updateData.phone !== undefined) safeUpdates.phone = updateData.phone;
+  if (updateData.avatar !== undefined) safeUpdates.avatar = updateData.avatar;
 
   const updatedUser = await User.findByIdAndUpdate(targetUserId, safeUpdates, {
     new: true,

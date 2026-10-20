@@ -1,8 +1,10 @@
 import { z } from "zod";
+import { userNameSchema } from "../../core/validators/user.validator.js";
 
 export const updateUserSchema = z.object({
-  firstName: z.string().min(2).optional(),
-  lastName: z.string().min(2).optional(),
+  name: userNameSchema.optional(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
   phone: z.union([z.number(), z.string()]).optional(),
   avatar: z.string().optional(),
 });

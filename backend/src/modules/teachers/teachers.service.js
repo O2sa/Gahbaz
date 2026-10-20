@@ -43,8 +43,11 @@ export const createTeacherService = async (data, universityId) => {
   }
 
   const saved = await Teacher.findById(teacher._id).select("-password");
+  const target = saved || teacher;
+  const obj = typeof target.toObject === "function" ? target.toObject() : target;
   return {
-    teacher: saved || teacher,
+    ...obj,
+    teacher: obj,
     tempPassword: rawPassword,
   };
 };

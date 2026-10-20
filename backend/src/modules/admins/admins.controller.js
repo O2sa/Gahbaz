@@ -12,8 +12,12 @@ export const getAdmin = async (req, res) => {
 };
 
 export const createAdmin = async (req, res) => {
-  const data = await svc.createAdminService(req.body, req.user.universityId);
-  sendCreated(res, data);
+  const { admin, tempPassword } = await svc.createAdminService(req.body, req.user.universityId);
+  return res.status(201).json({
+    success: true,
+    data: admin,
+    tempPassword,
+  });
 };
 
 export const updateAdmin = async (req, res) => {
