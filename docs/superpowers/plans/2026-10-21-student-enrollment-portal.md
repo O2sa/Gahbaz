@@ -1,6 +1,6 @@
 # Student Self-Service Course Enrollment & Add/Drop Portal Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Build a comprehensive, modern student self-service Add/Drop portal with live credit limits (12–19 hrs), prerequisite validation, search/filtering, course syllabus preview drawer, drop confirmation modal, and direct sidebar navigation.
 
@@ -28,18 +28,18 @@
 - Consumes: `IconArrowsExchange`, `IconReportAnalytics` from `@tabler/icons-react`
 - Produces: Sidebar links to `/enrollment` ("بوابة الحذف والإضافة") and `/transcript` ("السجل الأكاديمي") for users with `role === "student"`
 
-- [ ] **Step 1: Update `client/src/layouts/AppNavbar.jsx`**
+- [x] **Step 1: Update `client/src/layouts/AppNavbar.jsx`**
   - Add icons import: `IconArrowsExchange`, `IconReportAnalytics`.
   - In the `{isStudent && (...)}` block, add navigation links for:
     - `بوابة الحذف والإضافة` pointing to `/enrollment`.
     - `السجل الأكاديمي` pointing to `/transcript`.
     - Rename section header to `الأكاديميا والتسجيل`.
 
-- [ ] **Step 2: Test client build**
+- [x] **Step 2: Test client build**
   Run: `npm run build` in `client`
   Expected: PASS
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
   ```bash
   git add client/src/layouts/AppNavbar.jsx
   git commit -m "feat(client): add enrollment and transcript links to student sidebar"
@@ -57,18 +57,18 @@
 - Consumes: Mantine `Drawer`, `Badge`, `Avatar`, `Button`, `Timeline`, `Paper`, Tabler Icons
 - Produces: `<CoursePreviewDrawer opened={Boolean(previewCourse)} onClose={...} course={previewCourse} onRegister={...} isAddDropOpen={...} canAddCredits={...} />`
 
-- [ ] **Step 1: Create `client/src/components/enrollment/CoursePreviewDrawer.jsx`**
+- [x] **Step 1: Create `client/src/components/enrollment/CoursePreviewDrawer.jsx`**
   - Displays course name, code, credit hours badge, college/department.
   - Displays instructors with avatars and names.
   - Displays description text and `willLearn` checklist items.
   - Displays prerequisite requirements and current student eligibility status.
   - Action button: "تسجيل في هذا المقرر" with disabled state if ineligible.
 
-- [ ] **Step 2: Verify client build**
+- [x] **Step 2: Verify client build**
   Run: `npm run build` in `client`
   Expected: PASS
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
   ```bash
   git add client/src/components/enrollment/CoursePreviewDrawer.jsx
   git commit -m "feat(client): create CoursePreviewDrawer for syllabus and instructor inspection"
@@ -85,7 +85,7 @@
 - Consumes: Mantine `Modal`, `Alert`, `Button`, `Group`, `Stack`, `Text`, `Badge`
 - Produces: `<ConfirmDropModal opened={Boolean(dropCourseTarget)} onClose={...} onConfirm={...} course={dropCourseTarget} currentCredits={...} minCredits={12} isLoading={...} />`
 
-- [ ] **Step 1: Create `client/src/components/enrollment/ConfirmDropModal.jsx`**
+- [x] **Step 1: Create `client/src/components/enrollment/ConfirmDropModal.jsx`**
   - Clear Arabic title: "تأكيد حذف المقرر الدراسي".
   - Shows warning: "هل أنت متأكد من رغبتك في حذف مقرر [{course.name}] من جدولك الدراسي لهذا الفصل؟".
   - Visual breakdown:
@@ -95,11 +95,11 @@
   - Warning banner if remaining hours approach 12 hours.
   - Red confirm button "تأكيد الحذف" with loading spinner and "إلغاء" button.
 
-- [ ] **Step 2: Verify client build**
+- [x] **Step 2: Verify client build**
   Run: `npm run build` in `client`
   Expected: PASS
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
   ```bash
   git add client/src/components/enrollment/ConfirmDropModal.jsx
   git commit -m "feat(client): create ConfirmDropModal with credit calculations and safeguards"
@@ -116,7 +116,7 @@
 - Consumes: `CoursePreviewDrawer`, `ConfirmDropModal`, TanStack Query hooks for `/enrollment/available-courses`, `/enrollment/register`, `/enrollment/drop`
 - Produces: High-grade interactive registration dashboard with search, "Eligible Only" switch, credit gauge, and modals.
 
-- [ ] **Step 1: Update `client/src/pages/student/CourseRegistration.jsx`**
+- [x] **Step 1: Update `client/src/pages/student/CourseRegistration.jsx`**
   - Add search input for course name and code.
   - Add switch for `eligibleOnly` ("المؤهل لها فقط").
   - Add state for `previewCourse` and `dropTarget`.
@@ -125,11 +125,11 @@
   - Display instructor names and prerequisite warning cards.
   - Ensure notifications trigger accurately on register/drop success or error.
 
-- [ ] **Step 2: Verify client build**
+- [x] **Step 2: Verify client build**
   Run: `npm run build` in `client`
   Expected: PASS
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
   ```bash
   git add client/src/pages/student/CourseRegistration.jsx
   git commit -m "feat(client): modernize CourseRegistration page with search, filters, drawer, and drop safeguards"
@@ -144,19 +144,19 @@
 - Full backend suite
 - Frontend production build
 
-- [ ] **Step 1: Run enrollment integration tests**
+- [x] **Step 1: Run enrollment integration tests**
   Run: `pnpm test tests/modules/enrollment.test.js` in `backend`
   Expected: PASS (all 7 tests pass)
 
-- [ ] **Step 2: Run full backend test suite**
+- [x] **Step 2: Run full backend test suite**
   Run: `pnpm test` in `backend`
   Expected: PASS (136 tests passing)
 
-- [ ] **Step 3: Run client production build**
+- [x] **Step 3: Run client production build**
   Run: `npm run build` in `client`
   Expected: PASS
 
-- [ ] **Step 4: Commit and finalize report**
+- [x] **Step 4: Commit and finalize report**
   ```bash
   git add -A
   git commit -m "chore: complete student enrollment portal end-to-end verification"
