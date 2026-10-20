@@ -5,14 +5,19 @@ import {
   ActionIcon,
   Modal,
   TextInput,
+  PasswordInput,
+  Select,
   Stack,
   Text,
   Badge,
   Avatar,
+  Paper,
+  CopyButton,
+  Code,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useDisclosure, useDebouncedValue } from '@mantine/hooks'
-import { IconPlus, IconPencil, IconTrash, IconUserCheck } from '@tabler/icons-react'
+import { IconPlus, IconPencil, IconTrash, IconSchool, IconCopy, IconCheck } from '@tabler/icons-react'
 import {
   DataTable,
   PageHeader,
@@ -26,6 +31,28 @@ import {
 } from '../../hooks/useTeachers.js'
 import dayjs from 'dayjs'
 
+const NAME_REGEX = /^[\u0600-\u06FFa-zA-Z\s\-]{3,70}$/
+
+const validateName = (val) => {
+  if (!val?.trim()) return 'اسم الأستاذ مطلوب'
+  if (val.trim().length < 3) return 'يجب أن يتكون الاسم من 3 أحرف على الأقل'
+  if (val.trim().length > 70) return 'يجب ألا يتجاوز الاسم 70 حرفاً'
+  if (!NAME_REGEX.test(val.trim())) {
+    return 'يجب أن يحتوي الاسم على أحرف عربية أو إنجليزية ومسافات فقط بدون أرقام أو رموز'
+  }
+  return null
+}
+
+const TITLE_OPTIONS = [
+  { value: 'دكتور', label: 'دكتور' },
+  { value: 'أستاذ دكتور', label: 'أستاذ دكتور' },
+  { value: 'أستاذ مشارك', label: 'أستاذ مشارك' },
+  { value: 'أستاذ مساعد', label: 'أستاذ مساعد' },
+  { value: 'محاضر', label: 'محاضر' },
+  { value: 'معيد', label: 'معيد' },
+  { value: 'أستاذ', label: 'أستاذ' },
+]
+
 export default function Teachers() {
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
@@ -36,6 +63,7 @@ export default function Teachers() {
   const [addOpened, { open: openAdd, close: closeAdd }] = useDisclosure(false)
   const [editTeacher, setEditTeacher] = useState(null)
   const [deleteId, setDeleteId] = useState(null)
+  const [createdCredentials, setCreatedCredentials] = useState(null)
 
   // API hooks
   const { data: teachersRes, isLoading } = useTeachers({
@@ -52,11 +80,13 @@ export default function Teachers() {
   const addForm = useForm({
     initialValues: {
       name: '',
+      title: 'دكتور',
       email: '',
-      department: '',
+      phone: '',
+      password: '',
     },
     validate: {
-      name: (val) => (!val?.trim() ? 'اسم الأستاذ مطلوب' : null),
+      name: validateName,
       email: (val) => (!val?.includes('@') ? 'البريد الإلكتروني غير صالح' : null),
     },
   })
@@ -65,19 +95,31 @@ export default function Teachers() {
   const editForm = useForm({
     initialValues: {
       name: '',
+      title: 'دكتور',
       email: '',
-      department: '',
+      phone: '',
     },
     validate: {
-      name: (val) => (!val?.trim() ? 'اسم الأستاذ مطلوب' : null),
+      name: validateName,
     },
   })
 
   const handleAddSubmit = async (values) => {
     try {
-      await createMutation.mutateAsync(values)
+      const payload = { ...values }
+      if (!payload.password) delete payload.password
+
+      const res = await createMutation.mutateAsync(payload)
       addForm.reset()
       closeAdd()
+
+      if (res?.tempPassword) {
+        setCreatedCredentials({
+          name: `${payload.title ? payload.title + ' ' : ''}${res.data?.name || values.name}`,
+          email: res.data?.email || values.email,
+          tempPassword: res.tempPassword,
+        })
+      }
     } catch (err) {
       // Handled in hook notifications
     }
@@ -87,8 +129,9 @@ export default function Teachers() {
     setEditTeacher(row)
     editForm.setValues({
       name: row.name || row.userName || '',
+      title: row.title || 'دكتور',
       email: row.email || '',
-      department: row.department || '',
+      phone: row.phone || '',
     })
   }
 
@@ -118,18 +161,25 @@ export default function Teachers() {
   const columns = [
     {
       key: 'name',
-      title: 'عضو هيئة التدريس',
+      title: 'الأستاذ',
       render: (row) => {
         const teacherName = row.name || row.userName || 'أستاذ'
         return (
           <Group spacing="sm">
-            <Avatar color="blue" radius="xl" size="sm">
+            <Avatar color="teal" radius="xl" size="sm">
               {teacherName.charAt(0)}
             </Avatar>
             <div>
-              <Text weight={600} size="sm">
-                {teacherName}
-              </Text>
+              <Group spacing={6}>
+                {row.title && (
+                  <Badge color="teal" size="xs" variant="filled">
+                    {row.title}
+                  </Badge>
+                )}
+                <Text weight={600} size="sm">
+                  {teacherName}
+                </Text>
+              </Group>
               <Text size="xs" color="dimmed">
                 {row.email}
               </Text>
@@ -139,28 +189,28 @@ export default function Teachers() {
       },
     },
     {
-      key: 'department',
-      title: 'القسم الأكاديمي',
+      key: 'phone',
+      title: 'رقم الهاتف',
       align: 'center',
       render: (row) => (
-        <Badge color="violet" variant="light" size="sm">
-          {row.department || 'عام'}
-        </Badge>
+        <Text size="xs" color="dimmed" dir="ltr">
+          {row.phone || '—'}
+        </Text>
       ),
     },
     {
-      key: 'status',
-      title: 'الحالة',
+      key: 'coursesCount',
+      title: 'المقررات',
       align: 'center',
-      render: () => (
-        <Badge color="teal" variant="light" size="sm">
-          نشط
+      render: (row) => (
+        <Badge color="indigo" variant="light" size="sm">
+          {row.courses?.length || 0} مقرر
         </Badge>
       ),
     },
     {
       key: 'createdAt',
-      title: 'تاريخ الإضافة',
+      title: 'تاريخ الانضمام',
       align: 'center',
       render: (row) => (
         <Text size="xs" color="dimmed">
@@ -201,7 +251,7 @@ export default function Teachers() {
     <>
       <PageHeader
         title="هيئة التدريس"
-        description="إدارة الأساتذة والمحاضرين وتوزيع المقررات والأقسام الأكاديمية"
+        description="إدارة الأساتذة والمحاضرين وتعيين المقررات الدراسية"
         breadcrumbs={[
           { title: 'الرئيسية', href: '/' },
           { title: 'الأساتذة' },
@@ -244,9 +294,16 @@ export default function Teachers() {
       >
         <form onSubmit={addForm.onSubmit(handleAddSubmit)}>
           <Stack spacing="md">
+            <Select
+              label="اللقب الأكاديمي"
+              data={TITLE_OPTIONS}
+              required
+              {...addForm.getInputProps('title')}
+            />
             <TextInput
               label="الاسم الكامل"
-              placeholder="مثال: د. خالد عبدالرحمن"
+              placeholder="مثال: خالد عبدالرحمن السالم"
+              description="يجب أن يتكون من أحرف عربية أو إنجليزية ومسافات فقط"
               required
               {...addForm.getInputProps('name')}
             />
@@ -257,9 +314,15 @@ export default function Teachers() {
               {...addForm.getInputProps('email')}
             />
             <TextInput
-              label="القسم / التخصص"
-              placeholder="علوم الحاسوب"
-              {...addForm.getInputProps('department')}
+              label="رقم الهاتف"
+              placeholder="05xxxxxxxx"
+              {...addForm.getInputProps('phone')}
+            />
+            <PasswordInput
+              label="كلمة المرور"
+              placeholder="اتركه فارغاً للتوليد التلقائي"
+              description="إذا تركته فارغاً، سيتم توليد كلمة مرور عشوائية وتزويدك بها"
+              {...addForm.getInputProps('password')}
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={closeAdd}>
@@ -270,7 +333,7 @@ export default function Teachers() {
                 color="brand"
                 loading={createMutation.isPending}
               >
-                إضافة
+                إضافة الأستاذ
               </Button>
             </Group>
           </Stack>
@@ -285,6 +348,12 @@ export default function Teachers() {
       >
         <form onSubmit={editForm.onSubmit(handleEditSubmit)}>
           <Stack spacing="md">
+            <Select
+              label="اللقب الأكاديمي"
+              data={TITLE_OPTIONS}
+              required
+              {...editForm.getInputProps('title')}
+            />
             <TextInput
               label="الاسم الكامل"
               required
@@ -293,11 +362,13 @@ export default function Teachers() {
             <TextInput
               label="البريد الإلكتروني"
               required
+              disabled
               {...editForm.getInputProps('email')}
             />
             <TextInput
-              label="القسم / التخصص"
-              {...editForm.getInputProps('department')}
+              label="رقم الهاتف"
+              placeholder="05xxxxxxxx"
+              {...editForm.getInputProps('phone')}
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={() => setEditTeacher(null)}>
@@ -315,6 +386,52 @@ export default function Teachers() {
         </form>
       </Modal>
 
+      {/* Generated Credentials Success Modal */}
+      <Modal
+        opened={Boolean(createdCredentials)}
+        onClose={() => setCreatedCredentials(null)}
+        title={<Text weight={700} color="teal">تمت إضافة الأستاذ بنجاح</Text>}
+      >
+        <Stack spacing="md">
+          <Text size="sm">
+            تم إنشاء حساب عضو هيئة التدريس وتوليد بيانات الدخول المؤقتة التالية:
+          </Text>
+          <Paper withBorder p="md" radius="md" bg="gray.0">
+            <Stack spacing="xs">
+              <Text size="sm">
+                <strong>الاسم:</strong> {createdCredentials?.name}
+              </Text>
+              <Text size="sm">
+                <strong>البريد الإلكتروني:</strong> {createdCredentials?.email}
+              </Text>
+              <Group position="apart" align="center">
+                <Text size="sm">
+                  <strong>كلمة المرور المؤقتة:</strong>{' '}
+                  <Code color="teal">{createdCredentials?.tempPassword}</Code>
+                </Text>
+                <CopyButton
+                  value={`البريد الإلكتروني: ${createdCredentials?.email}\nكلمة المرور: ${createdCredentials?.tempPassword}`}
+                >
+                  {({ copied, copy }) => (
+                    <Button
+                      color={copied ? 'teal' : 'brand'}
+                      size="xs"
+                      leftIcon={copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+                      onClick={copy}
+                    >
+                      {copied ? 'تم النسخ!' : 'نسخ بيانات الدخول'}
+                    </Button>
+                  )}
+                </CopyButton>
+              </Group>
+            </Stack>
+          </Paper>
+          <Button fullWidth onClick={() => setCreatedCredentials(null)}>
+            تم
+          </Button>
+        </Stack>
+      </Modal>
+
       {/* Delete Confirmation Modal */}
       <ConfirmModal
         opened={Boolean(deleteId)}
@@ -322,7 +439,7 @@ export default function Teachers() {
         onConfirm={handleDeleteConfirm}
         title="حذف الأستاذ"
         message="هل أنت متأكد من حذف هذا الأستاذ من النظام؟"
-        confirmLabel="حذف"
+        confirmLabel="حذف الأستاذ"
         isLoading={deleteMutation.isPending}
       />
     </>
