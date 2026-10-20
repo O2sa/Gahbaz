@@ -17,8 +17,10 @@ import {
   IconSettings,
 } from '@tabler/icons-react'
 import { useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import authApi from '../api/auth.api.js'
 import { notifications } from '@mantine/notifications'
+import { useDashboardContext } from './MainLayout.jsx'
 
 const useStyles = createStyles((theme) => ({
   user: {
@@ -44,18 +46,26 @@ const useStyles = createStyles((theme) => ({
 export default function UserMenu({ user }) {
   const { classes, theme } = useStyles()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const { logoutUser } = useDashboardContext()
   const isDark = theme.colorScheme === 'dark'
 
   const handleLogout = async () => {
     try {
-      await authApi.logout()
+      if (logoutUser) {
+        await logoutUser()
+      } else {
+        await authApi.logout()
+        queryClient.clear()
+        navigate('/login')
+      }
       notifications.show({
         title: 'تم تسجيل الخروج',
         message: 'تم تسجيل خروجك بنجاح من المنصة',
         color: 'blue',
       })
-      navigate('/login')
     } catch (err) {
+      queryClient.clear()
       navigate('/login')
     }
   }

@@ -12,9 +12,13 @@ import UpdateProfile from './UpdateProfile'
 import SubmitModal from './Aux/SubmitModal'
 import { ActionIcon, Avatar, Flex, Group } from '@mantine/core'
 
+import { useQueryClient } from '@tanstack/react-query'
+import authApi from '../../api/auth.api.js'
+
 function UserInfo({ fetchAgain, setFetchAgain }) {
   const { user } = ChatState()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [modalUpdateActive, setModalUpdateActive] = useState('not')
   //submit hooks
   const [deleteActive, setDeleteActive] = useState('not')
@@ -23,7 +27,14 @@ function UserInfo({ fetchAgain, setFetchAgain }) {
 
   const handleLogout = async () => {
     localStorage.clear()
-    navigate('/auth')
+    try {
+      await authApi.logout()
+    } catch (err) {
+      // ignore
+    } finally {
+      queryClient.clear()
+      navigate('/login')
+    }
   }
 
   const deleteAccount = async () => {
