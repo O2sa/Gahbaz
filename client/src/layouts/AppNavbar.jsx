@@ -21,6 +21,8 @@ import {
   IconUserCheck,
   IconShieldCheck,
   IconMessageDots,
+  IconArrowsExchange,
+  IconReportAnalytics,
 } from '@tabler/icons-react'
 import { useNavigate, useLocation } from 'react-router-dom'
 
@@ -268,7 +270,7 @@ export default function AppNavbar({ opened, setOpened, user }) {
                 mb={6}
                 sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
               >
-                الأكاديميا
+                الأكاديميا والتسجيل
               </Text>
               <NavLink
                 label="مقرراتي الدراسية"
@@ -278,11 +280,25 @@ export default function AppNavbar({ opened, setOpened, user }) {
                 sx={navLinkStyle('/courses')}
               />
               <NavLink
+                label="بوابة الحذف والإضافة"
+                icon={<IconArrowsExchange size={19} stroke={1.6} />}
+                active={isActive('/enrollment')}
+                onClick={() => handleNav('/enrollment')}
+                sx={navLinkStyle('/enrollment')}
+              />
+              <NavLink
                 label="سجل الدرجات"
                 icon={<IconCertificate size={19} stroke={1.6} />}
                 active={isActive('/grades')}
                 onClick={() => handleNav('/grades')}
                 sx={navLinkStyle('/grades')}
+              />
+              <NavLink
+                label="السجل الأكاديمي"
+                icon={<IconReportAnalytics size={19} stroke={1.6} />}
+                active={isActive('/transcript')}
+                onClick={() => handleNav('/transcript')}
+                sx={navLinkStyle('/transcript')}
               />
             </Box>
           </>
