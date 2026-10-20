@@ -25,30 +25,52 @@ export const getStudentByIdService = async (id, universityId) => {
 };
 
 export const createStudentService = async (data, universityId) => {
-  const tempPassword = generateSecurePassword(8);
-  const hashedPassword = await hashPassword(tempPassword);
+  const name = data.name || `${data.firstName || ''} ${data.lastName || ''}`.trim();
+  const rawPassword = data.password || generateSecurePassword(8);
+  const hashedPassword = await hashPassword(rawPassword);
 
-  const student = await Student.create({
+  const studentData = {
     ...data,
+    name,
     university: universityId,
     password: hashedPassword,
-  });
+    role: "student",
+  };
+  if (!studentData.major) delete studentData.major;
 
-  await sendMail(
-    student.email,
-    "Welcome to Gahbaz - Your Temporary Password",
-    `Hello ${student.firstName},\n\nYour account has been created with temporary password: ${tempPassword}\nPlease change it after logging in.`
-  );
+  const student = await Student.create(studentData);
 
-  return Student.findById(student._id).select("-password");
+  try {
+    await sendMail(
+      student.email,
+      "Welcome to Gahbaz - Your Temporary Password",
+      `Hello ${student.name || name},\n\nYour account has been created with temporary password: ${rawPassword}\nPlease change it after logging in.`
+    );
+  } catch {
+    // Non-blocking mail failure
+  }
+
+  const saved = await Student.findById(student._id).select("-password").populate("major");
+  return {
+    student: saved || student,
+    tempPassword: rawPassword,
+  };
 };
 
 export const updateStudentService = async (id, data, universityId) => {
+  const updatePayload = { ...data };
+  if (data.name) {
+    updatePayload.name = data.name.trim();
+  } else if (data.firstName || data.lastName) {
+    updatePayload.name = `${data.firstName || ''} ${data.lastName || ''}`.trim();
+  }
+  if (updatePayload.major === "") updatePayload.major = null;
+
   const student = await Student.findOneAndUpdate(
     { _id: id, university: universityId },
-    data,
+    updatePayload,
     { new: true }
-  ).select("-password");
+  ).select("-password").populate("major");
   if (!student) throw new NotFoundError("Student not found");
   return student;
 };
