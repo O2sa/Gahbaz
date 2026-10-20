@@ -2,9 +2,15 @@ import mongoose from "mongoose";
 import User from "./User.js";
 
 const StudentSchema = new mongoose.Schema({
+  studentId: {
+    type: String,
+    trim: true,
+    default: "",
+  },
   major: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Major",
+    default: null,
   },
   comingSemester: {
     type: Number,

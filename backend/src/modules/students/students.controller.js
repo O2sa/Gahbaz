@@ -12,8 +12,12 @@ export const getStudent = async (req, res) => {
 };
 
 export const createStudent = async (req, res) => {
-  const data = await svc.createStudentService(req.body, req.user.universityId);
-  sendCreated(res, data);
+  const { student, tempPassword } = await svc.createStudentService(req.body, req.user.universityId);
+  return res.status(201).json({
+    success: true,
+    data: student,
+    tempPassword,
+  });
 };
 
 export const updateStudent = async (req, res) => {
