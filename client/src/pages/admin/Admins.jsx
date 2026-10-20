@@ -5,14 +5,19 @@ import {
   ActionIcon,
   Modal,
   TextInput,
+  PasswordInput,
+  Select,
   Stack,
   Text,
   Badge,
   Avatar,
+  Paper,
+  CopyButton,
+  Code,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useDisclosure, useDebouncedValue } from '@mantine/hooks'
-import { IconPlus, IconPencil, IconTrash, IconShieldCheck } from '@tabler/icons-react'
+import { IconPlus, IconPencil, IconTrash, IconShieldCheck, IconCopy, IconCheck } from '@tabler/icons-react'
 import {
   DataTable,
   PageHeader,
@@ -26,6 +31,25 @@ import {
 } from '../../hooks/useAdmins.js'
 import dayjs from 'dayjs'
 
+const NAME_REGEX = /^[\u0600-\u06FFa-zA-Z\s\-]{3,70}$/
+
+const validateName = (val) => {
+  if (!val?.trim()) return 'اسم المدير مطلوب'
+  if (val.trim().length < 3) return 'يجب أن يتكون الاسم من 3 أحرف على الأقل'
+  if (val.trim().length > 70) return 'يجب ألا يتجاوز الاسم 70 حرفاً'
+  if (!NAME_REGEX.test(val.trim())) {
+    return 'يجب أن يحتوي الاسم على أحرف عربية أو إنجليزية ومسافات فقط بدون أرقام أو رموز'
+  }
+  return null
+}
+
+const PERMISSION_OPTIONS = [
+  { value: 'rw', label: 'قراءة وتعديل (افتراضي)' },
+  { value: 'r', label: 'قراءة فقط' },
+  { value: 'rwd', label: 'تحكم كامل (قراءة، تعديل، حذف)' },
+  { value: 'rd', label: 'قراءة وحذف' },
+]
+
 export default function Admins() {
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
@@ -36,6 +60,7 @@ export default function Admins() {
   const [addOpened, { open: openAdd, close: closeAdd }] = useDisclosure(false)
   const [editAdmin, setEditAdmin] = useState(null)
   const [deleteId, setDeleteId] = useState(null)
+  const [createdCredentials, setCreatedCredentials] = useState(null)
 
   // API hooks
   const { data: adminsRes, isLoading } = useAdmins({
@@ -53,12 +78,12 @@ export default function Admins() {
     initialValues: {
       name: '',
       email: '',
+      permissions: 'rw',
       password: '',
     },
     validate: {
-      name: (val) => (!val?.trim() ? 'اسم المدير مطلوب' : null),
+      name: validateName,
       email: (val) => (!val?.includes('@') ? 'البريد الإلكتروني غير صالح' : null),
-      password: (val) => (!val || val.length < 6 ? 'كلمة المرور يجب أن تكون 6 أحرف على الأقل' : null),
     },
   })
 
@@ -67,17 +92,29 @@ export default function Admins() {
     initialValues: {
       name: '',
       email: '',
+      permissions: 'rw',
     },
     validate: {
-      name: (val) => (!val?.trim() ? 'اسم المدير مطلوب' : null),
+      name: validateName,
     },
   })
 
   const handleAddSubmit = async (values) => {
     try {
-      await createMutation.mutateAsync(values)
+      const payload = { ...values }
+      if (!payload.password) delete payload.password
+
+      const res = await createMutation.mutateAsync(payload)
       addForm.reset()
       closeAdd()
+
+      if (res?.tempPassword) {
+        setCreatedCredentials({
+          name: res.data?.name || values.name,
+          email: res.data?.email || values.email,
+          tempPassword: res.tempPassword,
+        })
+      }
     } catch (err) {
       // Handled in hook notifications
     }
@@ -88,6 +125,7 @@ export default function Admins() {
     editForm.setValues({
       name: row.name || row.userName || '',
       email: row.email || '',
+      permissions: row.permissions || 'rw',
     })
   }
 
@@ -139,21 +177,31 @@ export default function Admins() {
     },
     {
       key: 'role',
-      title: 'الدور والمسؤوليات',
+      title: 'الدور',
       align: 'center',
-      render: () => (
-        <Badge color="violet" variant="light" size="sm">
-          مدير نظام
+      render: (row) => (
+        <Badge
+          color={row.role === 'super-admin' ? 'red' : 'violet'}
+          variant="filled"
+          size="sm"
+        >
+          {row.role === 'super-admin' ? 'مدير عام' : 'مدير نظام'}
         </Badge>
       ),
     },
     {
-      key: 'status',
-      title: 'الحالة',
+      key: 'permissions',
+      title: 'مستوى الصلاحيات',
       align: 'center',
-      render: () => (
-        <Badge color="teal" variant="light" size="sm">
-          نشط
+      render: (row) => (
+        <Badge color="blue" variant="light" size="sm">
+          {row.permissions === 'rwd'
+            ? 'تحكم كامل'
+            : row.permissions === 'rw'
+            ? 'قراءة وتعديل'
+            : row.permissions === 'r'
+            ? 'قراءة فقط'
+            : row.permissions || 'rw'}
         </Badge>
       ),
     },
@@ -199,11 +247,11 @@ export default function Admins() {
   return (
     <>
       <PageHeader
-        title="إدارة مسؤولي النظام"
-        description="إدارة الحسابات الإدارية وتعيين صلاحيات لوحة التحكم"
+        title="إدارة المسؤولين"
+        description="إدارة الحسابات الإدارية والصلاحيات والوصول للنظام"
         breadcrumbs={[
           { title: 'الرئيسية', href: '/' },
-          { title: 'الإداريون' },
+          { title: 'المسؤولون' },
         ]}
         action={
           <Button
@@ -244,8 +292,9 @@ export default function Admins() {
         <form onSubmit={addForm.onSubmit(handleAddSubmit)}>
           <Stack spacing="md">
             <TextInput
-              label="اسم المدير"
-              placeholder="مثال: م. أحمد عبدالكريم"
+              label="اسم المدير الكامل"
+              placeholder="مثال: أحمد عبدالكريم السالم"
+              description="يجب أن يتكون من أحرف عربية أو إنجليزية ومسافات فقط"
               required
               {...addForm.getInputProps('name')}
             />
@@ -255,11 +304,16 @@ export default function Admins() {
               required
               {...addForm.getInputProps('email')}
             />
-            <TextInput
-              label="كلمة المرور المؤقتة"
-              type="password"
-              placeholder="••••••••"
+            <Select
+              label="مستوى الصلاحيات"
+              data={PERMISSION_OPTIONS}
               required
+              {...addForm.getInputProps('permissions')}
+            />
+            <PasswordInput
+              label="كلمة المرور"
+              placeholder="اتركه فارغاً للتوليد التلقائي"
+              description="إذا تركته فارغاً، سيتم توليد كلمة مرور عشوائية وتزويدك بها"
               {...addForm.getInputProps('password')}
             />
             <Group position="right" mt="md">
@@ -271,7 +325,7 @@ export default function Admins() {
                 color="brand"
                 loading={createMutation.isPending}
               >
-                إضافة
+                إضافة المدير
               </Button>
             </Group>
           </Stack>
@@ -294,7 +348,14 @@ export default function Admins() {
             <TextInput
               label="البريد الإلكتروني"
               required
+              disabled
               {...editForm.getInputProps('email')}
+            />
+            <Select
+              label="مستوى الصلاحيات"
+              data={PERMISSION_OPTIONS}
+              required
+              {...editForm.getInputProps('permissions')}
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={() => setEditAdmin(null)}>
@@ -312,6 +373,52 @@ export default function Admins() {
         </form>
       </Modal>
 
+      {/* Generated Credentials Success Modal */}
+      <Modal
+        opened={Boolean(createdCredentials)}
+        onClose={() => setCreatedCredentials(null)}
+        title={<Text weight={700} color="teal">تمت إضافة المدير بنجاح</Text>}
+      >
+        <Stack spacing="md">
+          <Text size="sm">
+            تم إنشاء الحساب الإداري وتوليد بيانات الدخول المؤقتة التالية:
+          </Text>
+          <Paper withBorder p="md" radius="md" bg="gray.0">
+            <Stack spacing="xs">
+              <Text size="sm">
+                <strong>الاسم:</strong> {createdCredentials?.name}
+              </Text>
+              <Text size="sm">
+                <strong>البريد الإلكتروني:</strong> {createdCredentials?.email}
+              </Text>
+              <Group position="apart" align="center">
+                <Text size="sm">
+                  <strong>كلمة المرور المؤقتة:</strong>{' '}
+                  <Code color="teal">{createdCredentials?.tempPassword}</Code>
+                </Text>
+                <CopyButton
+                  value={`البريد الإلكتروني: ${createdCredentials?.email}\nكلمة المرور: ${createdCredentials?.tempPassword}`}
+                >
+                  {({ copied, copy }) => (
+                    <Button
+                      color={copied ? 'teal' : 'brand'}
+                      size="xs"
+                      leftIcon={copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+                      onClick={copy}
+                    >
+                      {copied ? 'تم النسخ!' : 'نسخ بيانات الدخول'}
+                    </Button>
+                  )}
+                </CopyButton>
+              </Group>
+            </Stack>
+          </Paper>
+          <Button fullWidth onClick={() => setCreatedCredentials(null)}>
+            تم
+          </Button>
+        </Stack>
+      </Modal>
+
       {/* Delete Confirmation Modal */}
       <ConfirmModal
         opened={Boolean(deleteId)}
@@ -319,7 +426,7 @@ export default function Admins() {
         onConfirm={handleDeleteConfirm}
         title="حذف المدير"
         message="هل أنت متأكد من حذف هذا الحساب الإداري؟"
-        confirmLabel="حذف"
+        confirmLabel="حذف المدير"
         isLoading={deleteMutation.isPending}
       />
     </>
