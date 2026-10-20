@@ -30,7 +30,7 @@
 - Produces: `GET /api/v1/grades/course/:courseId` returning `{ course, gradeSchema, grades, metrics }`
 - Produces: `PATCH /api/v1/grades/:id` returning updated `Grade` document
 
-- [ ] **Step 1: Write integration tests for enriched gradebook and score validation**
+- [x] **Step 1: Write integration tests for enriched gradebook and score validation**
 
 Create `backend/tests/modules/grades-gradebook.test.js`:
 ```javascript
@@ -150,16 +150,16 @@ describe('Faculty Gradebook & Assessment Service', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to confirm it fails or needs implementation**
+- [x] **Step 2: Run test to confirm it fails or needs implementation**
   Run: `pnpm test tests/modules/grades-gradebook.test.js`
 
-- [ ] **Step 3: Implement enriched service logic in `backend/src/modules/grades/grades.service.js` and `grades.controller.js`**
+- [x] **Step 3: Implement enriched service logic in `backend/src/modules/grades/grades.service.js` and `grades.controller.js`**
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
   Run: `pnpm test tests/modules/grades-gradebook.test.js`
   Expected: PASS (all 3 tests pass)
 
-- [ ] **Step 5: Commit Task 1**
+- [x] **Step 5: Commit Task 1**
   ```bash
   git add backend/src/modules/grades/ backend/tests/modules/grades-gradebook.test.js
   git commit -m "feat(grades): enrich course gradebook endpoint with gradeSchema and telemetry metrics"
@@ -175,7 +175,7 @@ describe('Faculty Gradebook & Assessment Service', () => {
 **Interfaces:**
 - Produces: Navigation button to `/courses/:courseId/grades` with `IconCertificate`
 
-- [ ] **Step 1: Update `CourseInfo.jsx`**
+- [x] **Step 1: Update `CourseInfo.jsx`**
   - Add `IconCertificate` to Tabler icons import.
   - In the action buttons row, add:
     ```jsx
@@ -192,11 +192,11 @@ describe('Faculty Gradebook & Assessment Service', () => {
     </Button>
     ```
 
-- [ ] **Step 2: Verify client build**
+- [x] **Step 2: Verify client build**
   Run: `npm run build` in `client`
   Expected: PASS
 
-- [ ] **Step 3: Commit Task 2**
+- [x] **Step 3: Commit Task 2**
   ```bash
   git add client/src/pages/admin/CourseInfo.jsx
   git commit -m "feat(client): add Gradebook navigation button in CourseInfo"
@@ -213,7 +213,7 @@ describe('Faculty Gradebook & Assessment Service', () => {
 - Consumes: `GET /api/v1/grades/course/:courseId` (or `/grades/:courseId`), `PATCH /api/v1/grades/:id`
 - Produces: Interactive gradebook with telemetry cards, dynamic assessment columns, and edit modal with score bounds checking.
 
-- [ ] **Step 1: Rewrite `client/src/pages/admin/StudentGrades.jsx`**
+- [x] **Step 1: Rewrite `client/src/pages/admin/StudentGrades.jsx`**
   - Parse enriched response `{ course, gradeSchema, grades, metrics }` or legacy fallback.
   - Telemetry cards row: Total Students, Class Average, Top Score, Passing Rate.
   - Search filter input for student name or email.
@@ -228,11 +228,11 @@ describe('Faculty Gradebook & Assessment Service', () => {
     - Real-time preview of new total and letter grade.
     - Save mutation with success notification and query invalidation.
 
-- [ ] **Step 2: Verify client build**
+- [x] **Step 2: Verify client build**
   Run: `npm run build` in `client`
   Expected: PASS
 
-- [ ] **Step 3: Commit Task 3**
+- [x] **Step 3: Commit Task 3**
   ```bash
   git add client/src/pages/admin/StudentGrades.jsx
   git commit -m "feat(client): modernize StudentGrades with telemetry cards, schema bounds, and edit modal"
@@ -249,17 +249,17 @@ describe('Faculty Gradebook & Assessment Service', () => {
 - Consumes: `GET /api/v1/grades/student/:studentId`
 - Produces: Clean student gradebook organized by semester with letter badges and GPA link.
 
-- [ ] **Step 1: Update `client/src/pages/student/Grades.jsx`**
+- [x] **Step 1: Update `client/src/pages/student/Grades.jsx`**
   - Modern Mantine cards per semester.
   - Display course code, name, credit hours, breakdown scores, total, and official letter grade badges.
   - Semester footer with total credit hours and term average.
   - Link to `/transcript`.
 
-- [ ] **Step 2: Verify client build**
+- [x] **Step 2: Verify client build**
   Run: `npm run build` in `client`
   Expected: PASS
 
-- [ ] **Step 3: Commit Task 4**
+- [x] **Step 3: Commit Task 4**
   ```bash
   git add client/src/pages/student/Grades.jsx
   git commit -m "feat(client): modernize student Grades view with semester cards and letter badges"
@@ -273,12 +273,12 @@ describe('Faculty Gradebook & Assessment Service', () => {
 - Full backend suite
 - Full frontend build
 
-- [ ] **Step 1: Run full backend test suite**
+- [x] **Step 1: Run full backend test suite**
   Run: `pnpm test` in `backend`
-  Expected: PASS (136+ tests passing)
+  Expected: PASS (136+ tests passing - 139 passed)
 
-- [ ] **Step 2: Run client production build**
+- [x] **Step 2: Run client production build**
   Run: `npm run build` in `client`
   Expected: PASS
 
-- [ ] **Step 3: Commit and finalize report**
+- [x] **Step 3: Commit and finalize report**
