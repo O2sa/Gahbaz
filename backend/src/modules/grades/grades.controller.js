@@ -1,5 +1,5 @@
 import * as svc from "./grades.service.js";
-import { sendPaginated, sendSuccess } from "../../core/utils/response.utils.js";
+import { sendSuccess } from "../../core/utils/response.utils.js";
 
 export const getGrade = async (req, res) => {
   const data = await svc.getGradeByIdService(req.params.gradeId || req.params.id);
@@ -7,8 +7,8 @@ export const getGrade = async (req, res) => {
 };
 
 export const getCourseGrades = async (req, res) => {
-  const { data, meta } = await svc.getGradesByCourseService(req.params.courseId, req.query);
-  sendPaginated(res, data, meta);
+  const data = await svc.getGradesByCourseService(req.params.courseId, req.query);
+  sendSuccess(res, data);
 };
 
 export const getStudentGrades = async (req, res) => {
