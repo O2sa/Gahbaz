@@ -1,6 +1,6 @@
 # Unified User Name & Enhanced Role Management Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Unify user names into a single `name` field across DB models and APIs, apply strict name validation (Arabic & Latin letters, spaces, hyphens, 3–70 chars), enhance Student, Teacher, and Admin modals with major, title, phone, and auto-generated credentials visibility.
 
@@ -30,7 +30,7 @@
 - Produces: `userNameSchema` (Zod string validator for names)
 - Modifies: `User` model with primary `name` field and `firstName`/`lastName` virtuals
 
-- [ ] **Step 1: Write the failing unit tests for user validation and User model**
+- [x] **Step 1: Write the failing unit tests for user validation and User model**
 
 Create `backend/tests/core/user-validation.test.js`:
 ```javascript
@@ -84,12 +84,12 @@ describe('Strict User Name Validation', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pnpm test tests/core/user-validation.test.js`
 Expected: FAIL (cannot find `user.validator.js`, schema missing `name` as primary field)
 
-- [ ] **Step 3: Implement `userNameSchema` and update `User.js`**
+- [x] **Step 3: Implement `userNameSchema` and update `User.js`**
 
 Create `backend/src/core/validators/user.validator.js`:
 ```javascript
@@ -202,12 +202,12 @@ UserSchema.pre("validate", function (next) {
 export default mongoose.models.User || mongoose.model("User", UserSchema);
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `pnpm test tests/core/user-validation.test.js`
 Expected: PASS (4 tests passing)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/core/validators/user.validator.js backend/src/models/User.js backend/tests/core/user-validation.test.js
@@ -229,7 +229,7 @@ git commit -m "feat(users): add strict userNameSchema and make name primary fiel
 - Consumes: `userNameSchema` from `backend/src/core/validators/user.validator.js`
 - Produces: Enhanced `POST /api/v1/students` returning `{ success: true, data: student, tempPassword }`
 
-- [ ] **Step 1: Write integration tests for student creation with unified name & optional credentials**
+- [x] **Step 1: Write integration tests for student creation with unified name & optional credentials**
 
 Create `backend/tests/modules/students-name.test.js`:
 ```javascript
@@ -299,12 +299,12 @@ describe('Student Name & Credentials Management', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pnpm test tests/modules/students-name.test.js`
 Expected: FAIL (validator expects `firstName` and `lastName`, doesn't accept `name`, tempPassword not returned in envelope)
 
-- [ ] **Step 3: Update Student model, validator, and service**
+- [x] **Step 3: Update Student model, validator, and service**
 
 In `backend/src/models/Student.js`:
 Add `studentId` field, ensure `major` is optional:
@@ -432,12 +432,12 @@ export const createStudent = async (req, res) => {
 };
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `pnpm test tests/modules/students-name.test.js`
 Expected: PASS (2 tests passing)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/models/Student.js backend/src/modules/students/ backend/tests/modules/students-name.test.js
@@ -459,7 +459,7 @@ git commit -m "feat(students): support unified name, strict validation, and temp
 - Consumes: `userNameSchema` from `backend/src/core/validators/user.validator.js`
 - Produces: Enhanced `POST /api/v1/teachers` returning `{ success: true, data: teacher, tempPassword }`
 
-- [ ] **Step 1: Write integration tests for teacher creation with unified name & title**
+- [x] **Step 1: Write integration tests for teacher creation with unified name & title**
 
 Create `backend/tests/modules/teachers-name.test.js`:
 ```javascript
@@ -516,12 +516,12 @@ describe('Teacher Name & Title Management', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pnpm test tests/modules/teachers-name.test.js`
 Expected: FAIL
 
-- [ ] **Step 3: Update Teacher model, validator, and service**
+- [x] **Step 3: Update Teacher model, validator, and service**
 
 In `backend/src/models/Teacher.js`:
 Ensure `title` defaults to `""` and is trimmed:
@@ -637,12 +637,12 @@ export const createTeacher = async (req, res) => {
 };
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `pnpm test tests/modules/teachers-name.test.js`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/models/Teacher.js backend/src/modules/teachers/ backend/tests/modules/teachers-name.test.js
@@ -666,7 +666,7 @@ git commit -m "feat(teachers): support unified name, title, and tempPassword vis
 - Produces: Universal search across `name`, `email`, `phone` in `users.service.js`
 - Produces: `POST /api/v1/admins` returning `{ success: true, data: admin, tempPassword }`
 
-- [ ] **Step 1: Write test for universal user search and admin temp password**
+- [x] **Step 1: Write test for universal user search and admin temp password**
 
 Create `backend/tests/modules/users-search.test.js`:
 ```javascript
@@ -731,12 +731,12 @@ describe('Universal User Search & Admin Credentials', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `pnpm test tests/modules/users-search.test.js`
 Expected: FAIL
 
-- [ ] **Step 3: Update `admins.validator.js`, `admins.service.js`, `users.service.js`, and seed scripts**
+- [x] **Step 3: Update `admins.validator.js`, `admins.service.js`, `users.service.js`, and seed scripts**
 
 In `backend/src/modules/admins/admins.validator.js`:
 Use `userNameSchema`:
@@ -818,12 +818,12 @@ Update search query to search `name`, `email`, and `phone`:
 Update `backend/src/seeds/seedFullDemoData.js` and `backend/src/seeds/seedDemoUsers.js`:
 Ensure all user seeds define `name: ...`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `pnpm test tests/modules/users-search.test.js`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/src/modules/admins/ backend/src/modules/users/ backend/src/seeds/ backend/tests/modules/users-search.test.js
@@ -842,7 +842,7 @@ git commit -m "feat(users): add universal search on name/email/phone and update 
 - Consumes: `useMajors` hook, `POST /api/v1/students`
 - Produces: Student creation modal with name strict validation, major selection, phone, password, and credential copy dialog.
 
-- [ ] **Step 1: Update `client/src/pages/admin/Students.jsx`**
+- [x] **Step 1: Update `client/src/pages/admin/Students.jsx`**
   - Add `Select` for Major loaded via `useMajors()`.
   - Add `phone` and optional `password` input.
   - Implement client-side strict name validation:
@@ -858,12 +858,12 @@ git commit -m "feat(users): add universal search on name/email/phone and update 
     ```
   - Add a Mantine `Modal` for `createdCredentials` displaying `{ name, email, tempPassword }` with a "نسخ بيانات الدخول" button copying to clipboard using `navigator.clipboard.writeText(...)`.
 
-- [ ] **Step 2: Test frontend build**
+- [x] **Step 2: Test frontend build**
 
 Run: `npm run build` in `client`
 Expected: PASS
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add client/src/pages/admin/Students.jsx
@@ -881,22 +881,22 @@ git commit -m "feat(client): enhance Students modal with strict name validation,
 **Interfaces:**
 - Produces: Teachers and Admins management modals with strict name validation and credential copy dialog.
 
-- [ ] **Step 1: Update `client/src/pages/admin/Teachers.jsx`**
+- [x] **Step 1: Update `client/src/pages/admin/Teachers.jsx`**
   - Add Title Select (`دكتور`, `أستاذ`, `أستاذ مشارك`, `أستاذ مساعد`, `محاضر`, `معيد`).
   - Add `phone` and optional `password` field.
   - Add strict name validation regex.
   - Add `createdCredentials` success popup dialog with 1-click copy.
 
-- [ ] **Step 2: Update `client/src/pages/admin/Admins.jsx`**
+- [x] **Step 2: Update `client/src/pages/admin/Admins.jsx`**
   - Add strict name validation regex.
   - Add `createdCredentials` success popup dialog with 1-click copy.
 
-- [ ] **Step 3: Test frontend build**
+- [x] **Step 3: Test frontend build**
 
 Run: `npm run build` in `client`
 Expected: PASS
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add client/src/pages/admin/Teachers.jsx client/src/pages/admin/Admins.jsx
@@ -910,19 +910,19 @@ git commit -m "feat(client): enhance Teachers and Admins modals with strict vali
 **Files:**
 - Create: `backend/src/scripts/migrate-user-names.js`
 
-- [ ] **Step 1: Write and run DB migration script**
+- [x] **Step 1: Write and run DB migration script**
   Migrate any existing database records where `name` is null/empty by combining `firstName` and `lastName`.
   Execute: `node backend/src/scripts/migrate-user-names.js`.
 
-- [ ] **Step 2: Run all backend tests**
+- [x] **Step 2: Run all backend tests**
   Execute: `pnpm test` in `backend`
   Expected: PASS (all tests pass, 0 failures).
 
-- [ ] **Step 3: Run client build**
+- [x] **Step 3: Run client build**
   Execute: `npm run build` in `client`
   Expected: PASS.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 ```bash
 git add backend/src/scripts/migrate-user-names.js
 git commit -m "chore: add user names DB migration script and verify full test suite"
