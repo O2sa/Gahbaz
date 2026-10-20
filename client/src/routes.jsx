@@ -26,6 +26,7 @@ import {
   Lessons,
   CourseLesson,
   UserProfile,
+  CourseAssignments,
 } from './pages/admin'
 
 import { EditCourseInfo, loader as courseInfoEditLoader } from './pages/admin/EditCourseInfo'
@@ -153,11 +154,6 @@ export default function getRoutes(queryClient, user) {
               ],
             },
             {
-              path: 'majors/:majorId/semesterTemplates',
-              name: 'الخطة الدراسية للتخصص',
-              element: <SemestersTemplate queryClient={queryClient} />,
-            },
-            {
               path: 'subjects',
               name: 'دليل المواد الأكاديمية',
               element: <Subjects queryClient={queryClient} />,
@@ -210,6 +206,17 @@ export default function getRoutes(queryClient, user) {
               path: 'courses/:courseId',
               name: 'الدورة',
               element: <Course queryClient={queryClient} />,
+            },
+            {
+              path: 'courses/:courseId/grades',
+              name: 'سجل الدرجات',
+              element: <StudentGrades queryClient={queryClient} />,
+              loader: studentGradesLoader(queryClient),
+            },
+            {
+              path: 'courses/:courseId/assignments',
+              name: 'التكليفات والواجبات',
+              element: <CourseAssignments queryClient={queryClient} />,
             },
             {
               path: 'courses/:courseId/edit',

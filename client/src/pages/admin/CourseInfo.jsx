@@ -24,6 +24,7 @@ import {
   IconFolder,
   IconVideo,
   IconCertificate,
+  IconFileText,
 } from '@tabler/icons-react'
 import CourseContent from '../../components/CourseContent'
 import { PageHeader } from '../../components/common/index.js'
@@ -203,6 +204,17 @@ export default function CourseInfo({ course }) {
                 leftIcon={<IconCertificate size={18} />}
               >
                 دفتر درجات الطلاب (Gradebook)
+              </Button>
+              <Button
+                component={Link}
+                to={`/courses/${courseData._id || courseData.id}/assignments`}
+                variant="light"
+                color="indigo"
+                size="md"
+                radius="md"
+                leftIcon={<IconFileText size={18} />}
+              >
+                التكليفات والواجبات (Assignments)
               </Button>
             </Group>
           </Grid.Col>
