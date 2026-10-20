@@ -198,3 +198,17 @@ export const syncCourseStudentRoster = async ({ courseId, studentId, action = "a
     );
   }
 };
+
+export const getCourseChatService = async (courseId, userId, universityId = null) => {
+  const channel = await ensureCourseChatChannel(courseId);
+
+  const chat = await Chat.findById(channel._id)
+    .populate("course", "name code cover")
+    .populate("users", "name firstName lastName email avatar role")
+    .populate("groupAdmin", "name firstName lastName email avatar")
+    .populate("latestMessage");
+
+  if (!chat) throw new NotFoundError("Course chat channel not found");
+  return chat;
+};
+
