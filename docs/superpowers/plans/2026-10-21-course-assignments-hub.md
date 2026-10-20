@@ -29,7 +29,7 @@
 **Interfaces:**
 - Produces: `GET /api/v1/assignments/:id/submissions` returning populated `student` with `name`, `firstName`, `lastName`, `email`, and `avatar`.
 
-- [ ] **Step 1: Write integration test for student profile population in submissions**
+- [x] **Step 1: Write integration test for student profile population in submissions**
 
 In `backend/tests/modules/assignments.test.js`, add a test case verifying `name` and `avatar` population:
 ```javascript
@@ -54,10 +54,10 @@ it("GET /api/v1/assignments/:id/submissions should populate student name and ava
 });
 ```
 
-- [ ] **Step 2: Run test to check current behavior**
+- [x] **Step 2: Run test to check current behavior**
   Run: `pnpm test tests/modules/assignments.test.js`
 
-- [ ] **Step 3: Update `assignments.service.js` to populate unified `name` and `avatar`**
+- [x] **Step 3: Update `assignments.service.js` to populate unified `name` and `avatar`**
 
 In `backend/src/modules/assignments/assignments.service.js`:
 ```javascript
@@ -70,11 +70,11 @@ export const getAssignmentSubmissionsService = async (assignmentId, universityId
 };
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
   Run: `pnpm test tests/modules/assignments.test.js`
   Expected: PASS (all tests pass)
 
-- [ ] **Step 5: Commit Task 1**
+- [x] **Step 5: Commit Task 1**
   ```bash
   git add backend/src/modules/assignments/assignments.service.js backend/tests/modules/assignments.test.js
   git commit -m "feat(assignments): populate unified student name and avatar in submissions"
@@ -92,7 +92,7 @@ export const getAssignmentSubmissionsService = async (assignmentId, universityId
 - Produces: Navigation button in `CourseInfo.jsx` pointing to `/courses/:courseId/assignments`
 - Produces: Application route `/courses/:courseId/assignments` rendered by `CourseAssignments`
 
-- [ ] **Step 1: Add Assignments button in `CourseInfo.jsx`**
+- [x] **Step 1: Add Assignments button in `CourseInfo.jsx`**
 
 Import `IconFileText` from `@tabler/icons-react` and add to action buttons in `client/src/pages/admin/CourseInfo.jsx`:
 ```jsx
@@ -109,7 +109,7 @@ Import `IconFileText` from `@tabler/icons-react` and add to action buttons in `c
 </Button>
 ```
 
-- [ ] **Step 2: Register route in `client/src/routes.jsx`**
+- [x] **Step 2: Register route in `client/src/routes.jsx`**
 
 Import `CourseAssignments` and add route:
 ```jsx
@@ -120,7 +120,7 @@ Import `CourseAssignments` and add route:
 }
 ```
 
-- [ ] **Step 3: Commit Task 2**
+- [x] **Step 3: Commit Task 2**
   ```bash
   git add client/src/pages/admin/CourseInfo.jsx client/src/routes.jsx
   git commit -m "feat(client): register CourseAssignments route and CourseInfo action button"
@@ -143,33 +143,33 @@ Import `CourseAssignments` and add route:
 - `SubmissionsDrawer`: props `{ opened, onClose, assignment, courseId }`
 - `SubmitAssignmentModal`: props `{ opened, onClose, assignment, existingSubmission, onSuccess }`
 
-- [ ] **Step 1: Create `AssignmentFormModal.jsx`**
+- [x] **Step 1: Create `AssignmentFormModal.jsx`**
   - Form fields: `title`, `description`, `dueDate` (HTML datetime-local or Mantine DatePicker), `maxScore`.
   - File upload dropzone supporting PDF, DOCX, ZIP using `uploadMedia(file, { folder: 'assignments', onProgress })` with progress bar.
   - Handles both create (`POST /api/v1/assignments/course/:courseId`) and edit (`PATCH /api/v1/assignments/:id`).
 
-- [ ] **Step 2: Create `GradeSubmissionModal.jsx`**
+- [x] **Step 2: Create `GradeSubmissionModal.jsx`**
   - Displays student name, submission timestamp, and late badge if applicable.
   - Number input for `grade` clamped to `0 <= grade <= maxScore`.
   - Textarea for `feedback`.
   - Dispatches `PATCH /api/v1/assignments/submissions/:submissionId/grade`.
 
-- [ ] **Step 3: Create `SubmissionsDrawer.jsx`**
+- [x] **Step 3: Create `SubmissionsDrawer.jsx`**
   - Mantine Drawer from right side.
   - Fetches `GET /api/v1/assignments/:id/submissions`.
   - Search bar by student name and status filter (`all`, `submitted`, `graded`, `late`).
   - Table showing student avatar, name, submission date, late badge, download button for solution file, current grade, and action button to open `GradeSubmissionModal`.
 
-- [ ] **Step 4: Create `SubmitAssignmentModal.jsx`**
+- [x] **Step 4: Create `SubmitAssignmentModal.jsx`**
   - Student homework submission dialog.
   - File dropzone accepting PDF, DOCX, ZIP, images with live percentage progress bar via `uploadMedia`.
   - Student notes textarea.
   - Dispatches `POST /api/v1/assignments/:id/submissions`.
 
-- [ ] **Step 5: Create `client/src/components/assignments/index.js`**
+- [x] **Step 5: Create `client/src/components/assignments/index.js`**
   - Export all 4 modals cleanly.
 
-- [ ] **Step 6: Commit Task 3**
+- [x] **Step 6: Commit Task 3**
   ```bash
   git add client/src/components/assignments/
   git commit -m "feat(client): implement assignment modals, submissions drawer, and upload integration"
@@ -186,7 +186,7 @@ Import `CourseAssignments` and add route:
 - Consumes: `GET /api/v1/assignments/course/:courseId`, `GET /api/v1/courses/:courseId`
 - Renders: Role-adaptive workspace for Faculty (`teacher`/`admin`) vs Student (`student`)
 
-- [ ] **Step 1: Implement `CourseAssignments.jsx`**
+- [x] **Step 1: Implement `CourseAssignments.jsx`**
   - Detect role via `currentUser = useDashboardContext()?.user || useQuery({ queryKey: ['currentUser'] })`.
   - **Faculty Workspace:**
     - Telemetry cards: Total assignments, pending reviews, class average.
@@ -200,11 +200,11 @@ Import `CourseAssignments` and add route:
     - Submit button opening `SubmitAssignmentModal`.
     - Graded feedback callout showing score, percentage bar, and instructor comments.
 
-- [ ] **Step 2: Verify client build**
+- [x] **Step 2: Verify client build**
   Run: `npm run build` in `client`
   Expected: PASS
 
-- [ ] **Step 3: Commit Task 4**
+- [x] **Step 3: Commit Task 4**
   ```bash
   git add client/src/pages/admin/CourseAssignments.jsx
   git commit -m "feat(client): implement CourseAssignments hub page for faculty and students"
@@ -218,12 +218,12 @@ Import `CourseAssignments` and add route:
 - Full backend suite
 - Full frontend build
 
-- [ ] **Step 1: Run full backend test suite**
+- [x] **Step 1: Run full backend test suite**
   Run: `pnpm test` in `backend`
-  Expected: PASS (all tests pass)
+  Expected: PASS (139/139 passed)
 
-- [ ] **Step 2: Run client production build**
+- [x] **Step 2: Run client production build**
   Run: `npm run build` in `client`
   Expected: PASS
 
-- [ ] **Step 3: Commit and update plan status**
+- [x] **Step 3: Commit and update plan status**
