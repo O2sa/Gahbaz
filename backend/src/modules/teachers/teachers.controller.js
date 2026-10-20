@@ -12,8 +12,12 @@ export const getTeacher = async (req, res) => {
 };
 
 export const createTeacher = async (req, res) => {
-  const data = await svc.createTeacherService(req.body, req.user.universityId);
-  sendCreated(res, data);
+  const { teacher, tempPassword } = await svc.createTeacherService(req.body, req.user.universityId);
+  return res.status(201).json({
+    success: true,
+    data: teacher,
+    tempPassword,
+  });
 };
 
 export const updateTeacher = async (req, res) => {
