@@ -67,7 +67,7 @@ const Login = () => {
         color: 'teal',
         autoClose: 4000,
       })
-      navigate('/')
+      navigate('/dashboard')
     } catch (error) {
       notifications.show({
         title: 'خطأ في تسجيل الدخول',

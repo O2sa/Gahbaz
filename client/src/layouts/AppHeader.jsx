@@ -13,9 +13,11 @@ import {
   useMantineTheme,
 } from '@mantine/core'
 import { IconBell, IconSchool, IconSun, IconMoonStars } from '@tabler/icons-react'
+import { useNavigate } from 'react-router-dom'
 import UserMenu from './UserMenu.jsx'
 
 export default function AppHeader({ opened, setOpened, user }) {
+  const navigate = useNavigate()
   const { colorScheme, toggleColorScheme } = useMantineColorScheme()
   const theme = useMantineTheme()
   const isDark = colorScheme === 'dark'
@@ -56,7 +58,7 @@ export default function AppHeader({ opened, setOpened, user }) {
             />
           </MediaQuery>
 
-          <Group spacing="xs" sx={{ cursor: 'pointer' }}>
+          <Group spacing="xs" sx={{ cursor: 'pointer' }} onClick={() => navigate('/dashboard')}>
             <ActionIcon
               size={38}
               radius="md"

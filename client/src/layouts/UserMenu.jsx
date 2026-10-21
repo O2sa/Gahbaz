@@ -15,6 +15,7 @@ import {
   IconLogout,
   IconChevronDown,
   IconSettings,
+  IconSchool,
 } from '@tabler/icons-react'
 import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
@@ -136,6 +137,13 @@ export default function UserMenu({ user }) {
         </Box>
         <Menu.Divider />
 
+        <Menu.Item
+          icon={<IconSchool size={16} stroke={1.6} />}
+          onClick={() => navigate('/')}
+          sx={{ fontWeight: 600, fontSize: 13 }}
+        >
+          صفحة البدء الرئيسية
+        </Menu.Item>
         <Menu.Item
           icon={<IconUser size={16} stroke={1.6} />}
           onClick={() => navigate('/profile')}
