@@ -43,6 +43,9 @@ export default function MainLayout() {
   // Redirect to login if user session is invalid or missing
   useEffect(() => {
     if (!isUserLoading && (isError || !userData)) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token')
+      }
       queryClient.clear()
       navigate('/login')
     }
@@ -56,6 +59,9 @@ export default function MainLayout() {
     } catch (err) {
       // ignore
     } finally {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token')
+      }
       queryClient.clear()
       navigate('/login')
     }

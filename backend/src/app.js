@@ -117,27 +117,35 @@ app.use("/api/v1/messages", authGuard, messagesRouter);
 app.use("/api/v1/system", authGuard, systemRouter);
 app.use("/api/v1/media", mediaRouter);
 
-// Serve frontend in production if built
-const clientDist = path.resolve(__dirname, "../../client/dist");
-app.use(express.static(clientDist));
-
-app.get("*", (req, res, next) => {
-  if (req.originalUrl.startsWith("/api")) {
-    return res.status(404).json({
-      success: false,
-      error: { code: "NOT_FOUND", message: `API route ${req.originalUrl} not found` },
-    });
-  }
-  res.sendFile(path.resolve(clientDist, "index.html"), (err) => {
-    if (err) next();
+// Health check routes for Render, uptime monitors, and cloud probes
+app.get(["/health", "/api/v1/health"], (req, res) => {
+  sendSuccess(res, {
+    status: "healthy",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
   });
 });
 
-// Global 404 for unmatched routes
+// Root API information route
+app.get("/", (req, res) => {
+  res.json({
+    name: "Gahbaz Academic Platform API",
+    status: "active",
+    environment: process.env.NODE_ENV || "development",
+    version: "1.0.0",
+    docs: "/api/docs",
+    health: "/health",
+  });
+});
+
+// Global 404 for unmatched routes - Pure JSON API response (never serve frontend)
 app.use("*", (req, res) => {
   res.status(404).json({
     success: false,
-    error: { code: "NOT_FOUND", message: "Resource not found" },
+    error: {
+      code: "NOT_FOUND",
+      message: `API route ${req.originalUrl} not found`,
+    },
   });
 });
 

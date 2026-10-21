@@ -1,12 +1,32 @@
 import axios from 'axios'
 import { notifications } from '@mantine/notifications'
 
+export const getBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim().length > 0) {
+    const clean = envUrl.trim().replace(/\/+$/, '')
+    return clean.endsWith('/api/v1') ? clean : `${clean}/api/v1`
+  }
+  return '/api/v1'
+}
+
 const apiClient = axios.create({
-  baseURL: '/api/v1',
+  baseURL: getBaseUrl(),
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
+})
+
+// Attach Bearer token from localStorage for cross-domain requests (Netlify -> Render)
+apiClient.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+  }
+  return config
 })
 
 apiClient.interceptors.response.use(
@@ -18,11 +38,15 @@ apiClient.interceptors.response.use(
     const message =
       error?.response?.data?.message ||
       error?.response?.data?.msg ||
+      error?.response?.data?.error?.message ||
       'حدث خطأ غير متوقع'
 
     if (status === 401) {
-      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
-        window.location.href = '/login'
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token')
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login'
+        }
       }
     } else if (status === 403) {
       notifications.show({
