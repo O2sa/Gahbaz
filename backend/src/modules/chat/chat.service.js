@@ -52,6 +52,7 @@ export const fetchUserChatsService = async (userId, query = {}) => {
       populate: [
         { path: "users", select: "-password" },
         { path: "groupAdmin", select: "-password" },
+        { path: "course", select: "name code cover" },
         { path: "latestMessage" },
       ],
     }

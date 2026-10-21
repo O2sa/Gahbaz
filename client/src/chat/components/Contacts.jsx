@@ -29,8 +29,14 @@ function Contacts({ fetchAgain, selectedChat, socket }) {
     try {
       setLoading(true)
       const res = await customFetch.get('/chats/fetchChats')
-      const items = res?.data?.data || res?.data || []
-      setChats(Array.isArray(items) ? items : [])
+      const items = Array.isArray(res)
+        ? res
+        : Array.isArray(res?.data)
+        ? res.data
+        : Array.isArray(res?.data?.data)
+        ? res.data.data
+        : []
+      setChats(items)
     } catch (error) {
       console.error('Failed to load chats:', error)
     } finally {
