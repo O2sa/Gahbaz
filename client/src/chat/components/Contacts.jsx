@@ -35,12 +35,13 @@ function Contacts({ fetchAgain, selectedChat, socket }) {
   const fetchChats = async () => {
     try {
       setLoading(true)
-      const { data } = await axios.get(`${fetchChatsRoute}`)
-      setChats(data)
+      const res = await customFetch.get('/chats/fetchChats')
+      const items = res.data?.data || res.data || []
+      setChats(Array.isArray(items) ? items : [])
       setLoading(false)
     } catch (error) {
-      setLoading(true)
-      //toast.error("Failed to load the chats", toastOptions);
+      console.error('Failed to load chats:', error)
+      setLoading(false)
     }
   }
 

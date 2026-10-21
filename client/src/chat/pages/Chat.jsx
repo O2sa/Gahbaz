@@ -83,13 +83,18 @@ function Chat() {
     }
   }
 
-  //socket connection
-  // useEffect(() => {
-  //   if (user) {
-  socket.current = io(host)
-  socket.current.emit('setup', user._id)
-  //   }
-  // }, [user]);
+  // Socket.IO connection
+  useEffect(() => {
+    if (user?._id) {
+      socket.current = io(host, { withCredentials: true })
+      socket.current.emit('setup', user._id)
+      return () => {
+        if (socket.current) {
+          socket.current.disconnect()
+        }
+      }
+    }
+  }, [user?._id])
 
   return (
     <Container fluid>
@@ -148,8 +153,8 @@ function Chat() {
                 {!search || navState === 'start' ? (
                   <Contacts socket={socket} selectedChat={selectedChat} fetchAgain={fetchAgain} />
                 ) : loading ? (
-                  <Center>
-                    <ChatContactsLoader />
+                  <Center py="md">
+                    <Loader size="sm" />
                   </Center>
                 ) : (
                   <Search socket={socket} searchResults={searchResults} />
