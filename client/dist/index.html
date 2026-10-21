@@ -55,8 +55,52 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script type="module" crossorigin src="./assets/index-CkIeSLD2.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-n2zMvWTi.css">
+
+  <!-- Anti-flash inline theme pre-hydration script -->
+  <script>
+    (function () {
+      try {
+        var key = 'gahbaz-color-scheme';
+        var stored = localStorage.getItem(key);
+        var scheme;
+        if (stored) {
+          try {
+            scheme = JSON.parse(stored);
+          } catch (e) {
+            scheme = stored;
+          }
+        }
+        if (scheme !== 'dark' && scheme !== 'light') {
+          var mql = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+          scheme = mql && mql.matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-color-scheme', scheme);
+        document.documentElement.style.colorScheme = scheme;
+        var bg = scheme === 'dark' ? '#141517' : '#f8fafc';
+        var fg = scheme === 'dark' ? '#c1c2c5' : '#1a1b1e';
+        document.documentElement.style.backgroundColor = bg;
+        document.documentElement.style.color = fg;
+      } catch (e) {}
+    })();
+  </script>
+  <style>
+    html, body {
+      background-color: #f8fafc;
+      color: #1a1b1e;
+    }
+    html[data-color-scheme='dark'],
+    html[data-color-scheme='dark'] body {
+      background-color: #141517 !important;
+      color: #c1c2c5 !important;
+    }
+    html[data-color-scheme='light'],
+    html[data-color-scheme='light'] body {
+      background-color: #f8fafc !important;
+      color: #1a1b1e !important;
+    }
+  </style>
+  <script type="module" crossorigin src="./assets/index-oRhxJ43s.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CSfu-_Kl.css">
 </head>
 
 <body>
