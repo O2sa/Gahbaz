@@ -10,21 +10,25 @@ export const login = async (req, res) => {
   const { email, password } = req.body;
   const { token, user, role } = await loginUser(email, password);
 
+  const isProduction = process.env.NODE_ENV === "production";
   const oneDay = 1000 * 60 * 60 * 24;
   res.cookie("token", token, {
     httpOnly: true,
     expires: new Date(Date.now() + oneDay),
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
   });
 
   sendSuccess(res, { user, role, token });
 };
 
 export const logout = (req, res) => {
+  const isProduction = process.env.NODE_ENV === "production";
   res.cookie("token", "logout", {
     httpOnly: true,
     expires: new Date(Date.now()),
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
   });
   sendSuccess(res, { message: "User logged out successfully" });
 };

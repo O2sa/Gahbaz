@@ -9,6 +9,7 @@ const envSchema = z.object({
   JWT_SECRET: z.string().default("default_dev_secret_key_gahbaz_12345"),
   JWT_LIFETIME: z.string().default("1d"),
   EMAIL_USER: z.string().default(""),
+  CLIENT_URL: z.string().optional().default("http://localhost:5173"),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   STORAGE_PROVIDER: z.enum(["local", "cloudinary", "s3", "wasabi"]).default("local"),
   UPLOAD_DIR: z.string().default("uploads"),
