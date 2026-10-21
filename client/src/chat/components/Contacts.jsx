@@ -1,12 +1,4 @@
-import { useState, useEffect } from 'react'
-// import { ToastContainer, toast } from "react-toastify";
-import axios from 'axios'
-import { ChatState } from '../context/ChatProvider'
-import { fetchChatsRoute } from '../utils/APIRoutes'
-import { toastOptions } from '../utils/constants'
-import { getSender, getSenderFull, getSenderProfilePic } from '../config/ChatLogics'
-import GroupChatCreate from './Group/CreateGroupChat'
-import customFetch from '../../utils/customFetch'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   ActionIcon,
   Box,
@@ -17,137 +9,168 @@ import {
   ScrollArea,
   Skeleton,
   Stack,
+  Text,
 } from '@mantine/core'
-import { GrAddCircle } from 'react-icons/gr'
 import { useMediaQuery } from '@mantine/hooks'
 import { Carousel } from '@mantine/carousel'
-import { IconSearch } from '@tabler/icons-react'
+import { ChatState } from '../context/ChatProvider'
+import { getSender, getSenderProfilePic } from '../config/ChatLogics'
+import customFetch from '../../utils/customFetch'
 import ChatsList from '../NewChat/components/ChatsList/ChatsList'
 
-const replaceHTML = (html) => (html ? html.replace(/<[^>]*>?/gm, '') : '')
+const replaceHTML = (html) => (html ? String(html).replace(/<[^>]*>?/gm, '') : '')
 
 function Contacts({ fetchAgain, selectedChat, socket }) {
   const { setSelectedChat, chats, user, setChats } = ChatState()
   const [loading, setLoading] = useState(false)
-  const [modalActive, setModalActive] = useState('not')
-  const tablet_match = useMediaQuery('(max-width: 768px)')
+  const tabletMatch = useMediaQuery('(max-width: 768px)')
 
-  const fetchChats = async () => {
+  const fetchChats = useCallback(async () => {
     try {
       setLoading(true)
       const res = await customFetch.get('/chats/fetchChats')
-      const items = res.data?.data || res.data || []
+      const items = res?.data?.data || res?.data || []
       setChats(Array.isArray(items) ? items : [])
-      setLoading(false)
     } catch (error) {
       console.error('Failed to load chats:', error)
+    } finally {
       setLoading(false)
     }
-  }
+  }, [setChats])
 
   useEffect(() => {
-    fetchChats() // eslint-disable-next-line
-  }, [fetchAgain])
-
-  const newChat = (data) => {
-    if (chats !== undefined && chats.length !== 0 && data !== undefined) {
-      return chats.map((chat) => {
-        var temp = Object.assign({}, chat)
-        if (temp._id === data._id) temp.latestMessage = data.latestMessage
-        return temp
-      })
-    }
-  }
+    fetchChats()
+  }, [fetchChats, fetchAgain])
 
   useEffect(() => {
-    if (socket.current) {
-      socket.current.on('contacts', (data) => {
-        setChats(newChat(data))
+    if (!socket?.current) return
+
+    const handleContactsUpdate = (data) => {
+      if (!data?._id) return
+      setChats((prev) => {
+        if (!Array.isArray(prev) || prev.length === 0) return prev
+        return prev.map((c) => {
+          if (c._id === data._id) {
+            return {
+              ...c,
+              latestMessage: data.latestMessage || c.latestMessage,
+            }
+          }
+          return c
+        })
       })
     }
-  })
 
-  const checkActive = (chat) => {
-    if (chat.isGroupChat) return true
+    socket.current.on('contacts', handleContactsUpdate)
+    return () => {
+      socket.current?.off('contacts', handleContactsUpdate)
+    }
+  }, [socket, setChats])
 
-    return getSenderFull(user, chat.users).lastActivity
-      ? isUserActive(getSenderFull(user, chat.users).lastActivity)
-      : true
+  const getChatTitle = (chat) => {
+    if (chat.chatName) return chat.chatName
+    if (chat.course?.name) return `مقرر: ${chat.course.name}`
+    if (chat.isGroupChat) return 'مجموعة مناقشة'
+    if (Array.isArray(chat.users) && chat.users.length >= 2) {
+      return getSender(user, chat.users)
+    }
+    return 'محادثة'
   }
+
+  const getChatAvatar = (chat) => {
+    if (chat.course?.cover) return chat.course.cover
+    if (chat.isGroupChat) return chat.groupPic
+    if (Array.isArray(chat.users) && chat.users.length >= 2) {
+      return getSenderProfilePic(user, chat.users)
+    }
+    return undefined
+  }
+
+  const getChatBadge = (chat) => {
+    if (chat.course) return 'مقرر دراسي'
+    if (chat.isGroupChat) return 'مجموعة'
+    return null
+  }
+
   return (
     <>
-      {tablet_match ? (
+      {tabletMatch ? (
         <>
           <Carousel
             height="100%"
             align="start"
             slidesToScroll={1}
-            px={32}
+            px={16}
             slideSize={{
-              base: '27.5%',
-              sm: '37.5%',
-              md: '22.5%',
-              lg: '25%',
+              base: '35%',
+              sm: '30%',
+              md: '25%',
             }}
-            slideGap={{ base: 0, sm: 'md', md: 'md', lg: 'lg' }}
+            slideGap="sm"
           >
-            {loading
-              ? Array.from({ length: 6 }).map((o, i) => (
-                  <Carousel.Slide key={`chat-carousel-list-${i}`} mr="md">
-                    <Skeleton height={48} />
-                  </Carousel.Slide>
-                ))
-              : chats.length > 0 &&
-                chats.map((chat) => (
-                  <Carousel.Slide key={`carousel-${chat._id}`}>
-                    <ChatsList
-                      onClick={() => setSelectedChat(chat)}
-                      key={chat._id}
-                      avatar={
-                        chat.isGroupChat ? chat.groupPic : getSenderProfilePic(user, chat.users)
-                      }
-                      // alt={chat?.isGroupChat ? chat.chatName : getSender(user, chat.users)}
-                      firstName={chat?.isGroupChat ? chat.chatName : getSender(user, chat.users)}
-                      lastMessage={
-                        <p
-                          dangerouslySetInnerHTML={{ __html: chat?.latestMessage?.content || '' }}
-                        />
-                      }
-                      // date={chat?.latestMessage?.createdAt}
-                      // unread={2}
-                    />
-                  </Carousel.Slide>
-                ))}
+            {loading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <Carousel.Slide key={`chat-carousel-list-${i}`}>
+                  <Skeleton height={48} radius="md" />
+                </Carousel.Slide>
+              ))
+            ) : chats && chats.length > 0 ? (
+              chats.map((chat) => (
+                <Carousel.Slide key={`carousel-${chat._id}`}>
+                  <ChatsList
+                    onClick={() => setSelectedChat(chat)}
+                    isSelected={selectedChat?._id === chat._id}
+                    avatar={getChatAvatar(chat)}
+                    firstName={getChatTitle(chat)}
+                    badge={getChatBadge(chat)}
+                    lastMessage={
+                      chat.latestMessage ? replaceHTML(chat.latestMessage.content) : ''
+                    }
+                  />
+                </Carousel.Slide>
+              ))
+            ) : (
+              <Center p="md">
+                <Text size="xs" c="dimmed">
+                  لا توجد محادثات
+                </Text>
+              </Center>
+            )}
           </Carousel>
-          <Divider />
+          <Divider my="xs" />
         </>
       ) : (
-        <Stack sx={{ overflowY: 'auto', overflowX: 'hidden', gap: 0 }}>
-          {loading
-            ? Array.from({ length: 12}).map((o, i) => (
-                <Box key={`chat-list-${i}`}>
-                  <Skeleton height={48} radius={0} />
-                  <Divider />
+        <ScrollArea sx={{ height: 480 }} type="hover">
+          <Stack spacing={0}>
+            {loading ? (
+              Array.from({ length: 8 }).map((_, i) => (
+                <Box key={`chat-list-skel-${i}`} p="xs">
+                  <Skeleton height={42} radius="sm" />
                 </Box>
               ))
-            : chats?.length > 0 &&
-              chats?.map((chat) => (
+            ) : chats && chats.length > 0 ? (
+              chats.map((chat) => (
                 <ChatsList
-                  onClick={() => setSelectedChat(chat)}
                   key={chat._id}
-                  active={checkActive(chat)}
-                  avatar={chat.isGroupChat ? chat.groupPic : getSenderProfilePic(user, chat.users)}
-                  // alt={chat?.isGroupChat ? chat.chatName : getSender(user, chat.users)}
-                  firstName={chat?.isGroupChat ? chat.chatName : getSender(user, chat.users)}
+                  onClick={() => setSelectedChat(chat)}
+                  isSelected={selectedChat?._id === chat._id}
+                  avatar={getChatAvatar(chat)}
+                  firstName={getChatTitle(chat)}
+                  badge={getChatBadge(chat)}
                   lastMessage={
-                    // <p dangerouslySetInnerHTML={{ __html: chat?.latestMessage?.content || '' }} />
-                    chat.latestMessage ? replaceHTML(chat?.latestMessage?.content) : ''
+                    chat.latestMessage ? replaceHTML(chat.latestMessage.content) : ''
                   }
-                  // date={chat?.latestMessage?.createdAt}
-                  // unread={2}
                 />
-              ))}
-        </Stack>
+              ))
+            ) : (
+              <Center py="xl">
+                <Text size="sm" c="dimmed">
+                  لا توجد محادثات نشطة
+                </Text>
+              </Center>
+            )}
+          </Stack>
+        </ScrollArea>
       )}
     </>
   )
