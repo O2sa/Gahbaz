@@ -1,229 +1,24 @@
-import { useEffect, useState, useRef } from 'react'
-// import { ToastContainer, toast } from "react-toastify";
-
-import axios from 'axios'
-
-import { ChatState } from '../context/ChatProvider'
-import { recieveMessageRoute, sendMessageRoute } from '../utils/APIRoutes'
-import { toastOptions } from '../utils/constants'
-import { isGroupRecieved, isAnotherSender, isLastMessage } from '../config/ChatLogics'
-
-import ChatInput from './ChatInput'
-import { MessageBox, MessageList } from 'react-chat-elements'
-import { Box, Center, Divider, Loader, ScrollArea, Stack } from '@mantine/core'
-import ChatItem from '../NewChat/components/ChatItem/ChatItem'
+import { useEffect, useState, useRef, useCallback } from 'react'
+import { Box, Center, Divider, Loader, ScrollArea, Stack, Text, Anchor, Image, Group } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
-import dayjs from 'dayjs'
-
-function SingleChatTest({ fetchAgain, socket, setFetchAgain, selectedChat }) {
-  const [messages, setMessages] = useState([])
-  const [socketConnected, setSocketConnected] = useState(false)
-  const [newAttach, setNewAttach] = useState()
-  const [loading, setLoading] = useState(false)
-  const scrollRef = useRef()
-  const { user } = ChatState()
-
-  // //console.log(user)
-  const sendMessage = async (msg) => {
-    setLoading(true)
-    try {
-      const formData = new FormData()
-      formData.append('sender', user._id)
-      formData.append('chatId', selectedChat._id)
-
-      if (newAttach) formData.append('attachment', newAttach, newAttach.name)
-
-      if (msg.length > 0) {
-        formData.append('content', msg)
-      } else {
-        formData.append('content', '')
-      }
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      }
-
-      const { data } = await axios.put(`${sendMessageRoute}`, formData)
-      socket.current.emit('new message', data)
-      setMessages([...messages, data])
-      socket.current.emit('contacts', data.chat)
-      setNewAttach()
-      setLoading(false)
-    } catch (error) {
-      console.error('Failed to send the Message', toastOptions)
-    }
-  }
-
-  const fetchMessages = async () => {
-    if (!selectedChat) return
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      }
-      const { data } = await axios.get(`${recieveMessageRoute}/${selectedChat._id}`)
-      setMessages(data)
-      socket.current.emit('join chat', selectedChat._id)
-      socket.current.emit('contacts', data.chat)
-    } catch (error) {
-      //toast.error("Failed to Load the Messages", toastOptions);
-    }
-  }
-
-  useEffect(() => {
-    fetchMessages() // eslint-disable-next-line
-  }, [selectedChat])
-
-  useEffect(() => {
-    if (socket.current) {
-      socket.current.on('connected', () => setSocketConnected(true))
-    } // eslint-disable-next-line
-  }, [])
-
-  const func = (newMessageRecieved) => {
-    if (
-      newMessageRecieved !== undefined &&
-      newMessageRecieved !== null &&
-      newMessageRecieved.length !== 0
-    ) {
-      setMessages([...messages, newMessageRecieved])
-      socket.current.emit('contacts', newMessageRecieved.chat)
-    }
-  }
-
-  useEffect(() => {
-    if (socket.current) {
-      socket.current.on('message recieved', (newMessageRecieved) => {
-        func(newMessageRecieved)
-      })
-    }
-  })
-
-  useEffect(() => {
-    scrollRef.current?.scrollIntoView()
-  }, [messages])
-
-  return (
-    <Box
-      h={'90%'}
-      // sx={{ display: 'grid', gridTemplateRows: ' 90% 10%', overflow: 'hidden', padding:'0' }}
-      // className={`messages-container ${newAttach ? 'grid' : ''}`}
-    >
-      <Box h={'90%'} sx={{ overflowY: 'scroll', overflowX: 'hidden' }} className="">
-        {messages ? (
-          <MessageList
-            className="message-list"
-            lockable={false}
-            //   toBottomHeight={'100%'}
-            dataSource={messages.map((message, i) => ({
-              position: isAnotherSender(message, user._id) ? 'left' : 'right',
-              type: 'text',
-              title: isAnotherSender(message, user._id)
-                ? `${message.sender.firstName} ${message.sender.lastName}`
-                : `${user.firstName} ${user.lastName}`,
-              text: message.content,
-              date: message.createdAt,
-              key: uuidv4(),
-              id: uuidv4(),
-            }))}
-          />
-        ) : (
-          loading && <ChatContactsLoader />
-        )}
-      </Box>
-      <ChatInput handleSendMsg={sendMessage} setNewAttach={setNewAttach} newAttach={newAttach} />
-    </Box>
-  )
-}
+import { notifications } from '@mantine/notifications'
+import customFetch from '../../utils/customFetch'
+import { uploadMedia } from '../../utils/mediaUpload'
+import { ChatState } from '../context/ChatProvider'
+import { isAnotherSender } from '../config/ChatLogics'
+import ChatInput from './ChatInput'
+import ChatItem from '../NewChat/components/ChatItem/ChatItem'
 
 function SingleChat({ fetchAgain, socket, setFetchAgain, selectedChat }) {
   const [messages, setMessages] = useState([])
-  const [socketConnected, setSocketConnected] = useState(false)
-  const [newAttach, setNewAttach] = useState()
+  const [newAttach, setNewAttach] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [sending, setSending] = useState(false)
   const messagesEndRef = useRef(null)
   const { user } = ChatState()
-  const tablet_match = useMediaQuery('(max-width: 768px)')
+  const tabletMatch = useMediaQuery('(max-width: 768px)')
 
-  //console.log(user)
-  const sendMessage = async (msg) => {
-    setLoading(true)
-    try {
-      const formData = new FormData()
-      formData.append('sender', user._id)
-      formData.append('chatId', selectedChat._id)
-
-      if (newAttach) formData.append('attachment', newAttach, newAttach.name)
-
-      if (msg.length > 0) {
-        formData.append('content', msg)
-      } else {
-        formData.append('content', '')
-      }
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      }
-
-      const { data } = await axios.put(`${sendMessageRoute}`, formData)
-      socket.current.emit('new message', data)
-      setMessages([...messages, data])
-      socket.current.emit('contacts', data.chat)
-      setNewAttach()
-      setLoading(false)
-    } catch (error) {
-      console.error('Failed to send the Message', toastOptions)
-    }
-  }
-
-  const fetchMessages = async () => {
-    if (!selectedChat) return
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      }
-      const { data } = await axios.get(`${recieveMessageRoute}/${selectedChat._id}`)
-      setMessages(data)
-      socket.current.emit('join chat', selectedChat._id)
-      socket.current.emit('contacts', data.chat)
-    } catch (error) {
-      //toast.error("Failed to Load the Messages", toastOptions);
-    }
-  }
-
-  useEffect(() => {
-    fetchMessages() // eslint-disable-next-line
-  }, [selectedChat])
-
-  useEffect(() => {
-    if (socket.current) {
-      socket.current.on('connected', () => setSocketConnected(true))
-    } // eslint-disable-next-line
-  }, [])
-
-  const func = (newMessageRecieved) => {
-    if (
-      newMessageRecieved !== undefined &&
-      newMessageRecieved !== null &&
-      newMessageRecieved.length !== 0
-    ) {
-      setMessages([...messages, newMessageRecieved])
-      socket.current.emit('contacts', newMessageRecieved.chat)
-    }
-  }
-
-  useEffect(() => {
-    if (socket.current) {
-      socket.current.on('message recieved', (newMessageRecieved) => {
-        func(newMessageRecieved)
-      })
-    }
-  })
+  const currentUserId = user?._id || user?.id
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
@@ -231,65 +26,196 @@ function SingleChat({ fetchAgain, socket, setFetchAgain, selectedChat }) {
     }
   }
 
+  const fetchMessages = useCallback(async () => {
+    if (!selectedChat?._id) return
+    setLoading(true)
+    try {
+      const res = await customFetch.get(`/messages/getmsg/${selectedChat._id}`)
+      const list = Array.isArray(res) ? res : (res?.data || [])
+      setMessages(Array.isArray(list) ? list : [])
+      if (socket?.current) {
+        socket.current.emit('join chat', selectedChat._id)
+        socket.current.emit('contacts', selectedChat)
+      }
+    } catch (error) {
+      console.error('Failed to load chat messages:', error)
+      notifications.show({
+        color: 'red',
+        title: 'خطأ في تحميل الرسائل',
+        message: error?.response?.data?.message || 'تعذر تحميل الرسائل الحالية',
+      })
+    } finally {
+      setLoading(false)
+    }
+  }, [selectedChat?._id, socket])
+
   useEffect(() => {
-    //console.log('messages', messages)
+    fetchMessages()
+  }, [fetchMessages])
+
+  const sendMessage = async (msg) => {
+    if (!selectedChat?._id) return
+    setSending(true)
+    try {
+      let attachmentUrl = ''
+      if (newAttach) {
+        try {
+          const uploaded = await uploadMedia(newAttach, { folder: 'chat' })
+          attachmentUrl = uploaded?.url || uploaded?.key || ''
+        } catch (uploadErr) {
+          console.error('Failed to upload attachment:', uploadErr)
+          notifications.show({
+            color: 'orange',
+            title: 'تحذير المرفقات',
+            message: 'تعذر رفع المرفق، سيتم إرسال الرسالة النصية فقط',
+          })
+        }
+      }
+
+      const res = await customFetch.post('/messages/addmsg', {
+        chatId: selectedChat._id,
+        content: msg || '',
+        attachment: attachmentUrl,
+      })
+
+      const data = res?.data || res
+
+      if (socket?.current) {
+        socket.current.emit('new message', data)
+        socket.current.emit('contacts', data.chat || selectedChat)
+      }
+
+      setMessages((prev) => [...prev, data])
+      setNewAttach(null)
+      if (setFetchAgain) {
+        setFetchAgain((prev) => !prev)
+      }
+    } catch (error) {
+      console.error('Failed to send message:', error)
+      notifications.show({
+        color: 'red',
+        title: 'فشل الإرسال',
+        message: error?.response?.data?.message || 'تعذر إرسال الرسالة',
+      })
+    } finally {
+      setSending(false)
+    }
+  }
+
+  useEffect(() => {
+    if (!socket?.current) return
+
+    const handleMessageReceived = (newMessage) => {
+      if (!newMessage || !selectedChat?._id) return
+      const incomingChatId = newMessage?.chat?._id || newMessage?.chat
+      if (String(incomingChatId) === String(selectedChat._id)) {
+        setMessages((prev) => {
+          if (prev.some((m) => String(m._id) === String(newMessage._id))) {
+            return prev
+          }
+          return [...prev, newMessage]
+        })
+      }
+      if (socket.current) {
+        socket.current.emit('contacts', newMessage.chat || selectedChat)
+      }
+    }
+
+    socket.current.on('message recieved', handleMessageReceived)
+
+    return () => {
+      socket.current?.off('message recieved', handleMessageReceived)
+    }
+  }, [selectedChat?._id, socket])
+
+  useEffect(() => {
     scrollToBottom()
   }, [messages])
 
   return (
-    <>
-      <ScrollArea h={415}>
-        <Stack px="lg" py="xl">
-          {messages
-            ? // <MessageList
-              //   className="message-list"
-              //   lockable={false}
-              //   //   toBottomHeight={'100%'}
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 480 }}>
+      <ScrollArea sx={{ flex: 1, maxHeight: 440 }} p="md">
+        {loading ? (
+          <Center py="xl">
+            <Loader size="md" variant="dots" />
+          </Center>
+        ) : messages && messages.length > 0 ? (
+          <Stack spacing="md">
+            {messages.map((message, i) => {
+              const isOther = isAnotherSender(message, currentUserId)
+              const senderName = isOther
+                ? `${message.sender?.firstName || ''} ${message.sender?.lastName || ''}`.trim() || 'عضو'
+                : 'أنت'
+              const avatar = isOther ? message.sender?.avatar : user?.avatar
 
-              //   dataSource={messages.map((message, i) => ({
-
-              //     position: isAnotherSender(message, user._id) ? 'left' : 'right',
-              //     type: 'text',
-              //     title: isAnotherSender(message, user._id)
-              //       ? `${message.sender.firstName} ${message.sender.lastName}`
-              //       : `${user.firstName} ${user.lastName}`,
-              //     text: <p dangerouslySetInnerHTML={{ __html: message?.content || '' }} />,
-              //     date: message.createdAt,
-              //     key: uuidv4(),
-              //     id: uuidv4(),
-              //   }))}
-              // />
-              messages.map((message, i) => (
-                <>
+              return (
+                <Box key={message._id || `msg-${i}`}>
                   <ChatItem
-                    ml={isAnotherSender(message, user._id) ? 'auto' : 0}
-                    // type="text"
-                    fullName={
-                      isAnotherSender(message, user._id)
-                        ? `${message.sender.firstName} ${message.sender.lastName}`
-                        : `أنت`
-                    }
-                    avatar={
-                      isAnotherSender(message, user._id) ? message.sender.avatar : user.avatar
-                    }
+                    ml={isOther ? 'auto' : 0}
+                    fullName={senderName}
+                    avatar={avatar}
                     message={
-                      <span dangerouslySetInnerHTML={{ __html: message?.content.trim() || '' }} />
+                      <Box>
+                        {message?.content && (
+                          <span dangerouslySetInnerHTML={{ __html: message.content.trim() }} />
+                        )}
+                        {message?.attachment && (
+                          <Box mt="xs">
+                            {/\.(jpg|jpeg|png|webp|gif)$/i.test(message.attachment) ? (
+                              <Image
+                                src={message.attachment}
+                                radius="md"
+                                maw={220}
+                                alt="Attachment"
+                              />
+                            ) : (
+                              <Anchor
+                                href={message.attachment}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                size="xs"
+                                color="blue"
+                              >
+                                📎 فتح المرفق
+                              </Anchor>
+                            )}
+                          </Box>
+                        )}
+                      </Box>
                     }
-                    sent_time={new Date(message.createdAt).toLocaleString()}
-                    style={{ maxWidth: tablet_match ? '100%' : '70%' }}
-                    key={uuidv4()}
-                    id={uuidv4()}
+                    sent_time={
+                      message.createdAt
+                        ? new Date(message.createdAt).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
+                        : ''
+                    }
+                    style={{ maxWidth: tabletMatch ? '100%' : '75%' }}
                   />
-                  <div ref={messagesEndRef} />
-                </>
-              ))
-            : loading && <ChatContactsLoader />}
-        </Stack>
+                </Box>
+              )
+            })}
+            <div ref={messagesEndRef} />
+          </Stack>
+        ) : (
+          <Center py="xl">
+            <Text c="dimmed" size="sm">
+              لا توجد رسائل سابقة. ابدأ المحادثة الآن!
+            </Text>
+          </Center>
+        )}
       </ScrollArea>
+
       <Divider />
 
-      <ChatInput handleSendMsg={sendMessage} setNewAttach={setNewAttach} newAttach={newAttach} />
-    </>
+      <ChatInput
+        handleSendMsg={sendMessage}
+        setNewAttach={setNewAttach}
+        newAttach={newAttach}
+        loading={sending}
+      />
+    </Box>
   )
 }
 
