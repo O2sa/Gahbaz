@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Course from "../../models/Course.js";
 import Section from "../../models/Section.js";
 import Student from "../../models/Student.js";
@@ -74,7 +75,13 @@ export const getUserCoursesService = async (user, query = {}) => {
     const student = await Student.findById(user.id || user.userId);
     filter = { semester: { $in: student?.semesters || [] } };
   } else if (user.role === "admin" && user.universityId) {
-    filter = { university: user.universityId };
+    filter = {
+      $or: [
+        { university: user.universityId },
+        { university: { $exists: false } },
+        { university: null },
+      ],
+    };
   }
   return paginateQuery(Course, filter, {
     page,

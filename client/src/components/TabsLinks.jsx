@@ -9,17 +9,36 @@ export const TabsLinks = ({ tabs = [] }) => {
 
   if (!tabs.length) return <Outlet />
 
+  const currentPath = location.pathname.replace(/\/+$/, '')
+
+  // Calculate the base path of the parent tab container
+  // by stripping any matching active tab suffix from currentPath
+  let basePath = currentPath
+  for (const tab of tabs) {
+    const to = (tab.to || '').trim()
+    if (to && to !== '.' && (currentPath.endsWith('/' + to) || currentPath.includes('/' + to + '/'))) {
+      const idx = currentPath.lastIndexOf('/' + to)
+      if (idx !== -1) {
+        basePath = currentPath.slice(0, idx)
+        break
+      }
+    }
+  }
+
   const isTabActive = (tab) => {
     const to = (tab.to || '').trim()
-    const currentPath = location.pathname.replace(/\/+$/, '')
-
     if (to === '.' || to === '') {
-      // Check if current URL doesn't match any other sibling tab's specific path
-      const otherTabs = tabs.filter(t => t.to && t.to !== '.' && t.to !== '')
-      return !otherTabs.some(t => currentPath.endsWith('/' + t.to) || currentPath.includes('/' + t.to + '/'))
+      return currentPath === basePath
     }
-
     return currentPath.endsWith('/' + to) || currentPath.includes('/' + to + '/')
+  }
+
+  const getTabHref = (tab) => {
+    const to = (tab.to || '').trim()
+    if (!to || to === '.') {
+      return basePath
+    }
+    return `${basePath}/${to}`
   }
 
   return (
@@ -43,12 +62,13 @@ export const TabsLinks = ({ tabs = [] }) => {
         <Group spacing={8} noWrap sx={{ overflowX: 'auto', scrollbarWidth: 'none' }}>
           {tabs.map((tab) => {
             const active = isTabActive(tab)
+            const targetHref = getTabHref(tab)
             const Icon = tab.icon
 
             return (
               <Link
                 key={tab.to || tab.name}
-                to={tab.to}
+                to={targetHref}
                 style={{ textDecoration: 'none', flex: 1, minWidth: 140 }}
               >
                 <Box

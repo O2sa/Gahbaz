@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import cors from "cors";
 import mongoSanitize from "express-mongo-sanitize";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -36,16 +37,45 @@ import { sendSuccess } from "./core/utils/response.utils.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 app.use(cors({ origin: true, credentials: true }));
 app.use(cookieParser());
 app.use(express.json());
 app.use(mongoSanitize());
 
-// Static file serving for images and uploads
-app.use("/images", express.static(path.resolve(__dirname, "../../images")));
+// Static file serving for images and uploads with CORS and cross-origin headers
 const uploadDir = path.resolve(process.cwd(), process.env.UPLOAD_DIR || "uploads");
-app.use("/uploads", express.static(uploadDir));
+const staticOptions = {
+  setHeaders: (res) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+  },
+};
+
+app.use("/images", express.static(path.resolve(__dirname, "../../images"), staticOptions));
+app.use("/uploads", express.static(uploadDir, staticOptions));
+
+// Fallback resolver for /uploads in case a file was moved or stored in another subfolder
+app.use("/uploads/:folder/:filename", (req, res, next) => {
+  const { folder, filename } = req.params;
+  const directPath = path.join(uploadDir, folder, filename);
+  if (fs.existsSync(directPath)) {
+    return res.sendFile(directPath);
+  }
+  const candidateFolders = ["general", "covers", "avatars", "videos", "attachments", "assignments"];
+  for (const cand of candidateFolders) {
+    const candPath = path.join(uploadDir, cand, filename);
+    if (fs.existsSync(candPath)) {
+      return res.sendFile(candPath);
+    }
+  }
+  next();
+});
 
 // OpenAPI / Swagger Documentation
 app.get("/api/docs.json", (req, res) => {

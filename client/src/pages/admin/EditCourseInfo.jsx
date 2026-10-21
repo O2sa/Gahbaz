@@ -33,9 +33,13 @@ export const loader =
   }
 
 export const EditCourseInfo = ({ queryClient }) => {
-  const { courseId } = useParams()
+  const params = useParams()
+  const courseId = params.courseId || params.id
 
-  const { data: course = {} } = useQuery(useGetElements(['courses', courseId]))
+  const { data: course = {} } = useQuery({
+    ...useGetElements(['courses', courseId]),
+    enabled: Boolean(courseId),
+  })
 
   const { mutateAsync: updateCourse, isPending: isUpdating } = useUpdateElement(queryClient, [
     'courses',

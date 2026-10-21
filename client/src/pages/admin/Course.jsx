@@ -7,11 +7,16 @@ import { Center, Loader, Box } from '@mantine/core'
 import { Helmet } from 'react-helmet'
 
 export default function Course() {
-  const { courseId } = useParams()
+  const params = useParams()
+  const courseId = params.courseId || params.id
   const {
-    data: course = [],
+    data: course = {},
     isFetching,
-  } = useQuery(useGetElements(['courses', courseId]))
+    isLoading,
+  } = useQuery({
+    ...useGetElements(['courses', courseId]),
+    enabled: Boolean(courseId),
+  })
 
   if (isFetching) {
     return (

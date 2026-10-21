@@ -10,7 +10,7 @@ export const getSemesterTemplates = async (req, res) => {
 };
 
 export const getSemesterTemplatesByMajorOrId = async (req, res) => {
-  const { id } = req.params;
+  const id = req.params.id || req.params.majorId;
   const result = await svc.getSemesterTemplatesByMajorOrIdService(id, req.query);
   if (result && Array.isArray(result.data)) {
     return sendPaginated(res, result.data, result.meta);

@@ -7,7 +7,8 @@ import EditMajor from './EditMajor'
 import { Helmet } from 'react-helmet'
 
 export default function AboutMajor({ queryClient }) {
-  const { id: majorId } = useParams()
+  const params = useParams()
+  const majorId = params.majorId || params.id
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
 
@@ -15,7 +16,10 @@ export default function AboutMajor({ queryClient }) {
     data: major = null,
     isFetching,
     isLoading,
-  } = useQuery(useGetElements(['majors', 'major', majorId]))
+  } = useQuery({
+    ...useGetElements(['majors', 'major', majorId]),
+    enabled: Boolean(majorId),
+  })
 
   const editCom = (
     <Button loading={isFetching} type="submit" variant="light" color="brand">

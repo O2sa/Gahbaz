@@ -63,9 +63,15 @@ export default function SemestersTemplate() {
   } = useQuery({
     queryKey: ['semester-templates', majorId],
     queryFn: async () => {
-      const res = await customFetch.get(`/semester-templates/major/${majorId}`)
-      const raw = res.data?.data || res.data || []
-      return Array.isArray(raw) ? raw : []
+      try {
+        const res = await customFetch.get(`/semester-templates/major/${majorId}`)
+        const raw = res.data?.data || res.data || []
+        return Array.isArray(raw) ? raw : []
+      } catch (e) {
+        const res = await customFetch.get(`/semester-templates/${majorId}`)
+        const raw = res.data?.data || res.data || []
+        return Array.isArray(raw) ? raw : []
+      }
     },
     enabled: Boolean(majorId),
   })
