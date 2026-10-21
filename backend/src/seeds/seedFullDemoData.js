@@ -16,6 +16,8 @@ import Semester from "../models/Semester.js";
 import Course from "../models/Course.js";
 import Section from "../models/Section.js";
 import Grade from "../models/Grade.js";
+import Assignment from "../models/Assignment.js";
+import Submission from "../models/Submission.js";
 import Chat from "../models/Chat.js";
 import Message from "../models/Message.js";
 import PerformanceMetric from "../models/PerformanceMetric.js";
@@ -40,6 +42,8 @@ export const seedFullDemoData = async () => {
     Semester.deleteMany({}),
     Section.deleteMany({}),
     Grade.deleteMany({}),
+    Assignment.deleteMany({}),
+    Submission.deleteMany({}),
     Chat.deleteMany({}),
     Message.deleteMany({}),
     PerformanceMetric.deleteMany({}),
@@ -120,12 +124,6 @@ export const seedFullDemoData = async () => {
     university: university._id,
   });
 
-  const collegeMedicine = await College.create({
-    name: "كلية العلوم والتقنية الطبية",
-    numberOfSemesters: 10,
-    university: university._id,
-  });
-
   // 5. Majors
   console.log("🎓 [Seed] Creating Majors...");
   const majorSE = await Major.create({
@@ -143,18 +141,8 @@ export const seedFullDemoData = async () => {
     college: collegeCS._id,
   });
 
-  const majorEE = await Major.create({
-    name: "الهندسة الكهربائية والإلكترونية",
-    college: collegeEng._id,
-  });
-
-  const majorME = await Major.create({
-    name: "الهندسة الميكانيكية والأنظمة الذكية",
-    college: collegeEng._id,
-  });
-
   const majorMIS = await Major.create({
-    name: "نظم المعلومات الإدارية",
+    name: "نظم المعلومات الإدارية والتحول الرقمي",
     college: collegeBusiness._id,
   });
 
@@ -211,18 +199,6 @@ export const seedFullDemoData = async () => {
     kind: "Teacher",
   });
 
-  const teacherQarni = await Teacher.create({
-    firstName: "د. محمد",
-    lastName: "القرني",
-    email: "m.qarni@gahbaz.edu",
-    password: teacherHashedPass,
-    phone: "0554455667",
-    role: "teacher",
-    university: university._id,
-    title: "أستاذ - هندسة النظم",
-    kind: "Teacher",
-  });
-
   // 7. Students
   console.log("👨‍🎓 [Seed] Creating Students...");
   const studentHashedPass = await hashPassword("student@test.com");
@@ -248,7 +224,7 @@ export const seedFullDemoData = async () => {
     { firstName: "فيصل", lastName: "المطيري", email: "faisal.mutairi@student.gahbaz.edu", major: majorAI._id, phone: "0545566778" },
     { firstName: "رغد", lastName: "المنصور", email: "raghad.mansoor@student.gahbaz.edu", major: majorSec._id, phone: "0546677889" },
     { firstName: "محمد", lastName: "القحطاني", email: "m.qahtani@student.gahbaz.edu", major: majorSec._id, phone: "0547788990" },
-    { firstName: "شهد", lastName: "الحارثي", email: "shahad.harthi@student.gahbaz.edu", major: majorEE._id, phone: "0548899001" },
+    { firstName: "شهد", lastName: "الحارثي", email: "shahad.harthi@student.gahbaz.edu", major: majorSE._id, phone: "0548899001" },
     { firstName: "خالد", lastName: "العتيبي", email: "khalid.otaibi@student.gahbaz.edu", major: majorMIS._id, phone: "0549900112" },
   ];
 
@@ -275,8 +251,10 @@ export const seedFullDemoData = async () => {
     name: "تصميم وتحليل الخوارزميات",
     code: "CS301",
     subtitle: "المفاهيم المتقدمة في هياكل البيانات وكفاءة الخوارزميات",
+    category: "علوم الحاسب",
     college: collegeCS._id,
     teachers: [teacherSara._id],
+    creditHours: 3,
     gradeSchema: {
       total: 100,
       grade: {
@@ -291,8 +269,10 @@ export const seedFullDemoData = async () => {
     name: "هندسة البرمجيات المتقدمة",
     code: "SE310",
     subtitle: "معماريات البرمجيات، أنماط التصميم وممارسات Agile و CI/CD",
+    category: "هندسة البرمجيات",
     college: collegeCS._id,
     teachers: [teacherDemo._id],
+    creditHours: 3,
     gradeSchema: {
       total: 100,
       grade: {
@@ -307,8 +287,10 @@ export const seedFullDemoData = async () => {
     name: "الذكاء الاصطناعي وتعلم الآلة",
     code: "AI401",
     subtitle: "أساسيات التعلم الآلي والشبكات العصبية وتطبيقاتها المعاصرة",
+    category: "الذكاء الاصطناعي",
     college: collegeCS._id,
     teachers: [teacherSara._id],
+    creditHours: 3,
     gradeSchema: {
       total: 100,
       grade: {
@@ -323,8 +305,10 @@ export const seedFullDemoData = async () => {
     name: "أمن المعلومات والشبكات",
     code: "SEC350",
     subtitle: "التشفير، حماية الشبكات والتحليل الأمني للهجمات السيبرانية",
+    category: "الأمن السيبراني",
     college: collegeCS._id,
     teachers: [teacherTariq._id],
+    creditHours: 3,
     gradeSchema: {
       total: 100,
       grade: {
@@ -339,8 +323,10 @@ export const seedFullDemoData = async () => {
     name: "قواعد البيانات ونظم المعلومات",
     code: "DB220",
     subtitle: "تصميم قواعد البيانات العلائقية ونظم SQL و NoSQL",
+    category: "قواعد البيانات",
     college: collegeCS._id,
     teachers: [teacherReem._id],
+    creditHours: 3,
     gradeSchema: {
       total: 100,
       grade: {
@@ -353,29 +339,40 @@ export const seedFullDemoData = async () => {
 
   // 9. Semester Templates
   console.log("📋 [Seed] Creating Semester Templates...");
+  const templateSE4 = await SemesterTemplate.create({
+    name: "المستوى الرابع - هندسة البرمجيات",
+    major: majorSE._id,
+    index: 4,
+    active: false,
+    subjects: [subjectAlgo._id, subjectDB._id],
+  });
+
   const templateSE5 = await SemesterTemplate.create({
     name: "المستوى الخامس - هندسة البرمجيات",
     major: majorSE._id,
     index: 5,
     active: true,
-    subjects: [subjectSE._id, subjectAlgo._id, subjectDB._id],
+    subjects: [subjectSE._id, subjectAlgo._id, subjectAI._id, subjectSec._id, subjectDB._id],
   });
 
-  const templateSE6 = await SemesterTemplate.create({
-    name: "المستوى السادس - هندسة البرمجيات",
-    major: majorSE._id,
-    index: 6,
-    active: false,
-    subjects: [subjectSec._id, subjectAI._id],
-  });
-
-  majorSE.semesterTemplates = [templateSE5._id, templateSE6._id];
+  majorSE.semesterTemplates = [templateSE4._id, templateSE5._id];
   await majorSE.save();
 
   // 10. Semesters
   console.log("🗓️ [Seed] Creating Academic Semesters...");
+  const pastSemester = await Semester.create({
+    name: "الفصل الدراسي الثاني 2025/2026 (المستوى الرابع)",
+    major: majorSE._id,
+    template: templateSE4._id,
+    university: university._id,
+    startDate: new Date("2026-01-15"),
+    endDate: new Date("2026-05-30"),
+    completed: true,
+    students: [studentDemo._id, createdStudents[1]._id, createdStudents[2]._id],
+  });
+
   const currentSemester = await Semester.create({
-    name: "الفصل الدراسي الأول 2026/2027",
+    name: "الفصل الدراسي الأول 2026/2027 (المستوى الخامس)",
     major: majorSE._id,
     template: templateSE5._id,
     university: university._id,
@@ -385,28 +382,122 @@ export const seedFullDemoData = async () => {
     students: createdStudents.map((s) => s._id),
   });
 
-  const pastSemester = await Semester.create({
-    name: "الفصل الدراسي الثاني 2025/2026",
-    major: majorSE._id,
-    template: templateSE5._id,
-    university: university._id,
-    startDate: new Date("2026-01-15"),
-    endDate: new Date("2026-06-01"),
-    completed: true,
-    students: createdStudents.map((s) => s._id),
-  });
-
-  majorSE.semesters = [currentSemester._id, pastSemester._id];
+  majorSE.semesters = [pastSemester._id, currentSemester._id];
   await majorSE.save();
 
-  // Update students coming semester
-  for (const s of createdStudents) {
-    s.semesters = [currentSemester._id];
-    await s.save();
+  // Enroll demo student in both past and current semesters for official transcript calculation
+  studentDemo.semesters = [pastSemester._id, currentSemester._id];
+  await studentDemo.save();
+
+  for (let i = 1; i < createdStudents.length; i++) {
+    createdStudents[i].semesters = [currentSemester._id];
+    await createdStudents[i].save();
   }
 
-  // 11. Courses (Course inherits from Subject via discriminator)
-  console.log("📖 [Seed] Creating Active Courses...");
+  // 11. Past Courses (Completed with Grades for Transcript GPA)
+  console.log("🎓 [Seed] Creating Completed Past Courses & Official Records...");
+  const pastCourseOOP = await Course.create({
+    name: "البرمجة الكائنية المتقدمة (CS201)",
+    code: "CS201-S26",
+    subtitle: "مفاهيم التجريد والوراثة وتعدد الأشكال وتصميم البرمجيات",
+    category: "علوم الحاسب",
+    college: collegeCS._id,
+    teachers: [teacherDemo._id],
+    semester: pastSemester._id,
+    university: university._id,
+    status: "done",
+    creditHours: 3,
+    description: "مقرر أساسي متعمق في البرمجة الكائنية OOP وتطبيقاتها العملية.",
+    students: [{ student: studentDemo._id }],
+  });
+
+  const pastCourseDS = await Course.create({
+    name: "هياكل البيانات والملفات (CS202)",
+    code: "CS202-S26",
+    subtitle: "المصفوفات، القوائم المترابطة، الأشجار الثنائية وجداول التجزئة",
+    category: "علوم الحاسب",
+    college: collegeCS._id,
+    teachers: [teacherSara._id],
+    semester: pastSemester._id,
+    university: university._id,
+    status: "done",
+    creditHours: 3,
+    description: "بناء وفهم هياكل البيانات وكفاءة العمليات عليها.",
+    students: [{ student: studentDemo._id }],
+  });
+
+  const pastCourseMath = await Course.create({
+    name: "الرياضيات المتقطعة للحاسب (MATH210)",
+    code: "MATH210-S26",
+    subtitle: "نظرية المجموعات، المنطق الرياضي، والعلاقات والرسوم البيانية",
+    category: "علوم الحاسب",
+    college: collegeCS._id,
+    teachers: [teacherTariq._id],
+    semester: pastSemester._id,
+    university: university._id,
+    status: "done",
+    creditHours: 3,
+    description: "الأسس الرياضية لنظرية الحوسبة والمنطق البرمجي.",
+    students: [{ student: studentDemo._id }],
+  });
+
+  pastSemester.courses = [pastCourseOOP._id, pastCourseDS._id, pastCourseMath._id];
+  await pastSemester.save();
+
+  // Create Past Grades (High GPA: 96, 94, 98 -> A+)
+  const gradeOOP = await Grade.create({
+    course: pastCourseOOP._id,
+    student: studentDemo._id,
+    total: 96,
+    percent: 96,
+    grades: [
+      { key: "assignments", name: "تكاليف ومشاريع", maxValue: 20, value: 20 },
+      { key: "midterm", name: "اختبار نصفي", maxValue: 30, value: 28 },
+      { key: "final", name: "اختبار نهائي", maxValue: 50, value: 48 },
+    ],
+    grade: {
+      0: { name: "تكاليف ومشاريع", value: 20 },
+      1: { name: "اختبار نصفي", value: 28 },
+      2: { name: "اختبار نهائي", value: 48 },
+    },
+  });
+
+  const gradeDS = await Grade.create({
+    course: pastCourseDS._id,
+    student: studentDemo._id,
+    total: 94,
+    percent: 94,
+    grades: [
+      { key: "assignments", name: "تكاليف ومشاريع", maxValue: 20, value: 19 },
+      { key: "midterm", name: "اختبار نصفي", maxValue: 30, value: 28 },
+      { key: "final", name: "اختبار نهائي", maxValue: 50, value: 47 },
+    ],
+    grade: {
+      0: { name: "تكاليف ومشاريع", value: 19 },
+      1: { name: "اختبار نصفي", value: 28 },
+      2: { name: "اختبار نهائي", value: 47 },
+    },
+  });
+
+  const gradeMath = await Grade.create({
+    course: pastCourseMath._id,
+    student: studentDemo._id,
+    total: 98,
+    percent: 98,
+    grades: [
+      { key: "assignments", name: "تكاليف ومشاريع", maxValue: 20, value: 20 },
+      { key: "midterm", name: "اختبار نصفي", maxValue: 30, value: 30 },
+      { key: "final", name: "اختبار نهائي", maxValue: 50, value: 48 },
+    ],
+    grade: {
+      0: { name: "تكاليف ومشاريع", value: 20 },
+      1: { name: "اختبار نصفي", value: 30 },
+      2: { name: "اختبار نهائي", value: 48 },
+    },
+  });
+
+  // 12. Current Active Courses
+  console.log("📖 [Seed] Creating Active Semester Courses...");
   const courseSE = await Course.create({
     name: "هندسة البرمجيات المتقدمة (SE310)",
     code: "SE310-F26",
@@ -417,6 +508,7 @@ export const seedFullDemoData = async () => {
     semester: currentSemester._id,
     university: university._id,
     status: "active",
+    creditHours: 3,
     description: "مقرر شامل يغطي التحول المعماري نحو الخدمات المصغرة Microservices، تطبيق مبادئ Clean Architecture و SOLID، وبناء خطوط أنابيب التكامل المستمر.",
     requirements: [
       "إتقان مبادئ البرمجة الكائنية OOP",
@@ -441,6 +533,7 @@ export const seedFullDemoData = async () => {
     semester: currentSemester._id,
     university: university._id,
     status: "active",
+    creditHours: 3,
     description: "دراسة عميقة لخوارزميات البحث والترتيب والبرمجة الديناميكية Dynamic Programming مع تحليل التعقيد الزمني والمكاني Big-O.",
     requirements: ["هياكل البيانات الأساسية", "مقدمة في البرمجة المتقدمة"],
     willLearn: [
@@ -461,6 +554,7 @@ export const seedFullDemoData = async () => {
     semester: currentSemester._id,
     university: university._id,
     status: "active",
+    creditHours: 3,
     description: "بناء النماذج التنبؤية، خوارزميات التصنيف والانحدار، ومقدمة في معالجة اللغات الطبيعية NLP ورؤية الحاسوب.",
     requirements: ["الجبر الخطي وحساب التفاضل", "برمجة لغة بايثون"],
     willLearn: [
@@ -481,6 +575,7 @@ export const seedFullDemoData = async () => {
     semester: currentSemester._id,
     university: university._id,
     status: "active",
+    creditHours: 3,
     description: "دراسة تقنيات التشفير المتماثل وغير المتماثل، جدران الحماية، اكتشاف الاختراقات وتأمين خوادم وتطبيقات الويب.",
     requirements: ["أساسيات شبكات الحاسب", "مبادئ أنظمة التشغيل"],
     willLearn: [
@@ -491,7 +586,24 @@ export const seedFullDemoData = async () => {
     students: createdStudents.map((s) => ({ student: s._id })),
   });
 
-  currentSemester.courses = [courseSE._id, courseAlgo._id, courseAI._id, courseSec._id];
+  const courseDB = await Course.create({
+    name: "قواعد البيانات ونظم المعلومات (DB220)",
+    code: "DB220-F26",
+    subtitle: "تصميم قواعد البيانات العلائقية ونظم SQL و NoSQL",
+    category: "قواعد البيانات",
+    college: collegeCS._id,
+    teachers: [teacherReem._id],
+    semester: currentSemester._id,
+    university: university._id,
+    status: "active",
+    creditHours: 3,
+    description: "تصميم قواعد البيانات الحديثة، إدارة المعاملات ACID، والفهرسة المتقدمة مع NoSQL MongoDB.",
+    requirements: ["مبادئ قواعد البيانات"],
+    willLearn: ["تصميم مخططات E-R متكاملة", "استعلامات SQL و Aggregation متقدمة", "تحسين الأداء والفهرسة"],
+    students: createdStudents.map((s) => ({ student: s._id })),
+  });
+
+  currentSemester.courses = [courseSE._id, courseAlgo._id, courseAI._id, courseSec._id, courseDB._id];
   await currentSemester.save();
 
   // Assign courses to teacher profiles
@@ -504,9 +616,13 @@ export const seedFullDemoData = async () => {
   teacherTariq.courses = [courseSec._id];
   await teacherTariq.save();
 
-  // 12. Sections and Lessons for SE310
+  teacherReem.courses = [courseDB._id];
+  await teacherReem.save();
+
+  // 13. Syllabus Sections and Lessons
   console.log("📑 [Seed] Adding Syllabus Sections and Lessons...");
-  const sec1 = await Section.create({
+  // SE310 Sections
+  const secSE1 = await Section.create({
     name: "الوحدة الأولى: أسس المعمارية البرمجية",
     course: courseSE._id,
     lessons: [
@@ -516,15 +632,15 @@ export const seedFullDemoData = async () => {
         topic: { data: "نظرة عامة على دور مهندس البرمجيات، وكيفية موازنة متطلبات الجودة (الأداء، الأمان، القابلية للتوسع).", readingTime: 15 },
       },
       {
-        name: "الدرس الثاني: مبادئ SOLID وتطبيقاتها في هندسة النظم",
+        name: "الدرس الثاني: مبادئ SOLID وتطبيقاتها في هندسة النظم النظيفة",
         video: { url: "https://www.youtube.com/watch?v=sample2", duration: 2400 },
-        topic: { data: "شرح تفصيلي للمبادئ الخمسة مع أمثلة عملية بلغة TypeScript ونماذج كود نظيف.", readingTime: 20 },
+        topic: { data: "شرح تفصيلي للمبادئ الخمسة مع أمثلة عملية بلغة JavaScript/TypeScript ونماذج كود نظيف.", readingTime: 20 },
       },
     ],
   });
 
-  const sec2 = await Section.create({
-    name: "الوحدة الثانية: أنماط التصميم المعمارية",
+  const secSE2 = await Section.create({
+    name: "الوحدة الثانية: أنماط التصميم والخدمات المصغرة",
     course: courseSE._id,
     lessons: [
       {
@@ -540,8 +656,8 @@ export const seedFullDemoData = async () => {
     ],
   });
 
-  const sec3 = await Section.create({
-    name: "الوحدة الثالثة: جودة البرمجيات وأتمتة النشر",
+  const secSE3 = await Section.create({
+    name: "الوحدة الثالثة: جودة البرمجيات وأتمتة النشر CI/CD",
     course: courseSE._id,
     lessons: [
       {
@@ -551,42 +667,224 @@ export const seedFullDemoData = async () => {
       },
     ],
   });
-
-  courseSE.sections = [sec1._id, sec2._id, sec3._id];
+  courseSE.sections = [secSE1._id, secSE2._id, secSE3._id];
   await courseSE.save();
 
-  // 13. Student Grades
-  console.log("📊 [Seed] Recording Student Grades...");
-  for (const s of createdStudents) {
-    const isDemo = s.email === "student@test.com";
-    const assignmentsVal = isDemo ? 24 : Math.floor(Math.random() * 6) + 19;
-    const midtermVal = isDemo ? 24 : Math.floor(Math.random() * 6) + 19;
-    const finalVal = isDemo ? 48 : Math.floor(Math.random() * 12) + 38;
-    const total = assignmentsVal + midtermVal + finalVal;
-
-    const gradeDoc = await Grade.create({
-      course: courseSE._id,
-      student: s._id,
-      total,
-      percent: total,
-      grades: [
-        { key: "assignments", name: "تكاليف ومشاريع", maxValue: 25, value: assignmentsVal },
-        { key: "midterm", name: "اختبار نصفي", maxValue: 25, value: midtermVal },
-        { key: "final", name: "اختبار نهائي", maxValue: 50, value: finalVal },
-      ],
-      grade: {
-        0: { name: "تكاليف ومشاريع", value: assignmentsVal },
-        1: { name: "اختبار نصفي", value: midtermVal },
-        2: { name: "اختبار نهائي", value: finalVal },
+  // CS301 Sections
+  const secAlgo1 = await Section.create({
+    name: "الوحدة الأولى: تحليل التعقيد والخوارزميات",
+    course: courseAlgo._id,
+    lessons: [
+      {
+        name: "الدرس الأول: التحليل التقاربي ونظرية Master Theorem",
+        video: { url: "https://www.youtube.com/watch?v=algo1", duration: 2100 },
+        topic: { data: "حساب التعقيد الزمني والمكاني باستخدام Big-O وحل معادلات التكرار Recurrences.", readingTime: 25 },
       },
-    });
+      {
+        name: "الدرس الثاني: خوارزميات الترتيب المتقدم والبحث الثنائي",
+        video: { url: "https://www.youtube.com/watch?v=algo2", duration: 2400 },
+        topic: { data: "تطبيق QuickSort و MergeSort وتحليل أفضل وأسوأ الحالات مع التمثيل البياني.", readingTime: 20 },
+      },
+    ],
+  });
 
-    s.grades = [gradeDoc._id];
-    await s.save();
+  const secAlgo2 = await Section.create({
+    name: "الوحدة الثانية: البرمجة الديناميكية",
+    course: courseAlgo._id,
+    lessons: [
+      {
+        name: "الدرس الثالث: مبادئ البرمجة الديناميكية Dynamic Programming",
+        video: { url: "https://www.youtube.com/watch?v=algo3", duration: 2700 },
+        topic: { data: "استراتيجيات Memoization و Tabulation مع أمثلة عملية لمسائل الحقيبة والمسار الأقصر.", readingTime: 30 },
+      },
+    ],
+  });
+  courseAlgo.sections = [secAlgo1._id, secAlgo2._id];
+  await courseAlgo.save();
+
+  // AI401 Sections
+  const secAI1 = await Section.create({
+    name: "الوحدة الأولى: أساسيات التعلم الآلي",
+    course: courseAI._id,
+    lessons: [
+      {
+        name: "الدرس الأول: الانحدار الخطي والتصنيف اللوجستي Linear & Logistic Regression",
+        video: { url: "https://www.youtube.com/watch?v=ai1", duration: 2200 },
+        topic: { data: "مفهوم Gradient Descent ودوال التكلفة Cost Functions مع تطبيق بلغة بايثون.", readingTime: 25 },
+      },
+      {
+        name: "الدرس الثاني: تقييم النماذج ومصفوفة الالتباس Confusion Matrix",
+        video: { url: "https://www.youtube.com/watch?v=ai2", duration: 1900 },
+        topic: { data: "مقاييس الدقة Precision و Recall و F1-Score والتحقق المتقاطع Cross-Validation.", readingTime: 20 },
+      },
+    ],
+  });
+  courseAI.sections = [secAI1._id];
+  await courseAI.save();
+
+  // SEC350 Sections
+  const secSec1 = await Section.create({
+    name: "الوحدة الأولى: أسس التشفير والأمن",
+    course: courseSec._id,
+    lessons: [
+      {
+        name: "الدرس الأول: التشفير المتماثل وغير المتماثل ومبادئ AES / RSA",
+        video: { url: "https://www.youtube.com/watch?v=sec1", duration: 2300 },
+        topic: { data: "إدارة المفاتيح، التوقيع الرقمي والشهادات الرقمية SSL/TLS.", readingTime: 25 },
+      },
+    ],
+  });
+  courseSec.sections = [secSec1._id];
+  await courseSec.save();
+
+  // 14. Course Assignments & Submissions
+  console.log("📝 [Seed] Creating Coursework Assignments & Student Submissions...");
+  
+  // SE310 Assignments
+  const assignSE1 = await Assignment.create({
+    course: courseSE._id,
+    teacher: teacherDemo._id,
+    university: university._id,
+    title: "مشروع المعمارية البرمجية C4 وتصميم الخدمات المصغرة",
+    description: "قم بإعداد تقرير هندسي كامل يوضح مستويات المعمارية C4 Model ونقاط نهاية RESTful APIs مع تحديد استراتيجية التحمل للأخطاء Fault Tolerance.",
+    dueDate: new Date(Date.now() + 7 * 24 * 3600 * 1000),
+    maxScore: 15,
+  });
+
+  const assignSE2 = await Assignment.create({
+    course: courseSE._id,
+    teacher: teacherDemo._id,
+    university: university._id,
+    title: "تطبيق مبادئ SOLID ونمط Clean Architecture",
+    description: "بناء مشروع تجريبي يوضح فصل طبقات النطاق Domain والبنية التحتية Infrastructure مع تطبيق Dependency Inversion.",
+    dueDate: new Date(Date.now() + 14 * 24 * 3600 * 1000),
+    maxScore: 10,
+  });
+
+  // CS301 Assignment
+  const assignAlgo1 = await Assignment.create({
+    course: courseAlgo._id,
+    teacher: teacherSara._id,
+    university: university._id,
+    title: "تحليل كفاءة خوارزميات الترتيب والبحث في الذاكرة",
+    description: "كتابة برنامج بلغة C++ أو بايثون يقارن بين أداء 3 خوارزميات ترتيب مع رسوم بيانية توضح التعقيد الزمني.",
+    dueDate: new Date(Date.now() + 5 * 24 * 3600 * 1000),
+    maxScore: 20,
+  });
+
+  // AI401 Assignment
+  const assignAI1 = await Assignment.create({
+    course: courseAI._id,
+    teacher: teacherSara._id,
+    university: university._id,
+    title: "بناء نموذج تصنيف بيانات باستخدام Scikit-Learn",
+    description: "تدريب نموذج تصنيف لبيانات طبية وتطبيق تقنيات منع فرط الملاءمة Overfitting مع تقرير التحقق.",
+    dueDate: new Date(Date.now() + 10 * 24 * 3600 * 1000),
+    maxScore: 20,
+  });
+
+  // Student Submissions for SE310
+  await Submission.create({
+    assignment: assignSE1._id,
+    course: courseSE._id,
+    student: studentDemo._id,
+    university: university._id,
+    fileUrl: "https://gahbaz.edu/storage/submissions/se310_c4_demo_student.pdf",
+    notes: "تم إرفاق المخططات وتوثيق واجهات OpenAPI كاملة بصيغة PDF.",
+    submittedAt: new Date(Date.now() - 2 * 24 * 3600 * 1000),
+    grade: 15,
+    feedback: "عمل ممتاز ومفصل للغاية! تطبيق دقيق لمستويات التجريد في مخططات C4 ونموذج النطاق DDD.",
+    gradedBy: teacherDemo._id,
+    gradedAt: new Date(Date.now() - 1 * 24 * 3600 * 1000),
+    status: "graded",
+  });
+
+  await Submission.create({
+    assignment: assignSE2._id,
+    course: courseSE._id,
+    student: studentDemo._id,
+    university: university._id,
+    fileUrl: "https://gahbaz.edu/storage/submissions/se310_solid_code.zip",
+    notes: "تم تسليم كود المشروع مع اختبارات الوحدة Unit Tests بنسبة تغطية 85%.",
+    submittedAt: new Date(Date.now() - 4 * 3600 * 1000),
+    status: "submitted",
+  });
+
+  // Other students submissions
+  await Submission.create({
+    assignment: assignSE1._id,
+    course: courseSE._id,
+    student: createdStudents[1]._id, // Sara Ahmed
+    university: university._id,
+    fileUrl: "https://gahbaz.edu/storage/submissions/se310_sara_ahmed.pdf",
+    notes: "مخطط معمارية نظام إدارة المستشفيات C4.",
+    submittedAt: new Date(Date.now() - 3 * 24 * 3600 * 1000),
+    grade: 14.5,
+    feedback: "تصميم ممتاز ومترابط، ملاحظة بسيطة بخصوص توثيق كاشف الأخطاء Circuit Breaker.",
+    gradedBy: teacherDemo._id,
+    gradedAt: new Date(Date.now() - 1 * 24 * 3600 * 1000),
+    status: "graded",
+  });
+
+  await Submission.create({
+    assignment: assignAlgo1._id,
+    course: courseAlgo._id,
+    student: studentDemo._id,
+    university: university._id,
+    fileUrl: "https://gahbaz.edu/storage/submissions/cs301_algorithms_benchmark.pdf",
+    notes: "مقارنة عملية بين QuickSort و HeapSort مع كود بايثون للقياس.",
+    submittedAt: new Date(Date.now() - 1 * 24 * 3600 * 1000),
+    grade: 19,
+    feedback: "تحليل ممتاز ودقيق لمنحنيات الأداء الحقيقي مقارنة بالتحليل النظري Big-O.",
+    gradedBy: teacherSara._id,
+    gradedAt: new Date(Date.now() - 6 * 3600 * 1000),
+    status: "graded",
+  });
+
+  // 15. Student Current Term Grades
+  console.log("📊 [Seed] Recording Active Term Student Grades...");
+  const activeCourses = [courseSE, courseAlgo, courseAI, courseSec, courseDB];
+  const demoStudentGrades = [];
+
+  for (const c of activeCourses) {
+    for (const s of createdStudents) {
+      const isDemo = s.email === "student@test.com";
+      const assignmentsVal = isDemo ? (c.code.includes("SE310") ? 25 : 19) : Math.floor(Math.random() * 5) + 18;
+      const midtermVal = isDemo ? (c.code.includes("SE310") ? 24 : 27) : Math.floor(Math.random() * 6) + 22;
+      const finalVal = isDemo ? (c.code.includes("SE310") ? 48 : 45) : Math.floor(Math.random() * 10) + 38;
+      const total = assignmentsVal + midtermVal + finalVal;
+
+      const gradeDoc = await Grade.create({
+        course: c._id,
+        student: s._id,
+        total,
+        percent: total,
+        grades: [
+          { key: "assignments", name: "تكاليف ومشاريع", maxValue: 25, value: assignmentsVal },
+          { key: "midterm", name: "اختبار نصفي", maxValue: 25, value: midtermVal },
+          { key: "final", name: "اختبار نهائي", maxValue: 50, value: finalVal },
+        ],
+        grade: {
+          0: { name: "تكاليف ومشاريع", value: assignmentsVal },
+          1: { name: "اختبار نصفي", value: midtermVal },
+          2: { name: "اختبار نهائي", value: finalVal },
+        },
+      });
+
+      if (isDemo) {
+        demoStudentGrades.push(gradeDoc._id);
+      }
+    }
   }
 
-  // 14. Chat Rooms and Messages
-  console.log("💬 [Seed] Creating Academic Discussion Chat Rooms...");
+  // Attach all past & current grades to student demo profile
+  studentDemo.grades = [gradeOOP._id, gradeDS._id, gradeMath._id, ...demoStudentGrades];
+  await studentDemo.save();
+
+  // 16. Chat Rooms and Messages (For All Courses & Direct Messaging)
+  console.log("💬 [Seed] Creating Academic Course Discussion Rooms & Direct Chats...");
+  
+  // SE310 Course Chat
   const seChat = await Chat.create({
     chatName: "قاعة نقاش مقرر هندسة البرمجيات (SE310)",
     isGroupChat: true,
@@ -595,7 +893,7 @@ export const seedFullDemoData = async () => {
     users: [mainAdmin._id, teacherDemo._id, studentDemo._id, createdStudents[1]._id, createdStudents[2]._id],
   });
 
-  const msg1 = await Message.create({
+  const seMsg1 = await Message.create({
     content: "السلام عليكم ورحمة الله وبركاته، مرحباً بكم جميعاً في مقرر هندسة البرمجيات المتقدمة. تم رفع توصيف المقرر والوحدات الأولى على المنصة.",
     sender: teacherDemo._id,
     chat: seChat._id,
@@ -603,7 +901,7 @@ export const seedFullDemoData = async () => {
     createdAt: new Date(Date.now() - 48 * 3600 * 1000),
   });
 
-  const msg2 = await Message.create({
+  const seMsg2 = await Message.create({
     content: "وعليكم السلام دكتور فهد، أهلاً بك. هل تم تحديد موعد تسليم المشروع الفصلي للوحدة الأولى؟",
     sender: studentDemo._id,
     chat: seChat._id,
@@ -611,18 +909,110 @@ export const seedFullDemoData = async () => {
     createdAt: new Date(Date.now() - 24 * 3600 * 1000),
   });
 
-  const msg3 = await Message.create({
-    content: "نعم عبدالله، موعد التسليم بعد أسبوعين من الآن، وسيتم تخصيص جزء من المحاضرة القادمة للإجابة على أي استفسارات تخص المعمارية.",
+  const seMsg3 = await Message.create({
+    content: "نعم عبدالله، موعد التسليم بعد أسبوع من الآن، وسيتم تخصيص جزء من المحاضرة القادمة للإجابة على أي استفسارات تخص المعمارية.",
     sender: teacherDemo._id,
     chat: seChat._id,
     readBy: [studentDemo._id, mainAdmin._id],
+    createdAt: new Date(Date.now() - 4 * 3600 * 1000),
+  });
+
+  const seMsg4 = await Message.create({
+    content: "دكتور هل يمكن استخدام Docker Compose لربط الخدمات المصغرة محلياً أثناء العرض التجريبي؟",
+    sender: createdStudents[1]._id, // Sara Ahmed
+    chat: seChat._id,
+    readBy: [teacherDemo._id, studentDemo._id],
     createdAt: new Date(Date.now() - 2 * 3600 * 1000),
   });
 
-  seChat.latestMessage = msg3._id;
+  const seMsg5 = await Message.create({
+    content: "نعم بالتأكيد يا سارة، استخدام Docker و Docker Compose مستحسن ويعطي درجات إضافية في معيار جودة النشر.",
+    sender: teacherDemo._id,
+    chat: seChat._id,
+    readBy: [studentDemo._id],
+    createdAt: new Date(Date.now() - 1 * 3600 * 1000),
+  });
+
+  seChat.latestMessage = seMsg5._id;
   await seChat.save();
 
-  // Admin Direct Chat with Teacher
+  // CS301 Course Chat
+  const algoChat = await Chat.create({
+    chatName: "قاعة نقاش مقرر تصميم وتحليل الخوارزميات (CS301)",
+    isGroupChat: true,
+    groupAdmin: teacherSara._id,
+    university: university._id,
+    users: [teacherSara._id, studentDemo._id, createdStudents[1]._id, createdStudents[2]._id],
+  });
+
+  const algoMsg1 = await Message.create({
+    content: "أعزائي الطلاب، تم رفع الواجب الأول الخاص بمقارنة تعقيد الخوارزميات. الموعد النهائي محدد بنهاية الأسبوع.",
+    sender: teacherSara._id,
+    chat: algoChat._id,
+    readBy: [studentDemo._id],
+    createdAt: new Date(Date.now() - 20 * 3600 * 1000),
+  });
+
+  const algoMsg2 = await Message.create({
+    content: "شكراً دكتورة سارة، هل التحليل النظري لمصفوفات التكرار كافٍ أم يتطلب اختبارات عملية في الكود؟",
+    sender: studentDemo._id,
+    chat: algoChat._id,
+    readBy: [teacherSara._id],
+    createdAt: new Date(Date.now() - 10 * 3600 * 1000),
+  });
+
+  const algoMsg3 = await Message.create({
+    content: "المطلوب كلاهما يا عبدالله: التحليل الرياضي بالإضافة إلى كود بايثون يقيس الوقت الفعلي بالميكروثانية.",
+    sender: teacherSara._id,
+    chat: algoChat._id,
+    readBy: [studentDemo._id],
+    createdAt: new Date(Date.now() - 3 * 3600 * 1000),
+  });
+
+  algoChat.latestMessage = algoMsg3._id;
+  await algoChat.save();
+
+  // AI401 Course Chat
+  const aiChat = await Chat.create({
+    chatName: "قاعة نقاش مقرر الذكاء الاصطناعي وتعلم الآلة (AI401)",
+    isGroupChat: true,
+    groupAdmin: teacherSara._id,
+    university: university._id,
+    users: [teacherSara._id, studentDemo._id, createdStudents[3]._id, createdStudents[4]._id],
+  });
+
+  const aiMsg1 = await Message.create({
+    content: "مرحباً بكم في مقرر الذكاء الاصطناعي. سنبدأ الأسبوع القادم في تطبيقات الشبكات العصبية العميقة CNN.",
+    sender: teacherSara._id,
+    chat: aiChat._id,
+    readBy: [studentDemo._id],
+    createdAt: new Date(Date.now() - 15 * 3600 * 1000),
+  });
+
+  aiChat.latestMessage = aiMsg1._id;
+  await aiChat.save();
+
+  // SEC350 Course Chat
+  const secChat = await Chat.create({
+    chatName: "قاعة نقاش مقرر أمن المعلومات والشبكات (SEC350)",
+    isGroupChat: true,
+    groupAdmin: teacherTariq._id,
+    university: university._id,
+    users: [teacherTariq._id, studentDemo._id, createdStudents[5]._id],
+  });
+
+  const secMsg1 = await Message.create({
+    content: "تذكير لجميع الطلاب: مختبر الغد سيتضمن تجربة عملية لاختراق واكتشاف الثغرات في بيئة معزولة Sandbox.",
+    sender: teacherTariq._id,
+    chat: secChat._id,
+    readBy: [studentDemo._id],
+    createdAt: new Date(Date.now() - 8 * 3600 * 1000),
+  });
+
+  secChat.latestMessage = secMsg1._id;
+  await secChat.save();
+
+  // Direct Chat: Admin & Teacher
   const adminDirectChat = await Chat.create({
     chatName: "تنسيق متطلبات الاعتماد الأكاديمي لمقررات الخريف",
     isGroupChat: false,
@@ -649,7 +1039,34 @@ export const seedFullDemoData = async () => {
   adminDirectChat.latestMessage = adminMsg2._id;
   await adminDirectChat.save();
 
-  // 15. Real-Time Performance Metrics
+  // Direct Chat: Teacher & Student
+  const teacherStudentDirectChat = await Chat.create({
+    chatName: "إرشاد أكاديمي - مشروع التخرج والمعمارية البرمجية",
+    isGroupChat: false,
+    university: university._id,
+    users: [teacherDemo._id, studentDemo._id],
+  });
+
+  const tsMsg1 = await Message.create({
+    content: "السلام عليكم دكتور فهد، أود الاستفسار عن إمكانية حجز موعد خلال الساعات المكتبية لمناقشة مقترح المشروع.",
+    sender: studentDemo._id,
+    chat: teacherStudentDirectChat._id,
+    readBy: [teacherDemo._id],
+    createdAt: new Date(Date.now() - 18 * 3600 * 1000),
+  });
+
+  const tsMsg2 = await Message.create({
+    content: "أهلاً عبدالله، موعدي المكتبي يوم الثلاثاء الساعة 11:00 صباحاً متاح لك. أحضر معك مخطط النظام الأولي.",
+    sender: teacherDemo._id,
+    chat: teacherStudentDirectChat._id,
+    readBy: [studentDemo._id],
+    createdAt: new Date(Date.now() - 14 * 3600 * 1000),
+  });
+
+  teacherStudentDirectChat.latestMessage = tsMsg2._id;
+  await teacherStudentDirectChat.save();
+
+  // 17. Real-Time Performance Metrics
   console.log("📈 [Seed] Generating Real-Time Server Performance Metrics...");
   const metricsDocs = [];
   const now = Date.now();
@@ -680,7 +1097,7 @@ export const seedFullDemoData = async () => {
   }
   await PerformanceMetric.insertMany(metricsDocs);
 
-  // 16. Audit Logs for Login Activity
+  // 18. Audit Logs for Login Activity
   console.log("🔒 [Seed] Generating Audit Logs for Login Analytics...");
   const auditDocs = [];
   for (let day = 6; day >= 0; day--) {
