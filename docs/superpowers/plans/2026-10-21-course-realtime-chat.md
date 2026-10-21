@@ -30,7 +30,7 @@
 **Interfaces:**
 - Produces: `GET /api/v1/chats/course/:courseId` returning `{ success: true, data: Chat }` with populated `course`, `users`, `groupAdmin`, `latestMessage`.
 
-- [ ] **Step 1: Write integration test for `GET /api/v1/chats/course/:courseId`**
+- [x] **Step 1: Write integration test for `GET /api/v1/chats/course/:courseId`**
 
 In `backend/tests/modules/auto-course-chat.test.js`, add test asserting `getCourseChat` returns populated course chat:
 ```javascript
@@ -66,10 +66,10 @@ it("GET /api/v1/chats/course/:courseId should return populated course discussion
 });
 ```
 
-- [ ] **Step 2: Run test to confirm it fails (endpoint not registered yet)**
+- [x] **Step 2: Run test to confirm it fails (endpoint not registered yet)**
   Run: `pnpm test tests/modules/auto-course-chat.test.js`
 
-- [ ] **Step 3: Implement `getCourseChatService` and controller method**
+- [x] **Step 3: Implement `getCourseChatService` and controller method**
 
 In `backend/src/modules/chat/chat.service.js`:
 ```javascript
@@ -108,11 +108,11 @@ In `backend/src/modules/chat/chat.routes.js`:
 router.get("/course/:courseId", ctrl.getCourseChat);
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
   Run: `pnpm test tests/modules/auto-course-chat.test.js`
   Expected: PASS
 
-- [ ] **Step 5: Commit Task 1**
+- [x] **Step 5: Commit Task 1**
   ```bash
   git add backend/src/modules/chat/ backend/tests/modules/auto-course-chat.test.js
   git commit -m "feat(chat): implement GET /api/v1/chats/course/:courseId endpoint"
@@ -130,23 +130,23 @@ router.get("/course/:courseId", ctrl.getCourseChat);
 **Interfaces:**
 - Produces: Standardized, authenticated API requests using `customFetch` and dynamic Socket.IO origin.
 
-- [ ] **Step 1: Update `client/src/chat/utils/APIRoutes.js`**
+- [x] **Step 1: Update `client/src/chat/utils/APIRoutes.js`**
   - Set `host` dynamically: `window.location.origin` (or relative path).
   - Use `/api/v1/...` absolute paths for chat and message routes.
 
-- [ ] **Step 2: Update `Contacts.jsx` to use `customFetch`**
+- [x] **Step 2: Update `Contacts.jsx` to use `customFetch`**
   - Replace raw `axios.get(fetchChatsRoute)` with `customFetch.get('/chats')`.
   - Properly unwrap response `{ data }` (supporting both paginated `{ data: items }` and arrays).
 
-- [ ] **Step 3: Update `SingleChat.jsx` to use `customFetch` with `POST`**
+- [x] **Step 3: Update `SingleChat.jsx` to use `customFetch` with `POST`**
   - Replace `axios.put(sendMessageRoute, ...)` with `customFetch.post('/messages/addmsg', { chatId, content, attachment })`.
   - Replace `axios.get(recieveMessageRoute)` with `customFetch.get('/messages/getmsg/:chatId')`.
 
-- [ ] **Step 4: Verify client build**
+- [x] **Step 4: Verify client build**
   Run: `npm run build` in `client`
   Expected: PASS
 
-- [ ] **Step 5: Commit Task 2**
+- [x] **Step 5: Commit Task 2**
   ```bash
   git add client/src/chat/
   git commit -m "fix(client-chat): standardize chat transport using customFetch and dynamic socket host"
@@ -165,19 +165,19 @@ router.get("/course/:courseId", ctrl.getCourseChat);
 - `CourseChatDrawer`: props `{ opened, onClose, courseId, courseName }`
 - Produces: In-page slide-over chat with live messages, file attachment support, and deep-link button.
 
-- [ ] **Step 1: Create `CourseChatDrawer.jsx`**
+- [x] **Step 1: Create `CourseChatDrawer.jsx`**
   - Mantine Drawer from right (width: 480px).
-  - Queries `GET /api/v1/chats/course/:courseId` using TanStack Query.
-  - Queries `GET /api/v1/chats/:chatId/messages` for conversation history.
+  - Queries `GET /api/v1/chats/course/:courseId` using TanStack Query / customFetch.
+  - Queries `GET /api/v1/messages/getmsg/:chatId` for conversation history.
   - Connects to Socket.IO and emits `join chat`.
   - Listens for `message recieved` and appends incoming messages live.
   - Outgoing message input with `Enter` shortcut and file upload attachment using `uploadMedia`.
   - Header button: `فتح في شاشة المحادثات الكاملة` navigating to `/chat?courseId=${courseId}`.
 
-- [ ] **Step 2: Create `client/src/components/chat/index.js`**
+- [x] **Step 2: Create `client/src/components/chat/index.js`**
   - Export `CourseChatDrawer`.
 
-- [ ] **Step 3: Add Course Chat button in `CourseInfo.jsx`**
+- [x] **Step 3: Add Course Chat button in `CourseInfo.jsx`**
   - Add button in `CourseInfo.jsx` action row:
     ```jsx
     <Button
@@ -193,11 +193,11 @@ router.get("/course/:courseId", ctrl.getCourseChat);
     ```
   - Mount `<CourseChatDrawer opened={chatDrawerOpened} onClose={() => setChatDrawerOpened(false)} courseId={courseData._id || courseData.id} courseName={courseData.name} />`.
 
-- [ ] **Step 4: Verify client build**
+- [x] **Step 4: Verify client build**
   Run: `npm run build` in `client`
   Expected: PASS
 
-- [ ] **Step 5: Commit Task 3**
+- [x] **Step 5: Commit Task 3**
   ```bash
   git add client/src/components/chat/ client/src/pages/admin/CourseInfo.jsx
   git commit -m "feat(client): implement CourseChatDrawer and integrate into CourseInfo"
@@ -215,20 +215,20 @@ router.get("/course/:courseId", ctrl.getCourseChat);
 - Consumes: URL query parameter `?courseId=...`
 - Produces: Auto-selection of course chat room on `/chat` and `مقرر دراسي` badge in contacts list.
 
-- [ ] **Step 1: Update `Chat.jsx` for URL `courseId` resolution**
-  - Read `useLocation().search` to check `courseId = searchParams.get('courseId')`.
+- [x] **Step 1: Update `Chat.jsx` for URL `courseId` resolution**
+  - Read `useLocation().search` / `useSearchParams()` to check `courseId = searchParams.get('courseId')`.
   - If present, query `/api/v1/chats/course/:courseId` and set `setSelectedChat(data)`.
 
-- [ ] **Step 2: Update `Contacts.jsx` with Course Chat badge**
+- [x] **Step 2: Update `Contacts.jsx` with Course Chat badge**
   - In chat items list, if `chat.course || chat.isGroupChat`:
     - Display `مقرر دراسي` badge with `IconBook`.
     - Render course icon / avatar.
 
-- [ ] **Step 3: Verify client build**
+- [x] **Step 3: Verify client build**
   Run: `npm run build` in `client`
   Expected: PASS
 
-- [ ] **Step 4: Commit Task 4**
+- [x] **Step 4: Commit Task 4**
   ```bash
   git add client/src/chat/
   git commit -m "feat(client-chat): add URL deep-linking and course badging to chat hub"
@@ -242,12 +242,13 @@ router.get("/course/:courseId", ctrl.getCourseChat);
 - Full backend suite
 - Full frontend build
 
-- [ ] **Step 1: Run full backend test suite**
+- [x] **Step 1: Run full backend test suite**
   Run: `pnpm test` in `backend`
-  Expected: PASS (all tests pass)
+  Expected: PASS (all tests pass - 140/140)
 
-- [ ] **Step 2: Run client production build**
+- [x] **Step 2: Run client production build**
   Run: `npm run build` in `client`
-  Expected: PASS
+  Expected: PASS (clean production build)
 
-- [ ] **Step 3: Commit and update plan status**
+- [x] **Step 3: Commit and update plan status**
+
