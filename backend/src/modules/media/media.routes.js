@@ -10,8 +10,12 @@ const uploadDir = path.resolve(process.cwd(), process.env.UPLOAD_DIR || 'uploads
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const folder = req.body.folder || 'general';
-    const isPrivate = req.body.isPrivate === 'true' || req.body.isPrivate === true;
+    const folder = req.query?.folder || req.body?.folder || 'general';
+    const isPrivate =
+      req.query?.isPrivate === 'true' ||
+      req.query?.isPrivate === true ||
+      req.body?.isPrivate === 'true' ||
+      req.body?.isPrivate === true;
     const dest = path.join(uploadDir, isPrivate ? path.join('private', folder) : folder);
     if (!fs.existsSync(dest)) {
       fs.mkdirSync(dest, { recursive: true });

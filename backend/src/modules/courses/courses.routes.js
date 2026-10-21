@@ -18,6 +18,8 @@ router.get("/semester-courses/:semesterId", ctrl.getSemesterCourses);
 
 router.use("/:courseId/assignments", assignmentsRouter);
 
+router.get("/course/:id", ctrl.getCourse);
+
 router
   .route("/:id")
   .get(ctrl.getCourse)

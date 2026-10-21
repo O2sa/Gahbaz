@@ -99,13 +99,17 @@ export async function uploadMedia(file, { folder = 'general', isPrivate = false,
 
   // 4. Local storage fallback via backend multipart
   const formData = new FormData();
-  formData.append('file', file);
   formData.append('folder', folder);
   if (intent.key) formData.append('key', intent.key);
   formData.append('isPrivate', String(isPrivate));
+  formData.append('file', file);
 
   // Use raw axios to preserve full progress and avoid content-type JSON conflict
-  const res = await axios.post('/api/v1/media/upload', formData, {
+  const queryParams = new URLSearchParams({
+    folder,
+    isPrivate: String(isPrivate),
+  }).toString();
+  const res = await axios.post(`/api/v1/media/upload?${queryParams}`, formData, {
     withCredentials: true,
     headers: { 'Content-Type': 'multipart/form-data' },
     onUploadProgress: (evt) => {

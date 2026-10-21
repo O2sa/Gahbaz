@@ -19,6 +19,9 @@ router
     ctrl.createSemesterTemplate
   );
 
+router.get("/major/:id", ctrl.getSemesterTemplatesByMajorOrId);
+router.get("/major/:majorId", ctrl.getSemesterTemplatesByMajorOrId);
+
 router
   .route("/:id")
   .get(ctrl.getSemesterTemplatesByMajorOrId)

@@ -26,6 +26,9 @@ export const getSemesterTemplatesService = async (filter = {}, query = {}) => {
 };
 
 export const getSemesterTemplatesByMajorOrIdService = async (id, query = {}) => {
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    return { data: [], meta: { page: 1, limit: 10, total: 0, totalPages: 0 } };
+  }
   const majorExists = await Major.exists({ _id: id });
   if (majorExists) {
     return getSemesterTemplatesService({ major: id }, query);

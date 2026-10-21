@@ -21,51 +21,54 @@ export const SemesterDetails = ({ courses = [] }) => {
         </Text>
       ) : (
         <Stack spacing="xs">
-          {courses.map((item) => (
-            <Paper
-              key={item._id}
-              p="sm"
-              radius="sm"
-              withBorder
-              sx={(theme) => ({
-                transition: 'background-color 150ms ease',
-                '&:hover': {
-                  backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[0],
-                },
-              })}
-            >
-              <Group position="apart">
-                <NavLink
-                  to={`/courses/${item._id}`}
-                  style={{ textDecoration: 'none', color: 'inherit', flex: 1 }}
-                >
-                  <Group>
-                    <IconBook size={20} color="#228be6" />
-                    <Box>
-                      <Text weight={600} size="sm">
-                        {item.name}
-                      </Text>
-                      {item.category && (
-                        <Text size="xs" color="dimmed">
-                          {item.category}
+          {courses.map((item) => {
+            const courseId = item._id || item.id
+            return (
+              <Paper
+                key={courseId}
+                p="sm"
+                radius="sm"
+                withBorder
+                sx={(theme) => ({
+                  transition: 'background-color 150ms ease',
+                  '&:hover': {
+                    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[0],
+                  },
+                })}
+              >
+                <Group position="apart">
+                  <NavLink
+                    to={`/courses/${courseId}`}
+                    style={{ textDecoration: 'none', color: 'inherit', flex: 1 }}
+                  >
+                    <Group>
+                      <IconBook size={20} color="#228be6" />
+                      <Box>
+                        <Text weight={600} size="sm">
+                          {item.name}
                         </Text>
-                      )}
-                    </Box>
-                  </Group>
-                </NavLink>
+                        {item.category && (
+                          <Text size="xs" color="dimmed">
+                            {item.category}
+                          </Text>
+                        )}
+                      </Box>
+                    </Group>
+                  </NavLink>
 
-                <ActionIcon
-                  component={Link}
-                  to={`/courses/${item._id}/edit`}
-                  variant="subtle"
-                  color="blue"
-                  title="تعديل الدورة"
-                >
-                  <IconPencil size={18} />
-                </ActionIcon>
-              </Group>
-            </Paper>
-          ))}
+                  <ActionIcon
+                    component={Link}
+                    to={`/courses/${courseId}/edit`}
+                    variant="subtle"
+                    color="blue"
+                    title="تعديل الدورة"
+                  >
+                    <IconPencil size={18} />
+                  </ActionIcon>
+                </Group>
+              </Paper>
+            )
+          })}
         </Stack>
       )}
     </Paper>

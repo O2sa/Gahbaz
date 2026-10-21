@@ -9,7 +9,8 @@ import { Helmet } from 'react-helmet'
 import { PageHeader } from '../../components/common/index.js'
 
 export default function Semester({ queryClient }) {
-  const { semesterId } = useParams()
+  const params = useParams()
+  const semesterId = params.semesterId || params.id
   const navigate = useNavigate()
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
@@ -18,13 +19,19 @@ export default function Semester({ queryClient }) {
     data: semester = {},
     isFetching: isFetchingTeachers,
     isLoading: isLoadingTeachers,
-  } = useQuery(useGetElements(['semesters', semesterId]))
+  } = useQuery({
+    ...useGetElements(['semesters', semesterId]),
+    enabled: Boolean(semesterId),
+  })
 
   const {
     data: courses = [],
     isFetching,
     isLoading,
-  } = useQuery(useGetElements(['courses', 'semester-courses', semesterId]))
+  } = useQuery({
+    ...useGetElements(['courses', 'semester-courses', semesterId]),
+    enabled: Boolean(semesterId),
+  })
 
   if (isFetchingTeachers || isFetching || isLoadingTeachers || isLoading) {
     return (
