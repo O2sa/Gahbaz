@@ -11,21 +11,21 @@ router.route("/")
   .get(validateRequest({ query: paginationQuerySchema }), ctrl.fetchChats)
   .post(validateRequest({ body: accessChatSchema }), ctrl.accessChat);
 
+// Specific named endpoints and aliases MUST be registered BEFORE parameterized /:id
+router.get("/fetchChats", validateRequest({ query: paginationQuerySchema }), ctrl.fetchChats);
+router.post("/accessChat", validateRequest({ body: accessChatSchema }), ctrl.accessChat);
 router.post("/group", validateRequest({ body: createGroupChatSchema }), ctrl.createGroupChat);
-
-// Nested REST messages under a chat
-router.route("/:chatId/messages")
-  .get(validateRequest({ query: paginationQuerySchema }), ctrl.getMessages)
-  .post(validateRequest({ body: sendMessageSchema }), ctrl.sendMessage);
 
 router.get("/course/:courseId", ctrl.getCourseChat);
 
-router.route("/:id")
-  .get(ctrl.getChat);
+// Nested REST messages under a chat
+router.route("/:chatId([0-9a-fA-F]{24})/messages")
+  .get(validateRequest({ query: paginationQuerySchema }), ctrl.getMessages)
+  .post(validateRequest({ body: sendMessageSchema }), ctrl.sendMessage);
 
-// Aliases for chat operations
-router.post("/accessChat", validateRequest({ body: accessChatSchema }), ctrl.accessChat);
-router.get("/fetchChats", validateRequest({ query: paginationQuerySchema }), ctrl.fetchChats);
+// Parameterized chat by ID - only matches valid 24-character hex ObjectIds
+router.route("/:id([0-9a-fA-F]{24})")
+  .get(ctrl.getChat);
 
 export const messagesRouter = Router();
 messagesRouter.post("/addmsg", validateRequest({ body: sendMessageSchema }), ctrl.sendMessage);
