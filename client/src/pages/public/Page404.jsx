@@ -1,41 +1,40 @@
 import React from 'react'
-import {
-  CButton,
-  CCol,
-  CContainer,
-  CFormInput,
-  CInputGroup,
-  CInputGroupText,
-  CRow,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import { cilMagnifyingGlass } from '@coreui/icons'
+import { Container, Title, Text, Button, Group, Center, Stack } from '@mantine/core'
+import { Link } from 'react-router-dom'
+import { IconHome, IconError404 } from '@tabler/icons-react'
 
-const Page404 = () => {
+export default function Page404() {
   return (
-    <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
-      <CContainer>
-        <CRow className="justify-content-center">
-          <CCol md={6}>
-            <div className="clearfix">
-              <h1 className="float-start display-3 me-4">404</h1>
-              <h4 className="pt-3">Oops! You{"'"}re lost.</h4>
-              <p className="text-medium-emphasis float-start">
-                The page you are looking for was not found.
-              </p>
-            </div>
-            <CInputGroup className="input-prepend">
-              <CInputGroupText>
-                <CIcon icon={cilMagnifyingGlass} />
-              </CInputGroupText>
-              <CFormInput type="text" placeholder="What are you looking for?" />
-              <CButton color="info">Search</CButton>
-            </CInputGroup>
-          </CCol>
-        </CRow>
-      </CContainer>
-    </div>
+    <Container size="md" py={80}>
+      <Center>
+        <Stack align="center" spacing="md" sx={{ textAlign: 'center' }}>
+          <Title
+            sx={(theme) => ({
+              fontSize: 100,
+              fontWeight: 900,
+              color: theme.colors.brand[6],
+              lineHeight: 1,
+            })}
+          >
+            404
+          </Title>
+          <Title order={2}>الصفحة المطلوبة غير موجودة</Title>
+          <Text color="dimmed" size="lg" sx={{ maxWidth: 500 }}>
+            ربما تم نقل الصفحة أو حذفها، أو أن الرابط الذي اتبعته غير صحيح.
+          </Text>
+          <Group position="center" mt="md">
+            <Button
+              component={Link}
+              to="/"
+              size="md"
+              color="brand"
+              leftIcon={<IconHome size={18} />}
+            >
+              العودة إلى الصفحة الرئيسية
+            </Button>
+          </Group>
+        </Stack>
+      </Center>
+    </Container>
   )
 }
-
-export default Page404

@@ -33,7 +33,7 @@ import { Carousel } from '@mantine/carousel'
 
 import classes from './page.module.css'
 import { getSender, getSenderProfilePic, isAnotherSender } from '../config/ChatLogics'
-import { useDashboardContext } from '../../layout/DefaultLayout'
+import { useDashboardContext } from '../../layouts/MainLayout.jsx'
 import { useGetElements } from '../../pages/crud'
 import { useQuery } from '@tanstack/react-query'
 

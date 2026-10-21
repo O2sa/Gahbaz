@@ -1,208 +1,189 @@
-import { useState } from 'react'
-import { IoIosArrowBack } from 'react-icons/io'
-import { RxExit, RxPencil2 } from 'react-icons/rx'
-import { GoKebabHorizontal } from 'react-icons/go'
-
-import { ChatState } from '../context/ChatProvider'
-import { getSender, getSenderFull, getSenderProfilePic } from '../config/ChatLogics'
-
-import UpdateGroupChat from './Group/UpdateGroupChat'
-import SubmitModal from './Aux/SubmitModal'
-import SingleChat from './SingleChat'
-
-// import { ToastContainer, toast } from "react-toastify";
-import axios from 'axios'
-import { removeGroupChatRoute, deleteChatRoute } from '../utils/APIRoutes'
-import { toastOptions } from '../utils/constants'
+import React, { useState } from 'react'
 import {
   ActionIcon,
   Avatar,
-  Group,
-  UnstyledButton,
-  Text,
-  Button,
-  Grid,
-  Flex,
   Box,
+  Group,
+  Text,
+  Badge,
   Menu,
-  Skeleton,
-  rem,
-  Divider,
+  Tooltip,
+  useMantineTheme,
 } from '@mantine/core'
-import { IconChevronRight, IconDotsVertical, IconSearch } from '@tabler/icons-react'
-import { CDropdown, CDropdownItem, CDropdownMenu, CDropdownToggle } from '@coreui/react'
-import classes from './chat.module.css'
-import UserButton from '../NewChat/components/UserButton/UserButton'
+import {
+  IconArrowRight,
+  IconDotsVertical,
+  IconBook,
+  IconUsers,
+  IconLogout,
+  IconTrash,
+} from '@tabler/icons-react'
+import { ChatState } from '../context/ChatProvider'
+import { getSender, getSenderProfilePic, getSenderFull } from '../config/ChatLogics'
+import SingleChat from './SingleChat'
+import customFetch from '../../utils/customFetch'
+import { notifications } from '@mantine/notifications'
 
 function ChatContainer({ socket, fetchAgain, setFetchAgain }) {
+  const theme = useMantineTheme()
+  const isDark = theme.colorScheme === 'dark'
   const { setSelectedChat, selectedChat, user } = ChatState()
-  const [showToggle, setShowToggle] = useState(false)
-  const [modalUpdateActive, setModalUpdateActive] = useState('not')
-  //submit modal
-  const [modalSubmitActive, setModalSubmitActive] = useState('not')
-  const [warnText, setWarnText] = useState('')
-  const [submText, setSubmText] = useState('')
 
-  const updateChat = () => {
-    setModalUpdateActive('active')
-    setShowToggle(!showToggle)
-  }
+  if (!selectedChat) return null
 
-  const leaveChat = () => {
-    setModalSubmitActive('leave')
-    setShowToggle(!showToggle)
-    setWarnText('You cannot return this chat by yourself.')
-    setSubmText(`Are you sure you want to leave ${selectedChat.chatName}?`)
-  }
+  const isCourseChat = Boolean(selectedChat.course)
+  const isGroup = selectedChat.isGroupChat || isCourseChat
 
-  const handleLeave = async () => {
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      }
-      await axios.put(`${removeGroupChatRoute}`, {
-        chatId: selectedChat._id,
-        userId: user._id,
-      })
-      setFetchAgain(!fetchAgain)
-      //toast.success(`You succefuly leaved ${selectedChat.chatName}`, toastOptions);
-      setSelectedChat()
-      setModalSubmitActive('not')
-    } catch (error) {
-      //toast.error("Something went wrong! Please, try again", toastOptions);
-    }
-  }
+  const chatTitle = selectedChat.chatName
+    ? selectedChat.chatName
+    : selectedChat.course?.name
+    ? `مقرر ${selectedChat.course.name}`
+    : selectedChat.users && selectedChat.users.length >= 2
+    ? getSender(user, selectedChat.users)
+    : 'المحادثة'
 
-  const deleteChat = () => {
-    setModalSubmitActive('delete')
-    setShowToggle(!showToggle)
-    setWarnText('You cannot restore this chat. All messages will be permanently deleted.')
-    setSubmText(`Are you sure you want to delete chat with ${selectedChat.chatName}?`)
-  }
+  const chatAvatar = selectedChat.course?.cover
+    ? selectedChat.course.cover
+    : selectedChat.isGroupChat
+    ? selectedChat.groupPic
+    : selectedChat.users && selectedChat.users.length >= 2
+    ? getSenderProfilePic(user, selectedChat.users)
+    : undefined
 
-  const handleDelete = async () => {
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      }
-      await axios.put(`${deleteChatRoute}`, {
-        chatId: selectedChat._id,
-      })
-      setFetchAgain(!fetchAgain)
-      //toast.success(`You succefuly deleted the chat`, toastOptions);
-      setSelectedChat()
-      setModalSubmitActive('not')
-    } catch (error) {
-      //toast.error("Something went wrong! Please, try again", toastOptions);
-    }
+  const peerUser =
+    !isGroup && selectedChat.users && selectedChat.users.length >= 2
+      ? getSenderFull(user, selectedChat.users)
+      : null
+
+  const subtitle = isCourseChat
+    ? `${selectedChat.course?.code ? selectedChat.course.code + ' • ' : ''}${
+        selectedChat.users?.length || 0
+      } مشارك في القناة`
+    : selectedChat.isGroupChat
+    ? `${selectedChat.users?.length || 0} عضو`
+    : peerUser?.email || 'محادثة مباشرة'
+
+  const handleLeaveOrClose = () => {
+    setSelectedChat(null)
   }
 
   return (
     <Box
-      bg={'gray.1'}
-      sx={(theme) => ({
-        borderLeft: `1px solid ${theme.colors.gray[3]}`,
-      })}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        overflow: 'hidden',
+        backgroundColor: isDark ? theme.colors.dark[7] : theme.white,
+      }}
     >
+      {/* Top Header */}
       <Box
-        bg={'white'}
-        sx={(theme) => ({
-          padding: `${theme.spacing.sm} ${theme.spacing.md}`,
-          borderBottom: `1px solid ${theme.colors.gray[3]}`,
-          borderTopRightRadius: `${theme.radius.md}`,
-        })}
+        p="sm"
+        px="md"
+        sx={{
+          flexShrink: 0,
+          borderBottom: `1px solid ${isDark ? theme.colors.dark[5] : theme.colors.gray[2]}`,
+          backgroundColor: isDark ? theme.colors.dark[7] : theme.white,
+        }}
       >
-        <Skeleton visible={false || false}>
-          <Flex align="center" justify="space-between">
-            <UserButton
-              email={
-                selectedChat.isGroupChat
-                  ? `${selectedChat?.users?.length} عضو`
-                  : getSenderFull(user, selectedChat.users)?.email
-              }
-              image={
-                selectedChat.isGroupChat
-                  ? selectedChat.groupPic
-                  : getSenderProfilePic(user, selectedChat.users)
-              }
-              name={
-                selectedChat.isGroupChat
-                  ? selectedChat.chatName
-                  : getSender(user, selectedChat.users)
-              }
-              asAction={false}
-            />
-            <Flex gap="sm">
-              <ActionIcon variant="subtle">
-                <IconSearch size={16} />
+        <Group position="apart">
+          <Group spacing="sm">
+            {/* Back button for mobile / tablet view */}
+            <Tooltip label="الرجوع للقائمة">
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                radius="md"
+                onClick={handleLeaveOrClose}
+                sx={{ display: 'none', '@media (max-width: 768px)': { display: 'inline-flex' } }}
+              >
+                <IconArrowRight size={20} />
               </ActionIcon>
-              {/* <Menu>
-                <Menu.Target>
-                  Toggle
-         
-                </Menu.Target>
-                <Menu.Dropdown>
-                  {selectedChat.isGroupChat ? (
-                    <>
-                      <Menu.Item onClick={updateChat} icon={<RxPencil2 size={14} />}>
-                        Update
-                      </Menu.Item>
-                      <Menu.Item onClick={leaveChat} icon={<RxPencil2 size={14} />}>
-                        Leave Group
-                      </Menu.Item>
-                    </>
-                  ) : (
-                    <Menu.Item onClick={deleteChat} icon={<RxPencil2 size={14} />}>
-                      Leave Group
-                    </Menu.Item>
-                  )}
-                </Menu.Dropdown>
-              </Menu>  */}
-            </Flex>
-          </Flex>
-        </Skeleton>
+            </Tooltip>
+
+            {/* Avatar with indicator */}
+            <Avatar
+              src={chatAvatar}
+              radius="xl"
+              size={42}
+              color={isCourseChat ? 'teal' : isGroup ? 'blue' : 'brand'}
+              sx={{
+                border: `2px solid ${
+                  isCourseChat
+                    ? theme.colors.teal[5]
+                    : isDark
+                    ? theme.colors.dark[4]
+                    : theme.colors.gray[3]
+                }`,
+              }}
+            >
+              {isCourseChat ? <IconBook size={20} /> : chatTitle.charAt(0).toUpperCase()}
+            </Avatar>
+
+            {/* Title & Subtitle */}
+            <Box>
+              <Group spacing={6} align="center">
+                <Text size="sm" fw={700} lineClamp={1}>
+                  {chatTitle}
+                </Text>
+                {isCourseChat && (
+                  <Badge
+                    size="xs"
+                    color="teal"
+                    variant="light"
+                    leftSection={<IconBook size={10} />}
+                  >
+                    مقرر دراسي
+                  </Badge>
+                )}
+                {!isCourseChat && isGroup && (
+                  <Badge
+                    size="xs"
+                    color="blue"
+                    variant="light"
+                    leftSection={<IconUsers size={10} />}
+                  >
+                    مجموعة
+                  </Badge>
+                )}
+              </Group>
+              <Text size="xs" c="dimmed" lineClamp={1}>
+                {subtitle}
+              </Text>
+            </Box>
+          </Group>
+
+          {/* Quick Actions Menu */}
+          <Group spacing="xs">
+            <Menu position="bottom-end" shadow="md" width={180}>
+              <Menu.Target>
+                <ActionIcon variant="subtle" color="gray" radius="md">
+                  <IconDotsVertical size={18} />
+                </ActionIcon>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Item
+                  icon={<IconArrowRight size={14} />}
+                  onClick={() => setSelectedChat(null)}
+                >
+                  إغلاق المحادثة
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </Group>
+        </Group>
       </Box>
 
-      <SingleChat
-        fetchAgain={fetchAgain}
-        socket={socket}
-        setFetchAgain={setFetchAgain}
-        selectedChat={selectedChat}
-      />
-
-      {modalUpdateActive === 'active' ? (
-        <UpdateGroupChat
+      {/* Main Messages & Input Area */}
+      <Box sx={{ flex: 1, minHeight: 0 }}>
+        <SingleChat
           fetchAgain={fetchAgain}
+          socket={socket}
           setFetchAgain={setFetchAgain}
-          setModalActive={setModalUpdateActive}
+          selectedChat={selectedChat}
         />
-      ) : (
-        <></>
-      )}
-      {modalSubmitActive === 'leave' ? (
-        <SubmitModal
-          setModalActive={setModalSubmitActive}
-          warnText={warnText}
-          submText={submText}
-          handleFunction={handleLeave}
-        />
-      ) : (
-        <></>
-      )}
-      {modalSubmitActive === 'delete' ? (
-        <SubmitModal
-          setModalActive={setModalSubmitActive}
-          warnText={warnText}
-          submText={submText}
-          handleFunction={handleDelete}
-        />
-      ) : (
-        <></>
-      )}
+      </Box>
     </Box>
   )
 }

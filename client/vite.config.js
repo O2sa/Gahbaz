@@ -17,9 +17,16 @@ export default defineConfig({
     // this sets a default port to 3000
     proxy: {
       '/api': {
-        target: 'http://localhost:5000/api',
+        target: 'http://localhost:5000',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      '/uploads': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
+      '/images': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
       },
     },
   },

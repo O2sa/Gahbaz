@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useDashboardContext } from '../../layout/DefaultLayout'
+import { useDashboardContext } from '../../layouts/MainLayout.jsx'
 
 const ChatContext = createContext()
 

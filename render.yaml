@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: gahbaz-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    rootDir: backend
+    buildCommand: pnpm install
+    startCommand: pnpm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGO_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_LIFETIME
+        value: 1d
+      - key: CLIENT_URL
+        sync: false
+      - key: PUBLIC_URL
+        sync: false
+      - key: STORAGE_PROVIDER
+        value: local
+      - key: UPLOAD_DIR
+        value: uploads

@@ -1,168 +1,220 @@
-import React, { useEffect, useMemo, useState } from 'react'
-
-import { TabsLinks } from '../../stories/Tabs/Tabs'
-import { BsStack } from 'react-icons/bs'
-
-import { useParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { useDeleteElement, useGetElements } from '../crud'
-
-import { TabsBody } from '../../stories/Tabs/TabsBody'
-import { Link, NavLink } from 'react-router-dom'
-import { TbListDetails } from 'react-icons/tb'
+import React, { useState } from 'react'
 import {
-  CTableBody,
-  CTableHead,
-  CTabContent,
-  CTableRow,
-  CTable,
-  CTableDataCell,
-  CTableHeaderCell,
-  CSpinner,
-} from '@coreui/react'
-import { MantineReactTable, useMantineReactTable } from 'mantine-react-table'
-import { ActionIcon, Badge, Box, Button, Flex, Group } from '@mantine/core'
+  Group,
+  Button,
+  ActionIcon,
+  Badge,
+  Text,
+} from '@mantine/core'
+import { Link } from 'react-router-dom'
 import {
-  IconArrowAutofitRight,
-  IconArrowBarLeft,
-  IconDetails,
-  IconEdit,
   IconInfoCircle,
-  IconPhoto,
-  IconTrash,
+  IconPencil,
+  IconBook,
+  IconArrowLeft,
 } from '@tabler/icons-react'
-import { Tooltip } from 'chart.js'
-import { useDashboardContext } from '../../layout/DefaultLayout'
+import { useQuery } from '@tanstack/react-query'
+import { useGetElements } from '../crud.js'
+import { DataTable, PageHeader } from '../../components/common/index.js'
+import { useDebouncedValue } from '@mantine/hooks'
 
-export default function Courses({ queryClient }) {
-  const { user } = useDashboardContext()
+export default function TeacherCourses() {
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const [search, setSearch] = useState('')
+  const [debouncedSearch] = useDebouncedValue(search, 350)
+
   const {
     data: courses = [],
-    isError: isLoadingTeachersError,
-    isFetching: isFetchingTeachers,
-    isLoading: isLoadingTeachers,
+    isLoading,
   } = useQuery(useGetElements(['courses']))
 
-  if (isFetchingTeachers) {
-    return <CSpinner color="primary" />
-  }
+  const courseList = Array.isArray(courses)
+    ? courses
+    : Array.isArray(courses?.data)
+    ? courses.data
+    : []
 
-  if (courses.length == 0) {
+  const filteredCourses = courseList.filter((c) => {
+    if (!debouncedSearch) return true
+    const term = debouncedSearch.toLowerCase()
     return (
-      <div
-        className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
-      >
-        <h5>{'عن الكلية'} </h5>
-      </div>
+      c.name?.toLowerCase().includes(term) ||
+      c.code?.toLowerCase().includes(term) ||
+      c.category?.toLowerCase().includes(term) ||
+      c.semester?.name?.toLowerCase().includes(term) ||
+      c.semester?.major?.name?.toLowerCase().includes(term)
     )
-  }
-  return <SemestersTable queryClient={queryClient} courses={courses} />
-}
+  })
 
-const SemestersTable = ({ courses, queryClient }) => {
-  const columns = useMemo(
-    () => [
-      {
-        id: 'index',
-        enableEditing: false,
-        accessorFn: (row, rowIndex) => rowIndex + 1,
-        header: '#',
-      },
-      {
-        accessorKey: 'name',
-        id: 'name',
-        header: 'الدورة',
-      },
-      {
-        accessorKey: 'subtitle',
-        header: 'الإيميل',
-      },
-      {
-        accessorKey: 'category',
-        header: 'category',
-      },
-
-      {
-        accessorKey: 'details',
-        header: 'الحالة',
-        Cell: ({ cell, row }) => {
-          return (
-            <Group>
-              <Link to={`${row.original._id}`}>
-                <Button
-                  variant="light"
-                  leftIcon={<IconInfoCircle size={14} />}
-                  rightIcon={<IconArrowBarLeft size={14} />}
-                >
-                  عرض التفاصيل
-                </Button>
-              </Link>{' '}
-              <Link to={`${row.original._id}/edit`}>
-                <Button
-                  variant="light"
-                  leftIcon={<IconInfoCircle size={14} />}
-                  rightIcon={<IconArrowBarLeft size={14} />}
-                >
-                 تعديل
-                </Button>
-              </Link>
-            </Group>
-          )
-        },
-      },
-    ],
-    [],
+  const paginatedCourses = filteredCourses.slice(
+    (page - 1) * limit,
+    page * limit
   )
 
-  const table = useMantineReactTable({
-    columns: columns,
-    data: courses,
-    enableColumnOrdering: true,
-    enableFacetedValues: true,
-    enableGrouping: true,
-    enablePinning: true,
-    enableRowActions: true,
-    getRowId: (row) => row._id,
-    paginationDisplayMode: 'pages',
-    positionToolbarAlertBanner: 'bottom',
-    mantinePaginationProps: {
-      radius: 'xl',
-      size: 'lg',
+  const columns = [
+    {
+      key: 'name',
+      title: 'المقرر الدراسي',
+      render: (row) => (
+        <Group spacing="xs">
+          <IconBook size={18} color="#7c3aed" />
+          <div>
+            <Link
+              to={`/courses/${row._id || row.id}`}
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              <Text
+                weight={600}
+                size="sm"
+                sx={{ '&:hover': { color: '#7c3aed', textDecoration: 'underline' } }}
+              >
+                {row.name}
+              </Text>
+            </Link>
+            {row.code && (
+              <Text size="xs" color="dimmed">
+                رمز المادة: {row.code}
+              </Text>
+            )}
+          </div>
+        </Group>
+      ),
     },
-    // renderRowActions: ({ row, table }) => (
-    //   <Flex gap="md">
-
-    //     <Tooltip label="حذف">
-    // <ActionIcon color="red" onClick={() => openDeleteConfirmModal(row)}>
-    //         <IconTrash />
-    //       </ActionIcon>
-    //     </Tooltip>
-    //   </Flex>
-    // ),
-    renderRowActionMenuItems: ({ row }) => (
-      <Flex>
-        <Link to={`${row.original._id}/edit`}>
-          <ActionIcon color="red">
-            <IconTrash />
-          </ActionIcon>
-        </Link>
-      </Flex>
-    ),
-    mantineTableContainerProps: {
-      sx: {
-        minHeight: '500px',
+    {
+      key: 'semester',
+      title: 'الفصل الدراسي',
+      align: 'center',
+      render: (row) => (
+        <Badge color="blue" variant="light" size="sm">
+          {row.semester?.name || 'عام'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'program',
+      title: 'التخصص والكلية',
+      align: 'center',
+      render: (row) => {
+        const majorName = row.semester?.major?.name
+        const collegeName = row.semester?.major?.college?.name || row.college?.name
+        if (!majorName && !collegeName) return <Text size="xs" color="dimmed">—</Text>
+        return (
+          <Badge color="indigo" variant="outline" size="sm">
+            {majorName ? `${majorName} • ${collegeName || ''}` : collegeName}
+          </Badge>
+        )
       },
     },
-  })
+    {
+      key: 'teachers',
+      title: 'مدرس المقرر',
+      align: 'center',
+      render: (row) => {
+        const tList = row.teachers || []
+        if (tList.length === 0) return <Text size="xs" color="dimmed">لم يعين مدرس</Text>
+        return (
+          <Text size="xs" weight={500}>
+            {tList
+              .map((t) =>
+                typeof t === 'object'
+                  ? `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.name
+                  : t
+              )
+              .join('، ')}
+          </Text>
+        )
+      },
+    },
+    {
+      key: 'creditHours',
+      title: 'الساعات',
+      align: 'center',
+      render: (row) => (
+        <Badge color="violet" variant="light" size="sm">
+          {row.creditHours || row.credits || 3} س
+        </Badge>
+      ),
+    },
+    {
+      key: 'status',
+      title: 'الحالة',
+      align: 'center',
+      render: (row) => (
+        <Badge
+          color={row.completed ? 'gray' : 'teal'}
+          variant="light"
+          size="sm"
+        >
+          {row.completed ? 'مكتمل' : 'قيد التدريس'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'actions',
+      title: 'الإجراءات',
+      align: 'left',
+      render: (row) => (
+        <Group spacing="xs" position="left">
+          <Button
+            component={Link}
+            to={`/courses/${row._id || row.id}`}
+            variant="light"
+            size="xs"
+            leftIcon={<IconInfoCircle size={14} />}
+            rightIcon={<IconArrowLeft size={14} />}
+          >
+            عرض التفاصيل
+          </Button>
+          <ActionIcon
+            component={Link}
+            to={`/courses/${row._id || row.id}/edit`}
+            variant="subtle"
+            color="brand"
+            size="sm"
+            title="تعديل المقرر"
+          >
+            <IconPencil size={15} />
+          </ActionIcon>
+        </Group>
+      ),
+    },
+  ]
 
   return (
     <>
-      <div
-        className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
-      >
-        <h5>{'عن الكلية'} </h5>
-      </div>
-      <MantineReactTable table={table} />
+      <PageHeader
+        title="المقررات الدراسية المفتوحة"
+        description="إدارة ومتابعة المقررات الدراسية، الفصول التابعة لها، وأعضاء هيئة التدريس المسندين"
+        breadcrumbs={[
+          { title: 'الرئيسية', href: '/' },
+          { title: 'المقررات' },
+        ]}
+      />
+
+      <DataTable
+        columns={columns}
+        data={paginatedCourses}
+        meta={{
+          page,
+          limit,
+          total: filteredCourses.length,
+          totalPages: Math.ceil(filteredCourses.length / limit) || 1,
+        }}
+        isLoading={isLoading}
+        search={search}
+        onSearchChange={(val) => {
+          setSearch(val)
+          setPage(1)
+        }}
+        onPageChange={setPage}
+        onLimitChange={(l) => {
+          setLimit(l)
+          setPage(1)
+        }}
+        emptyTitle="لا توجد مقررات دراسية"
+        emptyDescription="لم يتم العثور على أي مقررات نشطة في النظام حالياً."
+      />
     </>
   )
 }

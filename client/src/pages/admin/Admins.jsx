@@ -1,395 +1,434 @@
-import { useMemo, useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import {
-  MRT_GlobalFilterTextInput,
-  MRT_ToggleFiltersButton,
-  MantineReactTable,
-  useMantineReactTable,
-  MRT_EditActionButtons,
-} from 'mantine-react-table'
-
-import { Link, useLoaderData, useParams } from 'react-router-dom'
-import { MRT_Localization_AR } from 'mantine-react-table/locales/ar'
-// import useTable
-import {
-  ActionIcon,
   Button,
-  Flex,
-  Text,
-  Tooltip,
-  Title,
-  Box,
-  Menu,
-  Badge,
-  MantineProvider,
-  Anchor,
-  Stack,
-  TextInput,
-  MultiSelect,
-  Indicator,
   Group,
-  Avatar,
-  Checkbox,
+  ActionIcon,
   Modal,
-  NumberInput,
+  TextInput,
+  PasswordInput,
+  Select,
+  Stack,
+  Text,
+  Badge,
+  Avatar,
+  Paper,
+  CopyButton,
+  Code,
 } from '@mantine/core'
+import { useForm } from '@mantine/form'
+import { useDisclosure, useDebouncedValue } from '@mantine/hooks'
+import { IconPlus, IconPencil, IconTrash, IconShieldCheck, IconCopy, IconCheck } from '@tabler/icons-react'
 import {
-  QueryClient,
-  QueryClientProvider,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query'
+  DataTable,
+  PageHeader,
+  ConfirmModal,
+} from '../../components/common/index.js'
+import {
+  useAdmins,
+  useCreateAdmin,
+  useUpdateAdmin,
+  useDeleteAdmin,
+} from '../../hooks/useAdmins.js'
+import dayjs from 'dayjs'
 
-import { IconEdit, IconTrash } from '@tabler/icons-react'
-import { useCreateElement, useDeleteElement, useGetElements, useUpdateElement } from '../crud'
-import { modals } from '@mantine/modals'
-import { isUserActive } from '../../utils/UsersUtils'
+const NAME_REGEX = /^[\u0600-\u06FFa-zA-Z\s\-]{3,70}$/
 
-export default function Admins({ queryClient }) {
-  //call CREATE hook
-  const { id: collageId } = useParams()
-  const { mutateAsync: createAdmin, isLoading: isCreatingAdmin } = useCreateElement(queryClient, [
-    'admins',
-  ])
-
-  const {
-    data: admins = [],
-    isError: isLoadingAdminsError,
-    isFetching: isFetchingAdmins,
-    isLoading: isLoadingAdmins,
-  } = useQuery(useGetElements(['admins']))
-
-  // //console.log(admins)
-  const { mutateAsync: updateAdmin, isLoading: isUpdatingAdmin } = useUpdateElement(queryClient, [
-    'admins',
-  ])
-  const { mutateAsync: deleteAdmin, isLoading: isDeletingAdmin } = useDeleteElement(queryClient, [
-    'admins',
-  ])
-
-  // const teachersForSelect = getMultiSelectData(teachers)
-  const [editingRowData, setEditingRowData] = useState({}) // State for new row data
-
-  const handleCreateAdmin = async ({ values, row, table, exitCreatingMode }) => {
-    // //console.log(newRowData)
-    await createAdmin({ ...newRowData, collage: collageId })
-    modals.closeAll()
-    table.setCreatingRow(false)
+const validateName = (val) => {
+  if (!val?.trim()) return 'اسم المدير مطلوب'
+  if (val.trim().length < 3) return 'يجب أن يتكون الاسم من 3 أحرف على الأقل'
+  if (val.trim().length > 70) return 'يجب ألا يتجاوز الاسم 70 حرفاً'
+  if (!NAME_REGEX.test(val.trim())) {
+    return 'يجب أن يحتوي الاسم على أحرف عربية أو إنجليزية ومسافات فقط بدون أرقام أو رموز'
   }
+  return null
+}
 
-  const [newRowData, setNewrowData] = useState({}) // State for new row data
+const PERMISSION_OPTIONS = [
+  { value: 'rw', label: 'قراءة وتعديل (افتراضي)' },
+  { value: 'r', label: 'قراءة فقط' },
+  { value: 'rwd', label: 'تحكم كامل (قراءة، تعديل، حذف)' },
+  { value: 'rd', label: 'قراءة وحذف' },
+]
 
-  //UPDATE action
-  const handleSaveAdmin = async ({ values, row, table }) => {
-    await updateAdmin({ ...editingRowData, _id: row.id })
-    // //console.log(values)
-    table.setEditingRow(null) //exit editing mode
-  }
+export default function Admins() {
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const [search, setSearch] = useState('')
+  const [debouncedSearch] = useDebouncedValue(search, 350)
 
-  //DELETE action
-  const openDeleteConfirmModal = (row) => deleteAdmin(row.id)
+  // Modals state
+  const [addOpened, { open: openAdd, close: closeAdd }] = useDisclosure(false)
+  const [editAdmin, setEditAdmin] = useState(null)
+  const [deleteId, setDeleteId] = useState(null)
+  const [createdCredentials, setCreatedCredentials] = useState(null)
 
-  const columns = useMemo(
-    () => [
-      {
-        id: 'index',
-        enableEditing: false,
-        accessorFn: (row, rowIndex) => rowIndex + 1,
-        header: '#',
-      },
-      {
-        accessorKey: 'name',
-        id: 'name',
-        header: 'الأسم',
-        enableEditing: false,
+  // API hooks
+  const { data: adminsRes, isLoading } = useAdmins({
+    page,
+    limit,
+    search: debouncedSearch,
+  })
 
-        Cell: ({ cell, row }) => {
-          const item = row.original
-          return (
-            <Link to={'/users/' + item._id}>
-              <Group gap="sm" noWrap>
-                <Indicator
-                  disabled={
-                    row.original.lastActivity ? isUserActive(row.original.lastActivity) : true
-                  }
-                >
-                  <Avatar size={40} src={item.avatar} radius={40} />
-                </Indicator>
-                <div>
-                  <Text fz="sm" fw={500}>
-                    {`${item.firstName} ${item.lastName}`}
-                  </Text>
-                  <Text fz="xs" c="dimmed">
-                    {item.email}
-                  </Text>
-                </div>
-              </Group>
-            </Link>
-          )
-        },
-      },
+  const createMutation = useCreateAdmin()
+  const updateMutation = useUpdateAdmin()
+  const deleteMutation = useDeleteAdmin()
 
-      {
-        accessorKey: 'email',
-        id: 'email',
-        header: 'الإيميل',
-        enableEditing: false,
-      },
-
-      {
-        accessorKey: 'phone',
-        id: 'phone',
-        header: 'رقم الهاتف',
-        enableEditing: false,
-      },
-      {
-        accessorKey: 'lastActivity',
-        header: 'آخر نشاط',
-        accessorFn: (row) =>
-          row.lastActivity ? new Date(row?.lastActivity).toLocaleString() : 'unkown',
-        enableEditing: false,
-      },
-
-      {
-        id: 'permissions',
-        accessorKey: 'permissions',
-        // accessorFn: (row) => row?.admins?.map((sub) => <Badge>{`${sub.name} `}</Badge>) || '',
-        Cell: ({ cell }) => {
-          if (!cell.getValue() || cell.getValue().length == 0) return ''
-          return (
-            <Group mt="xs">
-              <Checkbox
-                readOnly
-                checked={cell.getValue().split('').includes('r')}
-                value="r"
-                label="قراءة"
-              />
-              <Checkbox
-                readOnly
-                checked={cell.getValue().split('').includes('w')}
-                value="w"
-                label="تعديل"
-              />
-              <Checkbox
-                readOnly
-                checked={cell.getValue().split('').includes('d')}
-                value="d"
-                label="حذف"
-              />
-            </Group>
-          )
-        },
-
-        // enableEditing: true,
-        header: 'الصلاحيات',
-        enableEditing: false,
-      },
-    ],
-    [],
-  )
-
-  const table = useMantineReactTable({
-    columns: columns,
-    data: admins,
-    // enableColumnFilterModes: true,
-    enableColumnOrdering: true,
-    enableFacetedValues: true,
-    enableGrouping: true,
-    enablePinning: true,
-    enableEditing: true,
-    createDisplayMode: 'modal',
-    editDisplayMode: 'modal',
-    localization: MRT_Localization_AR,
-    enableRowActions: true,
-    getRowId: (row) => row._id,
-    paginationDisplayMode: 'pages',
-    positionToolbarAlertBanner: 'bottom',
-    mantinePaginationProps: {
-      radius: 'xl',
-      size: 'lg',
+  // Add Form
+  const addForm = useForm({
+    initialValues: {
+      name: '',
+      email: '',
+      permissions: 'rw',
+      password: '',
     },
-    mantineToolbarAlertBannerProps: isLoadingAdminsError
-      ? {
-          color: 'red',
-          children: 'خطأ في تحميل البيانات',
-        }
-      : undefined,
-    mantineTableContainerProps: {
-      sx: {
-        minHeight: '500px',
-      },
-    },
-
-    onCreatingRowSave: handleCreateAdmin,
-    onEditingRowSave: handleSaveAdmin,
-    renderRowActions: ({ row, table }) => (
-      <Flex gap="md">
-        <Tooltip label="تعديل">
-          <ActionIcon onClick={() => table.setEditingRow(row)}>
-            <IconEdit />
-          </ActionIcon>
-        </Tooltip>
-        <Tooltip label="حذف">
-          <ActionIcon color="red" onClick={() => openDeleteConfirmModal(row)}>
-            <IconTrash />
-          </ActionIcon>
-        </Tooltip>
-      </Flex>
-    ),
-    renderCreateRowModalContent: ({ internalEditComponents, row, table }) => (
-      <Stack>
-        <Title order={5}>إنشاء</Title>
-        <TextInput
-          withAsterisk
-          label="الاسم الأول"
-          name="firstName"
-          id="firstName"
-          placeholder="الاسم الأول"
-          onChange={(e) => setNewrowData({ ...newRowData, firstName: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="الاسم الاخير"
-          name="lastName"
-          id="lastName"
-          onChange={(e) => setNewrowData({ ...newRowData, lastName: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="الايميل"
-          name="email"
-          id="email"
-          placeholder=" الايميل"
-          onChange={(e) => setNewrowData({ ...newRowData, email: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="رقم الهاتف"
-          name="phone"
-          id="phone"
-          placeholder="الرقم"
-          onChange={(e) => setNewrowData({ ...newRowData, phone: e.target.value })}
-        />
-        <Checkbox.Group
-          defaultValue={['r']}
-          label="حدد صلاحيات المدير:"
-          // description="This is anonymous"
-          onChange={(e) => setNewrowData({ ...newRowData, permissions: e.join('') })}
-          withAsterisk
-        >
-          <Group mt="xs">
-            <Checkbox disabled value="r" label="قراءة" />
-            <Checkbox value="w" label="تعديل" />
-            <Checkbox value="d" label="حذف" />
-          </Group>
-        </Checkbox.Group>
-        <Flex justify="flex-end">
-          <MRT_EditActionButtons row={row} table={table} variant="text" />{' '}
-        </Flex>
-      </Stack>
-    ),
-    renderEditRowModalContent: ({ internalEditComponents, row, table }) => (
-      <Stack>
-        <Title order={5}>تعديل</Title>
-        <TextInput
-          withAsterisk
-          label="الاسم الأول"
-          name="firstName"
-          id="lastName"
-          defaultValue={row?.original?.firstName}
-          placeholder="الاسم الأول"
-          onChange={(e) => setEditingRowData({ ...editingRowData, firstName: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="الاسم الاخير"
-          name="lastName"
-          defaultValue={row?.original?.lastName}
-          id="lastName"
-          onChange={(e) => setEditingRowData({ ...editingRowData, lastName: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="الايميل"
-          name="email"
-          id="email"
-          defaultValue={row?.original?.email}
-          placeholder=" الايميل"
-          onChange={(e) => setEditingRowData({ ...editingRowData, email: e.target.value })}
-        />{' '}
-        <TextInput
-          withAsterisk
-          label="الهاتف"
-          name="phone"
-          id="phone"
-          placeholder="الهاتف"
-          defaultValue={row?.original?.phone}
-          onChange={(e) => setEditingRowData({ ...editingRowData, phone: e.target.value })}
-        />
-        <Checkbox.Group
-          defaultValue={row?.original?.permissions?.split('')}
-          label="حدد صلاحيات المدير:"
-          // description="This is anonymous"
-          onChange={(e) => setEditingRowData({ ...editingRowData, permissions: e.join('') })}
-          withAsterisk
-        >
-          <Group mt="xs">
-            <Checkbox disabled value="r" label="قراءة" />
-            <Checkbox value="w" label="تعديل" />
-            <Checkbox value="d" label="حذف" />
-          </Group>
-        </Checkbox.Group>
-        <Flex justify="flex-end">
-          <MRT_EditActionButtons row={row} table={table} variant="text" />{' '}
-        </Flex>
-      </Stack>
-    ),
-    mantineCreateRowModalProps: {
-      centered: true,
-      closeButtonProps: {},
-      onClose: () => setNewrowData({}),
-    },
-    mantineEditRowModalProps: {
-      centered: true,
-      onClose: () => setEditingRowData({}),
-    },
-    renderTopToolbarCustomActions: ({ table }) => (
-      <Button
-        onClick={() => {
-          table.setCreatingRow(true)
-        }}
-      >
-        إنشاء مستخدم جديد
-      </Button>
-    ),
-
-    renderRowActionMenuItems: ({ row }) => (
-      <Box>
-        <ActionIcon
-        // onClick={() => setEditingRowData({ admins: row.getAllCells()[2].getValue() })}
-        >
-          <IconEdit />
-        </ActionIcon>
-        <ActionIcon onClick={() => console.info('Delete')}>{/* <DeleteI /> */}</ActionIcon>
-      </Box>
-    ),
-    state: {
-      isLoading: isLoadingAdmins,
-      showSkeletons: isLoadingAdmins,
-      isSaving: isCreatingAdmin || isUpdatingAdmin || isDeletingAdmin,
-      showAlertBanner: isLoadingAdminsError,
-      showProgressBars: isFetchingAdmins,
+    validate: {
+      name: validateName,
+      email: (val) => (!val?.includes('@') ? 'البريد الإلكتروني غير صالح' : null),
     },
   })
 
-  return <MantineReactTable table={table} />
-}
+  // Edit Form
+  const editForm = useForm({
+    initialValues: {
+      name: '',
+      email: '',
+      permissions: 'rw',
+    },
+    validate: {
+      name: validateName,
+    },
+  })
 
-const getMultiSelectData = (admins) =>
-  Object.values(admins).map((sub) => ({ value: sub._id, label: sub.name }))
+  const handleAddSubmit = async (values) => {
+    try {
+      const payload = { ...values }
+      if (!payload.password) delete payload.password
 
-const getSelectedValues = (elements, ids) => {
-  const filterdElements = elements.filter((val) => ids.includes(val.value))
-  //console.log('filterdElements', filterdElements)
-  return filterdElements
+      const res = await createMutation.mutateAsync(payload)
+      addForm.reset()
+      closeAdd()
+
+      if (res?.tempPassword) {
+        setCreatedCredentials({
+          name: res.data?.name || values.name,
+          email: res.data?.email || values.email,
+          tempPassword: res.tempPassword,
+        })
+      }
+    } catch (err) {
+      // Handled in hook notifications
+    }
+  }
+
+  const handleEditOpen = (row) => {
+    setEditAdmin(row)
+    editForm.setValues({
+      name: row.name || row.userName || '',
+      email: row.email || '',
+      permissions: row.permissions || 'rw',
+    })
+  }
+
+  const handleEditSubmit = async (values) => {
+    if (!editAdmin) return
+    try {
+      await updateMutation.mutateAsync({
+        id: editAdmin._id || editAdmin.id,
+        data: values,
+      })
+      setEditAdmin(null)
+    } catch (err) {
+      // Handled in hook notifications
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteId) return
+    try {
+      await deleteMutation.mutateAsync(deleteId)
+      setDeleteId(null)
+    } catch (err) {
+      // Handled in hook notifications
+    }
+  }
+
+  const columns = [
+    {
+      key: 'name',
+      title: 'المدير',
+      render: (row) => {
+        const adminName = row.name || row.userName || 'مدير'
+        return (
+          <Group spacing="sm">
+            <Avatar color="violet" radius="xl" size="sm">
+              {adminName.charAt(0)}
+            </Avatar>
+            <div>
+              <Text weight={600} size="sm">
+                {adminName}
+              </Text>
+              <Text size="xs" color="dimmed">
+                {row.email}
+              </Text>
+            </div>
+          </Group>
+        )
+      },
+    },
+    {
+      key: 'role',
+      title: 'الدور',
+      align: 'center',
+      render: (row) => (
+        <Badge
+          color={row.role === 'super-admin' ? 'red' : 'violet'}
+          variant="filled"
+          size="sm"
+        >
+          {row.role === 'super-admin' ? 'مدير عام' : 'مدير نظام'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'permissions',
+      title: 'مستوى الصلاحيات',
+      align: 'center',
+      render: (row) => (
+        <Badge color="blue" variant="light" size="sm">
+          {row.permissions === 'rwd'
+            ? 'تحكم كامل'
+            : row.permissions === 'rw'
+            ? 'قراءة وتعديل'
+            : row.permissions === 'r'
+            ? 'قراءة فقط'
+            : row.permissions || 'rw'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'createdAt',
+      title: 'تاريخ الإنشاء',
+      align: 'center',
+      render: (row) => (
+        <Text size="xs" color="dimmed">
+          {row.createdAt ? dayjs(row.createdAt).format('YYYY/MM/DD') : '—'}
+        </Text>
+      ),
+    },
+    {
+      key: 'actions',
+      title: 'الإجراءات',
+      align: 'left',
+      render: (row) => (
+        <Group spacing={6} position="left">
+          <ActionIcon
+            color="brand"
+            variant="light"
+            size="sm"
+            onClick={() => handleEditOpen(row)}
+            title="تعديل بيانات المدير"
+          >
+            <IconPencil size={15} />
+          </ActionIcon>
+          <ActionIcon
+            color="red"
+            variant="light"
+            size="sm"
+            onClick={() => setDeleteId(row._id || row.id)}
+            title="حذف المدير"
+          >
+            <IconTrash size={15} />
+          </ActionIcon>
+        </Group>
+      ),
+    },
+  ]
+
+  return (
+    <>
+      <PageHeader
+        title="إدارة المسؤولين"
+        description="إدارة الحسابات الإدارية والصلاحيات والوصول للنظام"
+        breadcrumbs={[
+          { title: 'الرئيسية', href: '/' },
+          { title: 'المسؤولون' },
+        ]}
+        action={
+          <Button
+            leftIcon={<IconPlus size={16} />}
+            color="brand"
+            onClick={openAdd}
+          >
+            إضافة مدير جديد
+          </Button>
+        }
+      />
+
+      <DataTable
+        columns={columns}
+        data={adminsRes?.data || []}
+        meta={adminsRes?.meta}
+        isLoading={isLoading}
+        search={search}
+        onSearchChange={(val) => {
+          setSearch(val)
+          setPage(1)
+        }}
+        onPageChange={setPage}
+        onLimitChange={(l) => {
+          setLimit(l)
+          setPage(1)
+        }}
+        emptyTitle="لا يوجد إداريون مسجلون"
+        emptyDescription="ابدأ بإضافة مديرين لمنحهم صلاحيات إدارة النظام."
+      />
+
+      {/* Add Admin Modal */}
+      <Modal
+        opened={addOpened}
+        onClose={closeAdd}
+        title={<Text weight={700}>إضافة مدير جديد</Text>}
+      >
+        <form onSubmit={addForm.onSubmit(handleAddSubmit)}>
+          <Stack spacing="md">
+            <TextInput
+              label="اسم المدير الكامل"
+              placeholder="مثال: أحمد عبدالكريم السالم"
+              description="يجب أن يتكون من أحرف عربية أو إنجليزية ومسافات فقط"
+              required
+              {...addForm.getInputProps('name')}
+            />
+            <TextInput
+              label="البريد الإلكتروني"
+              placeholder="admin@example.com"
+              required
+              {...addForm.getInputProps('email')}
+            />
+            <Select
+              label="مستوى الصلاحيات"
+              data={PERMISSION_OPTIONS}
+              required
+              {...addForm.getInputProps('permissions')}
+            />
+            <PasswordInput
+              label="كلمة المرور"
+              placeholder="اتركه فارغاً للتوليد التلقائي"
+              description="إذا تركته فارغاً، سيتم توليد كلمة مرور عشوائية وتزويدك بها"
+              {...addForm.getInputProps('password')}
+            />
+            <Group position="right" mt="md">
+              <Button variant="default" onClick={closeAdd}>
+                إلغاء
+              </Button>
+              <Button
+                type="submit"
+                color="brand"
+                loading={createMutation.isPending}
+              >
+                إضافة المدير
+              </Button>
+            </Group>
+          </Stack>
+        </form>
+      </Modal>
+
+      {/* Edit Admin Modal */}
+      <Modal
+        opened={Boolean(editAdmin)}
+        onClose={() => setEditAdmin(null)}
+        title={<Text weight={700}>تعديل بيانات المدير</Text>}
+      >
+        <form onSubmit={editForm.onSubmit(handleEditSubmit)}>
+          <Stack spacing="md">
+            <TextInput
+              label="اسم المدير"
+              required
+              {...editForm.getInputProps('name')}
+            />
+            <TextInput
+              label="البريد الإلكتروني"
+              required
+              disabled
+              {...editForm.getInputProps('email')}
+            />
+            <Select
+              label="مستوى الصلاحيات"
+              data={PERMISSION_OPTIONS}
+              required
+              {...editForm.getInputProps('permissions')}
+            />
+            <Group position="right" mt="md">
+              <Button variant="default" onClick={() => setEditAdmin(null)}>
+                إلغاء
+              </Button>
+              <Button
+                type="submit"
+                color="brand"
+                loading={updateMutation.isPending}
+              >
+                حفظ التعديلات
+              </Button>
+            </Group>
+          </Stack>
+        </form>
+      </Modal>
+
+      {/* Generated Credentials Success Modal */}
+      <Modal
+        opened={Boolean(createdCredentials)}
+        onClose={() => setCreatedCredentials(null)}
+        title={<Text weight={700} color="teal">تمت إضافة المدير بنجاح</Text>}
+      >
+        <Stack spacing="md">
+          <Text size="sm">
+            تم إنشاء الحساب الإداري وتوليد بيانات الدخول المؤقتة التالية:
+          </Text>
+          <Paper withBorder p="md" radius="md" bg="gray.0">
+            <Stack spacing="xs">
+              <Text size="sm">
+                <strong>الاسم:</strong> {createdCredentials?.name}
+              </Text>
+              <Text size="sm">
+                <strong>البريد الإلكتروني:</strong> {createdCredentials?.email}
+              </Text>
+              <Group position="apart" align="center">
+                <Text size="sm">
+                  <strong>كلمة المرور المؤقتة:</strong>{' '}
+                  <Code color="teal">{createdCredentials?.tempPassword}</Code>
+                </Text>
+                <CopyButton
+                  value={`البريد الإلكتروني: ${createdCredentials?.email}\nكلمة المرور: ${createdCredentials?.tempPassword}`}
+                >
+                  {({ copied, copy }) => (
+                    <Button
+                      color={copied ? 'teal' : 'brand'}
+                      size="xs"
+                      leftIcon={copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+                      onClick={copy}
+                    >
+                      {copied ? 'تم النسخ!' : 'نسخ بيانات الدخول'}
+                    </Button>
+                  )}
+                </CopyButton>
+              </Group>
+            </Stack>
+          </Paper>
+          <Button fullWidth onClick={() => setCreatedCredentials(null)}>
+            تم
+          </Button>
+        </Stack>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        opened={Boolean(deleteId)}
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDeleteConfirm}
+        title="حذف المدير"
+        message="هل أنت متأكد من حذف هذا الحساب الإداري؟"
+        confirmLabel="حذف المدير"
+        isLoading={deleteMutation.isPending}
+      />
+    </>
+  )
 }

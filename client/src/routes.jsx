@@ -26,20 +26,17 @@ import {
   Lessons,
   CourseLesson,
   UserProfile,
+  CourseAssignments,
 } from './pages/admin'
 
-import { EditCourseInfo } from './stories/SpecialComponents/EditCourseInfo'
-// import { EditCourseSection } from './stories/SpecialComponents/EditCourseSection'
-
-import { EditCourseSections } from './stories/SpecialComponents/EditCourseSections'
-
-import { loader as courseInfoEditLoader } from './stories/SpecialComponents/EditCourseInfo'
+import { EditCourseInfo, loader as courseInfoEditLoader } from './pages/admin/EditCourseInfo'
+import { EditCourseSections } from './pages/admin/EditCourseSections'
 import { loader as studentGradesLoader } from './pages/admin/StudentGrades'
 
-import { StudentGrade } from './pages/student'
+import { StudentGrade, CourseRegistration, Transcript } from './pages/student'
 import ChatRoom from './chat/ChatContainer'
 
-const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
+import DefaultLayout from './layouts/MainLayout.jsx'
 import {
   Login,
   Page404,
@@ -53,7 +50,7 @@ import {
 } from './pages/public'
 
 import { loader as lessonsLoader } from './pages/admin/Lessons'
-import { MainLayout } from './layout/MainComponent'
+import { RootLayout } from './layouts/RootLayout'
 export default function getRoutes(queryClient, user) {
   // const { user } = useDashboardContext()
 
@@ -61,7 +58,7 @@ export default function getRoutes(queryClient, user) {
     {
       path: '/',
       name: 'الرئيسية',
-      element: <MainLayout queryClient={queryClient} />,
+      element: <RootLayout queryClient={queryClient} />,
       errorElement: <Error />,
       children: [
         {  path: 'landing', name: 'صفحة البدء', element: <Landing /> },
@@ -94,7 +91,6 @@ export default function getRoutes(queryClient, user) {
               path: 'collages',
               name: 'إدارة الكليات',
               element: <Collages queryClient={queryClient} />,
-              // loader: collagesLoader(queryClient),
             },
             {
               path: 'collages/:id',
@@ -102,16 +98,14 @@ export default function getRoutes(queryClient, user) {
               element: <CollageInfo queryClient={queryClient} />,
               children: [
                 {
-                  // path: 'about',
                   index: true,
-                  name: 'عن الكية',
+                  name: 'عن الكلية',
                   element: <AboutCollage queryClient={queryClient} />,
                 },
                 {
                   path: 'majors',
                   name: 'التخصصات',
                   element: <Majors queryClient={queryClient} />,
-                  children: [],
                 },
                 {
                   path: 'subjects',
@@ -120,29 +114,49 @@ export default function getRoutes(queryClient, user) {
                 },
               ],
             },
-    
             {
-              path: 'chat',
-              name: 'المحادثات',
-              element: <ChatRoom queryClient={queryClient} />,
-            },
-            {
-              path: 'collages/:id/majors/:id',
+              path: 'collages/:collageId/majors/:majorId',
               name: 'التخصص',
               element: <MajorInfo queryClient={queryClient} />,
               children: [
                 {
-                  // path: 'about',
                   index: true,
                   name: 'عن التخصص',
                   element: <AboutMajor queryClient={queryClient} />,
                 },
                 {
                   path: 'semesterTemplates',
-                  name: 'قوالب التخصص',
+                  name: 'الخطة الدراسية',
                   element: <SemestersTemplate queryClient={queryClient} />,
                 },
               ],
+            },
+            {
+              path: 'majors',
+              name: 'إدارة التخصصات',
+              element: <Majors queryClient={queryClient} />,
+            },
+            {
+              path: 'majors/:majorId',
+              name: 'التخصص',
+              element: <MajorInfo queryClient={queryClient} />,
+              children: [
+                {
+                  index: true,
+                  name: 'عن التخصص',
+                  element: <AboutMajor queryClient={queryClient} />,
+                },
+                {
+                  path: 'semesterTemplates',
+                  name: 'الخطة الدراسية',
+                  element: <SemestersTemplate queryClient={queryClient} />,
+                },
+              ],
+            },
+            {
+              path: 'subjects',
+              name: 'دليل المواد الأكاديمية',
+              element: <Subjects queryClient={queryClient} />,
             },
             {
               path: '/users',
@@ -194,6 +208,17 @@ export default function getRoutes(queryClient, user) {
               element: <Course queryClient={queryClient} />,
             },
             {
+              path: 'courses/:courseId/grades',
+              name: 'سجل الدرجات',
+              element: <StudentGrades queryClient={queryClient} />,
+              loader: studentGradesLoader(queryClient),
+            },
+            {
+              path: 'courses/:courseId/assignments',
+              name: 'التكليفات والواجبات',
+              element: <CourseAssignments queryClient={queryClient} />,
+            },
+            {
               path: 'courses/:courseId/edit',
               name: 'تعديل الدورة',
               element: <CreateCourse queryClient={queryClient} />,
@@ -237,6 +262,8 @@ export default function getRoutes(queryClient, user) {
     
             //student
             { path: 'grades', name: 'الدرجات', element: <StudentGrade /> },
+            { path: 'enrollment', name: 'الحذف والإضافة', element: <CourseRegistration /> },
+            { path: 'transcript', name: 'السجل الأكاديمي', element: <Transcript /> },
           ],
           
         },

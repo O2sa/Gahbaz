@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react'
 
-import { useDispatch, useSelector } from 'react-redux'
-
-import { TabsLinks } from '../../stories/Tabs/Tabs'
+import { TabsLinks } from '../../components/TabsLinks'
  
 import { BsStack } from 'react-icons/bs'
 import { Tabs } from '@mantine/core'
@@ -21,9 +19,7 @@ import { GoBook } from 'react-icons/go'
 import { FaLandmarkDome } from "react-icons/fa6";
 
 
-export default function CollageInfo({
-queryClient
-}) {
+export default function CollageInfo({ queryClient }) {
   const tabs = [
     {
       name: 'معلومات الكلية',
@@ -31,29 +27,16 @@ queryClient
       to: '.',
     },
     {
-      name: 'التخصصات',
+      name: 'التخصصات والأقسام',
       icon: FaLandmarkDome,
       to: 'majors',
     },
     {
-      name: 'المواد',
+      name: 'المواد الأكاديمية',
       icon: GoBook,
       to: 'subjects',
     },
   ]
-  const Panels = () => (
-    <>
-      <Tabs.Panel value="about" pt="xs">
-        <AboutCollage queryClient={queryClient} />{' '}
-      </Tabs.Panel>
-      <Tabs.Panel value="Majors" pt="xs">
-        <Majors queryClient={queryClient} />{' '}
-      </Tabs.Panel>
-      <Tabs.Panel value="subjects" pt="xs">
-        <Subjects queryClient={queryClient} />{' '}
-      </Tabs.Panel>
-    </>
-  )
   
-  return <TabsLinks Panels={Panels} tabs={tabs} />
+  return <TabsLinks tabs={tabs} />
 }
