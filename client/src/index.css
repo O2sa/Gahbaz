@@ -4,6 +4,23 @@
   box-sizing: border-box;
 }
 
+html, body {
+  background-color: #f8fafc;
+  color: #1a1b1e;
+}
+
+html[data-color-scheme='dark'],
+html[data-color-scheme='dark'] body {
+  background-color: #141517 !important;
+  color: #c1c2c5 !important;
+}
+
+html[data-color-scheme='light'],
+html[data-color-scheme='light'] body {
+  background-color: #f8fafc !important;
+  color: #1a1b1e !important;
+}
+
 body {
   margin: 0;
   padding: 0;

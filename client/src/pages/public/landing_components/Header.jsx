@@ -16,6 +16,8 @@ import {
   Badge,
   Menu,
   UnstyledButton,
+  useMantineColorScheme,
+  Tooltip,
 } from '@mantine/core'
 import {
   IconSchool,
@@ -27,6 +29,8 @@ import {
   IconChevronDown,
   IconBook,
   IconMessageDots,
+  IconSun,
+  IconMoonStars,
 } from '@tabler/icons-react'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -34,8 +38,9 @@ import customFetch from '../../../utils/customFetch'
 
 const Header = () => {
   const [opened, setOpened] = useState(false)
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme()
   const theme = useMantineTheme()
-  const isDark = theme.colorScheme === 'dark'
+  const isDark = colorScheme === 'dark'
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
@@ -289,15 +294,55 @@ const Header = () => {
               </Button>
             </>
           )}
+
+          {/* Desktop Theme Mode Toggle */}
+          <Tooltip
+            label={isDark ? 'التبديل إلى الوضع النهاري' : 'التبديل إلى الوضع الليلي'}
+            withArrow
+            position="bottom"
+          >
+            <ActionIcon
+              variant="subtle"
+              size="lg"
+              radius="md"
+              onClick={() => toggleColorScheme()}
+              aria-label="Toggle color scheme"
+              sx={{
+                color: isDark ? theme.colors.yellow[4] : theme.colors.brand[7],
+                '&:hover': {
+                  backgroundColor: isDark ? theme.colors.dark[5] : theme.colors.brand[0],
+                },
+              }}
+            >
+              {isDark ? (
+                <IconSun size={20} stroke={1.8} />
+              ) : (
+                <IconMoonStars size={20} stroke={1.8} />
+              )}
+            </ActionIcon>
+          </Tooltip>
         </Group>
 
-        {/* Mobile Burger */}
-        <Burger
-          opened={opened}
-          onClick={() => setOpened((o) => !o)}
-          size="sm"
-          sx={{ '@media (min-width: 861px)': { display: 'none' } }}
-        />
+        {/* Mobile Header Controls: Theme Toggle & Burger */}
+        <Group spacing="xs" sx={{ '@media (min-width: 861px)': { display: 'none' } }}>
+          <ActionIcon
+            variant="subtle"
+            size="md"
+            radius="md"
+            onClick={() => toggleColorScheme()}
+            aria-label="Toggle color scheme"
+            sx={{
+              color: isDark ? theme.colors.yellow[4] : theme.colors.brand[7],
+            }}
+          >
+            {isDark ? <IconSun size={18} stroke={1.8} /> : <IconMoonStars size={18} stroke={1.8} />}
+          </ActionIcon>
+          <Burger
+            opened={opened}
+            onClick={() => setOpened((o) => !o)}
+            size="sm"
+          />
+        </Group>
 
         {/* Mobile Drawer */}
         <Drawer
@@ -364,6 +409,15 @@ const Header = () => {
             </Button>
             <Button variant="light" onClick={() => scrollTo('section-five')} fullWidth>
               الأسئلة الشائعة
+            </Button>
+
+            <Button
+              variant="default"
+              leftIcon={isDark ? <IconSun size={18} stroke={1.8} /> : <IconMoonStars size={18} stroke={1.8} />}
+              fullWidth
+              onClick={() => toggleColorScheme()}
+            >
+              {isDark ? 'التبديل إلى الوضع النهاري' : 'التبديل إلى الوضع الليلي'}
             </Button>
 
             <Divider my="sm" />

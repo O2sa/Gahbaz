@@ -11,7 +11,7 @@ import {
 } from 'react-router-dom'
 import { ModalsProvider } from '@mantine/modals'
 import { MantineProvider, ColorSchemeProvider } from '@mantine/core'
-import { useLocalStorage } from '@mantine/hooks'
+import { useLocalStorage, useColorScheme } from '@mantine/hooks'
 import { Notifications } from '@mantine/notifications'
 import { getMantineTheme } from './theme/index.js'
 import { rtlCache } from './theme/rtlCache.js'
@@ -40,11 +40,39 @@ const queryClient = new QueryClient({
 export const router = createBrowserRouter(getRoutes(queryClient))
 
 function App() {
+  // 1. Detect system preference reactively
+  const systemColorScheme = useColorScheme(
+    typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light'
+  )
+
+  // 2. Synchronous initialization: reads localStorage immediately on frame 0 without flash
   const [colorScheme, setColorScheme] = useLocalStorage({
     key: 'gahbaz-color-scheme',
-    defaultValue: 'light',
-    getInitialValueInEffect: true,
+    defaultValue: systemColorScheme,
+    getInitialValueInEffect: false,
   })
+
+  // 3. If user has not explicitly locked a manual preference, follow OS theme changes
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('gahbaz-color-scheme')
+      if (!stored && systemColorScheme && systemColorScheme !== colorScheme) {
+        setColorScheme(systemColorScheme)
+      }
+    } catch (e) {}
+  }, [systemColorScheme, colorScheme, setColorScheme])
+
+  // 4. Synchronize document root attributes and styling
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('data-color-scheme', colorScheme)
+      document.documentElement.style.colorScheme = colorScheme
+      document.documentElement.style.backgroundColor =
+        colorScheme === 'dark' ? '#141517' : '#f8fafc'
+    }
+  }, [colorScheme])
 
   const toggleColorScheme = (value) =>
     setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'))
