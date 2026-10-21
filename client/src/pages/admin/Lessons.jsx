@@ -1,45 +1,33 @@
 import React, { useState } from 'react'
-import PropTypes from 'prop-types'
-// import { SpecialCard } from '../components/Specialcard'
-// import { CButton, CCol, CRow } from '@coreui/react'
-import Model from '../../stories/components/Model'
-import {
-  CCol,
-  CRow,
-  CForm,
-  CFormControlValidation,
-  CFormLabel,
-  CInputGroup,
-  CInputGroupText,
-  CFormSelect,
-  CFormFeedback,
-  CFormCheck,
-  CButton,
-  CFormTextarea,
-  CFormInput,
-  CPopover,
-  CSpinner,
-} from '@coreui/react'
-
-import { CourseContent } from '../../stories/Course/CourseContent'
-
-import { MdFolderCopy } from 'react-icons/md'
-import { FaArrowRight } from 'react-icons/fa'
-import { AiTwotoneCheckSquare } from 'react-icons/ai'
-import { MdCheckBoxOutlineBlank } from 'react-icons/md'
-import { IoCheckmarkDoneSharp } from 'react-icons/io5'
-import { BiSolidVideos } from 'react-icons/bi'
-import { IoIosPause } from 'react-icons/io'
-import { PiPlayPauseFill } from 'react-icons/pi'
-import { IoMdTime } from 'react-icons/io'
-import { Link, Outlet, useLoaderData, useParams } from 'react-router-dom'
+import CourseContent from '../../components/CourseContent'
+import { Link, Outlet, useLoaderData } from 'react-router-dom'
 import { useGetElements } from '../crud'
 import { useQuery } from '@tanstack/react-query'
-import { TabsLinks } from '../../stories/Tabs/Tabs'
-import { BsStack } from 'react-icons/bs'
-import { Box, Button, Drawer, Grid, Group, Text } from '@mantine/core'
+import {
+  Box,
+  Button,
+  Drawer,
+  Grid,
+  Group,
+  Text,
+  Loader,
+  Center,
+  ActionIcon,
+  Paper,
+  Title,
+  Badge,
+  useMantineTheme,
+  rem,
+} from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { Helmet } from 'react-helmet'
+import {
+  IconArrowRight,
+  IconFolder,
+  IconVideo,
+  IconPlayerTrackNext,
+  IconMenu2,
+} from '@tabler/icons-react'
 
 export const loader =
   (queryClient) =>
@@ -49,138 +37,223 @@ export const loader =
       return params.courseId
     } catch (error) {
       console.error(error?.response?.data?.msg)
-      // return redirect('/dashboard/all-jobs');
+      return null
     }
   }
 
-export default function Lessons({ ...props }) {
-  // const { courseId } = useParams()
-  // console.log('courseId', courseId)
-  // console.log('lessonId', lessonId)
-
+export default function Lessons() {
   const courseId = useLoaderData()
-  const {
-    data: course = [],
-    isError: isLoadingError,
-    isFetching: isFetching,
-    isLoading: isLoading,
-  } = useQuery(useGetElements(['courses', courseId]))
+  const theme = useMantineTheme()
+  const isDark = theme.colorScheme === 'dark'
 
-  if (isLoading) {
-    return <CSpinner color="primary" />
-  }
+  const {
+    data: course = {},
+    isLoading,
+  } = useQuery({
+    ...useGetElements(['courses', courseId]),
+    enabled: Boolean(courseId),
+  })
 
   const [nextLesson, setNextLesson] = useState(null)
   const [opened, { open, close }] = useDisclosure(false)
-  // console.log('nextLesson', nextLesson)
 
-  const getLessonsNum = course?.sections?.reduce(
-    (acc, section) => acc + section?.lessons?.length,
+  if (isLoading) {
+    return (
+      <Center py={100}>
+        <Loader size="lg" color="brand" />
+      </Center>
+    )
+  }
+
+  const courseData = course?.data || course
+  const sections = courseData?.sections || []
+
+  const getLessonsNum = sections.reduce(
+    (acc, section) => acc + (section?.lessons?.length || 0),
     0,
   )
 
   const courseSyllbus = (
-    <CourseContent close={close} setNextLesson={setNextLesson} to={''} sections={course.sections} />
+    <CourseContent close={close} setNextLesson={setNextLesson} to={''} sections={sections} />
   )
+
   return (
-    <>
-                               <Helmet>
-            <title>{ 'منصة جهبذ | الدروس' }</title>
+    <Box>
+      <Helmet>
+        <title>{`منصة جهبذ | ${courseData?.name || 'الدروس والمحتوى'}`}</title>
       </Helmet>
-      <div>
-        <div className="mb-4 d-flex justify-content-between align-items-center">
-          <div className="d-flex">
-            <Link to={`/courses/${courseId}`}>
-              <div
-                className="bg-white rounded-circle me-3 d-flex justify-content-center align-items-center"
-                style={{ height: '50px', width: '50px' }}
+
+      {/* Top Header Card */}
+      <Paper
+        withBorder
+        radius="lg"
+        p="md"
+        mb="lg"
+        sx={{
+          backgroundColor: isDark
+            ? 'rgba(26, 27, 30, 0.85)'
+            : 'rgba(255, 255, 255, 0.95)',
+          borderColor: isDark ? theme.colors.dark[4] : theme.colors.gray[2],
+          boxShadow: isDark
+            ? '0 4px 20px rgba(0, 0, 0, 0.25)'
+            : '0 4px 20px rgba(30, 64, 175, 0.04)',
+        }}
+      >
+        <Group position="apart" align="center">
+          <Group spacing="md">
+            <ActionIcon
+              component={Link}
+              to={`/courses/${courseId}`}
+              size={42}
+              radius="md"
+              variant="light"
+              color="brand"
+              title="رجوع لتفاصيل المقرر"
+            >
+              <IconArrowRight size={20} />
+            </ActionIcon>
+
+            <Box>
+              <Title
+                order={3}
+                sx={{
+                  color: isDark ? '#ffffff' : '#0f172a',
+                  fontWeight: 800,
+                  lineHeight: 1.3,
+                }}
               >
-                <FaArrowRight size={'16'} />
-              </div>
-            </Link>
-            <div>
-              <h4> {course.name}</h4>
-              <div>
-                <div>
-                  <MdFolderCopy size={'20'} className={` me-2 text-primary`} />
-                  <span className={`me-3`}>{`${course.sections.length} أقسام `}</span>
-                  <BiSolidVideos size={'20'} className={` me-2 text-primary`} />
-                  <span className={`me-3`}>{`${getLessonsNum} دروس`}</span>
-                  {/* <IoMdTime size={'20'} className={` me-2 text-warning`} />
-                  <span className={`me-3`}>{`الدورات`}</span> */}
-                </div>
-              </div>
-            </div>
-          </div>
+                {courseData?.name || 'فهرس الدروس والمحاضرات'}
+              </Title>
+              <Group spacing="xs" mt={4}>
+                <Badge
+                  color="blue"
+                  variant="light"
+                  size="sm"
+                  leftSection={<IconFolder size={13} />}
+                >
+                  {`${sections.length} أقسام`}
+                </Badge>
+                <Badge
+                  color="violet"
+                  variant="light"
+                  size="sm"
+                  leftSection={<IconVideo size={13} />}
+                >
+                  {`${getLessonsNum} دروس`}
+                </Badge>
+              </Group>
+            </Box>
+          </Group>
 
-          <Group position='right' >
-            <div className="d-block d-xl-none">
-              <Button onClick={open} variant="default" color="brand">
-                محتويات الدورة
+          <Group spacing="xs">
+            {/* Mobile syllabus drawer toggle */}
+            <Box sx={{ display: 'block', [theme.fn.largerThan('lg')]: { display: 'none' } }}>
+              <Button
+                onClick={open}
+                variant="light"
+                color="brand"
+                leftIcon={<IconMenu2 size={16} />}
+              >
+                فهرس المحتوى
               </Button>
-            </div>
+            </Box>
 
-            {nextLesson ? (
-              <Link to={nextLesson}>
-                <Button className="" >
-                  الدرس التالي
-                </Button>
-              </Link>
-            ) : (
-              ''
+            {nextLesson && (
+              <Button
+                component={Link}
+                to={nextLesson}
+                color="brand"
+                leftIcon={<IconPlayerTrackNext size={16} />}
+              >
+                الدرس التالي
+              </Button>
             )}
           </Group>
-        </div>
-        <Grid>
-          <Grid.Col bg={'white'} sx={{ minHeight: '100vh' }} span={12} lg={9} gap={'md'} p={'md'}>
+        </Group>
+      </Paper>
+
+      {/* Main Grid: Content (9) + Syllabus (3) */}
+      <Grid gutter="lg">
+        <Grid.Col span={12} lg={9}>
+          <Paper
+            p="xl"
+            radius="lg"
+            withBorder
+            sx={{
+              minHeight: '75vh',
+              backgroundColor: isDark ? 'rgba(26, 27, 30, 0.75)' : '#ffffff',
+              borderColor: isDark ? theme.colors.dark[4] : theme.colors.gray[2],
+              boxShadow: isDark
+                ? '0 4px 20px rgba(0, 0, 0, 0.25)'
+                : '0 2px 10px rgba(0, 0, 0, 0.03)',
+            }}
+          >
             {getLessonsNum > 0 ? (
-              <Outlet context={course.sections} />
+              <Outlet context={sections} />
             ) : (
-              <Text> لا يوجد دروس بعد</Text>
+              <Center py={80}>
+                <Text color="dimmed" size="md">
+                  لا توجد دروس أو محاضرات مضافة لهذا المقرر بعد.
+                </Text>
+              </Center>
             )}
-          </Grid.Col>
+          </Paper>
+        </Grid.Col>
 
-          <Grid.Col span={12} lg={3}>
-            {course.sections && course.sections.length > 0 && getLessonsNum > 0 ? (
-              <>
-                {' '}
-                <div className=" d-none d-xl-block ">{courseSyllbus} </div>
-                <div className="d-block d-xl-none">
-                  <Drawer
-                    position="right"
-                    opened={opened}
-                    overlayProps={{ opacity: 0.5, blur: 4 }}
-                    onClose={close}
-                    title=""
-                  >
-                    {courseSyllbus}
-                  </Drawer>
-                </div>
-              </>
-            ) : null}
-          </Grid.Col>
-        </Grid>
-      </div>
-    </>
+        {/* Desktop Sidebar Syllabus */}
+        <Grid.Col
+          span={12}
+          lg={3}
+          sx={{ display: 'none', [theme.fn.largerThan('lg')]: { display: 'block' } }}
+        >
+          <Paper
+            p="md"
+            radius="lg"
+            withBorder
+            sx={{
+              backgroundColor: isDark ? 'rgba(26, 27, 30, 0.85)' : '#ffffff',
+              borderColor: isDark ? theme.colors.dark[4] : theme.colors.gray[2],
+              position: 'sticky',
+              top: rem(20),
+              maxHeight: 'calc(100vh - 120px)',
+              overflowY: 'auto',
+            }}
+          >
+            {sections.length > 0 && getLessonsNum > 0 ? (
+              courseSyllbus
+            ) : (
+              <Text color="dimmed" size="sm" py="md">
+                لا توجد أقسام دراسية متاحة
+              </Text>
+            )}
+          </Paper>
+        </Grid.Col>
+      </Grid>
+
+      {/* Mobile Drawer */}
+      <Drawer
+        position="right"
+        opened={opened}
+        onClose={close}
+        title={
+          <Text weight={700} sx={{ color: isDark ? '#ffffff' : '#0f172a' }}>
+            فهرس الدروس والمحاضرات
+          </Text>
+        }
+        padding="md"
+        size="md"
+        styles={{
+          content: {
+            backgroundColor: isDark ? '#1a1b1e' : '#ffffff',
+          },
+          header: {
+            backgroundColor: isDark ? '#1a1b1e' : '#ffffff',
+            borderBottom: `1px solid ${isDark ? theme.colors.dark[4] : theme.colors.gray[2]}`,
+          },
+        }}
+      >
+        <Box pt="md">{courseSyllbus}</Box>
+      </Drawer>
+    </Box>
   )
-
-  // const tabs = [
-  //   {
-  //     name: 'hhhh',
-  //     icon: BsStack,
-  //     to: '.',
-  //   },
-  //   {
-  //     name: 'lessons',
-  //     icon: BsStack,
-  //     to: 'lessons',
-  //   },
-  //   {
-  //     name: 'students',
-  //     icon: BsStack,
-  //     to: 'students',
-  //   },
-  // ]
-
-  // return <TabsLinks tabs={tabs} />
 }

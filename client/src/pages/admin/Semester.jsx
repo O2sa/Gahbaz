@@ -1,74 +1,100 @@
-import React, { useEffect, useState } from 'react'
-
-import { Link, useLoaderData, useParams } from 'react-router-dom'
-
+import React from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useGetElements } from '../crud'
-import { SemesterDetails } from '../../stories/SpecialComponents/SemesterDetails'
-import { CSpinner } from '@coreui/react'
+import SemesterDetails from './SemesterDetails'
+import { Center, Loader, Box, Paper, Grid, Title, Text, Button, useMantineTheme } from '@mantine/core'
+import { IconArrowRight } from '@tabler/icons-react'
 import { Helmet } from 'react-helmet'
+import { PageHeader } from '../../components/common/index.js'
 
-export default function Semester({ queryClient, ...props }) {
-  const { semesterId } = useParams()
+export default function Semester({ queryClient }) {
+  const params = useParams()
+  const semesterId = params.semesterId || params.id
+  const navigate = useNavigate()
+  const theme = useMantineTheme()
+  const isDark = theme.colorScheme === 'dark'
 
   const {
     data: semester = {},
-    isError: isLoadingTeachersError,
     isFetching: isFetchingTeachers,
     isLoading: isLoadingTeachers,
-  } = useQuery(useGetElements(['semesters', semesterId]))
+  } = useQuery({
+    ...useGetElements(['semesters', semesterId]),
+    enabled: Boolean(semesterId),
+  })
 
   const {
     data: courses = [],
-    isError: isLoadingError,
-    isFetching: isFetching,
-    isLoading: isLoading,
-  } = useQuery(useGetElements(['courses', 'semester-courses', semesterId]))
+    isFetching,
+    isLoading,
+  } = useQuery({
+    ...useGetElements(['courses', 'semester-courses', semesterId]),
+    enabled: Boolean(semesterId),
+  })
 
-  // console.log(collage)
-
-  if (isFetchingTeachers || isFetching) {
-    return <CSpinner color="primary" />
+  if (isFetchingTeachers || isFetching || isLoadingTeachers || isLoading) {
+    return (
+      <Center py="xl">
+        <Loader size="lg" color="brand" />
+      </Center>
+    )
   }
 
+  const semesterTitle = semester?.name || 'تفاصيل الفصل الدراسي'
+
   return (
-    <div className="bg-white">
-                       <Helmet>
-            <title>{ 'منصة جهبذ |  تفاصيل الفصل الدراسي' }</title>
+    <Box>
+      <Helmet>
+        <title>{`منصة جهبذ | ${semesterTitle}`}</title>
       </Helmet>
-      <div
-        className={`d-flex w-100 justify-content-between bg-white align-items-center p-3 mb-2 border-bottom`}
-      >
-        <h5>{' تفاصيل الفصل'} </h5>
-      </div>{' '}
-      <div className="m-4 mt-5">
-        <div className="p-4 row pb-5">
-          <div className="col-md-6">
-            {semester && (
-              <>
-                <div>
-                  <h5 className={''}>
-                    {' '}
-                    {semester.name}
-                    <span className={`text-secondary fs-6`}>{' (خريف 2023)'} </span>{' '}
-                  </h5>
-                  <span className={`text-secondary`}>
-                    {' '}
-                    {`${semester.semester}، ${semester.level}`}
-                  </span>{' '}
-                </div>{' '}
-                <p>
-                  {semester.describtion}
-                  <div></div>
-                </p>
-              </>
+
+      <PageHeader
+        title={semesterTitle}
+        description="عرض تفاصيل الفصل الدراسي والمقررات الملحقة به"
+        breadcrumbs={[
+          { title: 'الرئيسية', href: '/' },
+          { title: 'الفصول الدراسية', href: '/semesters' },
+          { title: semesterTitle },
+        ]}
+        action={
+          <Button variant="default" leftIcon={<IconArrowRight size={16} />} onClick={() => navigate(-1)}>
+            رجوع
+          </Button>
+        }
+      />
+
+      <Grid gutter="xl">
+        <Grid.Col xs={12} md={6}>
+          <Paper
+            withBorder
+            radius="lg"
+            p="xl"
+            sx={{
+              backgroundColor: isDark
+                ? 'rgba(26, 27, 30, 0.75)'
+                : 'rgba(255, 255, 255, 0.95)',
+              borderColor: isDark ? theme.colors.dark[4] : theme.colors.gray[2],
+            }}
+          >
+            <Title order={3} mb="xs" sx={{ color: isDark ? '#ffffff' : '#0f172a', fontWeight: 800 }}>
+              {semester.name}
+            </Title>
+            {(semester.semester || semester.level) && (
+              <Text size="sm" color="dimmed" mb="md">
+                {`${semester.semester || ''} ${semester.level ? `• المستوى ${semester.level}` : ''}`}
+              </Text>
             )}
-          </div>
-          <div className="col-md-6">
-            <SemesterDetails semester={semester} courses={courses} />
-          </div>
-        </div>
-      </div>
-    </div>
+            <Text size="md" color={isDark ? 'gray.3' : 'gray.7'} sx={{ lineHeight: 1.8 }}>
+              {semester.describtion || semester.description || 'لا يوجد وصف مضاف لهذا الفصل الدراسي.'}
+            </Text>
+          </Paper>
+        </Grid.Col>
+
+        <Grid.Col xs={12} md={6}>
+          <SemesterDetails semester={semester} courses={courses} />
+        </Grid.Col>
+      </Grid>
+    </Box>
   )
 }

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 
-import { TabsLinks } from '../../stories/Tabs/Tabs'
+import { TabsLinks } from '../../components/TabsLinks'
 
 import { BsStack } from 'react-icons/bs'
 import { IconAdjustmentsMinus, IconSchoolBell, IconUserBolt } from '@tabler/icons-react'

@@ -1,25 +1,7 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 // import { SpecialCard } from '../components/Specialcard'
-// import { CButton, CCol, CRow } from '@coreui/react'
-import Model from '../../stories/components/Model'
-import {
-  CCol,
-  CRow,
-  CForm,
-  CFormControlValidation,
-  CFormLabel,
-  CInputGroup,
-  CInputGroupText,
-  CFormSelect,
-  CFormFeedback,
-  CFormCheck,
-  CButton,
-  CFormTextarea,
-  CFormInput,
-} from '@coreui/react'
-import { useDispatch } from 'react-redux'
-import { asyncCrudThunks } from '../../dataLogic/CollageManagementSlice'
+
 import { useForm } from '@mantine/form'
 import { TextInput, Button, Group, Box, Modal, NumberInput } from '@mantine/core'
 import { modals } from '@mantine/modals'
@@ -29,7 +11,6 @@ import { notifications } from '@mantine/notifications'
 import { useDisclosure } from '@mantine/hooks'
 import { useCreateElement } from '../crud'
 import { useParams } from 'react-router-dom'
-import { isPending } from '@reduxjs/toolkit'
 
 export default function AddMajor({ queryClient }) {
   const { id: collageId } = useParams()

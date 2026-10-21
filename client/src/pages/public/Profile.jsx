@@ -1,268 +1,367 @@
 import {
   Avatar,
+  Box,
   Button,
   Center,
-  Container,
-  Flex,
   Grid,
   Group,
   PasswordInput,
+  Skeleton,
+  Stack,
   Text,
   TextInput,
+  Title,
+  Paper,
+  Badge,
+  useMantineTheme,
+  rem,
 } from '@mantine/core'
-import react, { useState } from 'react'
-import avtar from '../../assets/images/avatars/1.jpg'
-import { Link } from 'react-router-dom'
-import { IconArrowAutofitLeft } from '@tabler/icons-react'
+import React from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import {
+  IconArrowRight,
+  IconLock,
+  IconUpload,
+  IconUser,
+  IconShieldCheck,
+  IconSchool,
+  IconUserCheck,
+} from '@tabler/icons-react'
 import { useForm } from '@mantine/form'
-import { IconUpload } from '@tabler/icons-react'
-import UploadProfile from './UploadProfile'
-import { useDashboardContext } from '../../layout/DefaultLayout'
 import customFetch from '../../utils/customFetch'
 import { notifications } from '@mantine/notifications'
-import { ChatContactsLoader } from '../LoadingComponents'
+import UploadProfile from './UploadProfile'
+import { useQuery } from '@tanstack/react-query'
+import { useGetElements } from '../crud'
 import { Helmet } from 'react-helmet'
+import { PageHeader } from '../../components/common/index.js'
 
 export default function Profile({ queryClient }) {
-  const { user } = useDashboardContext()
+  const navigate = useNavigate()
+  const theme = useMantineTheme()
+  const isDark = theme.colorScheme === 'dark'
+
+  const {
+    data: user = {},
+    isFetching,
+    isLoading,
+  } = useQuery(useGetElements(['users', 'current-user']))
+
   const form = useForm({
     initialValues: {
-      firstName: user.firstName,
-      lastName: user.lastName,
-      avtar: user.avatar,
-      email: user.email,
-      phone: user.phone,
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
     },
-
-    validate: (values) => {
-      const errors = {}
-      if (!values.name) {
-        errors.name = 'Please enter a name for the collage.'
-      }
-      return errors
+    validate: {
+      firstName: (value) => (!value ? 'الاسم الأول مطلوب' : null),
+      lastName: (value) => (!value ? 'الاسم الأخير مطلوب' : null),
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'البريد الإلكتروني غير صحيح'),
     },
   })
+
+  React.useEffect(() => {
+    if (user && user._id) {
+      form.setValues({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        phone: user.phone || '',
+      })
+    }
+  }, [user?._id])
+
   const passform = useForm({
     initialValues: {
-      password: '',
       oldPassword: '',
+      password: '',
       confirmPassword: '',
+    },
+    validate: {
+      oldPassword: (value) => (value?.length < 6 ? 'كلمة السر يجب ألا تقل عن 6 أحرف' : null),
+      password: (value) => (value?.length < 6 ? 'كلمة السر يجب ألا تقل عن 6 أحرف' : null),
+      confirmPassword: (value, values) =>
+        value !== values.password ? 'كلمات السر غير متطابقة' : null,
     },
   })
 
-  console.log(form.values)
-  const handleSubmit = async (values) => {
-    console.log('values')
-    console.log(values)
-    try {
-      await customFetch.patch(`users/${user._id}`, form.values)
+  if (isFetching || isLoading) {
+    return (
+      <Box p="md">
+        <Skeleton height={50} mb="lg" radius="md" />
+        <Skeleton height={180} mb="xl" radius="lg" />
+        <Skeleton height={240} radius="lg" />
+      </Box>
+    )
+  }
 
+  const handleSubmit = async (values) => {
+    try {
+      await customFetch.patch(`users/${user._id}`, values)
       notifications.show({
-        id: 'collage-created',
-        title: 'Success!',
-        message: 'Semesters created successfully!',
-        variant: 'success',
-        autoClose: 5000,
+        id: 'profile-updated',
+        title: 'تم بنجاح!',
+        message: 'تم تحديث البيانات الشخصية بنجاح.',
+        color: 'teal',
+        autoClose: 4000,
       })
+      queryClient?.invalidateQueries(['user'])
     } catch (error) {
       notifications.show({
-        id: 'collage-creation-error',
-        title: 'Error!',
-        message: error?.response?.data?.msg || 'An error occurred while creating the collage.',
-        variant: 'danger',
+        id: 'profile-update-error',
+        title: 'خطأ!',
+        message: error?.response?.data?.msg || 'حدث خطأ أثناء تحديث البيانات.',
+        color: 'red',
         autoClose: 5000,
       })
     }
   }
+
   const passhandleSubmit = async (values) => {
-    console.log('values')
-    console.log(values)
     try {
       await customFetch.post(`users/${user._id}/change-pass`, values)
-
       notifications.show({
-        id: 'collage-created',
-        title: 'Success!',
-        message: 'Semesters created successfully!',
-        variant: 'success',
-        autoClose: 5000,
+        id: 'password-updated',
+        title: 'تم بنجاح!',
+        message: 'تم تغيير كلمة السر بنجاح.',
+        color: 'teal',
+        autoClose: 4000,
       })
+      passform.reset()
     } catch (error) {
       notifications.show({
-        id: 'collage-creation-error',
-        title: 'Error!',
-        message: error?.response?.data?.msg || 'An error occurred while creating the collage.',
-        variant: 'danger',
+        id: 'password-update-error',
+        title: 'خطأ!',
+        message: error?.response?.data?.msg || 'حدث خطأ أثناء تغيير كلمة السر.',
+        color: 'red',
         autoClose: 5000,
       })
     }
   }
 
-  const getRole = () => {
-    if (user.__t === 'Student') return `طالب ${user.major.name}, الفصل ${user.comingSemester}`
-    if (user.__t === 'Teatcher') return `معلم`
-    if (user.__t === 'Admin') return `مدير`
+  const roleName = user?.__t || user?.role || user?.kind || 'User'
+  const isStudent = roleName === 'Student' || user?.role === 'student'
+  const isTeacher = roleName === 'Teacher' || roleName === 'Teatcher' || user?.role === 'teacher'
+
+  const getRoleBadge = () => {
+    if (isStudent) {
+      return (
+        <Badge color="teal" variant="light" size="md" leftSection={<IconSchool size={14} />}>
+          {`طالب ${user?.major?.name || ''} ${user?.comingSemester ? `(المستوى ${user.comingSemester})` : ''}`}
+        </Badge>
+      )
+    }
+    if (isTeacher) {
+      return (
+        <Badge color="blue" variant="light" size="md" leftSection={<IconUserCheck size={14} />}>
+          عضو هيئة تدريس
+        </Badge>
+      )
+    }
+    return (
+      <Badge color="violet" variant="light" size="md" leftSection={<IconShieldCheck size={14} />}>
+        مدير نظام
+      </Badge>
+    )
   }
 
+  const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.name || 'مستخدم'
+
   return (
-    <Container fluid>
-                 <Helmet>
-            <title>{ 'منصة جهبذ |  الملف الشخصي' }</title>
+    <Box>
+      <Helmet>
+        <title>{'منصة جهبذ | الملف الشخصي'}</title>
       </Helmet>
-      <Container
-        bg="white"
-        sx={{
-          background: 'ligth',
-        }}
-        h={180}
-        fluid
-        mb={34}
-      >
-        <Flex gap={'md'} justify={'space-between'} h={'100%'} align={'center'}>
-          <Group noWrap sx={{}}>
-            <Avatar size={'xl'} variant="outline" sx={{ borderRadius: '50%' }} src={user.avatar} />
-            <div>
-              <Text>{`${user.firstName} ${user.lastName}`}</Text>
-              <Text size="xs" color="dimmed">
-                {getRole()}
-              </Text>
-            </div>
-          </Group>
-          <Link to={'/'}>
-            <Button
-              size="lg"
-              variant="light"
-              // leftIcon={<IconInfoCircle size={14} />}
-              rightIcon={<IconArrowAutofitLeft size={14} />}
-            >
-              عودة
-            </Button>
-          </Link>
-        </Flex>
-      </Container>
-      <Container
-        bg="white"
-        py={34}
-        sx={
-          {
-            //   background: 'ligth',
-          }
+
+      <PageHeader
+        title="الملف الشخصي"
+        description="إدارة معلومات الحساب الشخصي وتعديل كلمة المرور"
+        breadcrumbs={[
+          { title: 'الرئيسية', href: '/' },
+          { title: 'الملف الشخصي' },
+        ]}
+        action={
+          <Button variant="default" leftIcon={<IconArrowRight size={16} />} onClick={() => navigate(-1)}>
+            رجوع
+          </Button>
         }
-        // h={'auto'}
-        pt={4}
-        fluid
-        mb={34}
+      />
+
+      {/* Hero Header Card */}
+      <Paper
+        withBorder
+        radius="lg"
+        p="xl"
+        mb="xl"
+        sx={{
+          backgroundColor: isDark
+            ? 'rgba(26, 27, 30, 0.85)'
+            : 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(12px)',
+          borderColor: isDark ? theme.colors.dark[4] : theme.colors.gray[2],
+          boxShadow: isDark
+            ? '0 4px 20px rgba(0, 0, 0, 0.3)'
+            : '0 4px 20px rgba(30, 64, 175, 0.04)',
+        }}
       >
-        <Text>{'المعلومات الشخصية'}</Text>
-        <form onSubmit={form.onSubmit(handleSubmit)}>
-          <Group mt={5} noWrap sx={{}}>
-            <Grid gutterXs={'lg'} align="space-between" justify="space-between" w={'100%'}>
-              <Grid.Col xs={12} md={9}>
-                <Group noWrap>
-                  <TextInput
-                    my={4}
-                    size="md"
-                    w={'50%'}
-                    placeholder="الاسم الاول"
-                    label="الاسم"
-                    {...form.getInputProps('firstName')}
-                    withAsterisk
-                  />
-                  <TextInput
-                    w={'50%'}
-                    my={12}
-                    placeholder="الاسم الاخير"
-                    size="md"
-                    label=" "
-                    {...form.getInputProps('lastName')}
-                    withAsterisk
-                  />
-                </Group>
-                <TextInput
-                  w={'100%'}
-                  size="md"
-                  placeholder="lenumberOfSemestersvels"
-                  label="الايميل"
-                  {...form.getInputProps('email')}
-                  withAsterisk
-                  my={12}
-                />
-                <TextInput
-                  w={'100%'}
-                  size="md"
-                  error={form.errors.name}
-                  placeholder="lenumberOfSemestersvels"
-                  label="رقم الهاتف"
-                  {...form.getInputProps('phone')}
-                  withAsterisk
-                  my={12}
-                />
-              </Grid.Col>
-              <Grid.Col
-                p={16}
-                sx={{ alignContent: 'center', textAlign: 'center' }}
-                bg={'gray'}
-                // className='bg-secondary'
-                xs={11}
-                md={2}
-              >
-                <Center h={'70%'}>
-                  <Avatar h={'100%'} w={'100%'} size={'xl'} variant="outline" src={user.avatar} />
-                </Center>
-                <Center mt={4}>
-                  <UploadProfile queryClient={queryClient} user={user}>
-                    <Button size="xs" color="dark" rightIcon={<IconUpload />} variant="subtle">
-                      رفع صورة
-                    </Button>
-                  </UploadProfile>
-                </Center>
-              </Grid.Col>
-            </Grid>
+        <Group position="apart" align="center">
+          <Group spacing="lg">
+            <Avatar
+              size={84}
+              radius="xl"
+              src={user?.avatar}
+              color="brand"
+              sx={{
+                border: `3px solid ${isDark ? theme.colors.dark[4] : theme.colors.gray[2]}`,
+              }}
+            >
+              {fullName.charAt(0)}
+            </Avatar>
+            <Box>
+              <Group spacing="xs" mb={4}>
+                <Title order={3} sx={{ color: isDark ? '#ffffff' : '#0f172a', fontWeight: 800 }}>
+                  {fullName}
+                </Title>
+                {getRoleBadge()}
+              </Group>
+              <Text size="sm" color="dimmed">
+                {user?.email}
+              </Text>
+            </Box>
           </Group>
 
-          <Flex m={12} justify={'flex-end'}>
-            <Button onClick={handleSubmit} type="submit" mt={34} size="lg">
-              حفظ{' '}
+          <UploadProfile queryClient={queryClient} user={user}>
+            <Button size="sm" variant="light" color="brand" leftIcon={<IconUpload size={16} />}>
+              تغيير الصورة الشخصية
             </Button>
-          </Flex>
-        </form>
-      </Container>
-      <Group bg="white" py={34} px={16}  >
-        <form onSubmit={passform.onSubmit(passhandleSubmit)}>
-          <Text>{' تغيير كلمة السر'}</Text>
-          <Group mt={2} sx={{}}>
-            <PasswordInput
-              size="md"
-              w={'100%'}
-              placeholder="كلمة السر القديمة"
-              label="كلمة السر القديمة"
-              name="oldPassword"
-              {...passform.getInputProps('oldPassword')}
-              withAsterisk
-            />
-            <PasswordInput
-              w={'100%'}
-              placeholder=""
-              size="md"
-              label="كلمة السر الجديدة"
-              name="password"
-              {...passform.getInputProps('password')}
-              withAsterisk
-            />
-            <PasswordInput
-              w={'100%'}
-              size="md"
-              placeholder="كرر كلمة السر"
-              label="كلمة السر الجديدة"
-              name="confirmPassword"
-              {...passform.getInputProps('confirmPassword')}
-            />
-            <Button type="submit" fullWidth mt="xl" size="md">
-              حفظ
+          </UploadProfile>
+        </Group>
+      </Paper>
+
+      {/* Edit Profile Info Form */}
+      <Paper
+        withBorder
+        radius="lg"
+        p="xl"
+        mb="xl"
+        sx={{
+          backgroundColor: isDark
+            ? 'rgba(26, 27, 30, 0.75)'
+            : 'rgba(255, 255, 255, 0.95)',
+          borderColor: isDark ? theme.colors.dark[4] : theme.colors.gray[2],
+          boxShadow: isDark
+            ? '0 4px 16px rgba(0,0,0,0.25)'
+            : '0 4px 16px rgba(30,64,175,0.03)',
+        }}
+      >
+        <Group spacing="xs" mb="lg">
+          <IconUser size={20} color={isDark ? '#60a5fa' : '#2563eb'} />
+          <Title order={4} sx={{ color: isDark ? '#ffffff' : '#0f172a', fontWeight: 700 }}>
+            المعلومات الشخصية
+          </Title>
+        </Group>
+
+        <form onSubmit={form.onSubmit(handleSubmit)}>
+          <Grid gutter="md">
+            <Grid.Col xs={12} sm={6}>
+              <TextInput
+                label="الاسم الأول"
+                placeholder="الاسم الأول"
+                required
+                {...form.getInputProps('firstName')}
+              />
+            </Grid.Col>
+            <Grid.Col xs={12} sm={6}>
+              <TextInput
+                label="الاسم الأخير"
+                placeholder="الاسم الأخير"
+                required
+                {...form.getInputProps('lastName')}
+              />
+            </Grid.Col>
+            <Grid.Col xs={12} sm={6}>
+              <TextInput
+                label="البريد الإلكتروني"
+                placeholder="example@gahbaz.edu"
+                required
+                {...form.getInputProps('email')}
+              />
+            </Grid.Col>
+            <Grid.Col xs={12} sm={6}>
+              <TextInput
+                label="رقم الهاتف"
+                placeholder="05xxxxxxxx"
+                {...form.getInputProps('phone')}
+              />
+            </Grid.Col>
+          </Grid>
+
+          <Group position="right" mt="xl">
+            <Button type="submit" color="brand">
+              حفظ التعديلات
             </Button>
           </Group>
         </form>
-      </Group>
-    </Container>
+      </Paper>
+
+      {/* Change Password Form */}
+      <Paper
+        withBorder
+        radius="lg"
+        p="xl"
+        sx={{
+          backgroundColor: isDark
+            ? 'rgba(26, 27, 30, 0.75)'
+            : 'rgba(255, 255, 255, 0.95)',
+          borderColor: isDark ? theme.colors.dark[4] : theme.colors.gray[2],
+          boxShadow: isDark
+            ? '0 4px 16px rgba(0,0,0,0.25)'
+            : '0 4px 16px rgba(30,64,175,0.03)',
+        }}
+      >
+        <Group spacing="xs" mb="lg">
+          <IconLock size={20} color={isDark ? '#60a5fa' : '#2563eb'} />
+          <Title order={4} sx={{ color: isDark ? '#ffffff' : '#0f172a', fontWeight: 700 }}>
+            تغيير كلمة المرور
+          </Title>
+        </Group>
+
+        <form onSubmit={passform.onSubmit(passhandleSubmit)}>
+          <Grid gutter="md">
+            <Grid.Col xs={12} md={4}>
+              <PasswordInput
+                label="كلمة السر الحالية"
+                placeholder="••••••••"
+                required
+                {...passform.getInputProps('oldPassword')}
+              />
+            </Grid.Col>
+            <Grid.Col xs={12} md={4}>
+              <PasswordInput
+                label="كلمة السر الجديدة"
+                placeholder="••••••••"
+                required
+                {...passform.getInputProps('password')}
+              />
+            </Grid.Col>
+            <Grid.Col xs={12} md={4}>
+              <PasswordInput
+                label="تأكيد كلمة السر الجديدة"
+                placeholder="••••••••"
+                required
+                {...passform.getInputProps('confirmPassword')}
+              />
+            </Grid.Col>
+          </Grid>
+
+          <Group position="right" mt="xl">
+            <Button type="submit" color="brand" variant="light">
+              تحديث كلمة المرور
+            </Button>
+          </Group>
+        </form>
+      </Paper>
+    </Box>
   )
 }

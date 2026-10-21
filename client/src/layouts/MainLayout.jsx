@@ -1,0 +1,112 @@
+import React, { useState, createContext, useContext, Suspense, useEffect } from 'react'
+import { AppShell, Container, LoadingOverlay, Loader, Center } from '@mantine/core'
+import { Outlet, useNavigate, useNavigation } from 'react-router-dom'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import AppHeader from './AppHeader.jsx'
+import AppNavbar from './AppNavbar.jsx'
+import authApi from '../api/auth.api.js'
+
+export const DashboardContext = createContext({
+  user: null,
+  logoutUser: () => {},
+})
+
+export const useDashboardContext = () => useContext(DashboardContext)
+
+export default function MainLayout() {
+  const [opened, setOpened] = useState(false)
+  const navigate = useNavigate()
+  const navigation = useNavigation()
+  const queryClient = useQueryClient()
+
+  const {
+    data: userData,
+    isLoading: isUserLoading,
+    isError,
+  } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: async () => {
+      const res = await authApi.getCurrentUser()
+      const u = res?.data?.user || res?.user || res?.data || res
+      if (!u || (!u.role && !u._id)) {
+        throw new Error('Unauthenticated')
+      }
+      return u
+    },
+    staleTime: 0,
+    cacheTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
+    retry: false,
+  })
+
+  // Redirect to login if user session is invalid or missing
+  useEffect(() => {
+    if (!isUserLoading && (isError || !userData)) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token')
+      }
+      queryClient.clear()
+      navigate('/login')
+    }
+  }, [isUserLoading, isError, userData, navigate, queryClient])
+
+  const user = userData || null
+
+  const logoutUser = async () => {
+    try {
+      await authApi.logout()
+    } catch (err) {
+      // ignore
+    } finally {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token')
+      }
+      queryClient.clear()
+      navigate('/login')
+    }
+  }
+
+  const isPageLoading = navigation.state === 'loading'
+
+  if (isUserLoading || !user) {
+    return (
+      <Center sx={{ height: '100vh', width: '100vw' }}>
+        <Loader size="xl" color="brand" />
+      </Center>
+    )
+  }
+
+  return (
+    <DashboardContext.Provider value={{ user, logoutUser }}>
+      <AppShell
+        padding="md"
+        navbar={<AppNavbar opened={opened} setOpened={setOpened} user={user} />}
+        header={<AppHeader opened={opened} setOpened={setOpened} user={user} />}
+        styles={(theme) => ({
+          main: {
+            backgroundColor:
+              theme.colorScheme === 'dark'
+                ? theme.colors.dark[8]
+                : '#f8fafc',
+            minHeight: '100vh',
+            transition: 'background-color 0.25s ease',
+          },
+        })}
+      >
+        <Container fluid px={{ base: 'xs', sm: 'md' }} py="xs" sx={{ position: 'relative', minHeight: '80vh' }}>
+          <LoadingOverlay visible={isPageLoading} overlayBlur={2} />
+          <Suspense
+            fallback={
+              <Center py="xl">
+                <Loader size="lg" color="brand" />
+              </Center>
+            }
+          >
+            <Outlet />
+          </Suspense>
+        </Container>
+      </AppShell>
+    </DashboardContext.Provider>
+  )
+}
