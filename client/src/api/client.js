@@ -41,10 +41,13 @@ apiClient.interceptors.response.use(
       error?.response?.data?.error?.message ||
       'حدث خطأ غير متوقع'
 
+    const publicPaths = ['/', '/landing', '/login', '/register', '/404', '/500']
+    const isPublicPath = typeof window !== 'undefined' && publicPaths.includes(window.location.pathname)
+
     if (status === 401) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token')
-        if (window.location.pathname !== '/login') {
+        if (!isPublicPath && !error?.config?.skipAuthRedirect) {
           window.location.href = '/login'
         }
       }
@@ -56,7 +59,7 @@ apiClient.interceptors.response.use(
         message: 'ليس لديك الصلاحية لتنفيذ هذا الإجراء',
         autoClose: 4000,
       })
-    } else if (status >= 400) {
+    } else if (status >= 400 && !error?.config?.skipErrorNotification) {
       notifications.show({
         id: 'api-error',
         color: 'red',
