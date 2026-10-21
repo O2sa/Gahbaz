@@ -13,6 +13,7 @@ import {
   TextInput,
   Title,
   Loader,
+  useMantineTheme,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { useForm } from '@mantine/form'
@@ -28,12 +29,18 @@ import client from '../../api/client'
 import EditCourseSection from './EditCourseSection'
 
 export const EditCourseSections = ({ queryClient }) => {
-  const { courseId } = useParams()
+  const params = useParams()
+  const courseId = params.courseId || params.id
+  const theme = useMantineTheme()
+  const isDark = theme.colorScheme === 'dark'
 
   const {
     data: sections = [],
     isLoading,
-  } = useQuery(useGetElements(['sections', courseId]))
+  } = useQuery({
+    ...useGetElements(['sections', courseId]),
+    enabled: Boolean(courseId),
+  })
 
   if (isLoading) {
     return (
@@ -45,11 +52,22 @@ export const EditCourseSections = ({ queryClient }) => {
 
   return (
     <Box p="md">
-      <Paper p="xl" radius="md" withBorder>
+      <Paper
+        p="xl"
+        radius="lg"
+        withBorder
+        sx={{
+          backgroundColor: isDark ? 'rgba(26, 27, 30, 0.85)' : '#ffffff',
+          borderColor: isDark ? theme.colors.dark[4] : theme.colors.gray[2],
+          boxShadow: isDark ? '0 4px 20px rgba(0,0,0,0.25)' : '0 2px 8px rgba(0,0,0,0.03)',
+        }}
+      >
         <Group position="apart" mb="lg">
-          <Title order={3}>أقسام ودروس الدورة</Title>
+          <Title order={3} sx={{ color: isDark ? '#ffffff' : '#0f172a', fontWeight: 800 }}>
+            أقسام ودروس الدورة
+          </Title>
           <AddSection queryClient={queryClient}>
-            <Button leftIcon={<IconPlus size={16} />}>
+            <Button color="brand" leftIcon={<IconPlus size={16} />}>
               إضافة قسم جديد
             </Button>
           </AddSection>
@@ -67,7 +85,16 @@ export const EditCourseSections = ({ queryClient }) => {
             ))}
           </Stack>
         ) : (
-          <Paper p="xl" radius="md" bg="gray.0" sx={{ textAlign: 'center' }}>
+          <Paper
+            p="xl"
+            radius="md"
+            withBorder
+            sx={{
+              textAlign: 'center',
+              backgroundColor: isDark ? 'rgba(37, 38, 43, 0.6)' : theme.colors.gray[0],
+              borderColor: isDark ? theme.colors.dark[5] : theme.colors.gray[2],
+            }}
+          >
             <Text color="dimmed" size="md">
               لا توجد أقسام بعد. انقر على "إضافة قسم جديد" للبدء.
             </Text>

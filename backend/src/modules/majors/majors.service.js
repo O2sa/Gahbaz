@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Major from "../../models/Major.js";
 import College from "../../models/College.js";
 import SemesterTemplate from "../../models/SemesterTemplate.js";
@@ -32,6 +33,9 @@ export const getMajorsService = async (filter = {}, query = {}) => {
 };
 
 export const getMajorByIdService = async (id) => {
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    throw new NotFoundError("Major not found");
+  }
   const major = await Major.findById(id).populate(["semesterTemplates", "college"]);
   if (!major) throw new NotFoundError("Major not found");
   return major;

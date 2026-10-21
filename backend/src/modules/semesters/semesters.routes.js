@@ -33,6 +33,7 @@ router
 
 // Client alias for SemesterTemplateDetails.jsx
 router.get("/semester-template/:id", ctrl.getSemesterTemplate);
+router.get("/templates/major/:id", ctrl.getSemesterTemplatesByMajorOrId);
 
 // ======================== SEMESTERS ========================
 router

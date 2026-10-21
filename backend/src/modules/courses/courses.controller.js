@@ -9,7 +9,8 @@ export const createCourse = async (req, res) => {
 
 export const getCourse = async (req, res) => {
   const universityId = req.user?.role === "super-admin" ? null : req.user?.universityId;
-  const data = await svc.getCourseByIdService(req.params.id, universityId);
+  const id = req.params.id || req.params.courseId;
+  const data = await svc.getCourseByIdService(id, universityId);
   sendSuccess(res, data);
 };
 
