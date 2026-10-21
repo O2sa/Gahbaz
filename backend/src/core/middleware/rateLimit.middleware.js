@@ -2,7 +2,7 @@ import rateLimit from "express-rate-limit";
 
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: process.env.NODE_ENV === "test" ? 5 : (Number(process.env.AUTH_RATE_LIMIT_MAX) || 100),
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
