@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   Avatar,
   Box,
@@ -25,14 +25,17 @@ import {
   IconVideo,
   IconCertificate,
   IconFileText,
+  IconMessageDots,
 } from '@tabler/icons-react'
 import CourseContent from '../../components/CourseContent'
 import { PageHeader } from '../../components/common/index.js'
+import { CourseChatDrawer } from '../../components/chat/index.js'
 
 export default function CourseInfo({ course }) {
   const navigate = useNavigate()
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const [chatDrawerOpened, setChatDrawerOpened] = useState(false)
 
   const courseData = course?.data || course
   if (!courseData || Object.keys(courseData).length === 0) return null
@@ -216,6 +219,16 @@ export default function CourseInfo({ course }) {
               >
                 التكليفات والواجبات (Assignments)
               </Button>
+              <Button
+                onClick={() => setChatDrawerOpened(true)}
+                variant="light"
+                color="cyan"
+                size="md"
+                radius="md"
+                leftIcon={<IconMessageDots size={18} />}
+              >
+                غرفة المناقشة الأكاديمية (Course Chat)
+              </Button>
             </Group>
           </Grid.Col>
 
@@ -334,6 +347,13 @@ export default function CourseInfo({ course }) {
           </Box>
         )}
       </Paper>
+
+      <CourseChatDrawer
+        opened={chatDrawerOpened}
+        onClose={() => setChatDrawerOpened(false)}
+        courseId={courseData._id || courseData.id}
+        courseName={courseData.name}
+      />
     </Box>
   )
 }
