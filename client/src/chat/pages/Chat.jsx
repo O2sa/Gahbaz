@@ -1,22 +1,10 @@
-import { useEffect, useState, useRef, forwardRef } from 'react'
-
+import React, { useEffect, useState, useRef, forwardRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { SlMagnifier } from 'react-icons/sl'
 import { IoIosArrowBack } from 'react-icons/io'
 import { GrFormClose } from 'react-icons/gr'
 import { io } from 'socket.io-client'
-
-import axios from 'axios'
-
-import { ChatState } from '../context/ChatProvider'
-import { allUsersRoute, host } from '../utils/APIRoutes'
-import { toastOptions } from '../utils/constants'
-
-import ChatContainer from '../components/ChatContainer'
-import Contacts from '../components/Contacts'
-import Search from '../components/Search'
-import UserInfo from '../components/UserInfo'
-
-import Robot from '../assets/robot.gif'
+import { notifications } from '@mantine/notifications'
 import {
   ActionIcon,
   Box,
@@ -25,19 +13,24 @@ import {
   Stack,
   TextInput,
   Center,
-  Group,
   createPolymorphicComponent,
   rem,
   Paper,
   Container,
   Image,
-  ScrollArea,
   Title,
   Text,
 } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 
+import { ChatState } from '../context/ChatProvider'
+import { allUsersRoute, host } from '../utils/APIRoutes'
+import customFetch from '../../utils/customFetch'
 
+import ChatContainer from '../components/ChatContainer'
+import Contacts from '../components/Contacts'
+import Search from '../components/Search'
+import Robot from '../assets/robot.gif'
 
 const PAPER_PROPS = {
   shadow: 'md',
@@ -45,7 +38,9 @@ const PAPER_PROPS = {
 }
 
 function Chat() {
-  const tablet_match = useMediaQuery('(max-width: 768px)')
+  const tabletMatch = useMediaQuery('(max-width: 768px)')
+  const [searchParams] = useSearchParams()
+  const courseId = searchParams.get('courseId')
 
   const socket = useRef()
   const [loading, setLoading] = useState(false)
@@ -54,47 +49,86 @@ function Chat() {
   const [search, setSearch] = useState('')
   const [navState, setNavState] = useState('start')
 
-  const { selectedChat, user } = ChatState()
+  const { selectedChat, setSelectedChat, user } = ChatState()
+  const currentUserId = user?._id || user?.id
 
-  // search function
+  // 1. Deep-link handling: if URL contains courseId, auto-resolve and select course chat
+  useEffect(() => {
+    if (!courseId) return
+    let isMounted = true
+
+    const resolveCourseChat = async () => {
+      try {
+        setLoading(true)
+        const res = await customFetch.get(`/chats/course/${courseId}`)
+        const channel = res?.data || res
+        if (isMounted && channel?._id) {
+          setSelectedChat(channel)
+        }
+      } catch (err) {
+        console.error('Failed to resolve course chat for deep-link:', err)
+        notifications.show({
+          color: 'red',
+          title: 'تعذر فتح المحادثة',
+          message: err?.response?.data?.message || 'لم نتمكن من فتح محادثة المقرر المحدد',
+        })
+      } finally {
+        if (isMounted) setLoading(false)
+      }
+    }
+
+    resolveCourseChat()
+
+    return () => {
+      isMounted = false
+    }
+  }, [courseId, setSelectedChat])
+
+  // 2. Search users handler
   const handleSearch = async (event) => {
     event.preventDefault()
-    if (!search) {
-      toast.error('Please Enter something in search', toastOptions)
+    if (!search?.trim()) {
+      notifications.show({
+        color: 'yellow',
+        title: 'تنبيه',
+        message: 'يرجى إدخال اسم للبحث عنه',
+      })
       return
     }
     try {
       setLoading(true)
-      const config = {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      }
-      const getUsers = async () => {
-        const { data } = await axios.get(`${allUsersRoute}?search=${search}`)
-        setLoading(false)
-        setSearchResult(data)
-      }
-      getUsers()
+      const res = await customFetch.get(`${allUsersRoute}?search=${encodeURIComponent(search.trim())}`)
+      const data = res?.data || (Array.isArray(res) ? res : [])
+      setSearchResult(Array.isArray(data) ? data : [])
       setNavState('add-trip')
     } catch (error) {
-      setLoading(true)
-      toast.error('Error in searching user', toastOptions)
+      console.error('Error searching user:', error)
+      notifications.show({
+        color: 'red',
+        title: 'خطأ',
+        message: 'تعذر إتمام البحث عن المستخدم',
+      })
+    } finally {
+      setLoading(false)
     }
   }
 
-  // Socket.IO connection
+  // 3. Socket.IO connection
   useEffect(() => {
-    if (user?._id) {
-      socket.current = io(host, { withCredentials: true })
-      socket.current.emit('setup', user._id)
+    if (currentUserId) {
+      socket.current = io(host, {
+        withCredentials: true,
+        transports: ['websocket', 'polling'],
+      })
+      socket.current.emit('setup', currentUserId)
+
       return () => {
         if (socket.current) {
           socket.current.disconnect()
         }
       }
     }
-  }, [user?._id])
+  }, [currentUserId])
 
   return (
     <Container fluid>
@@ -102,42 +136,28 @@ function Chat() {
         <Surface
           component={Paper}
           {...PAPER_PROPS}
-          style={{ height: tablet_match ? 'auto' : rem(565), overflow: 'hidden' }}
+          style={{ height: tabletMatch ? 'auto' : rem(565), overflow: 'hidden' }}
         >
           <Grid gutter={0} h={'100%'}>
             <Grid.Col span={12} sm={4} md={4} lg={3} h={'100%'}>
-              {/* <UserInfo fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} /> */}
-
               <Stack py="md" style={{ height: '100%' }}>
                 <Box px="sm">
-                  <form onSubmit={(event) => handleSearch(event)}>
+                  <form onSubmit={handleSearch}>
                     <TextInput
                       leftSection={
                         search && (
-                          <ActionIcon
-                            // className="right-button"
-                            onClick={() => {
-                              setSearch('')
-                            }}
-                          >
+                          <ActionIcon onClick={() => setSearch('')}>
                             <GrFormClose />
                           </ActionIcon>
                         )
                       }
                       rightSection={
                         navState === 'add-trip' && search ? (
-                          <ActionIcon
-                            onClick={() => {
-                              setNavState('start')
-                            }}
-                          >
+                          <ActionIcon onClick={() => setNavState('start')}>
                             <IoIosArrowBack />
                           </ActionIcon>
                         ) : (
-                          <ActionIcon
-                            type="submit"
-                            // className="search__button"
-                          >
+                          <ActionIcon type="submit">
                             <SlMagnifier />
                           </ActionIcon>
                         )
@@ -149,7 +169,7 @@ function Chat() {
                     />
                   </form>
                 </Box>
-                {/* <ScrollArea> */}
+
                 {!search || navState === 'start' ? (
                   <Contacts socket={socket} selectedChat={selectedChat} fetchAgain={fetchAgain} />
                 ) : loading ? (
@@ -159,7 +179,6 @@ function Chat() {
                 ) : (
                   <Search socket={socket} searchResults={searchResults} />
                 )}
-                {/* </ScrollArea> */}
               </Stack>
             </Grid.Col>
 
@@ -174,19 +193,25 @@ function Chat() {
                 <Box
                   sx={(theme) => ({
                     borderLeft: `1px solid ${theme.colors.gray[3]}`,
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                   })}
                 >
                   <Center>
-                    <Stack>
-                      <Image w={'80%'} h={'400px'} src={Robot} alt="Robot waves his palm" />
+                    <Stack align="center" spacing="md">
+                      <Image w={'80%'} maw={320} src={Robot} alt="Robot waves his palm" />
                       <Box ta={'center'}>
-                        <Title order={1}>
-                          أهلا بك,{' '}
-                          <Text color='brand' sx={{ display:'inline'}} >
-                            {`${user.firstName} ${user.lastName}`}!
+                        <Title order={2}>
+                          أهلاً بك،{' '}
+                          <Text color="brand" sx={{ display: 'inline' }}>
+                            {`${user.firstName || ''} ${user.lastName || ''}`}!
                           </Text>
                         </Title>
-                        <Title order={3}>قم باختيار محادثة لتبدأ المراسلة</Title>
+                        <Title order={4} c="dimmed" mt="xs">
+                          قم باختيار محادثة أو مقرر دراسي لتبدأ المراسلة
+                        </Title>
                       </Box>
                     </Stack>
                   </Center>
