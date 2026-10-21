@@ -1,7 +1,18 @@
 import React from 'react'
-import { Avatar, Flex, Indicator, Stack, Text, UnstyledButton, Group, Badge } from '@mantine/core'
+import {
+  Avatar,
+  Box,
+  Flex,
+  Indicator,
+  Stack,
+  Text,
+  UnstyledButton,
+  Group,
+  Badge,
+  useMantineTheme,
+} from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
-import { IconBook } from '@tabler/icons-react'
+import { IconBook, IconUsers } from '@tabler/icons-react'
 
 const ChatsList = ({
   avatar,
@@ -10,85 +21,119 @@ const ChatsList = ({
   firstName,
   active,
   badge,
+  timestamp,
   isSelected = false,
   ...props
 }) => {
+  const theme = useMantineTheme()
+  const isDark = theme.colorScheme === 'dark'
   const tabletMatch = useMediaQuery('(max-width: 768px)')
 
   return tabletMatch ? (
     <UnstyledButton
-      sx={(theme) => ({
+      sx={{
         backgroundColor: isSelected
-          ? theme.colorScheme === 'dark'
+          ? isDark
             ? theme.colors.dark[5]
             : theme.colors.brand[1]
           : 'transparent',
         '&:hover': {
-          backgroundColor: theme.colors.brand[1],
+          backgroundColor: isDark ? theme.colors.dark[6] : theme.colors.brand[0],
         },
         borderRadius: theme.radius.md,
-      })}
-      p={'xs'}
+        padding: '8px 10px',
+        width: '100%',
+      }}
       {...props}
     >
       <Flex align="center" gap="xs">
-        <Indicator disabled={active} position="bottom-end" color="green" offset={5} size={9}>
-          <Avatar size="md" radius="50%" src={avatar} />
+        <Indicator disabled={!active} position="bottom-end" color="green" offset={4} size={8}>
+          <Avatar size={40} radius="xl" src={avatar} color="brand">
+            {firstName?.charAt(0) || '?'}
+          </Avatar>
         </Indicator>
 
-        <Stack spacing={2}>
-          <Group spacing={4} noWrap>
-            <Text size="sm" lineClamp={1}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Group spacing={4} position="apart" noWrap>
+            <Text size="sm" fw={isSelected ? 700 : 500} lineClamp={1}>
               {firstName} {lastName || ''}
             </Text>
             {badge && (
-              <Badge size="xs" color="teal" variant="light" leftSection={<IconBook size={10} />}>
+              <Badge size="xs" color="teal" variant="light" leftSection={<IconBook size={9} />}>
                 {badge}
               </Badge>
             )}
           </Group>
-        </Stack>
+        </Box>
       </Flex>
     </UnstyledButton>
   ) : (
     <UnstyledButton
-      py={'xs'}
-      px={'sm'}
-      sx={(theme) => ({
+      py="xs"
+      px="sm"
+      sx={{
+        width: '100%',
         backgroundColor: isSelected
-          ? theme.colorScheme === 'dark'
-            ? theme.colors.dark[5]
-            : theme.colors.brand[0]
+          ? isDark
+            ? 'rgba(34, 139, 230, 0.15)'
+            : 'rgba(231, 245, 255, 0.9)'
           : 'transparent',
+        borderRight: isSelected
+          ? `3px solid ${theme.colors.brand[6]}`
+          : '3px solid transparent',
         '&:hover': {
-          backgroundColor:
-            theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.brand[1],
-          transition: 'all ease 150ms',
+          backgroundColor: isDark
+            ? 'rgba(255, 255, 255, 0.04)'
+            : 'rgba(0, 0, 0, 0.02)',
+          transition: 'all 0.15s ease',
         },
         borderBottom: `1px solid ${
-          theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[3]
+          isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.05)'
         }`,
-      })}
+      }}
       {...props}
     >
-      <Flex align="center" gap="xs">
-        <Indicator disabled={active} position="bottom-end" color="green" offset={5} size={9}>
-          <Avatar size="md" radius="50%" src={avatar} />
+      <Flex align="center" gap="sm">
+        <Indicator disabled={!active} position="bottom-end" color="green" offset={3} size={8}>
+          <Avatar size={42} radius="xl" src={avatar} color="brand">
+            {firstName?.charAt(0) || '?'}
+          </Avatar>
         </Indicator>
+
         <Stack spacing={2} sx={{ flex: 1, minWidth: 0 }}>
           <Group position="apart" noWrap spacing={4}>
-            <Text size="sm" fw={600} lineClamp={1} sx={{ flex: 1 }}>
+            <Text
+              size="sm"
+              fw={isSelected ? 700 : 600}
+              lineClamp={1}
+              color={isSelected ? theme.colors.brand[6] : undefined}
+            >
               {firstName} {lastName || ''}
             </Text>
+            {timestamp && (
+              <Text size="10px" c="dimmed">
+                {timestamp}
+              </Text>
+            )}
+          </Group>
+
+          <Group position="apart" noWrap spacing={4}>
+            <Text lineClamp={1} size="xs" c="dimmed" sx={{ flex: 1 }}>
+              {lastMessage || 'لا توجد رسائل سابقة'}
+            </Text>
             {badge && (
-              <Badge size="xs" color="teal" variant="light" leftSection={<IconBook size={10} />}>
+              <Badge
+                size="xs"
+                color={badge.includes('مقرر') ? 'teal' : 'blue'}
+                variant="light"
+                leftSection={
+                  badge.includes('مقرر') ? <IconBook size={9} /> : <IconUsers size={9} />
+                }
+              >
                 {badge}
               </Badge>
             )}
           </Group>
-          <Text lineClamp={1} size="xs" c="dimmed">
-            {lastMessage}
-          </Text>
         </Stack>
       </Flex>
     </UnstyledButton>
