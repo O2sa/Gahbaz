@@ -54,7 +54,11 @@ const Login = () => {
   const handleSubmit = async (values) => {
     setLoading(true)
     try {
-      await customFetch.post('/auth/login', values)
+      const res = await customFetch.post('/auth/login', values)
+      const token = res?.data?.token || res?.token
+      if (token) {
+        localStorage.setItem('token', token)
+      }
       queryClient.clear()
       await queryClient.resetQueries()
       notifications.show({

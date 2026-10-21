@@ -1,9 +1,21 @@
-export const host =
-  typeof window !== 'undefined' && window.location.port === '5173'
-    ? 'http://localhost:5000'
-    : typeof window !== 'undefined'
-    ? window.location.origin
-    : 'http://localhost:5000';
+export const getBackendHost = () => {
+  const envUrl =
+    import.meta.env.VITE_SOCKET_URL ||
+    import.meta.env.VITE_BACKEND_URL ||
+    import.meta.env.VITE_API_URL;
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim().length > 0) {
+    return envUrl.trim().replace(/\/api\/v1\/?$/, '').replace(/\/+$/, '');
+  }
+  if (typeof window !== 'undefined' && window.location.port === '5173') {
+    return 'http://localhost:5000';
+  }
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return 'http://localhost:5000';
+};
+
+export const host = getBackendHost();
 
 export const loginRoute = `/api/v1/auth/login`;
 export const registerRoute = `/api/v1/auth/register`;
