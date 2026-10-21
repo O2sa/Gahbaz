@@ -114,9 +114,9 @@ export default function AppNavbar({ opened, setOpened, user }) {
           <NavLink
             label="لوحة التحكم"
             icon={<IconDashboard size={19} stroke={1.6} />}
-            active={isActive('/')}
-            onClick={() => handleNav('/')}
-            sx={navLinkStyle('/')}
+            active={isActive('/dashboard')}
+            onClick={() => handleNav('/dashboard')}
+            sx={navLinkStyle('/dashboard')}
           />
           <NavLink
             label="المقررات والدورات"

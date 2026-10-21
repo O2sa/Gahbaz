@@ -79,7 +79,7 @@ const SectionTwo = () => {
               <Box pt="xs">
                 <Button
                   component={RouterLink}
-                  to="/login"
+                  to="/dashboard"
                   variant="gradient"
                   gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
                   size="md"
