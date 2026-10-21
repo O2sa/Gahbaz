@@ -1,29 +1,37 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
-import { Box, Center, Divider, Loader, ScrollArea, Stack, Text, Anchor, Image, Group } from '@mantine/core'
-import { useMediaQuery } from '@mantine/hooks'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
+import {
+  Box,
+  Center,
+  Loader,
+  ScrollArea,
+  Stack,
+  Text,
+  Badge,
+  useMantineTheme,
+} from '@mantine/core'
+import { IconMessages } from '@tabler/icons-react'
 import { notifications } from '@mantine/notifications'
 import customFetch from '../../utils/customFetch'
 import { uploadMedia } from '../../utils/mediaUpload'
 import { ChatState } from '../context/ChatProvider'
-import { isAnotherSender } from '../config/ChatLogics'
 import ChatInput from './ChatInput'
 import ChatItem from '../NewChat/components/ChatItem/ChatItem'
 
 function SingleChat({ fetchAgain, socket, setFetchAgain, selectedChat }) {
+  const theme = useMantineTheme()
+  const isDark = theme.colorScheme === 'dark'
+
   const [messages, setMessages] = useState([])
   const [newAttach, setNewAttach] = useState(null)
   const [loading, setLoading] = useState(false)
   const [sending, setSending] = useState(false)
+
   const messagesEndRef = useRef(null)
   const { user } = ChatState()
-  const tabletMatch = useMediaQuery('(max-width: 768px)')
-
   const currentUserId = user?._id || user?.id
 
   const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
   const fetchMessages = useCallback(async () => {
@@ -42,7 +50,7 @@ function SingleChat({ fetchAgain, socket, setFetchAgain, selectedChat }) {
       notifications.show({
         color: 'red',
         title: 'خطأ في تحميل الرسائل',
-        message: error?.response?.data?.message || 'تعذر تحميل الرسائل الحالية',
+        message: error?.response?.data?.message || 'تعذر استرجاع رسائل المحادثة',
       })
     } finally {
       setLoading(false)
@@ -53,7 +61,7 @@ function SingleChat({ fetchAgain, socket, setFetchAgain, selectedChat }) {
     fetchMessages()
   }, [fetchMessages])
 
-  const sendMessage = async (msg) => {
+  const sendMessage = async (msgText) => {
     if (!selectedChat?._id) return
     setSending(true)
     try {
@@ -67,14 +75,14 @@ function SingleChat({ fetchAgain, socket, setFetchAgain, selectedChat }) {
           notifications.show({
             color: 'orange',
             title: 'تحذير المرفقات',
-            message: 'تعذر رفع المرفق، سيتم إرسال الرسالة النصية فقط',
+            message: 'تعذر رفع الملف، جاري إرسال الرسالة النصية فقط',
           })
         }
       }
 
       const res = await customFetch.post('/messages/addmsg', {
         chatId: selectedChat._id,
-        content: msg || '',
+        content: msgText || '',
         attachment: attachmentUrl,
       })
 
@@ -133,82 +141,96 @@ function SingleChat({ fetchAgain, socket, setFetchAgain, selectedChat }) {
   }, [messages])
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 480 }}>
-      <ScrollArea sx={{ flex: 1, maxHeight: 440 }} p="md">
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        backgroundColor: isDark ? theme.colors.dark[8] : theme.colors.gray[0],
+      }}
+    >
+      {/* Scrollable Message List */}
+      <ScrollArea
+        sx={{
+          flex: 1,
+          padding: '16px 20px',
+        }}
+        type="hover"
+      >
         {loading ? (
-          <Center py="xl">
-            <Loader size="md" variant="dots" />
+          <Center py="3rem">
+            <Loader size="md" variant="dots" color="brand" />
           </Center>
         ) : messages && messages.length > 0 ? (
-          <Stack spacing="md">
+          <Stack spacing="xs">
             {messages.map((message, i) => {
-              const isOther = isAnotherSender(message, currentUserId)
-              const senderName = isOther
-                ? `${message.sender?.firstName || ''} ${message.sender?.lastName || ''}`.trim() || 'عضو'
-                : 'أنت'
-              const avatar = isOther ? message.sender?.avatar : user?.avatar
+              const senderId = message.sender?._id || message.sender
+              const isMe = String(senderId) === String(currentUserId)
+              const senderObj = typeof message.sender === 'object' ? message.sender : null
+
+              const isInstructor =
+                String(senderId) ===
+                  String(selectedChat?.groupAdmin?._id || selectedChat?.groupAdmin) ||
+                senderObj?.role === 'teacher' ||
+                senderObj?.role === 'admin'
+
+              const senderName = isMe
+                ? 'أنت'
+                : `${senderObj?.firstName || ''} ${senderObj?.lastName || ''}`.trim() ||
+                  senderObj?.name ||
+                  'عضو'
+
+              const avatar = isMe ? user?.avatar : senderObj?.avatar
 
               return (
-                <Box key={message._id || `msg-${i}`}>
-                  <ChatItem
-                    ml={isOther ? 'auto' : 0}
-                    fullName={senderName}
-                    avatar={avatar}
-                    message={
-                      <Box>
-                        {message?.content && (
-                          <span dangerouslySetInnerHTML={{ __html: message.content.trim() }} />
-                        )}
-                        {message?.attachment && (
-                          <Box mt="xs">
-                            {/\.(jpg|jpeg|png|webp|gif)$/i.test(message.attachment) ? (
-                              <Image
-                                src={message.attachment}
-                                radius="md"
-                                maw={220}
-                                alt="Attachment"
-                              />
-                            ) : (
-                              <Anchor
-                                href={message.attachment}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                size="xs"
-                                color="blue"
-                              >
-                                📎 فتح المرفق
-                              </Anchor>
-                            )}
-                          </Box>
-                        )}
-                      </Box>
-                    }
-                    sent_time={
-                      message.createdAt
-                        ? new Date(message.createdAt).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })
-                        : ''
-                    }
-                    style={{ maxWidth: tabletMatch ? '100%' : '75%' }}
-                  />
-                </Box>
+                <ChatItem
+                  key={message._id || `msg-${i}`}
+                  isMe={isMe}
+                  isInstructor={isInstructor}
+                  fullName={senderName}
+                  avatar={avatar}
+                  message={message.content}
+                  attachment={message.attachment}
+                  sent_time={
+                    message.createdAt
+                      ? new Date(message.createdAt).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })
+                      : ''
+                  }
+                />
               )
             })}
             <div ref={messagesEndRef} />
           </Stack>
         ) : (
-          <Center py="xl">
-            <Text c="dimmed" size="sm">
-              لا توجد رسائل سابقة. ابدأ المحادثة الآن!
+          <Center py="4rem" sx={{ flexDirection: 'column' }}>
+            <Box
+              sx={{
+                width: 64,
+                height: 64,
+                borderRadius: '50%',
+                backgroundColor: isDark ? theme.colors.dark[6] : theme.colors.brand[0],
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 12,
+              }}
+            >
+              <IconMessages size={32} color={theme.colors.brand[6]} />
+            </Box>
+            <Text fw={600} size="sm">
+              لا توجد رسائل بعد
+            </Text>
+            <Text size="xs" c="dimmed" mt={4}>
+              كن أول من يفتتح النقاش ويرسل رسالة في هذه المحادثة!
             </Text>
           </Center>
         )}
       </ScrollArea>
 
-      <Divider />
-
+      {/* Modernized Bottom Input Dock */}
       <ChatInput
         handleSendMsg={sendMessage}
         setNewAttach={setNewAttach}
