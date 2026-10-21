@@ -19,12 +19,37 @@ import {
   IconBook,
   IconServer,
   IconDeviceMobile,
+  IconDashboard,
 } from '@tabler/icons-react'
 import { Link as RouterLink } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import customFetch from '../../../utils/customFetch'
 
 const About = () => {
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+  const { data: user } = useQuery({
+    queryKey: ['landingCurrentUser'],
+    queryFn: async () => {
+      if (!token) return null
+      try {
+        const res = await customFetch.get('/users/current-user', {
+          skipAuthRedirect: true,
+          skipErrorNotification: true,
+        })
+        const u = res?.data?.user || res?.user || res?.data || res
+        return u && (u.role || u._id) ? u : null
+      } catch (err) {
+        return null
+      }
+    },
+    enabled: !!token,
+    retry: false,
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5,
+  })
 
   const stats = [
     { icon: IconUsers, value: '+15,000', label: 'طالب وطالبة مسجلين' },
@@ -108,47 +133,95 @@ const About = () => {
 
           {/* Action Buttons */}
           <Group spacing="md" mt="sm">
-            <Button
-              component={RouterLink}
-              to="/login"
-              size="lg"
-              radius="md"
-              variant="gradient"
-              gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
-              leftIcon={<IconArrowLeft size={20} />}
-              sx={{
-                fontWeight: 700,
-                padding: '0 28px',
-                height: 52,
-                boxShadow: isDark
-                  ? '0 8px 24px rgba(59, 130, 246, 0.35)'
-                  : '0 8px 24px rgba(30, 64, 175, 0.25)',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                },
-              }}
-            >
-              تجربة المنصة الآن
-            </Button>
-            <Button
-              component={RouterLink}
-              to="/login"
-              size="lg"
-              radius="md"
-              variant="default"
-              leftIcon={<IconLogin size={20} />}
-              sx={{
-                fontWeight: 600,
-                height: 52,
-                padding: '0 24px',
-                borderColor: isDark ? theme.colors.dark[4] : theme.colors.gray[3],
-                '&:hover': {
-                  backgroundColor: isDark ? theme.colors.dark[5] : theme.colors.gray[1],
-                },
-              }}
-            >
-              بوابة تسجيل الدخول
-            </Button>
+            {user ? (
+              <>
+                <Button
+                  component={RouterLink}
+                  to="/dashboard"
+                  size="lg"
+                  radius="md"
+                  variant="gradient"
+                  gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
+                  leftIcon={<IconDashboard size={20} />}
+                  sx={{
+                    fontWeight: 700,
+                    padding: '0 28px',
+                    height: 52,
+                    boxShadow: isDark
+                      ? '0 8px 24px rgba(59, 130, 246, 0.35)'
+                      : '0 8px 24px rgba(30, 64, 175, 0.25)',
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                    },
+                  }}
+                >
+                  الانتقال إلى لوحة التحكم
+                </Button>
+                <Button
+                  component={RouterLink}
+                  to="/courses"
+                  size="lg"
+                  radius="md"
+                  variant="default"
+                  leftIcon={<IconBook size={20} />}
+                  sx={{
+                    fontWeight: 600,
+                    height: 52,
+                    padding: '0 24px',
+                    borderColor: isDark ? theme.colors.dark[4] : theme.colors.gray[3],
+                    '&:hover': {
+                      backgroundColor: isDark ? theme.colors.dark[5] : theme.colors.gray[1],
+                    },
+                  }}
+                >
+                  استعراض المقررات
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  component={RouterLink}
+                  to="/login"
+                  size="lg"
+                  radius="md"
+                  variant="gradient"
+                  gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
+                  leftIcon={<IconArrowLeft size={20} />}
+                  sx={{
+                    fontWeight: 700,
+                    padding: '0 28px',
+                    height: 52,
+                    boxShadow: isDark
+                      ? '0 8px 24px rgba(59, 130, 246, 0.35)'
+                      : '0 8px 24px rgba(30, 64, 175, 0.25)',
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                    },
+                  }}
+                >
+                  تجربة المنصة الآن
+                </Button>
+                <Button
+                  component={RouterLink}
+                  to="/login"
+                  size="lg"
+                  radius="md"
+                  variant="default"
+                  leftIcon={<IconLogin size={20} />}
+                  sx={{
+                    fontWeight: 600,
+                    height: 52,
+                    padding: '0 24px',
+                    borderColor: isDark ? theme.colors.dark[4] : theme.colors.gray[3],
+                    '&:hover': {
+                      backgroundColor: isDark ? theme.colors.dark[5] : theme.colors.gray[1],
+                    },
+                  }}
+                >
+                  بوابة تسجيل الدخول
+                </Button>
+              </>
+            )}
           </Group>
 
           {/* Metric Stats Ribbon */}

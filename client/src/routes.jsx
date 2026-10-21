@@ -61,21 +61,20 @@ export default function getRoutes(queryClient, user) {
       element: <RootLayout queryClient={queryClient} />,
       errorElement: <Error />,
       children: [
-        {  path: 'landing', name: 'صفحة البدء', element: <Landing /> },
+        { index: true, name: 'صفحة البدء', element: <Landing /> },
+        { path: 'landing', name: 'صفحة البدء', element: <Landing /> },
         { path: 'login', name: 'تسجيل الدخول', element: <Login /> },
         { path: 'register', name: 'إنشاء حساب', element: <Register /> },
-        { path: '404', name: 'غير موجدو', element: <Page404 /> },
+        { path: '404', name: 'غير موجود', element: <Page404 /> },
         { path: '500', name: 'خطأ!', element: <Page500 /> },
-    
+
         {
-          path: '/',
-          name: 'الرئيسية',
+          name: 'المنظومة الأكاديمية',
           element: <DefaultLayout queryClient={queryClient} />,
           errorElement: <Error />,
           children: [
-    
-            //admin
-            { index: true, name: 'لوحة التحكم', element: <Dashboard queryClient={queryClient} /> },
+            // Authenticated Dashboard
+            { path: 'dashboard', name: 'لوحة التحكم', element: <Dashboard queryClient={queryClient} /> },
             {
               path: 'profile',
               name: 'الملف الشخصي',
