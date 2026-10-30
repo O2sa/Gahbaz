@@ -3,7 +3,7 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-const envSchema = z.object({
+export const envSchema = z.object({
   PORT: z.coerce.number().default(5000),
   MONGO_URL: z.string().default("mongodb://localhost:27017/gahbaz"),
   JWT_SECRET: z.string().default("default_dev_secret_key_gahbaz_12345"),
@@ -28,9 +28,11 @@ const envSchema = z.object({
   WASABI_ENDPOINT: z.string().optional().default("https://s3.wasabisys.com"),
 });
 
-export const validateEnv = (envObj = process.env) => {
+export type Env = z.infer<typeof envSchema>;
+
+export const validateEnv = (envObj: NodeJS.ProcessEnv = process.env): Env => {
   return envSchema.parse(envObj);
 };
 
-export const env = validateEnv();
+export const env: Env = validateEnv();
 export default env;
