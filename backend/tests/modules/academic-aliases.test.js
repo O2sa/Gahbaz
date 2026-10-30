@@ -87,4 +87,58 @@ describe("Academic Query Route Aliases (Task 1.3)", () => {
     expect(res.body.success).toBe(true);
     expect(res.body.data.name).toBe("Computer Science");
   });
+
+  it("GET /api/v1/majors?college=:collegeId should filter majors by college and pass query validation", async () => {
+    const collegeId = "64f1a2b3c4d5e6f7a8b9c0d3";
+    const mockMajors = [
+      { _id: "maj1", name: "Software Engineering", college: collegeId },
+    ];
+
+    const findSpy = vi.spyOn(Major, "find").mockReturnValue({
+      sort: vi.fn().mockReturnValue({
+        skip: vi.fn().mockReturnValue({
+          limit: vi.fn().mockReturnValue({
+            populate: vi.fn().mockResolvedValue(mockMajors),
+          }),
+        }),
+      }),
+    });
+    vi.spyOn(Major, "countDocuments").mockResolvedValue(1);
+
+    const res = await request(app)
+      .get(`/api/v1/majors?college=${collegeId}`)
+      .set("Authorization", `Bearer ${adminToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(findSpy).toHaveBeenCalledWith(expect.objectContaining({ college: collegeId }));
+    expect(res.body.data[0].name).toBe("Software Engineering");
+  });
+
+  it("GET /api/v1/subjects?college=:collegeId should filter subjects by college and pass query validation", async () => {
+    const collegeId = "64f1a2b3c4d5e6f7a8b9c0d3";
+    const mockSubjects = [
+      { _id: "sub1", name: "Data Structures", college: collegeId },
+    ];
+
+    const findSpy = vi.spyOn(Subject, "find").mockReturnValue({
+      sort: vi.fn().mockReturnValue({
+        skip: vi.fn().mockReturnValue({
+          limit: vi.fn().mockReturnValue({
+            populate: vi.fn().mockResolvedValue(mockSubjects),
+          }),
+        }),
+      }),
+    });
+    vi.spyOn(Subject, "countDocuments").mockResolvedValue(1);
+
+    const res = await request(app)
+      .get(`/api/v1/subjects?college=${collegeId}`)
+      .set("Authorization", `Bearer ${adminToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(findSpy).toHaveBeenCalledWith(expect.objectContaining({ college: collegeId }));
+    expect(res.body.data[0].name).toBe("Data Structures");
+  });
 });

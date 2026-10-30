@@ -23,7 +23,7 @@ export const registerUser = async (data: RegisterInput) => {
     if (!defaultUniv) {
       defaultUniv = await University.create({ name: "Default University" });
     }
-    universityId = defaultUniv._id.toString();
+    universityId = String((defaultUniv as any)._id);
   }
 
   // Prevent privilege escalation: public registration always creates regular student
@@ -36,10 +36,10 @@ export const registerUser = async (data: RegisterInput) => {
 
   const user = await User.create(sanitizedData);
   const token = createJWT({
-    userId: user._id.toString(),
+    userId: String((user as any)._id),
     email: user.email,
     role: "student",
-    universityId: universityId.toString(),
+    universityId: String(universityId),
   });
 
   return { user, token };
@@ -64,10 +64,10 @@ export const loginUser = async (email: string, password?: string) => {
   const isDemoUser = ["student@test.com", "teacher@tech.com", "admin@test.com"].includes(user.email);
 
   const token = createJWT({
-    userId: user._id.toString(),
+    userId: String((user as any)._id),
     email: user.email,
     role,
-    universityId: user.university?.toString(),
+    universityId: user.university ? String(user.university) : undefined,
     isDemoUser,
   });
 

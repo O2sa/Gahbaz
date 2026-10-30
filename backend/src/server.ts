@@ -3,9 +3,9 @@ import http from "node:http";
 import { Server } from "socket.io";
 import mongoose from "mongoose";
 
-import app from "./src/app.js";
-import env from "./src/config/env.js";
-import { setupChatSocket } from "./src/sockets/chatSocket.js";
+import app from "./app.js";
+import env from "./config/env.js";
+import { setupChatSocket } from "./sockets/chatSocket.js";
 
 const server = http.createServer(app);
 
@@ -29,9 +29,11 @@ const start = async () => {
     console.log("[Database] Connecting to MongoDB...");
     await mongoose.connect(env.MONGO_URL, { serverSelectionTimeoutMS: 5000 });
     console.log("[Database] Connected successfully to MongoDB");
-  } catch (dbError) {
-    console.warn(`[Database] MongoDB connection notice: ${dbError.message}`);
-    console.warn("[Database] Endpoints not requiring MongoDB (e.g. /api/docs, /api/v1/test) are fully operational.");
+  } catch (dbError: any) {
+    console.warn(`[Database] MongoDB connection notice: ${dbError?.message || dbError}`);
+    console.warn(
+      "[Database] Endpoints not requiring MongoDB (e.g. /api/docs, /api/v1/test) are fully operational."
+    );
   }
 };
 

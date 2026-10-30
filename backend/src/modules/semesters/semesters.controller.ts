@@ -22,9 +22,10 @@ export const getSemesterTemplatesByMajorOrId = async (
   const id = req.params.id || req.params.majorId;
   const result: any = await svc.getSemesterTemplatesByMajorOrIdService(id, req.query);
   if (result && Array.isArray(result.data)) {
-    return sendPaginated(res, result.data, result.meta);
+    sendPaginated(res, result.data, result.meta);
+    return;
   }
-  return sendSuccess(res, result);
+  sendSuccess(res, result);
 };
 
 export const getSemesterTemplate = async (req: Request, res: Response): Promise<void> => {

@@ -68,14 +68,12 @@ export const seedFullDemoData = async () => {
     password: adminHashedPass,
     phone: "0501234567",
     role: "admin",
-    isAdmin: true,
     university: university._id,
-    permissions: "rw",
     kind: "Admin",
     lastActivity: new Date(),
   });
 
-  university.admin = mainAdmin._id;
+  university.admin = mainAdmin._id as any;
   await university.save();
 
   await Admin.create({
@@ -85,9 +83,7 @@ export const seedFullDemoData = async () => {
     password: adminHashedPass,
     phone: "0509876543",
     role: "admin",
-    isAdmin: true,
     university: university._id,
-    permissions: "rw",
     kind: "Admin",
   });
 
@@ -98,9 +94,7 @@ export const seedFullDemoData = async () => {
     password: adminHashedPass,
     phone: "0505556677",
     role: "admin",
-    isAdmin: true,
     university: university._id,
-    permissions: "r",
     kind: "Admin",
   });
 
@@ -355,9 +349,6 @@ export const seedFullDemoData = async () => {
     subjects: [subjectSE._id, subjectAlgo._id, subjectAI._id, subjectSec._id, subjectDB._id],
   });
 
-  majorSE.semesterTemplates = [templateSE4._id, templateSE5._id];
-  await majorSE.save();
-
   // 10. Semesters
   console.log("🗓️ [Seed] Creating Academic Semesters...");
   const pastSemester = await Semester.create({
@@ -382,15 +373,12 @@ export const seedFullDemoData = async () => {
     students: createdStudents.map((s) => s._id),
   });
 
-  majorSE.semesters = [pastSemester._id, currentSemester._id];
-  await majorSE.save();
-
   // Enroll demo student in both past and current semesters for official transcript calculation
-  studentDemo.semesters = [pastSemester._id, currentSemester._id];
+  studentDemo.semesters = [pastSemester._id, currentSemester._id] as any;
   await studentDemo.save();
 
   for (let i = 1; i < createdStudents.length; i++) {
-    createdStudents[i].semesters = [currentSemester._id];
+    createdStudents[i].semesters = [currentSemester._id] as any;
     await createdStudents[i].save();
   }
 
@@ -441,7 +429,7 @@ export const seedFullDemoData = async () => {
     students: [{ student: studentDemo._id }],
   });
 
-  pastSemester.courses = [pastCourseOOP._id, pastCourseDS._id, pastCourseMath._id];
+  pastSemester.courses = [pastCourseOOP._id, pastCourseDS._id, pastCourseMath._id] as any;
   await pastSemester.save();
 
   // Create Past Grades (High GPA: 96, 94, 98 -> A+)
@@ -603,7 +591,7 @@ export const seedFullDemoData = async () => {
     students: createdStudents.map((s) => ({ student: s._id })),
   });
 
-  currentSemester.courses = [courseSE._id, courseAlgo._id, courseAI._id, courseSec._id, courseDB._id];
+  currentSemester.courses = [courseSE._id, courseAlgo._id, courseAI._id, courseSec._id, courseDB._id] as any;
   await currentSemester.save();
 
   // Assign courses to teacher profiles
@@ -667,7 +655,7 @@ export const seedFullDemoData = async () => {
       },
     ],
   });
-  courseSE.sections = [secSE1._id, secSE2._id, secSE3._id];
+  courseSE.sections = [secSE1._id, secSE2._id, secSE3._id] as any;
   await courseSE.save();
 
   // CS301 Sections
@@ -699,7 +687,7 @@ export const seedFullDemoData = async () => {
       },
     ],
   });
-  courseAlgo.sections = [secAlgo1._id, secAlgo2._id];
+  courseAlgo.sections = [secAlgo1._id, secAlgo2._id] as any;
   await courseAlgo.save();
 
   // AI401 Sections
@@ -719,7 +707,7 @@ export const seedFullDemoData = async () => {
       },
     ],
   });
-  courseAI.sections = [secAI1._id];
+  courseAI.sections = [secAI1._id] as any;
   await courseAI.save();
 
   // SEC350 Sections
@@ -734,7 +722,7 @@ export const seedFullDemoData = async () => {
       },
     ],
   });
-  courseSec.sections = [secSec1._id];
+  courseSec.sections = [secSec1._id] as any;
   await courseSec.save();
 
   // 14. Course Assignments & Submissions
@@ -849,9 +837,9 @@ export const seedFullDemoData = async () => {
   for (const c of activeCourses) {
     for (const s of createdStudents) {
       const isDemo = s.email === "student@test.com";
-      const assignmentsVal = isDemo ? (c.code.includes("SE310") ? 25 : 19) : Math.floor(Math.random() * 5) + 18;
-      const midtermVal = isDemo ? (c.code.includes("SE310") ? 24 : 27) : Math.floor(Math.random() * 6) + 22;
-      const finalVal = isDemo ? (c.code.includes("SE310") ? 48 : 45) : Math.floor(Math.random() * 10) + 38;
+      const assignmentsVal = isDemo ? ((c.code || "").includes("SE310") ? 25 : 19) : Math.floor(Math.random() * 5) + 18;
+      const midtermVal = isDemo ? ((c.code || "").includes("SE310") ? 24 : 27) : Math.floor(Math.random() * 6) + 22;
+      const finalVal = isDemo ? ((c.code || "").includes("SE310") ? 48 : 45) : Math.floor(Math.random() * 10) + 38;
       const total = assignmentsVal + midtermVal + finalVal;
 
       const gradeDoc = await Grade.create({
@@ -878,7 +866,7 @@ export const seedFullDemoData = async () => {
   }
 
   // Attach all past & current grades to student demo profile
-  studentDemo.grades = [gradeOOP._id, gradeDS._id, gradeMath._id, ...demoStudentGrades];
+  studentDemo.grades = [gradeOOP._id, gradeDS._id, gradeMath._id, ...demoStudentGrades] as any;
   await studentDemo.save();
 
   // 16. Chat Rooms and Messages (For All Courses & Direct Messaging)
@@ -897,7 +885,6 @@ export const seedFullDemoData = async () => {
     content: "السلام عليكم ورحمة الله وبركاته، مرحباً بكم جميعاً في مقرر هندسة البرمجيات المتقدمة. تم رفع توصيف المقرر والوحدات الأولى على المنصة.",
     sender: teacherDemo._id,
     chat: seChat._id,
-    readBy: [studentDemo._id, mainAdmin._id],
     createdAt: new Date(Date.now() - 48 * 3600 * 1000),
   });
 
@@ -905,7 +892,6 @@ export const seedFullDemoData = async () => {
     content: "وعليكم السلام دكتور فهد، أهلاً بك. هل تم تحديد موعد تسليم المشروع الفصلي للوحدة الأولى؟",
     sender: studentDemo._id,
     chat: seChat._id,
-    readBy: [teacherDemo._id, mainAdmin._id],
     createdAt: new Date(Date.now() - 24 * 3600 * 1000),
   });
 
@@ -913,7 +899,6 @@ export const seedFullDemoData = async () => {
     content: "نعم عبدالله، موعد التسليم بعد أسبوع من الآن، وسيتم تخصيص جزء من المحاضرة القادمة للإجابة على أي استفسارات تخص المعمارية.",
     sender: teacherDemo._id,
     chat: seChat._id,
-    readBy: [studentDemo._id, mainAdmin._id],
     createdAt: new Date(Date.now() - 4 * 3600 * 1000),
   });
 
@@ -921,7 +906,6 @@ export const seedFullDemoData = async () => {
     content: "دكتور هل يمكن استخدام Docker Compose لربط الخدمات المصغرة محلياً أثناء العرض التجريبي؟",
     sender: createdStudents[1]._id, // Sara Ahmed
     chat: seChat._id,
-    readBy: [teacherDemo._id, studentDemo._id],
     createdAt: new Date(Date.now() - 2 * 3600 * 1000),
   });
 
@@ -929,11 +913,10 @@ export const seedFullDemoData = async () => {
     content: "نعم بالتأكيد يا سارة، استخدام Docker و Docker Compose مستحسن ويعطي درجات إضافية في معيار جودة النشر.",
     sender: teacherDemo._id,
     chat: seChat._id,
-    readBy: [studentDemo._id],
     createdAt: new Date(Date.now() - 1 * 3600 * 1000),
   });
 
-  seChat.latestMessage = seMsg5._id;
+  seChat.latestMessage = seMsg5._id as any;
   await seChat.save();
 
   // CS301 Course Chat
@@ -949,7 +932,6 @@ export const seedFullDemoData = async () => {
     content: "أعزائي الطلاب، تم رفع الواجب الأول الخاص بمقارنة تعقيد الخوارزميات. الموعد النهائي محدد بنهاية الأسبوع.",
     sender: teacherSara._id,
     chat: algoChat._id,
-    readBy: [studentDemo._id],
     createdAt: new Date(Date.now() - 20 * 3600 * 1000),
   });
 
@@ -957,7 +939,6 @@ export const seedFullDemoData = async () => {
     content: "شكراً دكتورة سارة، هل التحليل النظري لمصفوفات التكرار كافٍ أم يتطلب اختبارات عملية في الكود؟",
     sender: studentDemo._id,
     chat: algoChat._id,
-    readBy: [teacherSara._id],
     createdAt: new Date(Date.now() - 10 * 3600 * 1000),
   });
 
@@ -965,11 +946,10 @@ export const seedFullDemoData = async () => {
     content: "المطلوب كلاهما يا عبدالله: التحليل الرياضي بالإضافة إلى كود بايثون يقيس الوقت الفعلي بالميكروثانية.",
     sender: teacherSara._id,
     chat: algoChat._id,
-    readBy: [studentDemo._id],
     createdAt: new Date(Date.now() - 3 * 3600 * 1000),
   });
 
-  algoChat.latestMessage = algoMsg3._id;
+  algoChat.latestMessage = algoMsg3._id as any;
   await algoChat.save();
 
   // AI401 Course Chat
@@ -985,11 +965,10 @@ export const seedFullDemoData = async () => {
     content: "مرحباً بكم في مقرر الذكاء الاصطناعي. سنبدأ الأسبوع القادم في تطبيقات الشبكات العصبية العميقة CNN.",
     sender: teacherSara._id,
     chat: aiChat._id,
-    readBy: [studentDemo._id],
     createdAt: new Date(Date.now() - 15 * 3600 * 1000),
   });
 
-  aiChat.latestMessage = aiMsg1._id;
+  aiChat.latestMessage = aiMsg1._id as any;
   await aiChat.save();
 
   // SEC350 Course Chat
@@ -1005,11 +984,10 @@ export const seedFullDemoData = async () => {
     content: "تذكير لجميع الطلاب: مختبر الغد سيتضمن تجربة عملية لاختراق واكتشاف الثغرات في بيئة معزولة Sandbox.",
     sender: teacherTariq._id,
     chat: secChat._id,
-    readBy: [studentDemo._id],
     createdAt: new Date(Date.now() - 8 * 3600 * 1000),
   });
 
-  secChat.latestMessage = secMsg1._id;
+  secChat.latestMessage = secMsg1._id as any;
   await secChat.save();
 
   // Direct Chat: Admin & Teacher
@@ -1024,7 +1002,6 @@ export const seedFullDemoData = async () => {
     content: "د. فهد، نرجو مراجعة مخرجات تعلم مقرر SE310 واعتمادها في لوحة التحكم.",
     sender: mainAdmin._id,
     chat: adminDirectChat._id,
-    readBy: [teacherDemo._id],
     createdAt: new Date(Date.now() - 12 * 3600 * 1000),
   });
 
@@ -1032,11 +1009,10 @@ export const seedFullDemoData = async () => {
     content: "تمت المراجعة والتأكد من مطابقة جميع معايير ABET، وسأقوم برفع تقرير التقييم اليوم.",
     sender: teacherDemo._id,
     chat: adminDirectChat._id,
-    readBy: [mainAdmin._id],
     createdAt: new Date(Date.now() - 1 * 3600 * 1000),
   });
 
-  adminDirectChat.latestMessage = adminMsg2._id;
+  adminDirectChat.latestMessage = adminMsg2._id as any;
   await adminDirectChat.save();
 
   // Direct Chat: Teacher & Student
@@ -1051,7 +1027,6 @@ export const seedFullDemoData = async () => {
     content: "السلام عليكم دكتور فهد، أود الاستفسار عن إمكانية حجز موعد خلال الساعات المكتبية لمناقشة مقترح المشروع.",
     sender: studentDemo._id,
     chat: teacherStudentDirectChat._id,
-    readBy: [teacherDemo._id],
     createdAt: new Date(Date.now() - 18 * 3600 * 1000),
   });
 
@@ -1059,11 +1034,10 @@ export const seedFullDemoData = async () => {
     content: "أهلاً عبدالله، موعدي المكتبي يوم الثلاثاء الساعة 11:00 صباحاً متاح لك. أحضر معك مخطط النظام الأولي.",
     sender: teacherDemo._id,
     chat: teacherStudentDirectChat._id,
-    readBy: [studentDemo._id],
     createdAt: new Date(Date.now() - 14 * 3600 * 1000),
   });
 
-  teacherStudentDirectChat.latestMessage = tsMsg2._id;
+  teacherStudentDirectChat.latestMessage = tsMsg2._id as any;
   await teacherStudentDirectChat.save();
 
   // 17. Real-Time Performance Metrics
@@ -1082,15 +1056,6 @@ export const seedFullDemoData = async () => {
         total: 16384,
         used: Math.round((memBase / 100) * 16384),
         percent: Math.round(memBase * 10) / 10,
-      },
-      diskUsage: {
-        total: 512000,
-        used: 148000,
-        percent: 28.9,
-      },
-      networkUsage: {
-        incoming: Math.round(240 + Math.random() * 120),
-        outgoing: Math.round(180 + Math.random() * 90),
       },
       uptime: 3600 * (48 - i),
     });

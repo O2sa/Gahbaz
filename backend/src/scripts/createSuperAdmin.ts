@@ -5,15 +5,23 @@ import Admin from "../models/Admin.js";
 import University from "../models/University.js";
 import { hashPassword } from "../core/utils/password.utils.js";
 
+export interface CreateSuperAdminOptions {
+  email?: string;
+  password?: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+}
+
 /**
  * CLI script to create or promote a Super Admin user.
  * Usage:
  *   node src/scripts/createSuperAdmin.js [--email email] [--password pass] [--firstName name] [--lastName name]
  */
-export const createSuperAdmin = async (options = {}) => {
+export const createSuperAdmin = async (options: CreateSuperAdminOptions = {}) => {
   // Parse command-line flags
   const args = process.argv.slice(2);
-  const getArg = (flag, fallback) => {
+  const getArg = (flag: string, fallback: string): string => {
     const idx = args.indexOf(flag);
     if (idx !== -1 && args[idx + 1]) return args[idx + 1];
     return fallback;
@@ -49,14 +57,12 @@ export const createSuperAdmin = async (options = {}) => {
   if (existingUser) {
     console.log(`⚡ Existing user found (ID: ${existingUser._id}, Current Role: ${existingUser.role}). Updating to Super Admin...`);
     existingUser.role = "super-admin";
-    existingUser.isAdmin = true;
     existingUser.password = hashedPassword;
     if (existingUser.kind !== "Admin") {
       existingUser.kind = "Admin";
     }
-    existingUser.permissions = "rwd";
     if (!existingUser.university) {
-      existingUser.university = university._id;
+      existingUser.university = university._id as any;
     }
     await existingUser.save();
     superAdmin = existingUser;
@@ -70,8 +76,6 @@ export const createSuperAdmin = async (options = {}) => {
       password: hashedPassword,
       phone,
       role: "super-admin",
-      isAdmin: true,
-      permissions: "rwd",
       kind: "Admin",
       university: university._id,
       lastActivity: new Date(),

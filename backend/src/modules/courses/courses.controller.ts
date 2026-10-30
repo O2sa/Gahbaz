@@ -57,11 +57,13 @@ export const createSection = async (req: Request, res: Response): Promise<void> 
 export const getSection = async (req: Request, res: Response): Promise<void> => {
   try {
     const data = await svc.getSectionByIdService(req.params.id);
-    return sendSuccess(res, data);
+    sendSuccess(res, data);
+    return;
   } catch (err) {
     const courseSections = await svc.getSectionsByCourseService(req.params.id);
     if (courseSections && courseSections.length > 0) {
-      return sendSuccess(res, courseSections);
+      sendSuccess(res, courseSections);
+      return;
     }
     throw err;
   }

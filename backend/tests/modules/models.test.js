@@ -35,21 +35,29 @@ describe("Standardized Mongoose 8 Domain Models", () => {
     expect(Student.modelName).toBe("Student");
   });
 
-  it("should calculate grade totals and percentages accurately with recalculateTotal", () => {
+  it("should calculate grade totals and percentages accurately with updateGrade", () => {
     const courseId = new mongoose.Types.ObjectId();
     const studentId = new mongoose.Types.ObjectId();
     const gradeDoc = new Grade({
       course: courseId,
       student: studentId,
-      grades: [
-        { key: "midterm", name: "Midterm", maxValue: 30, value: 25 },
-        { key: "final", name: "Final", maxValue: 50, value: 45 },
-      ],
+      grade: {
+        0: { name: "تكاليف", value: 0 },
+        1: { name: "نهائي", value: 0 },
+      },
     });
 
-    gradeDoc.recalculateTotal();
-    expect(gradeDoc.total).toBe(70);
-    expect(gradeDoc.percent).toBe((70 / 80) * 100);
+    const mockSchema = {
+      total: 100,
+      grade: {
+        0: { name: "تكاليف", value: 30 },
+        1: { name: "نهائي", value: 70 },
+      },
+    };
+
+    gradeDoc.updateGrade({ 0: { value: 25 }, 1: { value: 65 } }, mockSchema);
+    expect(gradeDoc.total).toBe(90);
+    expect(gradeDoc.percent).toBe(90);
   });
 
   it("should reject grade update exceeding schema maximums", () => {

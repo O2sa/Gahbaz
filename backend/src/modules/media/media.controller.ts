@@ -30,10 +30,8 @@ export const uploadLocalFile = async (req: Request, res: Response) => {
 
   const targetFolder = (req.query?.folder || req.body?.folder || "general") as string;
   const isPrivate =
-    req.query?.isPrivate === "true" ||
-    req.query?.isPrivate === true ||
-    req.body?.isPrivate === "true" ||
-    req.body?.isPrivate === true;
+    String(req.query?.isPrivate) === "true" ||
+    String(req.body?.isPrivate) === "true";
 
   const uploadDir = path.resolve(process.cwd(), process.env.UPLOAD_DIR || "uploads");
   const driver = storageService.getDriver();

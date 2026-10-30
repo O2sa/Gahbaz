@@ -31,7 +31,7 @@ const swaggerUiOptions = {
 };
 
 // Interactive Swagger UI documentation
-swaggerRouter.use("/", swaggerUi.serve, swaggerUi.setup(openApiSpec, swaggerUiOptions));
+swaggerRouter.use("/", ...(swaggerUi.serve as any), swaggerUi.setup(openApiSpec, swaggerUiOptions) as any);
 
 export { openApiSpec };
 export default swaggerRouter;

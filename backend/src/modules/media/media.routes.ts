@@ -12,10 +12,8 @@ const storage = multer.diskStorage({
   destination: (req, _file, cb) => {
     const folder = (req.query?.folder || req.body?.folder || "general") as string;
     const isPrivate =
-      req.query?.isPrivate === "true" ||
-      req.query?.isPrivate === true ||
-      req.body?.isPrivate === "true" ||
-      req.body?.isPrivate === true;
+      String(req.query?.isPrivate) === "true" ||
+      String(req.body?.isPrivate) === "true";
     const dest = path.join(uploadDir, isPrivate ? path.join("private", folder) : folder);
     if (!fs.existsSync(dest)) {
       fs.mkdirSync(dest, { recursive: true });
@@ -37,7 +35,7 @@ const upload = multer({
 const router = Router();
 
 router.post("/presigned-url", authenticateUser, mediaController.getPresignedUrl);
-router.post("/upload", authenticateUser, upload.single("file"), mediaController.uploadLocalFile);
+router.post("/upload", authenticateUser, upload.single("file") as any, mediaController.uploadLocalFile);
 router.get("/stream/*", mediaController.streamVideo);
 router.get("/private/*", authenticateUser, mediaController.getPrivateFile);
 router.delete("/*", authenticateUser, mediaController.deleteMedia);

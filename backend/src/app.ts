@@ -1,5 +1,5 @@
 import "express-async-errors";
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import cors from "cors";
@@ -30,7 +30,6 @@ import mediaRouter from "./modules/media/media.routes.js";
 import swaggerRouter, { openApiSpec } from "./docs/swagger.js";
 
 import { authenticateUser } from "./core/middleware/auth.middleware.js";
-import { enforceDemoReadOnly } from "./core/middleware/rbac.middleware.js";
 import errorHandlerMiddleware from "./core/middleware/error.middleware.js";
 import { sendSuccess } from "./core/utils/response.utils.js";
 
@@ -51,7 +50,7 @@ app.use(mongoSanitize());
 // Static file serving for images and uploads with CORS and cross-origin headers
 const uploadDir = path.resolve(process.cwd(), process.env.UPLOAD_DIR || "uploads");
 const staticOptions = {
-  setHeaders: (res) => {
+  setHeaders: (res: Response) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
   },
@@ -61,7 +60,7 @@ app.use("/images", express.static(path.resolve(__dirname, "../../images"), stati
 app.use("/uploads", express.static(uploadDir, staticOptions));
 
 // Fallback resolver for /uploads in case a file was moved or stored in another subfolder
-app.use("/uploads/:folder/:filename", (req, res, next) => {
+app.use("/uploads/:folder/:filename", (req: Request, res: Response, next: NextFunction) => {
   const { folder, filename } = req.params;
   const directPath = path.join(uploadDir, folder, filename);
   if (fs.existsSync(directPath)) {
@@ -78,22 +77,22 @@ app.use("/uploads/:folder/:filename", (req, res, next) => {
 });
 
 // OpenAPI / Swagger Documentation
-app.get("/api/docs.json", (req, res) => {
+app.get("/api/docs.json", (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "application/json");
   res.json(openApiSpec);
 });
 app.use("/api/docs", swaggerRouter);
 
 // Health test route
-app.get("/api/v1/test", (req, res) => {
+app.get("/api/v1/test", (_req: Request, res: Response) => {
   sendSuccess(res, { status: "healthy", timestamp: new Date().toISOString() });
 });
 
 // Unauthenticated Auth Router
 app.use("/api/v1/auth", authRouter);
 
-// Centralized authenticated pipeline: authentication + global demo read-only guard
-const authGuard = [authenticateUser, enforceDemoReadOnly];
+// Centralized authenticated pipeline: authentication
+const authGuard = [authenticateUser];
 
 // Authenticated Domain Routers
 app.use("/api/v1/users", authGuard, usersRouter);
@@ -118,7 +117,7 @@ app.use("/api/v1/system", authGuard, systemRouter);
 app.use("/api/v1/media", mediaRouter);
 
 // Health check routes for Render, uptime monitors, and cloud probes
-app.get(["/health", "/api/v1/health"], (req, res) => {
+app.get(["/health", "/api/v1/health"], (_req: Request, res: Response) => {
   sendSuccess(res, {
     status: "healthy",
     uptime: process.uptime(),
@@ -127,7 +126,7 @@ app.get(["/health", "/api/v1/health"], (req, res) => {
 });
 
 // Root API information route
-app.get("/", (req, res) => {
+app.get("/", (_req: Request, res: Response) => {
   res.json({
     name: "Gahbaz Academic Platform API",
     status: "active",
@@ -139,7 +138,7 @@ app.get("/", (req, res) => {
 });
 
 // Global 404 for unmatched routes - Pure JSON API response (never serve frontend)
-app.use("*", (req, res) => {
+app.use("*", (req: Request, res: Response) => {
   res.status(404).json({
     success: false,
     error: {

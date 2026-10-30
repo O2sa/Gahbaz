@@ -57,7 +57,7 @@ export const deleteAssignment = async (req: Request, res: Response): Promise<voi
 export const submitAssignment = async (req: Request, res: Response): Promise<void> => {
   const studentId = req.user!.userId;
   const universityId =
-    req.user?.role === "super-admin" ? null : req.user?.universityId || null;
+    req.user?.role === "super-admin" ? undefined : req.user?.universityId || undefined;
   const data = await svc.submitAssignmentService({
     assignmentId: req.params.id,
     studentId,
@@ -69,7 +69,7 @@ export const submitAssignment = async (req: Request, res: Response): Promise<voi
 
 export const getAssignmentSubmissions = async (req: Request, res: Response): Promise<void> => {
   const universityId =
-    req.user?.role === "super-admin" ? null : req.user?.universityId || null;
+    req.user?.role === "super-admin" ? undefined : req.user?.universityId || undefined;
   const data = await svc.getAssignmentSubmissionsService(req.params.id, universityId);
   sendSuccess(res, data);
 };
@@ -83,7 +83,7 @@ export const getMySubmission = async (req: Request, res: Response): Promise<void
 export const gradeSubmission = async (req: Request, res: Response): Promise<void> => {
   const teacherId = req.user!.userId;
   const universityId =
-    req.user?.role === "super-admin" ? null : req.user?.universityId || null;
+    req.user?.role === "super-admin" ? undefined : req.user?.universityId || undefined;
   const data = await svc.gradeSubmissionService({
     submissionId: req.params.submissionId,
     grade: req.body.grade,

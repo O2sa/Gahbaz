@@ -2,14 +2,18 @@ import mongoose from "mongoose";
 import env from "../config/env.js";
 import User from "../models/User.js";
 
+export interface MigrateUserNamesOptions {
+  dryRun?: boolean;
+}
+
 /**
  * Migration script: populates the primary `name` field for all users where
  * `name` is missing, empty, or null, using legacy `firstName` and `lastName`.
  *
  * Usage:
- *   node src/scripts/migrate-user-names.js [--dry-run]
+ *   npx tsx src/scripts/migrate-user-names.ts [--dry-run]
  */
-export const migrateUserNames = async (options = {}) => {
+export const migrateUserNames = async (options: MigrateUserNamesOptions = {}) => {
   const isDryRun = options.dryRun ?? process.argv.includes("--dry-run");
 
   if (mongoose.connection.readyState === 0) {
@@ -60,7 +64,7 @@ export const migrateUserNames = async (options = {}) => {
 };
 
 // Auto-run if executed directly
-if (process.argv[1] && process.argv[1].endsWith("migrate-user-names.js")) {
+if (process.argv[1]?.replace(/\\/g, "/").includes("migrate-user-names")) {
   migrateUserNames()
     .then(async () => {
       await mongoose.disconnect();

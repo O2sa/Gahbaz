@@ -13,8 +13,6 @@ const demoUsers = [
     email: "admin@test.com",
     plainPassword: "admin@test.com",
     role: "admin",
-    isAdmin: true,
-    permissions: "rw",
     kind: "Admin",
   },
   {
@@ -24,8 +22,6 @@ const demoUsers = [
     email: "univ.admin@gahbaz.edu",
     plainPassword: "Password123!",
     role: "admin",
-    isAdmin: true,
-    permissions: "rw",
     kind: "Admin",
   },
   {
@@ -35,7 +31,6 @@ const demoUsers = [
     email: "teacher@tech.com",
     plainPassword: "teacher@tech.com",
     role: "teacher",
-    isAdmin: false,
     kind: "Teacher",
   },
   {
@@ -45,7 +40,6 @@ const demoUsers = [
     email: "student@test.com",
     plainPassword: "student@test.com",
     role: "student",
-    isAdmin: false,
     kind: "Student",
   },
 ];
@@ -70,21 +64,17 @@ export const seedDemoUsers = async () => {
         email: demo.email,
         password: hashedPassword,
         role: demo.role,
-        isAdmin: demo.isAdmin,
         kind: demo.kind,
-        permissions: demo.permissions,
-        ...(primaryUniversity ? { university: primaryUniversity._id } : {}),
+        ...(primaryUniversity ? { university: primaryUniversity._id as any } : {}),
       });
       console.log(`[Seed] Created demo user: ${demo.email}`);
     } else {
       existing.name = demo.name || existing.name;
       existing.password = hashedPassword;
-      existing.role = demo.role;
-      existing.isAdmin = demo.isAdmin;
+      existing.role = demo.role as any;
       if (demo.kind) existing.kind = demo.kind;
-      if (demo.permissions) existing.permissions = demo.permissions;
       if (primaryUniversity && !existing.university) {
-        existing.university = primaryUniversity._id;
+        existing.university = primaryUniversity._id as any;
       }
       await existing.save();
       console.log(`[Seed] Updated demo user password: ${demo.email}`);

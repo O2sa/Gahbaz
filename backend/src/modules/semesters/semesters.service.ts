@@ -156,7 +156,7 @@ export const startSemesterService = async (
             const allTemplates = await SemesterTemplate.find({ major: m.majorId }).session(session);
             for (const t of allTemplates) {
               resolvedConfigs.push({
-                templateId: t._id.toString(),
+                templateId: String((t as any)._id),
                 customSubjects: null, // default to all template subjects
               });
             }
@@ -207,7 +207,7 @@ export const startSemesterService = async (
       const semesterTemplates = await SemesterTemplate.find({ _id: { $in: templateIds } }).session(session);
 
       for (const template of semesterTemplates) {
-        const config = uniqueConfigsMap.get(template._id.toString());
+        const config = uniqueConfigsMap.get(String((template as any)._id));
         const targetSubjectIds =
           config?.customSubjects && config.customSubjects.length > 0
             ? config.customSubjects
