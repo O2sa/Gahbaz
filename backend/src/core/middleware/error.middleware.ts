@@ -1,6 +1,11 @@
-import { AppError } from "../errors/appError.js";
+import { Request, Response, NextFunction, ErrorRequestHandler } from "express";
 
-const errorHandlerMiddleware = (err, req, res, next) => {
+const errorHandlerMiddleware: ErrorRequestHandler = (
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): any => {
   let statusCode = err.statusCode || 500;
   let code = err.code || "INTERNAL_SERVER_ERROR";
   let message = err.message || "Something went wrong, please try again later";
@@ -26,13 +31,13 @@ const errorHandlerMiddleware = (err, req, res, next) => {
     statusCode = 422;
     code = "VALIDATION_ERROR";
     message = "Database validation failed";
-    details = Object.values(err.errors || {}).map((item) => ({
+    details = Object.values(err.errors || {}).map((item: any) => ({
       field: item.path,
       message: item.message,
     }));
   }
 
-  const errorPayload = {
+  const errorPayload: Record<string, any> = {
     code,
     message,
   };

@@ -3,9 +3,35 @@ import { z } from "zod";
 export const paginationQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1).optional(),
   limit: z.coerce.number().int().min(1).max(100).default(20).optional(),
-});
+}).passthrough();
 
-export const parsePagination = (query = {}, defaultLimit = 20, maxLimit = 100) => {
+export type PaginationQuery = z.infer<typeof paginationQuerySchema> & Record<string, any>;
+
+export interface ParsedPagination {
+  page: number;
+  limit: number;
+  skip: number;
+}
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
+export interface PaginatedResult<T> {
+  data: T[];
+  meta: PaginationMeta;
+}
+
+export const parsePagination = (
+  query: any = {},
+  defaultLimit: number = 20,
+  maxLimit: number = 100
+): ParsedPagination => {
   const rawPage = parseInt(query?.page, 10);
   const page = Number.isInteger(rawPage) && rawPage >= 1 ? rawPage : 1;
 
@@ -18,11 +44,19 @@ export const parsePagination = (query = {}, defaultLimit = 20, maxLimit = 100) =
   return { page, limit, skip };
 };
 
-export const paginateQuery = async (
-  modelOrQuery,
-  filter = {},
-  options = {}
-) => {
+export interface PaginateOptions {
+  page?: number;
+  limit?: number;
+  sort?: any;
+  populate?: any;
+  select?: any;
+}
+
+export const paginateQuery = async <T = any>(
+  modelOrQuery: any,
+  filter: any = {},
+  options: PaginateOptions = {}
+): Promise<PaginatedResult<T>> => {
   const {
     page = 1,
     limit = 20,
