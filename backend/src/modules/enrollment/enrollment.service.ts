@@ -1,8 +1,8 @@
-import Course from "../../models/Course.js";
-import Semester from "../../models/Semester.js";
-import Student from "../../models/Student.js";
-import Grade from "../../models/Grade.js";
-import Subject from "../../models/Subject.js";
+import Course, { ICourse } from "../../models/Course.js";
+import Semester, { ISemester } from "../../models/Semester.js";
+import Student, { IStudent } from "../../models/Student.js";
+import Grade, { IGrade } from "../../models/Grade.js";
+import Subject, { ISubject } from "../../models/Subject.js";
 import { NotFoundError, BadRequestError } from "../../core/errors/customErrors.js";
 import { syncCourseStudentRoster } from "../chat/chat.service.js";
 
@@ -12,7 +12,7 @@ export const MAX_CREDIT_HOURS = 19;
 /**
  * Checks whether the Add/Drop window is currently open for the given semester.
  */
-export const isAddDropWindowOpen = (semester) => {
+export const isAddDropWindowOpen = (semester?: ISemester | null): boolean => {
   if (!semester || semester.completed) {
     return false;
   }
@@ -26,15 +26,24 @@ export const isAddDropWindowOpen = (semester) => {
   return true;
 };
 
+export interface PrerequisiteResult {
+  eligible: boolean;
+  missingPrerequisites: { _id: string; name: string }[];
+}
+
 /**
  * Validates whether the student has completed and passed all prerequisites for a course.
  */
-export const evaluateCoursePrerequisites = (course, studentGrades = [], prereqSubjects = []) => {
+export const evaluateCoursePrerequisites = (
+  course: any,
+  studentGrades: any[] = [],
+  prereqSubjects: any[] = []
+): PrerequisiteResult => {
   if (!course.prerequisites || course.prerequisites.length === 0) {
     return { eligible: true, missingPrerequisites: [] };
   }
 
-  const missingPrerequisites = [];
+  const missingPrerequisites: { _id: string; name: string }[] = [];
 
   for (const prereqId of course.prerequisites) {
     const prereqIdStr = (prereqId._id || prereqId).toString();
@@ -73,11 +82,14 @@ export const evaluateCoursePrerequisites = (course, studentGrades = [], prereqSu
 /**
  * Returns available courses for the student in the active or specified semester.
  */
-export const getAvailableCoursesService = async (studentId, { semesterId = null } = {}) => {
+export const getAvailableCoursesService = async (
+  studentId: string,
+  { semesterId = null }: { semesterId?: string | null } = {}
+) => {
   const student = await Student.findById(studentId);
   if (!student) throw new NotFoundError("Student not found");
 
-  let semester;
+  let semester: any;
   if (semesterId) {
     semester = await Semester.findById(semesterId);
   } else {
@@ -99,26 +111,33 @@ export const getAvailableCoursesService = async (studentId, { semesterId = null 
 
   // Fetch courses in this semester
   const coursesQuery = Course.find({ semester: semester._id });
-  const courses = typeof coursesQuery.populate === "function"
-    ? await coursesQuery.populate("teachers")
+  const courses = typeof (coursesQuery as any).populate === "function"
+    ? await (coursesQuery as any).populate("teachers")
     : await coursesQuery;
 
   // Fetch student's grades to check prerequisites
   const gradesQuery = Grade.find({ student: studentId });
-  const studentGrades = typeof gradesQuery.populate === "function"
-    ? await gradesQuery.populate("course")
+  const studentGrades = typeof (gradesQuery as any).populate === "function"
+    ? await (gradesQuery as any).populate("course")
     : await gradesQuery;
 
   // Collect prerequisite subject details
-  const prereqIds = [...new Set(courses.flatMap((c) => c.prerequisites || []).map((id) => (id._id || id).toString()))];
+  const prereqIds = [
+    ...new Set(
+      courses
+        .flatMap((c: any) => c.prerequisites || [])
+        .map((id: any) => (id._id || id).toString())
+    ),
+  ];
   const prereqSubjects = prereqIds.length > 0 ? await Subject.find({ _id: { $in: prereqIds } }) : [];
 
   // Calculate current credit hours
   let currentCreditHours = 0;
-  const processedCourses = courses.map((course) => {
-    const isEnrolled = course.students?.some(
-      (s) => (s.student?._id || s.student)?.toString() === studentId.toString()
-    ) || false;
+  const processedCourses = courses.map((course: any) => {
+    const isEnrolled =
+      course.students?.some(
+        (s: any) => (s.student?._id || s.student)?.toString() === studentId.toString()
+      ) || false;
 
     const courseCredits = Number(course.creditHours || 3);
     if (isEnrolled) {
@@ -165,11 +184,11 @@ export const getAvailableCoursesService = async (studentId, { semesterId = null 
 /**
  * Registers student for a course during open Add/Drop window enforcing limits.
  */
-export const registerCourseService = async (studentId, courseId) => {
-  const course = await Course.findById(courseId);
+export const registerCourseService = async (studentId: string, courseId: string) => {
+  const course: any = await Course.findById(courseId);
   if (!course) throw new NotFoundError("Course not found");
 
-  const semester = await Semester.findById(course.semester);
+  const semester: any = await Semester.findById(course.semester);
   if (!semester) throw new NotFoundError("Semester not found for this course");
 
   if (!isAddDropWindowOpen(semester)) {
@@ -177,22 +196,22 @@ export const registerCourseService = async (studentId, courseId) => {
   }
 
   const isAlreadyEnrolled = course.students?.some(
-    (s) => (s.student?._id || s.student)?.toString() === studentId.toString()
+    (s: any) => (s.student?._id || s.student)?.toString() === studentId.toString()
   );
   if (isAlreadyEnrolled) {
     throw new BadRequestError("Student is already registered in this course");
   }
 
-  const student = await Student.findById(studentId);
+  const student: any = await Student.findById(studentId);
   if (!student) throw new NotFoundError("Student not found");
 
   // Validate prerequisites
   if (course.prerequisites && course.prerequisites.length > 0) {
     const gradesQuery = Grade.find({ student: studentId });
-    const studentGrades = typeof gradesQuery.populate === "function"
-      ? await gradesQuery.populate("course")
+    const studentGrades = typeof (gradesQuery as any).populate === "function"
+      ? await (gradesQuery as any).populate("course")
       : await gradesQuery;
-    const prereqIds = course.prerequisites.map((id) => (id._id || id).toString());
+    const prereqIds = course.prerequisites.map((id: any) => (id._id || id).toString());
     const prereqSubjects = await Subject.find({ _id: { $in: prereqIds } });
     const { eligible, missingPrerequisites } = evaluateCoursePrerequisites(
       course,
@@ -207,7 +226,7 @@ export const registerCourseService = async (studentId, courseId) => {
   }
 
   // Calculate current credit hours in semester
-  const enrolledCourses = await Course.find({
+  const enrolledCourses: any[] = await Course.find({
     semester: course.semester,
     "students.student": studentId,
   });
@@ -242,7 +261,7 @@ export const registerCourseService = async (studentId, courseId) => {
   // Update Student grades and semesters
   student.grades = student.grades || [];
   student.grades.push(grade._id);
-  if (!student.semesters?.some((s) => s.toString() === semester._id.toString())) {
+  if (!student.semesters?.some((s: any) => s.toString() === semester._id.toString())) {
     student.semesters = student.semesters || [];
     student.semesters.push(semester._id);
   }
@@ -273,11 +292,11 @@ export const registerCourseService = async (studentId, courseId) => {
 /**
  * Drops course for student during open Add/Drop window enforcing limits.
  */
-export const dropCourseService = async (studentId, courseId) => {
-  const course = await Course.findById(courseId);
+export const dropCourseService = async (studentId: string, courseId: string) => {
+  const course: any = await Course.findById(courseId);
   if (!course) throw new NotFoundError("Course not found");
 
-  const semester = await Semester.findById(course.semester);
+  const semester: any = await Semester.findById(course.semester);
   if (!semester) throw new NotFoundError("Semester not found for this course");
 
   if (!isAddDropWindowOpen(semester)) {
@@ -285,14 +304,14 @@ export const dropCourseService = async (studentId, courseId) => {
   }
 
   const isEnrolled = course.students?.some(
-    (s) => (s.student?._id || s.student)?.toString() === studentId.toString()
+    (s: any) => (s.student?._id || s.student)?.toString() === studentId.toString()
   );
   if (!isEnrolled) {
     throw new BadRequestError("Student is not registered in this course");
   }
 
   // Calculate current and remaining credits
-  const enrolledCourses = await Course.find({
+  const enrolledCourses: any[] = await Course.find({
     semester: course.semester,
     "students.student": studentId,
   });
@@ -312,7 +331,7 @@ export const dropCourseService = async (studentId, courseId) => {
 
   // Remove from course students
   course.students = course.students.filter(
-    (s) => (s.student?._id || s.student)?.toString() !== studentId.toString()
+    (s: any) => (s.student?._id || s.student)?.toString() !== studentId.toString()
   );
   await course.save();
 
@@ -326,7 +345,7 @@ export const dropCourseService = async (studentId, courseId) => {
   try {
     await syncCourseStudentRoster({
       courseId: course._id,
-      studentId: studentId,
+      studentId,
       action: "remove",
     });
   } catch (err) {
@@ -342,9 +361,12 @@ export const dropCourseService = async (studentId, courseId) => {
 /**
  * Retrieves student's enrolled courses in the active or specified semester.
  */
-export const getMyEnrolledCoursesService = async (studentId, { semesterId = null } = {}) => {
+export const getMyEnrolledCoursesService = async (
+  studentId: string,
+  { semesterId = null }: { semesterId?: string | null } = {}
+) => {
   const result = await getAvailableCoursesService(studentId, { semesterId });
-  const enrolledCourses = result.courses.filter((c) => c.isEnrolled);
+  const enrolledCourses = result.courses.filter((c: any) => c.isEnrolled);
   return {
     ...result,
     courses: enrolledCourses,

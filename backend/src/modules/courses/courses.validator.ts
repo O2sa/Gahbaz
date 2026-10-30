@@ -5,6 +5,8 @@ export const createSectionSchema = z.object({
   course: z.string().min(1, "Course ID is required"),
 });
 
+export type CreateSectionInput = z.infer<typeof createSectionSchema>;
+
 export const createLessonSchema = z.object({
   name: z.string().min(2, "Lesson name must be at least 2 characters"),
   video: z
@@ -20,3 +22,5 @@ export const createLessonSchema = z.object({
     })
     .optional(),
 });
+
+export type CreateLessonInput = z.infer<typeof createLessonSchema>;

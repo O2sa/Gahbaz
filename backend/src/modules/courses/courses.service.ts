@@ -1,16 +1,17 @@
 import mongoose from "mongoose";
-import Course from "../../models/Course.js";
-import Section from "../../models/Section.js";
+import Course, { ICourse } from "../../models/Course.js";
+import Section, { ISection } from "../../models/Section.js";
 import Student from "../../models/Student.js";
 import Grade from "../../models/Grade.js";
 import Semester from "../../models/Semester.js";
 import Chat from "../../models/Chat.js";
 import { NotFoundError } from "../../core/errors/customErrors.js";
 import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
+import { CreateSectionInput, CreateLessonInput } from "./courses.validator.js";
 
 // ======================== COURSES ========================
-export const getCourseByIdService = async (id, universityId = null) => {
-  let course;
+export const getCourseByIdService = async (id: string, universityId: string | null = null) => {
+  let course: any;
   if (universityId) {
     course = await Course.findOne({ _id: id, university: universityId })
       .populate("sections")
@@ -24,7 +25,7 @@ export const getCourseByIdService = async (id, universityId = null) => {
   return course;
 };
 
-export const createCourseService = async (data) => {
+export const createCourseService = async (data: Record<string, any>) => {
   const course = await Course.create(data);
   try {
     await Chat.create({
@@ -41,14 +42,18 @@ export const createCourseService = async (data) => {
   return course;
 };
 
-export const updateCourseService = async (id, data, universityId = null) => {
+export const updateCourseService = async (
+  id: string,
+  data: Record<string, any>,
+  universityId: string | null = null
+) => {
   const query = universityId ? { _id: id, university: universityId } : { _id: id };
   const course = await Course.findOneAndUpdate(query, data, { new: true });
   if (!course) throw new NotFoundError("Course not found");
   return course;
 };
 
-export const deleteCourseService = async (id, universityId = null) => {
+export const deleteCourseService = async (id: string, universityId: string | null = null) => {
   const query = universityId ? { _id: id, university: universityId } : { _id: id };
   const course = await Course.findOneAndDelete(query);
   if (!course) throw new NotFoundError("Course not found");
@@ -62,13 +67,13 @@ export const deleteCourseService = async (id, universityId = null) => {
   return course;
 };
 
-export const getCoursesBySemesterService = async (semesterId) => {
+export const getCoursesBySemesterService = async (semesterId: string) => {
   return Course.find({ semester: semesterId });
 };
 
-export const getUserCoursesService = async (user, query = {}) => {
+export const getUserCoursesService = async (user: any, query: Record<string, any> = {}) => {
   const { page, limit } = parsePagination(query);
-  let filter = {};
+  let filter: Record<string, any> = {};
   if (user.role === "teacher") {
     filter = { teachers: user.id || user.userId };
   } else if (user.role === "student") {
@@ -83,7 +88,7 @@ export const getUserCoursesService = async (user, query = {}) => {
       ],
     };
   }
-  return paginateQuery(Course, filter, {
+  return paginateQuery<ICourse>(Course, filter, {
     page,
     limit,
     populate: [
@@ -98,57 +103,61 @@ export const getUserCoursesService = async (user, query = {}) => {
 };
 
 // ======================== SECTIONS & LESSONS ========================
-export const getSectionByIdService = async (id) => {
+export const getSectionByIdService = async (id: string) => {
   const section = await Section.findById(id);
   if (!section) throw new NotFoundError("Section not found");
   return section;
 };
 
-export const createSectionService = async (data) => {
+export const createSectionService = async (data: CreateSectionInput) => {
   return Section.create(data);
 };
 
-export const updateSectionService = async (id, data) => {
+export const updateSectionService = async (id: string, data: Record<string, any>) => {
   const section = await Section.findByIdAndUpdate(id, data, { new: true });
   if (!section) throw new NotFoundError("Section not found");
   return section;
 };
 
-export const deleteSectionService = async (id) => {
+export const deleteSectionService = async (id: string) => {
   const section = await Section.findByIdAndDelete(id);
   if (!section) throw new NotFoundError("Section not found");
   return section;
 };
 
-export const getSectionsByCourseService = async (courseId) => {
+export const getSectionsByCourseService = async (courseId: string) => {
   return Section.find({ course: courseId });
 };
 
-export const addLessonService = async (sectionId, lessonData) => {
+export const addLessonService = async (sectionId: string, lessonData: CreateLessonInput) => {
   const section = await Section.findById(sectionId);
   if (!section) throw new NotFoundError("Section not found");
-  await section.addLesson(lessonData);
+  await section.addLesson(lessonData as any);
   return section;
 };
 
-export const updateLessonService = async (sectionId, lessonId, lessonData) => {
+export const updateLessonService = async (
+  sectionId: string,
+  lessonId: string,
+  lessonData: Partial<CreateLessonInput>
+) => {
   const section = await Section.findById(sectionId);
   if (!section) throw new NotFoundError("Section not found");
-  await section.updateLesson(lessonId, lessonData);
+  await section.updateLesson(lessonId, lessonData as any);
   return section;
 };
 
-export const deleteLessonService = async (sectionId, lessonId) => {
+export const deleteLessonService = async (sectionId: string, lessonId: string) => {
   const section = await Section.findById(sectionId);
   if (!section) throw new NotFoundError("Section not found");
   await section.deleteLesson(lessonId);
   return section;
 };
 
-export const getLessonService = async (sectionId, lessonId) => {
+export const getLessonService = async (sectionId: string, lessonId: string) => {
   const section = await Section.findById(sectionId);
   if (!section) throw new NotFoundError("Section not found");
-  const lesson = section.lessons?.id ? section.lessons.id(lessonId) : section.lessons?.find?.((l) => (l._id || l.id)?.toString() === lessonId);
+  const lesson = section.lessons?.id ? section.lessons.id(lessonId) : section.lessons?.find?.((l: any) => (l._id || l.id)?.toString() === lessonId);
   if (!lesson) throw new NotFoundError("Lesson not found");
   return lesson;
 };
