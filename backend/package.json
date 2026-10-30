@@ -6,9 +6,11 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
+    "build": "tsc",
+    "type-check": "tsc --noEmit",
     "setup-project": "npm i && cd client && npm i",
     "setup-production-app": "npm i && cd client && npm i --legacy-peer-deps && npm run build ",
-    "server": "nodemon server",
+    "server": "tsx watch server.js",
     "client": "cd ../client && npm start",
     "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
     "seed": "node src/seeds/seedFullDemoData.js",
@@ -62,8 +64,21 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
+    "@types/multer": "^2.3.0",
+    "@types/node": "^26.6.6",
+    "@types/nodemailer": "^8.0.2",
+    "@types/supertest": "^7.2.1",
+    "@types/swagger-ui-express": "^4.1.8",
     "nodemon": "^3.0.2",
     "supertest": "^7.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
     "vitest": "^2.1.2"
   }
 }
