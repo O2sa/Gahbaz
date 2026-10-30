@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
-import Semester from "../../models/Semester.js";
-import SemesterTemplate from "../../models/SemesterTemplate.js";
+import mongoose, { Types } from "mongoose";
+import Semester, { ISemester } from "../../models/Semester.js";
+import SemesterTemplate, { ISemesterTemplate } from "../../models/SemesterTemplate.js";
 import Student from "../../models/Student.js";
 import Course from "../../models/Course.js";
 import Section from "../../models/Section.js";
@@ -10,22 +10,36 @@ import Chat from "../../models/Chat.js";
 import Major from "../../models/Major.js";
 import { NotFoundError } from "../../core/errors/customErrors.js";
 import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
+import {
+  CreateSemesterTemplateInput,
+  UpdateSemesterTemplateInput,
+} from "./semesters.validator.js";
 
 // ======================== SEMESTER TEMPLATES ========================
-export const createSemesterTemplateService = async (data) => {
-  const payload = { ...data };
+export const createSemesterTemplateService = async (data: CreateSemesterTemplateInput) => {
+  const payload: Record<string, any> = { ...data };
   if (!payload.name) {
     payload.name = `Semester ${payload.index || 1}`;
   }
   return SemesterTemplate.create(payload);
 };
 
-export const getSemesterTemplatesService = async (filter = {}, query = {}) => {
+export const getSemesterTemplatesService = async (
+  filter: Record<string, any> = {},
+  query: Record<string, any> = {}
+) => {
   const { page, limit } = parsePagination(query);
-  return paginateQuery(SemesterTemplate, filter, { page, limit, populate: "subjects" });
+  return paginateQuery<ISemesterTemplate>(SemesterTemplate, filter, {
+    page,
+    limit,
+    populate: "subjects",
+  });
 };
 
-export const getSemesterTemplatesByMajorOrIdService = async (id, query = {}) => {
+export const getSemesterTemplatesByMajorOrIdService = async (
+  id: string,
+  query: Record<string, any> = {}
+) => {
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
     return { data: [], meta: { page: 1, limit: 10, total: 0, totalPages: 0 } };
   }
@@ -42,28 +56,34 @@ export const getSemesterTemplatesByMajorOrIdService = async (id, query = {}) => 
   return getSemesterTemplatesService({ major: id }, query);
 };
 
-export const getSemesterTemplateByIdService = async (id) => {
+export const getSemesterTemplateByIdService = async (id: string) => {
   const template = await SemesterTemplate.findById(id).populate("subjects");
   if (!template) throw new NotFoundError("Semester template not found");
   return template;
 };
 
-export const updateSemesterTemplateService = async (id, data) => {
+export const updateSemesterTemplateService = async (
+  id: string,
+  data: UpdateSemesterTemplateInput
+) => {
   const template = await SemesterTemplate.findByIdAndUpdate(id, data, { new: true });
   if (!template) throw new NotFoundError("Semester template not found");
   return template;
 };
 
-export const deleteSemesterTemplateService = async (id) => {
+export const deleteSemesterTemplateService = async (id: string) => {
   const template = await SemesterTemplate.findByIdAndDelete(id);
   if (!template) throw new NotFoundError("Semester template not found");
   return template;
 };
 
 // ======================== SEMESTERS ========================
-export const getAllSemestersService = async (universityId, query = {}) => {
+export const getAllSemestersService = async (
+  universityId?: string,
+  query: Record<string, any> = {}
+) => {
   const { page, limit } = parsePagination(query);
-  return paginateQuery(Semester, { university: universityId }, {
+  return paginateQuery<ISemester>(Semester, { university: universityId }, {
     page,
     limit,
     populate: [
@@ -76,19 +96,19 @@ export const getAllSemestersService = async (universityId, query = {}) => {
   });
 };
 
-export const getSemesterByIdService = async (id) => {
+export const getSemesterByIdService = async (id: string) => {
   const semester = await Semester.findById(id).populate("courses");
   if (!semester) throw new NotFoundError("Semester not found");
   return semester;
 };
 
-export const updateSemesterService = async (id, data) => {
+export const updateSemesterService = async (id: string, data: Record<string, any>) => {
   const semester = await Semester.findByIdAndUpdate(id, data, { new: true });
   if (!semester) throw new NotFoundError("Semester not found");
   return semester;
 };
 
-export const deleteSemesterService = async (id) => {
+export const deleteSemesterService = async (id: string) => {
   const semester = await Semester.findByIdAndDelete(id);
   if (!semester) throw new NotFoundError("Semester not found");
 
@@ -100,7 +120,7 @@ export const deleteSemesterService = async (id) => {
   return semester;
 };
 
-export const endSemesterService = async (id) => {
+export const endSemesterService = async (id: string) => {
   const semester = await Semester.findByIdAndUpdate(id, { completed: true }, { new: true });
   if (!semester) throw new NotFoundError("Semester not found");
   if (semester.template) {
@@ -109,13 +129,25 @@ export const endSemesterService = async (id) => {
   return semester;
 };
 
-export const startSemesterService = async ({ semesterData, semesters = [], majors = [] }, universityId) => {
+export interface StartSemesterParams {
+  semesterData: {
+    endDate?: string | Date;
+    [key: string]: any;
+  };
+  semesters?: any[];
+  majors?: any[];
+}
+
+export const startSemesterService = async (
+  { semesterData, semesters = [], majors = [] }: StartSemesterParams,
+  universityId?: string
+) => {
   const session = await mongoose.startSession();
   try {
     let result = { success: true };
     await session.withTransaction(async () => {
-      let usedStudents = [];
-      const resolvedConfigs = [];
+      let usedStudents: Types.ObjectId[] = [];
+      const resolvedConfigs: { templateId: string; customSubjects: string[] | null }[] = [];
 
       // 1. Process `majors` array if provided
       if (Array.isArray(majors) && majors.length > 0) {
@@ -163,7 +195,7 @@ export const startSemesterService = async ({ semesterData, semesters = [], major
       }
 
       // De-duplicate by templateId
-      const uniqueConfigsMap = new Map();
+      const uniqueConfigsMap = new Map<string, { templateId: string; customSubjects: string[] | null }>();
       for (const cfg of resolvedConfigs) {
         if (!uniqueConfigsMap.has(cfg.templateId)) {
           uniqueConfigsMap.set(cfg.templateId, cfg);
@@ -176,9 +208,10 @@ export const startSemesterService = async ({ semesterData, semesters = [], major
 
       for (const template of semesterTemplates) {
         const config = uniqueConfigsMap.get(template._id.toString());
-        const targetSubjectIds = (config?.customSubjects && config.customSubjects.length > 0)
-          ? config.customSubjects
-          : template.subjects;
+        const targetSubjectIds =
+          config?.customSubjects && config.customSubjects.length > 0
+            ? config.customSubjects
+            : template.subjects;
 
         const students = await Student.find({
           comingSemester: template.index,
@@ -200,7 +233,7 @@ export const startSemesterService = async ({ semesterData, semesters = [], major
 
           await SemesterTemplate.findByIdAndUpdate(template._id, { active: true }, { session });
 
-          const newCourses = [];
+          const newCourses: any[] = [];
           for (const subject of subjects) {
             const newCourse = new Course({
               name: subject.name,
@@ -234,7 +267,7 @@ export const startSemesterService = async ({ semesterData, semesters = [], major
 
           for (const student of students) {
             student.comingSemester += 1;
-            student.semesters.push(newSemester._id);
+            student.semesters.push(newSemester._id as Types.ObjectId);
             await student.save({ session });
 
             for (const course of newCourses) {
@@ -247,10 +280,10 @@ export const startSemesterService = async ({ semesterData, semesters = [], major
           }
 
           newSemester.courses = newCourses.map((c) => c._id);
-          newSemester.students = students.map((s) => s._id);
+          newSemester.students = students.map((s) => s._id as Types.ObjectId);
           await newSemester.save({ session });
 
-          usedStudents = [...usedStudents, ...students.map((s) => s._id)];
+          usedStudents = [...usedStudents, ...students.map((s) => s._id as Types.ObjectId)];
         }
       }
     });

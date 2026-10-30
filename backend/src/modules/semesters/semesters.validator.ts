@@ -7,6 +7,8 @@ export const startSemesterSchema = z.object({
   semesters: z.array(z.string()),
 });
 
+export type StartSemesterInput = z.infer<typeof startSemesterSchema>;
+
 export const createSemesterTemplateSchema = z.object({
   name: z.string().min(2, "Template name must be at least 2 characters").optional(),
   major: z.string().min(1, "Major ID is required"),
@@ -14,9 +16,13 @@ export const createSemesterTemplateSchema = z.object({
   subjects: z.array(z.string()).optional(),
 });
 
+export type CreateSemesterTemplateInput = z.infer<typeof createSemesterTemplateSchema>;
+
 export const updateSemesterTemplateSchema = z.object({
   name: z.string().min(2).optional(),
   index: z.coerce.number().int().min(0).optional(),
   active: z.boolean().optional(),
   subjects: z.array(z.string()).optional(),
 });
+
+export type UpdateSemesterTemplateInput = z.infer<typeof updateSemesterTemplateSchema>;

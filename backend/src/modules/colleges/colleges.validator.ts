@@ -5,7 +5,11 @@ export const createCollegeSchema = z.object({
   numberOfSemesters: z.coerce.number().int().min(1).max(20).default(8),
 });
 
+export type CreateCollegeInput = z.infer<typeof createCollegeSchema>;
+
 export const updateCollegeSchema = z.object({
   name: z.string().min(2).optional(),
   numberOfSemesters: z.coerce.number().int().min(1).max(20).optional(),
 });
+
+export type UpdateCollegeInput = z.infer<typeof updateCollegeSchema>;

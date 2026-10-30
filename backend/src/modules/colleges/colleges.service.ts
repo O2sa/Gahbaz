@@ -1,26 +1,31 @@
-import College from "../../models/College.js";
+import College, { ICollege } from "../../models/College.js";
 import Major from "../../models/Major.js";
 import Subject from "../../models/Subject.js";
 import SemesterTemplate from "../../models/SemesterTemplate.js";
 import { NotFoundError } from "../../core/errors/customErrors.js";
 import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
+import { CreateCollegeInput, UpdateCollegeInput } from "./colleges.validator.js";
 
-export const createCollegeService = async (data, universityId) => {
+export const createCollegeService = async (data: CreateCollegeInput, universityId?: string) => {
   return College.create({ ...data, university: universityId });
 };
 
-export const getCollegesService = async (universityId, query = {}) => {
+export const getCollegesService = async (universityId?: string, query: Record<string, any> = {}) => {
   const { page, limit } = parsePagination(query);
-  return paginateQuery(College, { university: universityId }, { page, limit });
+  return paginateQuery<ICollege>(College, { university: universityId }, { page, limit });
 };
 
-export const getCollegeByIdService = async (id, universityId) => {
+export const getCollegeByIdService = async (id: string, universityId?: string) => {
   const college = await College.findOne({ _id: id, university: universityId }).populate("majors");
   if (!college) throw new NotFoundError("College not found");
   return college;
 };
 
-export const updateCollegeService = async (id, data, universityId) => {
+export const updateCollegeService = async (
+  id: string,
+  data: UpdateCollegeInput,
+  universityId?: string
+) => {
   const college = await College.findOneAndUpdate(
     { _id: id, university: universityId },
     data,
@@ -30,7 +35,7 @@ export const updateCollegeService = async (id, data, universityId) => {
   return college;
 };
 
-export const deleteCollegeService = async (id, universityId) => {
+export const deleteCollegeService = async (id: string, universityId?: string) => {
   const college = await College.findOneAndDelete({ _id: id, university: universityId });
   if (!college) throw new NotFoundError("College not found");
 
