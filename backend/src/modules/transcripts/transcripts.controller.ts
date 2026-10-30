@@ -1,9 +1,14 @@
+import { Request, Response, NextFunction } from "express";
 import { getStudentTranscriptService } from "./transcripts.service.js";
 import { UnauthorizedError } from "../../core/errors/customErrors.js";
 
-export const getMyTranscript = async (req, res, next) => {
+export const getMyTranscript = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
-    const studentId = req.user?.id || req.user?.userId;
+    const studentId = req.user!.userId;
     const data = await getStudentTranscriptService(studentId);
     res.status(200).json({
       success: true,
@@ -14,10 +19,14 @@ export const getMyTranscript = async (req, res, next) => {
   }
 };
 
-export const getStudentTranscript = async (req, res, next) => {
+export const getStudentTranscript = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     const { studentId } = req.params;
-    const currentUserId = req.user?.id || req.user?.userId;
+    const currentUserId = req.user!.userId;
     const role = req.user?.role;
 
     // Students can only view their own transcript

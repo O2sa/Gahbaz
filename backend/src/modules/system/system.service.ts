@@ -6,19 +6,19 @@ import Course from "../../models/Course.js";
 import AuditLog from "../../models/AuditLog.js";
 import PerformanceMetric from "../../models/PerformanceMetric.js";
 
-export const calculateThreeMonthsAgo = (from = new Date()) => {
+export const calculateThreeMonthsAgo = (from: Date = new Date()): Date => {
   const d = new Date(from);
   d.setMonth(d.getMonth() - 3);
   return d;
 };
 
-export const calculateThreeDaysAgo = (from = new Date()) => {
+export const calculateThreeDaysAgo = (from: Date = new Date()): Date => {
   const d = new Date(from);
   d.setDate(d.getDate() - 3);
   return d;
 };
 
-export const sanitizeSearchQuery = (str = "") => {
+export const sanitizeSearchQuery = (str: string = ""): string => {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 };
 
@@ -32,7 +32,11 @@ export const getSystemHealthService = () => {
   let load = os.loadavg();
   let avgLoad = Array.isArray(load) && load[0] > 0 ? load[0] : 0;
   if (avgLoad === 0 && cpus && cpus.length > 0) {
-    avgLoad = cpus.reduce((acc, cpu) => acc + (cpu.times.user / (cpu.times.idle + cpu.times.user || 1)), 0) / cpus.length;
+    avgLoad =
+      cpus.reduce(
+        (acc, cpu) => acc + cpu.times.user / (cpu.times.idle + cpu.times.user || 1),
+        0
+      ) / cpus.length;
   }
 
   return {
@@ -47,7 +51,7 @@ export const getSystemHealthService = () => {
   };
 };
 
-export const getAdminDashboardStatsService = async (universityId) => {
+export const getAdminDashboardStatsService = async (universityId?: string) => {
   const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000);
   const activeUsers = await User.countDocuments({
     lastActivity: { $gte: fiveMinAgo },
@@ -76,7 +80,7 @@ export const getAdminDashboardStatsService = async (universityId) => {
   return { activeUsers, loginTimes, systemHealth, metrics };
 };
 
-export const searchEntitiesService = async (query, user) => {
+export const searchEntitiesService = async (query: any, user: any) => {
   if (!query || typeof query !== "string") return {};
   const safeQuery = sanitizeSearchQuery(query);
   const regex = new RegExp(safeQuery, "i");
@@ -99,7 +103,7 @@ export const searchEntitiesService = async (query, user) => {
       return { users, colleges, collages: colleges, majors };
     }
     case "student": {
-      const student = await User.findById(user.id || user.userId);
+      const student: any = await User.findById(user.id || user.userId);
       const courses = await Course.find({
         name: regex,
         semester: { $in: student?.semesters || [] },

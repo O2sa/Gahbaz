@@ -1,11 +1,27 @@
-import Assignment from "../../models/Assignment.js";
-import Submission from "../../models/Submission.js";
+import Assignment, { IAssignment } from "../../models/Assignment.js";
+import Submission, { ISubmission } from "../../models/Submission.js";
 import Course from "../../models/Course.js";
-import Grade from "../../models/Grade.js";
-import { NotFoundError, BadRequestError } from "../../core/errors/customErrors.js";
+import { NotFoundError } from "../../core/errors/customErrors.js";
 import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
+import {
+  CreateAssignmentInput,
+  UpdateAssignmentInput,
+  SubmitAssignmentInput,
+} from "./assignments.validator.js";
 
-export const createAssignmentService = async ({ courseId, data, teacherId, universityId }) => {
+export interface CreateAssignmentParams {
+  courseId: string;
+  data: CreateAssignmentInput;
+  teacherId: string;
+  universityId?: string;
+}
+
+export const createAssignmentService = async ({
+  courseId,
+  data,
+  teacherId,
+  universityId,
+}: CreateAssignmentParams) => {
   const courseQuery = universityId ? { _id: courseId, university: universityId } : { _id: courseId };
   const course = await Course.findOne(courseQuery);
   if (!course) throw new NotFoundError("Course not found");
@@ -18,28 +34,36 @@ export const createAssignmentService = async ({ courseId, data, teacherId, unive
   });
 };
 
-export const getCourseAssignmentsService = async (courseId, universityId = null, query = {}) => {
-  const filter = { course: courseId };
+export const getCourseAssignmentsService = async (
+  courseId: string,
+  universityId: string | null = null,
+  query: Record<string, any> = {}
+) => {
+  const filter: Record<string, any> = { course: courseId };
   if (universityId) filter.university = universityId;
   const { page, limit } = parsePagination(query);
-  return paginateQuery(Assignment, filter, { page, limit, sort: { dueDate: 1 } });
+  return paginateQuery<IAssignment>(Assignment, filter, { page, limit, sort: { dueDate: 1 } });
 };
 
-export const getAssignmentByIdService = async (id, universityId = null) => {
+export const getAssignmentByIdService = async (id: string, universityId: string | null = null) => {
   const query = universityId ? { _id: id, university: universityId } : { _id: id };
   const assignment = await Assignment.findOne(query).populate("course").populate("teacher");
   if (!assignment) throw new NotFoundError("Assignment not found");
   return assignment;
 };
 
-export const updateAssignmentService = async (id, data, universityId = null) => {
+export const updateAssignmentService = async (
+  id: string,
+  data: UpdateAssignmentInput,
+  universityId: string | null = null
+) => {
   const query = universityId ? { _id: id, university: universityId } : { _id: id };
   const assignment = await Assignment.findOneAndUpdate(query, data, { new: true });
   if (!assignment) throw new NotFoundError("Assignment not found");
   return assignment;
 };
 
-export const deleteAssignmentService = async (id, universityId = null) => {
+export const deleteAssignmentService = async (id: string, universityId: string | null = null) => {
   const query = universityId ? { _id: id, university: universityId } : { _id: id };
   const assignment = await Assignment.findOneAndDelete(query);
   if (!assignment) throw new NotFoundError("Assignment not found");
@@ -48,7 +72,19 @@ export const deleteAssignmentService = async (id, universityId = null) => {
   return assignment;
 };
 
-export const submitAssignmentService = async ({ assignmentId, studentId, universityId, data }) => {
+export interface SubmitAssignmentParams {
+  assignmentId: string;
+  studentId: string;
+  universityId?: string;
+  data: SubmitAssignmentInput;
+}
+
+export const submitAssignmentService = async ({
+  assignmentId,
+  studentId,
+  universityId,
+  data,
+}: SubmitAssignmentParams) => {
   const assignment = await Assignment.findById(assignmentId);
   if (!assignment) throw new NotFoundError("Assignment not found");
 
@@ -73,21 +109,38 @@ export const submitAssignmentService = async ({ assignmentId, studentId, univers
   return submission;
 };
 
-export const getAssignmentSubmissionsService = async (assignmentId, universityId = null) => {
-  const filter = { assignment: assignmentId };
+export const getAssignmentSubmissionsService = async (
+  assignmentId: string,
+  universityId: string | null = null
+) => {
+  const filter: Record<string, any> = { assignment: assignmentId };
   if (universityId) filter.university = universityId;
   return Submission.find(filter)
     .populate("student", "name firstName lastName email avatar")
     .sort({ submittedAt: -1 });
 };
 
-export const getStudentSubmissionService = async (assignmentId, studentId) => {
+export const getStudentSubmissionService = async (assignmentId: string, studentId: string) => {
   const submission = await Submission.findOne({ assignment: assignmentId, student: studentId });
   if (!submission) throw new NotFoundError("Submission not found");
   return submission;
 };
 
-export const gradeSubmissionService = async ({ submissionId, grade, feedback, teacherId, universityId }) => {
+export interface GradeSubmissionParams {
+  submissionId: string;
+  grade: number;
+  feedback?: string;
+  teacherId: string;
+  universityId?: string;
+}
+
+export const gradeSubmissionService = async ({
+  submissionId,
+  grade,
+  feedback,
+  teacherId,
+  universityId,
+}: GradeSubmissionParams) => {
   const query = universityId ? { _id: submissionId, university: universityId } : { _id: submissionId };
   const submission = await Submission.findOne(query);
   if (!submission) throw new NotFoundError("Submission not found");
@@ -95,7 +148,7 @@ export const gradeSubmissionService = async ({ submissionId, grade, feedback, te
   submission.grade = grade;
   submission.feedback = feedback || "";
   submission.status = "graded";
-  submission.gradedBy = teacherId;
+  submission.gradedBy = teacherId as any;
   submission.gradedAt = new Date();
   await submission.save();
 

@@ -8,6 +8,8 @@ export const createAssignmentSchema = z.object({
   fileUrl: z.string().optional(),
 });
 
+export type CreateAssignmentInput = z.infer<typeof createAssignmentSchema>;
+
 export const updateAssignmentSchema = z.object({
   title: z.string().min(2).max(200).optional(),
   description: z.string().optional(),
@@ -16,12 +18,18 @@ export const updateAssignmentSchema = z.object({
   fileUrl: z.string().optional(),
 });
 
+export type UpdateAssignmentInput = z.infer<typeof updateAssignmentSchema>;
+
 export const submitAssignmentSchema = z.object({
   fileUrl: z.string().min(1, "File URL is required"),
   notes: z.string().optional(),
 });
 
+export type SubmitAssignmentInput = z.infer<typeof submitAssignmentSchema>;
+
 export const gradeSubmissionSchema = z.object({
   grade: z.coerce.number().min(0, "Grade cannot be negative"),
   feedback: z.string().optional(),
 });
+
+export type GradeSubmissionInput = z.infer<typeof gradeSubmissionSchema>;

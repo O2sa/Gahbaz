@@ -10,12 +10,11 @@ import {
 
 /**
  * Compiles official student academic record and calculates GPA across terms and cumulatively.
- * @param {string} studentId
  */
-export const getStudentTranscriptService = async (studentId) => {
+export const getStudentTranscriptService = async (studentId: string) => {
   const studentQuery = Student.findById(studentId);
-  const student = typeof studentQuery?.populate === "function"
-    ? await studentQuery
+  const student: any = typeof (studentQuery as any)?.populate === "function"
+    ? await (studentQuery as any)
         .populate({
           path: "major",
           populate: { path: "college" },
@@ -30,8 +29,8 @@ export const getStudentTranscriptService = async (studentId) => {
   // Fetch enrolled semesters
   const semesterIds = student.semesters || [];
   const semesterQuery = Semester.find({ _id: { $in: semesterIds } });
-  const semesters = typeof semesterQuery.sort === "function"
-    ? await semesterQuery.sort({ startDate: 1, createdAt: 1 })
+  const semesters: any[] = typeof (semesterQuery as any).sort === "function"
+    ? await (semesterQuery as any).sort({ startDate: 1, createdAt: 1 })
     : await semesterQuery;
 
   // Fetch all grades for student
@@ -48,11 +47,11 @@ export const getStudentTranscriptService = async (studentId) => {
   let cumulativeAttemptedCredits = 0;
   let cumulativeEarnedCredits = 0;
 
-  const processedSemesters = [];
+  const processedSemesters: any[] = [];
 
   for (const sem of semesters) {
     // Find courses student is enrolled in for this semester
-    const enrolledCourses = await Course.find({
+    const enrolledCourses: any[] = await Course.find({
       semester: sem._id,
       "students.student": studentId,
     });

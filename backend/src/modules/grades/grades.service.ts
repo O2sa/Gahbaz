@@ -1,17 +1,17 @@
-import Grade from "../../models/Grade.js";
+import Grade, { IGrade } from "../../models/Grade.js";
 import Course from "../../models/Course.js";
 import Student from "../../models/Student.js";
 import { NotFoundError, BadRequestError } from "../../core/errors/customErrors.js";
 import { parsePagination } from "../../core/utils/pagination.utils.js";
 
-export const getGradesByCourseService = async (courseId, query = {}) => {
+export const getGradesByCourseService = async (courseId: string, query: Record<string, any> = {}) => {
   const course = await Course.findById(courseId);
   if (!course) throw new NotFoundError("Course not found");
 
   const { page, limit } = parsePagination(query);
   const gradesQuery = Grade.find({ course: courseId });
-  const grades = typeof gradesQuery.populate === "function"
-    ? await gradesQuery.populate("student")
+  const grades = typeof (gradesQuery as any).populate === "function"
+    ? await (gradesQuery as any).populate("student")
     : await gradesQuery;
 
   const gradeSchema = course.gradeSchema || {
@@ -29,7 +29,7 @@ export const getGradesByCourseService = async (courseId, query = {}) => {
   let passingCount = 0;
 
   for (const g of grades) {
-    const s = Number(g.total ?? g.percent ?? 0);
+    const s = Number((g as any).total ?? (g as any).percent ?? 0);
     sumScore += s;
     if (s > maxScore) maxScore = s;
     if (s >= 60) passingCount++;
@@ -63,7 +63,7 @@ export const getGradesByCourseService = async (courseId, query = {}) => {
   };
 };
 
-export const getGradeByIdService = async (id) => {
+export const getGradeByIdService = async (id: string) => {
   const isCourse = await Course.exists({ _id: id });
   if (isCourse) {
     const grades = await Grade.find({ course: id }).populate("student");
@@ -83,14 +83,14 @@ export const getGradeByIdService = async (id) => {
   throw new NotFoundError("Grade not found");
 };
 
-export const getStudentGradesService = async (studentId) => {
+export const getStudentGradesService = async (studentId: string) => {
   const student = await Student.findById(studentId).populate("semesters");
   if (!student) throw new NotFoundError("Student not found");
 
-  const results = [];
+  const results: any[] = [];
   for (const semester of student.semesters || []) {
     const grades = await Grade.find({
-      course: { $in: semester.courses },
+      course: { $in: (semester as any).courses },
       student: studentId,
     }).populate("course");
     results.push({ semester, grades });
@@ -98,7 +98,7 @@ export const getStudentGradesService = async (studentId) => {
   return results;
 };
 
-export const updateGradeService = async (gradeId, gradeData) => {
+export const updateGradeService = async (gradeId: string, gradeData: any) => {
   const gradeDoc = await Grade.findById(gradeId);
   if (!gradeDoc) throw new NotFoundError("Grade not found");
 
