@@ -9,7 +9,11 @@ export const registerSchema = z.object({
   phone: z.union([z.number(), z.string()]).optional(),
 });
 
+export type RegisterInput = z.infer<typeof registerSchema>;
+
 export const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(1, "Password is required"),
 });
+
+export type LoginInput = z.infer<typeof loginSchema>;

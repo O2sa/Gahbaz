@@ -9,6 +9,8 @@ export const updateUserSchema = z.object({
   avatar: z.string().optional(),
 });
 
+export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+
 export const changePasswordSchema = z
   .object({
     oldPassword: z.string().min(1, "Old password is required"),
@@ -19,3 +21,5 @@ export const changePasswordSchema = z
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
+
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;

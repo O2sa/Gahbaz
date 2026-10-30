@@ -22,6 +22,8 @@ export const createTeacherSchema = z
     }
   );
 
+export type CreateTeacherInput = z.infer<typeof createTeacherSchema>;
+
 export const updateTeacherSchema = z.object({
   name: userNameSchema.optional(),
   firstName: z.string().optional(),
@@ -30,3 +32,4 @@ export const updateTeacherSchema = z.object({
   phone: z.union([z.number(), z.string()]).optional(),
 });
 
+export type UpdateTeacherInput = z.infer<typeof updateTeacherSchema>;

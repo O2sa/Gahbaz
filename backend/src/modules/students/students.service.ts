@@ -1,14 +1,18 @@
-import Student from "../../models/Student.js";
+import Student, { IStudent } from "../../models/Student.js";
 import Semester from "../../models/Semester.js";
 import Grade from "../../models/Grade.js";
 import { NotFoundError } from "../../core/errors/customErrors.js";
 import { generateSecurePassword, hashPassword } from "../../core/utils/password.utils.js";
 import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
 import sendMail from "../../config/mailer.js";
+import { CreateStudentInput, UpdateStudentInput } from "./students.validator.js";
 
-export const getStudentsService = async (universityId, query = {}) => {
+export const getStudentsService = async (
+  universityId?: string,
+  query: Record<string, any> = {}
+) => {
   const { page, limit } = parsePagination(query);
-  return paginateQuery(Student, { university: universityId }, {
+  return paginateQuery<IStudent>(Student, { university: universityId }, {
     page,
     limit,
     select: "-password",
@@ -16,7 +20,7 @@ export const getStudentsService = async (universityId, query = {}) => {
   });
 };
 
-export const getStudentByIdService = async (id, universityId) => {
+export const getStudentByIdService = async (id: string, universityId?: string) => {
   const student = await Student.findOne({ _id: id, university: universityId })
     .select("-password")
     .populate("major");
@@ -24,12 +28,15 @@ export const getStudentByIdService = async (id, universityId) => {
   return student;
 };
 
-export const createStudentService = async (data, universityId) => {
-  const name = data.name || `${data.firstName || ''} ${data.lastName || ''}`.trim();
+export const createStudentService = async (
+  data: CreateStudentInput,
+  universityId?: string
+) => {
+  const name = data.name || `${data.firstName || ""} ${data.lastName || ""}`.trim();
   const rawPassword = data.password || generateSecurePassword(8);
   const hashedPassword = await hashPassword(rawPassword);
 
-  const studentData = {
+  const studentData: Record<string, any> = {
     ...data,
     name,
     university: universityId,
@@ -51,8 +58,8 @@ export const createStudentService = async (data, universityId) => {
   }
 
   const query = Student.findById(student._id).select("-password");
-  const saved = query && typeof query.populate === "function" ? await query.populate("major") : await query;
-  const target = saved || student;
+  const saved = query && typeof (query as any).populate === "function" ? await (query as any).populate("major") : await query;
+  const target: any = saved || student;
   const obj = typeof target.toObject === "function" ? target.toObject() : target;
   return {
     ...obj,
@@ -61,12 +68,16 @@ export const createStudentService = async (data, universityId) => {
   };
 };
 
-export const updateStudentService = async (id, data, universityId) => {
-  const updatePayload = { ...data };
+export const updateStudentService = async (
+  id: string,
+  data: UpdateStudentInput,
+  universityId?: string
+) => {
+  const updatePayload: Record<string, any> = { ...data };
   if (data.name) {
     updatePayload.name = data.name.trim();
   } else if (data.firstName || data.lastName) {
-    updatePayload.name = `${data.firstName || ''} ${data.lastName || ''}`.trim();
+    updatePayload.name = `${data.firstName || ""} ${data.lastName || ""}`.trim();
   }
   if (updatePayload.major === "") updatePayload.major = null;
 
@@ -79,7 +90,7 @@ export const updateStudentService = async (id, data, universityId) => {
   return student;
 };
 
-export const deleteStudentService = async (id, universityId) => {
+export const deleteStudentService = async (id: string, universityId?: string) => {
   const student = await Student.findOneAndDelete({ _id: id, university: universityId });
   if (!student) throw new NotFoundError("Student not found");
 

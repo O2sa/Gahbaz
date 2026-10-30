@@ -1,26 +1,33 @@
-import Teacher from "../../models/Teacher.js";
+import Teacher, { ITeacher } from "../../models/Teacher.js";
 import { NotFoundError } from "../../core/errors/customErrors.js";
 import { generateSecurePassword, hashPassword } from "../../core/utils/password.utils.js";
 import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
 import sendMail from "../../config/mailer.js";
+import { CreateTeacherInput, UpdateTeacherInput } from "./teachers.validator.js";
 
-export const getTeachersService = async (universityId, query = {}) => {
+export const getTeachersService = async (
+  universityId?: string,
+  query: Record<string, any> = {}
+) => {
   const { page, limit } = parsePagination(query);
-  return paginateQuery(Teacher, { university: universityId }, {
+  return paginateQuery<ITeacher>(Teacher, { university: universityId }, {
     page,
     limit,
     select: "-password",
   });
 };
 
-export const getTeacherByIdService = async (id, universityId) => {
+export const getTeacherByIdService = async (id: string, universityId?: string) => {
   const teacher = await Teacher.findOne({ _id: id, university: universityId }).select("-password");
   if (!teacher) throw new NotFoundError("Teacher not found");
   return teacher;
 };
 
-export const createTeacherService = async (data, universityId) => {
-  const name = data.name || `${data.firstName || ''} ${data.lastName || ''}`.trim();
+export const createTeacherService = async (
+  data: CreateTeacherInput,
+  universityId?: string
+) => {
+  const name = data.name || `${data.firstName || ""} ${data.lastName || ""}`.trim();
   const rawPassword = data.password || generateSecurePassword(8);
   const hashedPassword = await hashPassword(rawPassword);
 
@@ -43,7 +50,7 @@ export const createTeacherService = async (data, universityId) => {
   }
 
   const saved = await Teacher.findById(teacher._id).select("-password");
-  const target = saved || teacher;
+  const target: any = saved || teacher;
   const obj = typeof target.toObject === "function" ? target.toObject() : target;
   return {
     ...obj,
@@ -52,12 +59,16 @@ export const createTeacherService = async (data, universityId) => {
   };
 };
 
-export const updateTeacherService = async (id, data, universityId) => {
-  const updatePayload = { ...data };
+export const updateTeacherService = async (
+  id: string,
+  data: UpdateTeacherInput,
+  universityId?: string
+) => {
+  const updatePayload: Record<string, any> = { ...data };
   if (data.name) {
     updatePayload.name = data.name.trim();
   } else if (data.firstName || data.lastName) {
-    updatePayload.name = `${data.firstName || ''} ${data.lastName || ''}`.trim();
+    updatePayload.name = `${data.firstName || ""} ${data.lastName || ""}`.trim();
   }
 
   const updatedTeacher = await Teacher.findOneAndUpdate(
@@ -69,7 +80,7 @@ export const updateTeacherService = async (id, data, universityId) => {
   return updatedTeacher;
 };
 
-export const deleteTeacherService = async (id, universityId) => {
+export const deleteTeacherService = async (id: string, universityId?: string) => {
   const removed = await Teacher.findOneAndDelete({ _id: id, university: universityId });
   if (!removed) throw new NotFoundError("Teacher not found");
   return removed;

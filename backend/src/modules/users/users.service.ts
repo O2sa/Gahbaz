@@ -1,28 +1,43 @@
-import User from "../../models/User.js";
+import User, { IUser } from "../../models/User.js";
 import { comparePassword, hashPassword } from "../../core/utils/password.utils.js";
 import {
   NotFoundError,
   UnauthorizedError,
   BadRequestError,
 } from "../../core/errors/customErrors.js";
+import { UpdateUserInput, ChangePasswordInput } from "./users.validator.js";
 
-export const getCurrentUserProfile = async (userId) => {
+export const getCurrentUserProfile = async (userId: string) => {
   const user = await User.findById(userId).select("-password").populate("university");
   if (!user) throw new NotFoundError("User not found");
   return user;
 };
 
-export const getUserById = async (targetId, requester) => {
+export const getUserById = async (targetId: string, _requester?: any) => {
   const user = await User.findById(targetId).select("-password");
   if (!user) throw new NotFoundError("User not found");
-  if (user.__t === "Student" || user.role === "student") {
+  if ((user as any).__t === "Student" || user.role === "student") {
     await user.populate("major");
   }
   return user;
 };
 
-export const listUsersService = async ({ search, role, page = 1, limit = 20, universityId }) => {
-  const query = {};
+export interface ListUsersParams {
+  search?: string;
+  role?: string;
+  page?: string | number;
+  limit?: string | number;
+  universityId?: string;
+}
+
+export const listUsersService = async ({
+  search,
+  role,
+  page = 1,
+  limit = 20,
+  universityId,
+}: ListUsersParams) => {
+  const query: Record<string, any> = {};
   if (universityId) query.university = universityId;
   if (role) query.role = role;
   if (search) {
@@ -36,8 +51,8 @@ export const listUsersService = async ({ search, role, page = 1, limit = 20, uni
     ];
   }
 
-  const pageNum = Math.max(1, parseInt(page, 10) || 1);
-  const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 20));
+  const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+  const limitNum = Math.min(100, Math.max(1, parseInt(limit as string, 10) || 20));
   const skip = (pageNum - 1) * limitNum;
 
   const [users, total] = await Promise.all([
@@ -56,13 +71,18 @@ export const listUsersService = async ({ search, role, page = 1, limit = 20, uni
   };
 };
 
-export const updateUserProfile = async (targetUserId, requesterId, updateData, isRequesterAdmin = false) => {
+export const updateUserProfile = async (
+  targetUserId: string,
+  requesterId: string,
+  updateData: UpdateUserInput,
+  isRequesterAdmin: boolean = false
+) => {
   if (targetUserId !== requesterId && !isRequesterAdmin) {
     throw new UnauthorizedError("Unauthorized to modify this profile");
   }
 
   // Whitelist safe fields
-  const safeUpdates = {};
+  const safeUpdates: Record<string, any> = {};
   if (updateData.name) {
     safeUpdates.name = updateData.name.trim();
   }
@@ -88,7 +108,11 @@ export const updateUserProfile = async (targetUserId, requesterId, updateData, i
   return updatedUser;
 };
 
-export const deleteUserService = async (userId, requesterId, isRequesterAdmin) => {
+export const deleteUserService = async (
+  userId: string,
+  requesterId: string,
+  isRequesterAdmin: boolean
+) => {
   if (userId !== requesterId && !isRequesterAdmin) {
     throw new UnauthorizedError("Unauthorized to delete this user");
   }
@@ -97,7 +121,10 @@ export const deleteUserService = async (userId, requesterId, isRequesterAdmin) =
   return true;
 };
 
-export const changeUserPassword = async (userId, { oldPassword, password }) => {
+export const changeUserPassword = async (
+  userId: string,
+  { oldPassword, password }: ChangePasswordInput
+) => {
   const user = await User.findById(userId).select("+password");
   if (!user) throw new NotFoundError("User not found");
 

@@ -23,6 +23,8 @@ export const createStudentSchema = z
     }
   );
 
+export type CreateStudentInput = z.infer<typeof createStudentSchema>;
+
 export const updateStudentSchema = z.object({
   name: userNameSchema.optional(),
   firstName: z.string().optional(),
@@ -33,3 +35,4 @@ export const updateStudentSchema = z.object({
   comingSemester: z.number().optional(),
 });
 
+export type UpdateStudentInput = z.infer<typeof updateStudentSchema>;

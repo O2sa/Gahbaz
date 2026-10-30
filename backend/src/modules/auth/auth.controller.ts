@@ -1,12 +1,13 @@
+import { Request, Response } from "express";
 import { registerUser, loginUser, getCurrentUserService } from "./auth.service.js";
 import { sendSuccess, sendCreated } from "../../core/utils/response.utils.js";
 
-export const register = async (req, res) => {
+export const register = async (req: Request, res: Response): Promise<void> => {
   const result = await registerUser(req.body);
   sendCreated(res, { user: result.user, token: result.token });
 };
 
-export const login = async (req, res) => {
+export const login = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
   const { token, user, role } = await loginUser(email, password);
 
@@ -22,7 +23,7 @@ export const login = async (req, res) => {
   sendSuccess(res, { user, role, token });
 };
 
-export const logout = (req, res) => {
+export const logout = (_req: Request, res: Response): void => {
   const isProduction = process.env.NODE_ENV === "production";
   res.cookie("token", "logout", {
     httpOnly: true,
@@ -33,7 +34,7 @@ export const logout = (req, res) => {
   sendSuccess(res, { message: "User logged out successfully" });
 };
 
-export const getMe = async (req, res) => {
-  const user = await getCurrentUserService(req.user.userId);
+export const getMe = async (req: Request, res: Response): Promise<void> => {
+  const user = await getCurrentUserService(req.user!.userId);
   sendSuccess(res, user);
 };

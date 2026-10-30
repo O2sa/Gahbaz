@@ -8,12 +8,14 @@ export const createAdminSchema = z
     lastName: z.string().optional(),
     email: z.string().email("Invalid email format"),
     password: z.string().min(6, "Password must be at least 6 characters").optional(),
-    permissions: z.enum(["r", "rw", "rd", "rwd"]).default("rw"),
+    permissions: z.enum(["r", "rw", "rd", "rwd"]).optional(),
   })
   .refine((data) => Boolean(data.name || (data.firstName && data.lastName)), {
     message: "الاسم مطلوب",
     path: ["name"],
   });
+
+export type CreateAdminInput = z.infer<typeof createAdminSchema>;
 
 export const updateAdminSchema = z.object({
   name: userNameSchema.optional(),
@@ -21,3 +23,5 @@ export const updateAdminSchema = z.object({
   lastName: z.string().optional(),
   permissions: z.enum(["r", "rw", "rd", "rwd"]).optional(),
 });
+
+export type UpdateAdminInput = z.infer<typeof updateAdminSchema>;
