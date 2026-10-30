@@ -1,20 +1,33 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Model, Schema, Types } from "mongoose";
 
-const AssignmentSchema = new mongoose.Schema(
+export interface IAssignment extends Document {
+  course: Types.ObjectId;
+  teacher: Types.ObjectId;
+  university: Types.ObjectId;
+  title: string;
+  description: string;
+  dueDate: Date;
+  maxScore: number;
+  fileUrl: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const AssignmentSchema = new Schema<IAssignment>(
   {
     course: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Course",
       required: [true, "Course is required"],
       index: true,
     },
     teacher: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Teacher",
       required: [true, "Teacher is required"],
     },
     university: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "University",
       required: [true, "University reference is required"],
       index: true,
@@ -51,4 +64,5 @@ const AssignmentSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.models.Assignment || mongoose.model("Assignment", AssignmentSchema, "assignments");
+export default (mongoose.models.Assignment as Model<IAssignment>) ||
+  mongoose.model<IAssignment>("Assignment", AssignmentSchema, "assignments");

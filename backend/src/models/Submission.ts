@@ -1,27 +1,44 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Model, Schema, Types } from "mongoose";
 
-const SubmissionSchema = new mongoose.Schema(
+export interface ISubmission extends Document {
+  assignment: Types.ObjectId;
+  course: Types.ObjectId;
+  student: Types.ObjectId;
+  university: Types.ObjectId;
+  fileUrl: string;
+  notes?: string;
+  submittedAt: Date;
+  grade?: number | null;
+  feedback?: string;
+  gradedBy?: Types.ObjectId;
+  gradedAt?: Date;
+  status: "submitted" | "graded" | "late";
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const SubmissionSchema = new Schema<ISubmission>(
   {
     assignment: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Assignment",
       required: [true, "Assignment reference is required"],
       index: true,
     },
     course: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Course",
       required: [true, "Course reference is required"],
       index: true,
     },
     student: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Student",
       required: [true, "Student reference is required"],
       index: true,
     },
     university: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "University",
       required: [true, "University reference is required"],
       index: true,
@@ -48,7 +65,7 @@ const SubmissionSchema = new mongoose.Schema(
       default: "",
     },
     gradedBy: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
     },
     gradedAt: {
@@ -68,4 +85,5 @@ const SubmissionSchema = new mongoose.Schema(
 
 SubmissionSchema.index({ assignment: 1, student: 1 }, { unique: true });
 
-export default mongoose.models.Submission || mongoose.model("Submission", SubmissionSchema, "submissions");
+export default (mongoose.models.Submission as Model<ISubmission>) ||
+  mongoose.model<ISubmission>("Submission", SubmissionSchema, "submissions");

@@ -5,7 +5,7 @@ let transporter: Transporter | null = null;
 
 const emailPass = (process.env.EMAIL_PASS || (env as any).EMAIL_PASS || "") as string;
 
-if (env.EMAIL_USER && emailPass) {
+if (env.NODE_ENV !== "test" && env.EMAIL_USER && emailPass) {
   transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
