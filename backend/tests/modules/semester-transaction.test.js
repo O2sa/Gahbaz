@@ -131,6 +131,13 @@ describe("Semester ACID Transactions (Task 3.1)", () => {
     vi.spyOn(Student, "find").mockReturnValue({
       session: vi.fn().mockResolvedValue([]),
     });
+    vi.spyOn(Subject, "find").mockReturnValue({
+      session: vi.fn().mockResolvedValue([{ _id: "sub1", name: "Programming 1", gradeSchema: {} }]),
+    });
+    vi.spyOn(SemesterTemplate, "findByIdAndUpdate").mockResolvedValue(true);
+    vi.spyOn(Semester.prototype, "save").mockResolvedValue(true);
+    vi.spyOn(Course.prototype, "save").mockResolvedValue(true);
+    vi.spyOn(Chat, "create").mockResolvedValue(true);
 
     const result = await startSemesterService(
       {
@@ -141,6 +148,7 @@ describe("Semester ACID Transactions (Task 3.1)", () => {
     );
 
     expect(result.success).toBe(true);
+    expect(result.count).toBe(1);
   });
 
   it("should support selecting custom subjects per semester template instead of default", async () => {

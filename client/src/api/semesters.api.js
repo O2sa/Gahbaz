@@ -20,7 +20,7 @@ export const semestersApi = {
     return apiClient.get('/semesters/templates', { params })
   },
   startSemester: async (data) => {
-    return apiClient.post('/semesters/startSemester', data)
+    return apiClient.post('/semesters/start-semester', data)
   },
 }
 

@@ -59,6 +59,13 @@ router.post(
   ctrl.startSemester
 );
 
+router.post(
+  "/startSemester",
+  requireRoles("admin", "super-admin"),
+  validateRequest({ body: startSemesterSchema }),
+  ctrl.startSemester
+);
+
 router
   .route("/:id")
   .get(ctrl.getSemester)

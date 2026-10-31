@@ -100,9 +100,9 @@ export default function Semesters() {
       const payload = {
         semesterData: {
           name: values.name,
-          startDate: new Date(values.startDate),
-          endDate: new Date(values.endDate),
-          addDropDeadline: new Date(values.addDropDeadline),
+          startDate: values.startDate ? new Date(values.startDate) : undefined,
+          endDate: values.endDate ? new Date(values.endDate) : undefined,
+          addDropDeadline: values.addDropDeadline ? new Date(values.addDropDeadline) : undefined,
         },
         majors: values.selectedMajors.map((mId) => ({
           majorId: mId,

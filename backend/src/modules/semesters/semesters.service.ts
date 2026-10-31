@@ -8,7 +8,8 @@ import Subject from "../../models/Subject.js";
 import Grade from "../../models/Grade.js";
 import Chat from "../../models/Chat.js";
 import Major from "../../models/Major.js";
-import { NotFoundError } from "../../core/errors/customErrors.js";
+import University from "../../models/University.js";
+import { NotFoundError, BadRequestError } from "../../core/errors/customErrors.js";
 import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
 import {
   CreateSemesterTemplateInput,
@@ -206,6 +207,12 @@ export const startSemesterService = async (
 
       const semesterTemplates = await SemesterTemplate.find({ _id: { $in: templateIds } }).session(session);
 
+      if (semesterTemplates.length === 0) {
+        throw new BadRequestError("لم يتم العثور على خطط أو قوالب فصول دراسية (Semester Templates) للتخصصات المحددة.");
+      }
+
+      let createdSemestersCount = 0;
+
       for (const template of semesterTemplates) {
         const config = uniqueConfigsMap.get(String((template as any)._id));
         const targetSubjectIds =
@@ -219,21 +226,41 @@ export const startSemesterService = async (
           _id: { $nin: usedStudents },
         }).session(session);
 
-        if (students.length > 0 && targetSubjectIds && targetSubjectIds.length > 0) {
+        // Safely resolve university reference
+        let resolvedUnivId = universityId;
+        if (!resolvedUnivId) {
+          const majorDoc = await Major.findById(template.major).populate("college").session(session);
+          resolvedUnivId = (majorDoc as any)?.college?.university || (majorDoc as any)?.university;
+          if (!resolvedUnivId) {
+            const defaultUniv = await University.findOne().session(session);
+            resolvedUnivId = defaultUniv?._id ? String(defaultUniv._id) : undefined;
+          }
+        }
+
+        const semesterName = semesterData?.name
+          ? (semesterTemplates.length > 1
+              ? `${semesterData.name} - ${template.name}`
+              : semesterData.name)
+          : template.name;
+
+        const newSemester = new Semester({
+          name: semesterName.length > 100 ? semesterName.slice(0, 100) : semesterName,
+          major: template.major,
+          template: template._id,
+          university: resolvedUnivId,
+          ...semesterData,
+          ...(semesterName ? { name: semesterName.length > 100 ? semesterName.slice(0, 100) : semesterName } : {}),
+          ...(resolvedUnivId ? { university: resolvedUnivId } : {}),
+        });
+        await newSemester.save({ session });
+        createdSemestersCount++;
+
+        await SemesterTemplate.findByIdAndUpdate(template._id, { active: true }, { session });
+
+        const newCourses: any[] = [];
+        if (targetSubjectIds && targetSubjectIds.length > 0) {
           const subjects = await Subject.find({ _id: { $in: targetSubjectIds } }).session(session);
 
-          const newSemester = new Semester({
-            name: template.name,
-            major: template.major,
-            template: template._id,
-            university: universityId,
-            ...semesterData,
-          });
-          await newSemester.save({ session });
-
-          await SemesterTemplate.findByIdAndUpdate(template._id, { active: true }, { session });
-
-          const newCourses: any[] = [];
           for (const subject of subjects) {
             const newCourse = new Course({
               name: subject.name,
@@ -244,7 +271,7 @@ export const startSemesterService = async (
               prerequisites: subject.prerequisites || [],
               semester: newSemester._id,
               teachers: subject.teachers,
-              university: universityId,
+              university: resolvedUnivId,
             });
             await newCourse.save({ session });
 
@@ -255,8 +282,9 @@ export const startSemesterService = async (
                   chatName: `دورة ${newCourse.name}`,
                   users: chatUsers,
                   isGroupChat: true,
-                  groupAdmin: newCourse.teachers?.[0] || chatUsers[0],
-                  university: universityId,
+                  groupAdmin: newCourse.teachers?.[0] || chatUsers[0] || undefined,
+                  course: newCourse._id,
+                  university: resolvedUnivId,
                 },
               ],
               { session }
@@ -264,7 +292,9 @@ export const startSemesterService = async (
 
             newCourses.push(newCourse);
           }
+        }
 
+        if (students.length > 0) {
           for (const student of students) {
             student.comingSemester += 1;
             student.semesters.push(newSemester._id as Types.ObjectId);
@@ -278,14 +308,15 @@ export const startSemesterService = async (
               await newGrade.save({ session });
             }
           }
-
-          newSemester.courses = newCourses.map((c) => c._id);
-          newSemester.students = students.map((s) => s._id as Types.ObjectId);
-          await newSemester.save({ session });
-
           usedStudents = [...usedStudents, ...students.map((s) => s._id as Types.ObjectId)];
         }
+
+        newSemester.courses = newCourses.map((c) => c._id);
+        newSemester.students = students.map((s) => s._id as Types.ObjectId);
+        await newSemester.save({ session });
       }
+
+      result = { success: true, count: createdSemestersCount } as any;
     });
     return result;
   } finally {

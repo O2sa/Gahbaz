@@ -21,7 +21,7 @@ const SemesterSchema = new Schema<ISemester>(
       type: String,
       required: [true, "Semester name is required"],
       minlength: 2,
-      maxlength: 50,
+      maxlength: 100,
       trim: true,
     },
     major: {
