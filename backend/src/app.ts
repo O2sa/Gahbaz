@@ -27,6 +27,7 @@ import adminsRouter from "./modules/admins/admins.routes.js";
 import chatRouter, { messagesRouter } from "./modules/chat/chat.routes.js";
 import systemRouter from "./modules/system/system.routes.js";
 import mediaRouter from "./modules/media/media.routes.js";
+import universitiesRouter from "./modules/universities/universities.routes.js";
 import swaggerRouter, { openApiSpec } from "./docs/swagger.js";
 
 import { authenticateUser } from "./core/middleware/auth.middleware.js";
@@ -115,6 +116,7 @@ app.use("/api/v1/chats", authGuard, chatRouter);
 app.use("/api/v1/messages", authGuard, messagesRouter);
 app.use("/api/v1/system", authGuard, systemRouter);
 app.use("/api/v1/media", mediaRouter);
+app.use("/api/v1/universities", universitiesRouter);
 
 // Health check routes for Render, uptime monitors, and cloud probes
 app.get(["/health", "/api/v1/health"], (_req: Request, res: Response) => {

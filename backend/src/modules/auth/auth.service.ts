@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import User from "../../models/User.js";
 import University from "../../models/University.js";
 import { hashPassword, comparePassword } from "../../core/utils/password.utils.js";
@@ -62,11 +63,13 @@ export const loginUser = async (email: string, password?: string) => {
 
   // Check if university is suspended (applies to non-super-admins)
   if (user.role !== "super-admin" && user.university) {
-    const university = await University.findById(user.university).select("active name");
-    if (university && !university.active) {
-      throw new UnauthenticatedError(
-        "Your institutional university account has been suspended. Please contact platform administration."
-      );
+    if (mongoose.Types.ObjectId.isValid(String(user.university))) {
+      const university = await University.findById(user.university).select("active name");
+      if (university && !university.active) {
+        throw new UnauthenticatedError(
+          "Your institutional university account has been suspended. Please contact platform administration."
+        );
+      }
     }
   }
 

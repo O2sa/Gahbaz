@@ -153,13 +153,13 @@ describe("Tenant Isolation Enforcement (Task 2.1)", () => {
         email: "student@suspended.com",
         password: "hashedPassword",
         role: "student",
-        university: "suspended_univ_id",
+        university: "64f1a2b3c4d5e6f7a8b9c099",
       }),
     });
     vi.spyOn(passwordUtils, "comparePassword").mockResolvedValue(true);
     vi.spyOn(University, "findById").mockReturnValue({
       select: vi.fn().mockResolvedValue({
-        _id: "suspended_univ_id",
+        _id: "64f1a2b3c4d5e6f7a8b9c099",
         name: "Suspended University",
         active: false,
       }),
