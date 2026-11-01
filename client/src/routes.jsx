@@ -27,6 +27,7 @@ import {
   CourseLesson,
   UserProfile,
   CourseAssignments,
+  Universities,
 } from './pages/admin'
 
 import { EditCourseInfo, loader as courseInfoEditLoader } from './pages/admin/EditCourseInfo'
@@ -75,6 +76,11 @@ export default function getRoutes(queryClient, user) {
           children: [
             // Authenticated Dashboard
             { path: 'dashboard', name: 'لوحة التحكم', element: <Dashboard queryClient={queryClient} /> },
+            {
+              path: 'universities',
+              name: 'إدارة الجامعات والمؤسسات',
+              element: <Universities queryClient={queryClient} />,
+            },
             {
               path: 'profile',
               name: 'الملف الشخصي',
@@ -261,7 +267,7 @@ export default function getRoutes(queryClient, user) {
     
             //student
             { path: 'grades', name: 'الدرجات', element: <StudentGrade /> },
-            { path: 'enrollment', name: 'الحذف والإضافة', element: <CourseRegistration /> },
+            { path: 'enrollment', name: 'المقررات والحذف', element: <CourseRegistration /> },
             { path: 'transcript', name: 'السجل الأكاديمي', element: <Transcript /> },
           ],
           

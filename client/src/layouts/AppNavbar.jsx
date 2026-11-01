@@ -6,6 +6,9 @@ import {
   NavLink,
   Box,
   Divider,
+  Button,
+  Paper,
+  Badge,
   useMantineTheme,
   rem,
 } from '@mantine/core'
@@ -23,6 +26,7 @@ import {
   IconMessageDots,
   IconArrowsExchange,
   IconReportAnalytics,
+  IconBuildingBank,
 } from '@tabler/icons-react'
 import { useNavigate, useLocation } from 'react-router-dom'
 
@@ -40,9 +44,12 @@ export default function AppNavbar({ opened, setOpened, user }) {
   }
 
   const role = user?.role || 'admin'
-  const isAdmin = role === 'admin'
+  const isSuperAdmin = role === 'super-admin'
+  const isAdmin = role === 'admin' || isSuperAdmin
   const isStudent = role === 'student'
   const isTeacher = role === 'teacher'
+  const activeSwitchedUnivId = typeof window !== 'undefined' ? localStorage.getItem('gahbaz_active_university_id') : null
+  const activeSwitchedUnivName = typeof window !== 'undefined' ? localStorage.getItem('gahbaz_active_university_name') : null
 
   const isActive = (path) => {
     if (path === '/') {
@@ -99,6 +106,65 @@ export default function AppNavbar({ opened, setOpened, user }) {
       }}
     >
       <Navbar.Section grow component={ScrollArea} mx="-xs" px="xs">
+        {/* Section: Super Admin Platform Governance */}
+        {isSuperAdmin && (
+          <Box mb="xs">
+            <Text
+              size="xs"
+              weight={700}
+              color={isDark ? 'gray.5' : 'dimmed'}
+              px="xs"
+              mb={6}
+              sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
+            >
+              حوكمة المنصة
+            </Text>
+            <NavLink
+              label="إدارة الجامعات والمؤسسات"
+              icon={<IconBuildingBank size={19} stroke={1.6} />}
+              active={isActive('/universities')}
+              onClick={() => handleNav('/universities')}
+              sx={navLinkStyle('/universities')}
+            />
+            {activeSwitchedUnivId && (
+              <Box px="xs" mt={6} mb={4}>
+                <Paper
+                  p="xs"
+                  withBorder
+                  radius="md"
+                  sx={{
+                    backgroundColor: isDark ? 'rgba(20, 83, 45, 0.25)' : 'rgba(240, 253, 244, 0.85)',
+                    borderColor: isDark ? '#15803d' : '#86efac',
+                  }}
+                >
+                  <Text size="xs" color="dimmed" weight={500}>
+                    السياق المؤسسي الفعّال:
+                  </Text>
+                  <Text size="xs" weight={700} color={isDark ? '#86efac' : '#166534'} truncate>
+                    {activeSwitchedUnivName || 'جامعة محددة'}
+                  </Text>
+                  <Button
+                    size="xs"
+                    variant="subtle"
+                    compact
+                    color="red"
+                    fullWidth
+                    mt={4}
+                    onClick={() => {
+                      localStorage.removeItem('gahbaz_active_university_id')
+                      localStorage.removeItem('gahbaz_active_university_name')
+                      window.location.reload()
+                    }}
+                  >
+                    إلغاء التبديل والعودة للمنصة
+                  </Button>
+                </Paper>
+              </Box>
+            )}
+            <Divider my="xs" color={isDark ? 'dark.5' : 'gray.2'} />
+          </Box>
+        )}
+
         {/* Section: Overview */}
         <Box mb="xs">
           <Text
@@ -280,7 +346,7 @@ export default function AppNavbar({ opened, setOpened, user }) {
                 sx={navLinkStyle('/courses')}
               />
               <NavLink
-                label="بوابة الحذف والإضافة"
+                label="بوابة المقررات والحذف"
                 icon={<IconArrowsExchange size={19} stroke={1.6} />}
                 active={isActive('/enrollment')}
                 onClick={() => handleNav('/enrollment')}
