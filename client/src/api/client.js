@@ -25,6 +25,11 @@ apiClient.interceptors.request.use((config) => {
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+
+    const activeUnivId = localStorage.getItem('gahbaz_active_university_id')
+    if (activeUnivId && activeUnivId.trim() !== '') {
+      config.headers['x-university-id'] = activeUnivId.trim()
+    }
   }
   return config
 })
