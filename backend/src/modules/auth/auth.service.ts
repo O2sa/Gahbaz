@@ -60,6 +60,16 @@ export const loginUser = async (email: string, password?: string) => {
     throw new UnauthenticatedError("Invalid credentials");
   }
 
+  // Check if university is suspended (applies to non-super-admins)
+  if (user.role !== "super-admin" && user.university) {
+    const university = await University.findById(user.university).select("active name");
+    if (university && !university.active) {
+      throw new UnauthenticatedError(
+        "Your institutional university account has been suspended. Please contact platform administration."
+      );
+    }
+  }
+
   const role = user.role || "student";
   const isDemoUser = ["student@test.com", "teacher@tech.com", "admin@test.com"].includes(user.email);
 

@@ -5,6 +5,9 @@ import { createJWT } from "../../src/core/utils/token.utils.js";
 import Course from "../../src/models/Course.js";
 import Subject from "../../src/models/Subject.js";
 import Section from "../../src/models/Section.js";
+import University from "../../src/models/University.js";
+import User from "../../src/models/User.js";
+import * as passwordUtils from "../../src/core/utils/password.utils.js";
 
 describe("Tenant Isolation Enforcement (Task 2.1)", () => {
   const univAToken = createJWT({
@@ -126,4 +129,51 @@ describe("Tenant Isolation Enforcement (Task 2.1)", () => {
     expect(res.body.success).toBe(true);
     expect(res.body.data.name).toBe("Global Course");
   });
+
+  it("Super-admin should adopt x-university-id header when provided", async () => {
+    const courseId = "64f1a2b3c4d5e6f7a8b9c0d1";
+    const findOneSpy = vi.spyOn(Course, "findOne").mockReturnValue({
+      populate: vi.fn().mockReturnValue({
+        populate: vi.fn().mockResolvedValue(null),
+      }),
+    });
+
+    await request(app)
+      .get(`/api/v1/courses/${courseId}`)
+      .set("Authorization", `Bearer ${superAdminToken}`)
+      .set("x-university-id", "target_switched_univ");
+
+    expect(findOneSpy).toHaveBeenCalledWith({ _id: courseId, university: "target_switched_univ" });
+  });
+
+  it("POST /api/v1/auth/login should reject login if user's university is suspended", async () => {
+    vi.spyOn(User, "findOne").mockReturnValue({
+      select: vi.fn().mockResolvedValue({
+        _id: "user123",
+        email: "student@suspended.com",
+        password: "hashedPassword",
+        role: "student",
+        university: "suspended_univ_id",
+      }),
+    });
+    vi.spyOn(passwordUtils, "comparePassword").mockResolvedValue(true);
+    vi.spyOn(University, "findById").mockReturnValue({
+      select: vi.fn().mockResolvedValue({
+        _id: "suspended_univ_id",
+        name: "Suspended University",
+        active: false,
+      }),
+    });
+
+    const res = await request(app)
+      .post("/api/v1/auth/login")
+      .send({
+        email: "student@suspended.com",
+        password: "secretPassword",
+      });
+
+    expect(res.status).toBe(401);
+    expect(res.body.error?.message || res.body.message || res.body.msg).toMatch(/suspended/i);
+  });
 });
+

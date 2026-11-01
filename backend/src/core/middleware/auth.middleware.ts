@@ -28,6 +28,14 @@ export const authenticateUser = async (req: Request, res: Response, next: NextFu
       isDemoUser: decoded.isDemoUser || false,
     };
 
+    // Super-Admin context switching via header
+    if (decoded.role === "super-admin") {
+      const switchedUniv = req.headers["x-university-id"];
+      if (switchedUniv && typeof switchedUniv === "string" && switchedUniv.trim() !== "") {
+        req.user.universityId = switchedUniv.trim();
+      }
+    }
+
     // Asynchronously throttle activity logging without blocking the request
     const now = Date.now();
     const userId = decoded.userId || decoded.id;

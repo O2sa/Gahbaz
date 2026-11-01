@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as svc from "./courses.service.js";
+import Course from "../../models/Course.js";
 import {
   sendPaginated,
   sendSuccess,
@@ -10,30 +11,27 @@ import {
 export const createCourse = async (req: Request, res: Response): Promise<void> => {
   const universityId =
     req.user?.role === "super-admin"
-      ? req.body.university
+      ? (req.user?.universityId || req.body.university)
       : req.user?.universityId;
   const data = await svc.createCourseService({ ...req.body, university: universityId });
   sendCreated(res, data);
 };
 
 export const getCourse = async (req: Request, res: Response): Promise<void> => {
-  const universityId =
-    req.user?.role === "super-admin" ? null : req.user?.universityId || null;
-  const id = req.params.id || req.params.courseId;
+  const universityId = req.user?.universityId || null;
+  const id = (req.params.id || req.params.courseId) as string;
   const data = await svc.getCourseByIdService(id, universityId);
   sendSuccess(res, data);
 };
 
 export const updateCourse = async (req: Request, res: Response): Promise<void> => {
-  const universityId =
-    req.user?.role === "super-admin" ? null : req.user?.universityId || null;
+  const universityId = req.user?.universityId || null;
   const data = await svc.updateCourseService(req.params.id, req.body, universityId);
   sendSuccess(res, data);
 };
 
 export const deleteCourse = async (req: Request, res: Response): Promise<void> => {
-  const universityId =
-    req.user?.role === "super-admin" ? null : req.user?.universityId || null;
+  const universityId = req.user?.universityId || null;
   await svc.deleteCourseService(req.params.id, universityId);
   sendNoContent(res);
 };
@@ -55,12 +53,24 @@ export const createSection = async (req: Request, res: Response): Promise<void> 
 };
 
 export const getSection = async (req: Request, res: Response): Promise<void> => {
+  const id = req.params.id as string;
   try {
-    const data = await svc.getSectionByIdService(req.params.id);
+    const data = await svc.getSectionByIdService(id);
     sendSuccess(res, data);
     return;
   } catch (err) {
-    const courseSections = await svc.getSectionsByCourseService(req.params.id);
+    try {
+      const isCourse = await Course.exists({ _id: id });
+      if (isCourse) {
+        const courseSections = await svc.getSectionsByCourseService(id);
+        sendSuccess(res, courseSections || []);
+        return;
+      }
+    } catch {
+      // Ignore potential cast error or failure querying Course
+    }
+
+    const courseSections = await svc.getSectionsByCourseService(id).catch(() => []);
     if (courseSections && courseSections.length > 0) {
       sendSuccess(res, courseSections);
       return;
