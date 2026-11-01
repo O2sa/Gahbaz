@@ -2,811 +2,516 @@
 # Gahbaz Higher Education Academic & E-Learning Platform
 
 - **Project Name:** Gahbaz Integrated Academic Management & Learning Platform (LMS & SIS)
-- **Document Version:** 1.0.0 (Strict Technical Baseline)
+- **Document Version:** 2.0.0 (User-Centric Specification & Operational Baseline)
 - **Standard:** ISO/IEC/IEEE 29148:2018 / IEEE Std 830-1998
-- **Date:** 2026-10-15
+- **Date:** 2026-11-01
 - **Status:** Approved Baseline Specification
-- **Primary Language:** English (Technical Documentation) | Arabic (Application Interface & Academic Domain)
+- **Primary Language:** English (Functional Specification) | Arabic (User Interface & Academic Domain)
 
 ---
 
-## Table of Contents
-1. [Introduction & Strategic Mission](#1-introduction--strategic-mission)
-   - 1.1 Purpose
-   - 1.2 Core Problem Statement
-   - 1.3 System Scope & Boundaries
-   - 1.4 Definitions, Acronyms, and Abbreviations
-2. [Overall System Description & Architecture](#2-overall-system-description--architecture)
-   - 2.1 Multi-Tenant Institutional Architecture
-   - 2.2 Academic Domain Supply Chain & Hierarchy
-   - 2.3 User Classes & Personas
-   - 2.4 Operating Environment & Technology Stack
-3. [Domain Data Dictionary & Schema Specifications](#3-domain-data-dictionary--schema-specifications)
-   - 3.1 Tenant & System Models (`University`, `AuditLog`, `PerformanceMetric`)
-   - 3.2 User & Identity Discriminators (`User`, `Admin`, `Teacher`, `Student`)
-   - 3.3 Institutional Structure Models (`College`, `Major`, `Subject`, `SemesterTemplate`)
-   - 3.4 Operational Delivery Models (`Semester`, `Course`, `Section`)
-   - 3.5 Academic Performance Models (`Grade`, `Assignment`, `Submission`)
-   - 3.6 Communication Models (`Chat`, `Message`)
-4. [Role-Based Access Control (RBAC) Matrix](#4-role-based-access-control-rbac-matrix)
-5. [Detailed Functional Requirements by Operational Module](#5-detailed-functional-requirements-by-operational-module)
-   - 5.1 Authentication & Session Management (`/api/v1/auth`)
-   - 5.2 User & Profile Administration (`/api/v1/users`, `/students`, `/teachers`, `/admins`)
-   - 5.3 Academic Structure & Curriculum Management (`/api/v1/colleges`, `/majors`, `/subjects`, `/semester-templates`)
-   - 5.4 Academic Semester Lifecycle & Term Launch (`/api/v1/semesters`)
-   - 5.5 Course Delivery, Sections & Lesson Authoring (`/api/v1/courses`, `/sections`)
-   - 5.6 Student Course Enrollment & Add/Drop Portal (`/api/v1/enrollment`)
-   - 5.7 Continuous Assessment & Faculty Gradebook (`/api/v1/grades`)
-   - 5.8 Assignments & Student Submissions Engine (`/api/v1/assignments`)
-   - 5.9 Cumulative GPA & Official Academic Transcript Engine (`/api/v1/transcripts`)
-   - 5.10 Real-Time Course Channels & Collaboration (`/api/v1/chats`, `/messages`, WebSockets)
-   - 5.11 System Governance, Health Metrics & Audit Trails (`/api/v1/system`)
-6. [Non-Functional Requirements (NFRs)](#6-non-functional-requirements-nfrs)
-   - 6.1 Security & Multi-Tenant Data Isolation
-   - 6.2 Data Integrity & ACID Transactions
-   - 6.3 Performance, Indexing & Pagination
-   - 6.4 Usability & Localization (Arabic RTL)
-7. [External Interfaces & Communications](#7-external-interfaces--communications)
-8. [Traceability & Verification Standards](#8-traceability--verification-standards)
-
----
-
-## 1. Introduction & Strategic Mission
+## 1. Introduction & Strategic Vision
 
 ### 1.1 Purpose
-This Software Requirements Specification (SRS) defines the formal, complete, and unambiguous functional and non-functional requirements for the **Gahbaz Higher Education Academic & E-Learning Platform**. It serves as the single source of truth (SSOT) for software engineers, database architects, QA testers, and university administrators.
+This Software Requirements Specification (SRS) defines the complete functional and operational requirements for the **Gahbaz Higher Education Academic & E-Learning Platform**. Written strictly from the **user perspective**, this document describes what university administrators, faculty members, students, and prospective visitors can see, do, and experience across the system. It abstracts away technical implementation details (such as database schemas, code functions, and API routes) to serve as the clear functional contract for stakeholders, designers, and software engineers.
 
-### 1.2 Core Problem Statement
-Traditional university operations require extensive in-person administrative presence and manual, repetitive paperwork:
-- Physical paper student course registrations and manual quota checks.
-- Fragmented lecture delivery relying on external, unintegrated tools.
-- Disconnected manual spreadsheets for midterm, coursework, and final grades.
-- Slow, error-prone manual GPA calculations and delayed official transcript issuances.
-- Disconnected communication channels between professors and enrolled students.
+### 1.2 The Core Problem & Gahbaz Solution
+Traditional higher education institutions face operational friction caused by disconnected tools and manual paperwork:
+* Physical course registration queues, manual credit-hour checks, and paper add/drop slips.
+* Disconnected lecture delivery relying on external, unmonitored links.
+* Manual spreadsheets for coursework, midterm, and final grades that delay GPA reporting.
+* Slow official transcript generation requiring physical registrar office visits.
+* Lack of synchronized communication channels between professors and enrolled students.
 
-**Gahbaz** eliminates these manual operational bottlenecks by providing an end-to-end cloud platform allowing university administrators, professors, and students to conduct and manage the entire higher education lifecycle remotely with zero paper dependency.
+**Gahbaz** solves these challenges by unifying a modern **Learning Management System (LMS)** with a comprehensive **Student Information System (SIS)** into an intuitive, Arabic-first web platform.
 
-> [!IMPORTANT]
-> **Foundational Principle: Major-Driven Automatic Course Assignment**  
-> In Gahbaz, students never undergo tedious, manual, course-by-course registration for their standard curriculum. Each student is matriculated into an academic **Major** (`student.major`). The Major maintains a predefined benchmark study plan (`SemesterTemplate`) for every academic level (Level 1, Level 2, ...).  
-> When university administrators initiate a new semester for that major, the platform **automatically instantiates the courses and assigns them directly to all enrolled students at that level**. Immediately upon term launch, the student's class schedule, syllabus, gradebook entries, and discussion channels are active and populated without any student intervention.
-
-### 1.3 System Scope & Boundaries
-- **In Scope:**
-  - Multi-tenant university partitioning with strict tenant boundary enforcement.
-  - Institutional hierarchy definition (Colleges, Majors, Study Plan Templates, Master Subject Catalog).
-  - One-click semester launch automating course generation, student cohort pre-enrollment, gradebook generation, and discussion channel setup with ACID transaction guarantees.
-  - Hybrid self-service Add/Drop portal with prerequisite enforcement and 12–19 credit hour limits.
-  - Digital syllabus delivery supporting structured sections, video lecture streaming, and rich-text topics.
-  - Coursework assignment creation, digital file uploads (PDF/ZIP), automated late tracking, and grading workflows.
-  - Gradebook recording and editing with automatic total/percentage recalculations.
-  - Standard 4.0 GPA engine calculating term SGPA, cumulative CGPA, honor standings, and printable official transcripts.
-  - Synchronized course discussion rooms with automated student roster membership.
-  - Real-time system health telemetry (CPU, RAM, Uptime) and security audit logs.
-- **Out of Scope (Current Baseline):**
-  - Integrated third-party payment gateways for tuition fees (handled via university bursar external records).
-  - Native video conferencing/live streaming server (video delivery operates via secure hosted video URLs).
-
-### 1.4 Definitions, Acronyms, and Abbreviations
-- **LMS:** Learning Management System (Course delivery, lectures, assignments).
-- **SIS:** Student Information System (Academic records, enrollment, gradebooks, transcripts).
-- **SGPA:** Semester Grade Point Average (Term GPA calculated on a 4.0 scale).
-- **CGPA:** Cumulative Grade Point Average (Career GPA across all completed semesters).
-- **ACID:** Atomicity, Consistency, Isolation, Durability (MongoDB Multi-Document Transactions).
-- **RBAC:** Role-Based Access Control.
-- **SSOT:** Single Source of Truth.
-- **Tenant:** An individual university institution registered in the system identified by a unique `universityId`.
+### 1.3 Foundational Operational Philosophy: Major-Driven Automatic Cohort Enrollment
+Unlike traditional platforms that force students through manual registration for every core subject, Gahbaz operates strictly on a **Major-Driven Automatic Enrollment** paradigm:
+1. Every matriculated student belongs to an academic **Major** (Department) and has a defined academic level (Level 1, Level 2, etc.).
+2. The university administrator maintains a predefined benchmark curriculum (**Study Plan / Semester Template**) for each level.
+3. When the university launches a semester, the platform **automatically provisions active course offerings and enrolls all eligible students belonging to that cohort**.
+4. Students immediately see their complete class schedule, syllabus, lecture videos, and discussion rooms upon logging in.
+5. **Self-Registration Disabled for Students:** Student self-service course registration is explicitly disabled. Courses are populated exclusively through the semester launch workflow by the university administration.
+6. The student portal operates as a **Course Schedule & Drop Portal** (بوابة المقررات والحذف): students can review their enrolled courses or optionally drop an unwanted course during the open window, provided their load does not drop below the minimum 12-credit threshold.
 
 ---
 
-## 2. Overall System Description & Architecture
+## 2. Overall System Description & User Personas
 
-### 2.1 Multi-Tenant Institutional Architecture
-Gahbaz is engineered as a multi-tenant platform. Every institutional resource (`College`, `Major`, `Subject`, `Semester`, `Course`, `Chat`, `User`) is strictly scoped to a `University` identifier:
-```text
-[Global Platform]
-       │
-       ▼
- [University Tenant A]                   [University Tenant B]
-   ├── Colleges & Majors                   ├── Colleges & Majors
-   ├── Master Subject Catalog              ├── Master Subject Catalog
-   ├── Active Semesters & Courses          ├── Active Semesters & Courses
-   └── Enrolled Students & Faculty         └── Enrolled Students & Faculty
+### 2.1 User Classes & Personas
+
 ```
-**Isolation Rule:** Users authenticated under Tenant A can never read, modify, or list resources belonging to Tenant B. The `super-admin` role maintains global cross-tenant oversight for platform provisioning.
-
-### 2.2 Academic Domain Supply Chain & Hierarchy
-The academic domain models the physical university organizational chain:
-```mermaid
-graph TD
-    U["1. University (Tenant Root)"] --> C["2. College / Faculty"]
-    C --> M["3. Academic Major / Department"]
-    M --> ST["4. Semester Study Plan Templates"]
-    ST --> S["5. Master Catalog Subjects"]
-    U --> AS["6. Active Academic Semesters"]
-    AS --> CO["7. Active Course Offerings"]
-    S -.->|Instantiates Template| CO
-    CO --> SEC["8. Course Syllabus Sections"]
-    SEC --> LES["9. Interactive Video & Text Lessons"]
-    CO --> GR["10. Student Gradebook (Grade)"]
-    CO --> ASG["11. Coursework Assignments"]
-    CO --> CH["12. Automated Course Chat Channel"]
+                     ┌─────────────────────────────────────────┐
+                     │          Platform Super-Admin           │
+                     │  (Platform Provisioning & Multi-Tenant) │
+                     └────────────────────┬────────────────────┘
+                                          │
+                                          ▼
+                     ┌─────────────────────────────────────────┐
+                     │          University Admin               │
+                     │  (Campus Setup, Term Launch, Admissions)│
+                     └──────────────┬───────────────────┬──────┘
+                                    │                   │
+                  ┌─────────────────┴────┐         ┌────┴───────────────────┐
+                  ▼                      ▼         ▼                        ▼
+       ┌────────────────────┐   ┌────────────────────┐   ┌─────────────────────┐
+       │   Faculty Member   │   │  Enrolled Student  │   │  Public / Visitor   │
+       │ (Syllabus, Grades) │   │ (Lectures, Add/Drop│   │ (Landing, Sign-in)  │
+       └────────────────────┘   └────────────────────┘   └─────────────────────┘
 ```
 
-1. **University:** Institutional root container.
-2. **College:** Broad faculty division (e.g., Computer Science, Engineering, Medicine) defining program semester length (`numberOfSemesters`).
-3. **Major:** Specific academic degree program (e.g., Software Engineering, Cyber Security).
-4. **Semester Template:** Prescribed benchmark curriculum for each level (Level 1, Level 2, ... Level 8).
-5. **Subject:** Permanent academic catalog entry (Code, Name, Credit Hours, Prerequisites, Default Grading Schema).
-6. **Semester:** Active temporal operational term (e.g., "Fall 2026/2027") with start date, end date, and Add/Drop deadline.
-7. **Course:** Operational offering of a Subject during an active Semester, assigned to professors and enrolled students.
-8. **Section:** Thematic unit or chapter within a Course (e.g., "Chapter 1: Network Protocols").
-9. **Lesson:** Granular educational item within a Section (Video lecture or Rich-text reading).
-10. **Grade:** Official academic score record linking a Student and a Course.
-11. **Assignment:** Coursework deliverable published by an instructor with deadlines and maximum scores.
-12. **Chat:** Real-time communication channel auto-provisioned for the course.
+1. **University Administrator (`admin`):**
+   * Manages institutional academic structures: Colleges, Departments/Majors, Master Subject Catalog, and Study Plans.
+   * Executes one-click semester launches that generate courses and enroll cohorts.
+   * Manages student admissions, faculty appointments, and administrative staff accounts.
+   * Monitors campus health telemetry, user activity, and system metrics.
 
-### 2.3 User Classes & Personas
-- **Super Administrator (`super-admin`):** Global platform administrator. Provisions new universities, manages tenant licensing, and reviews cross-tenant analytics and security telemetry.
-- **University Administrator (`admin`):** Institutional Chief Administrator. Configures colleges, programs, study plans, master subjects; executes semester launches; manages faculty and student admissions; monitors campus audit logs.
-- **Faculty Member / Instructor (`teacher`):** Academic educator. Builds syllabus sections and lessons; streams educational content; creates assignments and grades submissions; maintains course gradebook; moderates course discussion rooms.
-- **Student (`student`):** Enrolled learner. Accesses course syllabus, videos, and reading topics; submits coursework before deadlines; participates in course chat; reviews grades and GPA; requests course adjustments during Add/Drop; views and prints official academic transcripts.
-- **Public / Unauthenticated Visitor (`guest`):** Public platform visitor. Views marketing landing pages, platform features, university directories, and initiates registration or login.
+2. **Faculty Member / Instructor (`teacher`):**
+   * Builds course syllabi with thematic sections, video lectures, and interactive reading topics.
+   * Publishes homework assignments with due dates and attachments.
+   * Evaluates student file submissions and provides qualitative feedback.
+   * Enters and maintains continuous assessment gradebooks (Coursework, Midterm, Final Exams).
+   * Moderates automated course discussion channels.
 
-### 2.4 Operating Environment & Technology Stack
-- **Backend Runtime:** Node.js (v18+ LTS, ES Modules).
-- **Application Framework:** Express.js 4.x.
-- **Database Engine:** MongoDB 6.0+ (Replica Set enabled for ACID multi-document transactions) via Mongoose 8.x ODM.
-- **Real-Time Engine:** Socket.IO 4.x (WebSockets with polling fallback).
-- **Security & Cryptography:** bcryptjs (password hashing, salt rounds: 10), jsonwebtoken (JWT authentication via HTTP-only cookies and Bearer headers), express-rate-limit, helmet, express-mongo-sanitize.
-- **Testing Framework:** Vitest 2.x, Supertest.
-- **Frontend Architecture:** React 18, Vite 5, Mantine v6 UI framework, TanStack React Query v5, Tabler Icons.
-- **Localization:** Arabic-first layout (RTL direction via `stylis-plugin-rtl`) with Google Cairo typography, full English backend API and technical logs.
+3. **Student (`student`):**
+   * Enjoys automatic class schedule enrollment upon term launch.
+   * Streams video lectures, reads interactive topic content, and tracks study time.
+   * Submits homework deliverables digitally (PDF/ZIP) with on-time/late tracking.
+   * Uses the self-service Add/Drop portal to adjust courses within 12–19 credit-hour limits and prerequisite checks.
+   * Tracks real-time grades and reviews official printable transcripts with standard 4.0 SGPA and CGPA calculations.
+   * Communicates with instructors and peers via course discussion rooms and direct 1-on-1 messages.
 
----
+4. **Platform Super Administrator (`super-admin`):**
+   * Global platform administrator with multi-university oversight.
+   * Provisions new university tenants, manages institutional licenses, and reviews global resource usage.
 
-## 3. Domain Data Dictionary & Schema Specifications
-
-### 3.1 Tenant & System Models
-
-#### 3.1.1 `University`
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `_id` | ObjectId | Yes | Auto-generated PK | Unique university tenant identifier |
-| `name` | String | Yes | Trimmed, 2–100 chars | Formal name of the university |
-| `code` | String | No | Trimmed, uppercase | Short institution code (e.g., "GAHBAZ") |
-| `admin` | ObjectId | No | Ref: `User` / `Admin` | Chief University Administrator account |
-| `active` | Boolean | Yes | Default: `true` | Operational status of the institution |
-| `createdAt` / `updatedAt` | Date | Auto | Timestamps | Standard audit timestamps |
-
-#### 3.1.2 `AuditLog`
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `user` | ObjectId | No | Ref: `User` | Actor performing the action |
-| `action` | String | Yes | Trimmed | Action description (e.g., `START_SEMESTER`, `LOGIN`) |
-| `ip` | String | No | IPv4/IPv6 string | Originating client IP address |
-| `userAgent` | String | No | String | Client browser/device string |
-| `details` | Mixed | No | Object | Operational payload or audit metadata |
-| `university` | ObjectId | No | Ref: `University`, Indexed | Tenant scoping identifier |
-| `createdAt` | Date | Auto | Default: `Date.now` | Event timestamp |
-
-#### 3.1.3 `PerformanceMetric`
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `cpuUsage` | Number | Yes | Percentage (0–100) | Server host CPU load snapshot |
-| `memoryUsage` | Number | Yes | Percentage (0–100) | Server host RAM consumption snapshot |
-| `uptime` | Number | Yes | Seconds | Process execution uptime |
-| `timestamp` | Date | Auto | Default: `Date.now` | Telemetry capture timestamp |
+5. **Public / Prospective Visitor (`guest`):**
+   * Browses the public landing page to learn about university faculties and degree programs.
+   * Accesses secure login or submits account registration.
 
 ---
 
-### 3.2 User & Identity Discriminators
+## 3. User-Perspective Role & Capabilities Matrix
 
-#### 3.2.1 `User` (Base Schema)
-- **Discriminator Key:** `kind` (Enum: `User`, `Admin`, `Teacher`, `Student`).
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `_id` | ObjectId | Yes | Auto-generated PK | Unique user identifier |
-| `firstName` | String | No | Trimmed, 2–50 chars | User's first name |
-| `lastName` | String | No | Trimmed, 2–50 chars | User's surname |
-| `name` | String (Virtual) | Auto | Computed | Concatenation of `firstName` and `lastName` |
-| `email` | String | Yes | Unique, Lowercase, Valid email format | Primary authentication username |
-| `password` | String | Yes | Hidden by default (`select: false`) | Bcrypt-hashed password string |
-| `phone` | String | No | Trimmed string | Contact telephone number |
-| `avatar` | String | No | Default: `""` | File path or URL to profile picture |
-| `role` | String | Yes | Enum: `student`, `teacher`, `admin`, `super-admin`, `user` | Core RBAC role |
-| `university` | ObjectId | No | Ref: `University`, Indexed | Scoped university tenant |
-| `isAdmin` | Boolean | Yes | Default: `false` | Administrative privilege flag |
-| `lastActivity` | Date | Auto | Default: `Date.now` | Throttled user activity timestamp |
-| `createdAt` / `updatedAt` | Date | Auto | Timestamps | Standard audit timestamps |
-
-#### 3.2.2 `Admin` (Extends `User`)
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `permissions` | String | Yes | Enum: `["r", "rw", "rd", "rwd"]`, Default: `"r"` | Granular administrative CRUD rights |
-| `role` | String | Yes | Enum: `admin`, `super-admin`, `user` | Admin tier assignment |
-
-#### 3.2.3 `Teacher` (Extends `User`)
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `specialization` | String | No | Trimmed string | Academic area of expertise |
-| `courses` | Array[ObjectId] | No | Ref: `Course` | Actively or historically instructed courses |
-
-#### 3.2.4 `Student` (Extends `User`)
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `major` | ObjectId | No | Ref: `Major` | Degree program in which student is matriculated |
-| `comingSemester` | Number | Yes | Default: `0` | Next upcoming academic level index (0, 1, 2...) |
-| `semesters` | Array[ObjectId] | No | Ref: `Semester` | Enrolled active and completed semesters |
-| `grades` | Array[ObjectId] | No | Ref: `Grade` | Academic course assessment records |
+| System Capability                                     | Super Admin  |    University Admin     |  Faculty Member   |           Student           | Public Visitor |
+| :---------------------------------------------------- | :----------: | :---------------------: | :---------------: | :-------------------------: | :------------: |
+| **University Tenant Provisioning & Licensing**        | Full Control |         Denied          |      Denied       |           Denied            |     Denied     |
+| **Colleges, Majors & Curriculum Catalog Setup**       | Full Control | Full Control (Own Univ) |     View Only     |          View Only          |     Denied     |
+| **Study Plan Templates (Levels 1–N)**                 | Full Control | Full Control (Own Univ) |     View Only     |          View Only          |     Denied     |
+| **One-Click Cohort Semester Launch**                  | Full Control | Full Control (Own Univ) |      Denied       |           Denied            |     Denied     |
+| **Semester Conclude & Delete Lifecycle**              | Full Control | Full Control (Own Univ) |      Denied       |           Denied            |     Denied     |
+| **User Admissions & Faculty Recruitment**             | Full Control | Full Control (Own Univ) |      Denied       |           Denied            |     Denied     |
+| **System Governance & Activity Metrics**              | Cross-Tenant |    Campus Dashboard     |      Denied       |           Denied            |     Denied     |
+| **Course Syllabus & Lesson Authoring (LMS)**          | Full Control |    Campus Oversight     | Assigned Courses  |          View Only          |     Denied     |
+| **Course File & Supplemental Materials Library**      | Full Control |    Campus Oversight     | Assigned Courses  |        Download Only        |     Denied     |
+| **Assignment Publishing & Submission Grading**        | Full Control |    Campus Oversight     | Assigned Courses  |           Denied            |     Denied     |
+| **Student Homework Deliverable Submission**           |    Denied    |         Denied          |      Denied       |        Enrolled Only        |     Denied     |
+| **Continuous Assessment Gradebook Entry**             | Full Control |    Campus Oversight     | Assigned Courses  |           Denied            |     Denied     |
+| **Real-Time Grade Inspection**                        | Full Control |    Campus Oversight     | Assigned Courses  |          Self Only          |     Denied     |
+| **Course Schedule & Drop Portal (Self-Add Disabled)** |    Denied    |     Override Access     |      Denied       | Active Students (Drop Only) |     Denied     |
+| **Official Printable Academic Transcript**            | Full Control |       Any Student       | Assigned Students |          Self Only          |     Denied     |
+| **Course Discussion Channels**                        | Full Control |    Campus Moderation    |  Assigned Rooms   |       Enrolled Rooms        |     Denied     |
+| **Direct 1-on-1 Private Messaging**                   |  Available   |        Available        |     Available     |          Available          |     Denied     |
+| **In-App Notification Center**                        |  Available   |        Available        |     Available     |          Available          |     Denied     |
+| **Profile & Password Self-Update**                    |  Self Only   |        Self Only        |     Self Only     |          Self Only          |     Denied     |
+| **Public Landing Page & Authentication**              |  Available   |        Available        |     Available     |          Available          |      Open      |
 
 ---
 
-### 3.3 Institutional Structure Models
-
-#### 3.3.1 `College`
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `name` | String | Yes | Trimmed, 2–100 chars | College / Faculty title |
-| `description` | String | No | Default: `""` | College description and overview |
-| `numberOfSemesters` | Number | Yes | Min: `1`, Default: `8` | Program graduation duration in semesters |
-| `majors` | Array[ObjectId] | No | Ref: `Major` | Departments housed within this faculty |
-| `university` | ObjectId | Yes | Ref: `University`, Indexed | Tenant scoping identifier |
-
-#### 3.3.2 `Major`
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `name` | String | Yes | Trimmed, 2–100 chars | Academic program title (e.g., "Computer Science") |
-| `college` | ObjectId | Yes | Ref: `College`, Indexed, Alias: `collage` | Parent college faculty |
-| `students` | Array[ObjectId] | No | Ref: `Student` | Matriculated students in this major |
-| `semesterTemplates` | Array[ObjectId] | No | Ref: `SemesterTemplate` | Study plan templates for levels 1 through N |
-| `semesters` | Array[ObjectId] | No | Ref: `Semester` | Operational terms launched for this program |
-
-#### 3.3.3 `Subject` (Master Course Catalog Blueprint)
-- **Discriminator Key:** `itemType` (Enum: `Subject`, `Course`).
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `name` | String | Yes | Trimmed, 2–100 chars | Official catalog subject title |
-| `code` | String | No | Trimmed string | Standard catalog course code (e.g., "CS101") |
-| `subtitle` | String | No | Default: `""` | Short descriptive tagline |
-| `category` | String | No | Default: `""` | Domain category (Core, Elective, General) |
-| `creditHours` | Number | Yes | Min: `1`, Max: `10`, Default: `3` | Standard credit units weighted in GPA |
-| `prerequisites` | Array[ObjectId] | No | Ref: `Subject` | Required predecessor subjects needed to enroll |
-| `college` | ObjectId | No | Ref: `College`, Indexed, Alias: `collage` | Faculty offering this subject |
-| `teachers` | Array[ObjectId] | No | Ref: `Teacher` | Default designated instructors |
-| `university` | ObjectId | No | Ref: `University`, Indexed | Tenant scoping identifier |
-| `gradeSchema` | Object | Yes | `{ total: 100, grade: { 0: { name: "تكاليف", value: 20 }, 1: { name: "نصفي", value: 30 }, 2: { name: "نهائي", value: 50 } } }` | Default assessment breakdown schema |
-
-#### 3.3.4 `SemesterTemplate` (Benchmark Study Plan)
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `name` | String | Yes | Trimmed, 2–50 chars | Plan level title (e.g., "Level 1", "Semester 1") |
-| `major` | ObjectId | Yes | Ref: `Major`, Indexed | Program for which this template applies |
-| `index` | Number | Yes | Default: `1` | Level index sequence (1, 2, 3...) |
-| `active` | Boolean | Yes | Default: `false` | Indicates whether template is currently active |
-| `subjects` | Array[ObjectId] | No | Ref: `Subject` | Master catalog subjects prescribed for this academic level. All subjects are strictly **mandatory core requirements** contributing to the student's graduation credits and final GPA. |
+## 4. Detailed Functional Requirements (User Perspective)
 
 ---
 
-### 3.4 Operational Delivery Models
+### Module 1: Institutional Governance & Multi-Tenancy
 
-#### 3.4.1 `Semester` (Active Academic Term)
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `name` | String | Yes | Trimmed, 2–50 chars | Term label (e.g., "Fall Semester 2026/2027") |
-| `major` | ObjectId | Yes | Ref: `Major`, Indexed | Major program for which term was launched |
-| `template` | ObjectId | Yes | Ref: `SemesterTemplate` | Study plan template used to instantiate courses |
-| `university` | ObjectId | Yes | Ref: `University`, Indexed | Tenant scoping identifier |
-| `courses` | Array[ObjectId] | No | Ref: `Course` | Operational course offerings for this term |
-| `students` | Array[ObjectId] | No | Ref: `Student` | Enrolled student cohort |
-| `startDate` | Date | Yes | Default: `Date.now` | Term commencement date |
-| `endDate` | Date | Yes | Required | Term conclusion date |
-| `addDropDeadline`| Date | No | Optional timestamp | Deadline after which Add/Drop portal closes |
-| `completed` | Boolean | Yes | Default: `false` | Academic term finalization status |
+#### REQ-GOV-001: Multi-Tenant University Provisioning
+* **User Persona:** Super Administrator (`super-admin`)
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As a platform super administrator, I want to register and provision new universities with their formal title, institutional code, and primary administrative contact (auto-generating secure initial credentials), so that independent universities operate in completely isolated virtual environments, while allowing super administrators to toggle suspension and switch tenant context on-the-fly.
+* **User Experience & Business Rules:**
+  1. The Super Admin accesses a dedicated "University Management" portal (`/universities`).
+  2. The Super Admin creates a university profile specifying Name, Code, Chief Administrator Name, and Chief Administrator Email.
+  3. The system executes an atomic transaction creating the `University` container and the primary `admin` user, issuing and revealing a temporary password.
+  4. The Super Admin can monitor institutional telemetry (counts of colleges, majors, courses, faculty, and students).
+  5. The Super Admin can suspend/activate universities (suspension immediately denies login to all non-super-admin users of that university).
+  6. The Super Admin can switch active university context via the navigation bar to inspect any university's workspace as an administrator.
 
-#### 3.4.2 `Course` (Extends `Subject`)
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `description` | String | No | Default: `""` | Detailed course overview and syllabus |
-| `willLearn` | Array[String] | No | List of strings | Specific learning objectives / outcomes |
-| `requirements` | Array[String] | No | List of strings | Qualitative course prerequisites / equipment |
-| `status` | String | Yes | Enum: `["active", "done"]`, Default: `"active"` | Course operational state |
-| `cover` | String | No | Default: `""` | Course header cover banner media path |
-| `semester` | ObjectId | Yes | Ref: `Semester`, Indexed | Parent active semester |
-| `sections` | Array[ObjectId] | No | Ref: `Section` | Syllabus thematic modules |
-| `grades` | Array[ObjectId] | No | Ref: `Grade` | Linked student grade records |
-| `students` | Array[SubDoc] | No | `[{ student: ObjectId (ref Student), grade: ObjectId (ref Grade) }]` | Active roster of enrolled students and grade links |
+#### REQ-GOV-002: System Telemetry & Administrative Health Dashboard
+* **User Persona:** University Administrator (`admin`)
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As a university administrator, I want to monitor real-time institutional metrics and server health on my dashboard so that I have complete visibility over platform adoption and operational stability.
+* **User Experience & Business Rules:**
+  1. Displays summary metric cards: Total Colleges, Total Academic Majors, Total Open Courses, Active Faculty Members, and Enrolled Students.
+  2. Displays real-time server health widgets showing CPU utilization percentage, available RAM, and server uptime.
+  3. Displays active user counts (users active within the last 5 minutes) and login trends over the preceding 3 days.
 
-#### 3.4.3 `Section` & Embedded `Lesson`
-- **Section Schema:**
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `name` | String | Yes | Trimmed, 2–50 chars | Module/Unit title (e.g., "Unit 1: Fundamentals") |
-| `description` | String | No | Default: `""` | Summary of module topics |
-| `order` | Number | Yes | Default: `0` | Display sequence order within course syllabus |
-| `course` | ObjectId | Yes | Ref: `Course`, Indexed | Course offering to which section belongs |
-| `studyTime` | Number | Auto | Computed sum of lessons | Total estimated duration in minutes |
-| `lessons` | Array[Lesson] | No | Embedded SubDocument Array | Granular lectures and reading topics |
-
-- **Embedded `Lesson` Schema:**
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `_id` | ObjectId | Auto | Auto-generated PK | Unique lesson identifier |
-| `name` | String | Yes | Trimmed, 2–50 chars | Lecture or topic title |
-| `description` | String | No | Default: `""` | Overview of lecture content |
-| `type` | String | Yes | Enum: `["video", "text"]`, Default: `"video"` | Educational content modality |
-| `url` | String | Cond. | Required if `type === "video"` | Media streaming URL |
-| `topic` | String | Cond. | Required if `type === "text"` | Rich-text HTML content |
-| `studyTime` | Number | Yes | Min: `0`, Default: `0` | Estimated completion time in minutes |
+#### REQ-GOV-003: Searchable Security Audit Trail Viewer
+* **User Persona:** University Administrator (`admin`), Super Administrator
+* **Status:** `[Status: Planned / Next for Implementation]`
+* **User Story:** As an administrator, I want to inspect a searchable, filterable audit log of administrative actions so that I can trace operational changes (term launches, user deletions, grade changes) for accountability and security.
+* **User Experience & Business Rules:**
+  1. The administrator navigates to an "Audit Logs" screen.
+  2. A chronological table displays: Date/Time, Actor Name, Role, Action Performed (e.g., "Term Launched", "Course Deleted", "User Created"), IP Address, and Operational Notes.
+  3. The administrator can filter logs by date range, action type, or user.
 
 ---
 
-### 3.5 Academic Performance Models
+### Module 2: Academic Curriculum & Catalog Architecture
 
-#### 3.5.1 `Grade`
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `course` | ObjectId | Yes | Ref: `Course`, Indexed | Associated course offering |
-| `student` | ObjectId | Yes | Ref: `Student`, Indexed | Enrolled student receiving marks |
-| `total` | Number | Yes | Min: `0`, Max: `100`, Default: `0` | Cumulative score across all components |
-| `percent` | Number | Yes | Min: `0`, Max: `100`, Default: `0` | Percentage score used for GPA mapping |
-| `grades` | Array[Item] | Yes | `[{ key: String, name: String, maxValue: Number, value: Number }]` | Structured evaluation breakdown |
-| `grade` | Mixed | Yes | Legacy key-value map | Key-value breakdown map |
+#### REQ-CUR-001: College / Faculty Administration
+* **User Persona:** University Administrator (`admin`)
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As a university administrator, I want to create and manage academic colleges (e.g., College of Engineering) and define their total graduation semesters, so that degree programs are properly housed.
+* **User Experience & Business Rules:**
+  1. Admin can add, edit, view, and delete colleges.
+  2. Each college records: Name, Description, and Program Length in semesters (e.g., 8 or 10 semesters).
+  3. Deletion safeguard: The system warns the administrator and prevents accidental deletion if academic majors are actively housed in that college.
 
-#### 3.5.2 `Assignment`
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `title` | String | Yes | Trimmed, 2–150 chars | Title of the homework / task |
-| `description` | String | No | Default: `""` | Detailed instructions and submission guidelines |
-| `course` | ObjectId | Yes | Ref: `Course`, Indexed | Course offering hosting assignment |
-| `instructor` | ObjectId | Yes | Ref: `Teacher` | Faculty member who published assignment |
-| `dueDate` | Date | Yes | Valid timestamp | Deadline for submission |
-| `maxScore` | Number | Yes | Min: `1`, Default: `100` | Maximum points attainable |
-| `attachmentUrl` | String | No | Default: `""` | Optional reference file or rubric attachment |
+#### REQ-CUR-002: Academic Major / Department Setup
+* **User Persona:** University Administrator (`admin`)
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As a university administrator, I want to establish academic majors within each college so that matriculated students follow a structured program of study.
+* **User Experience & Business Rules:**
+  1. Admin creates a major linked to a parent college, specifying Major Title and Department Description.
+  2. The major maintains the directory of enrolled students and active study plan templates.
+  3. The system allows filtering subjects and semesters by academic major.
 
-#### 3.5.3 `Submission`
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `assignment` | ObjectId | Yes | Ref: `Assignment`, Indexed | Parent assignment |
-| `student` | ObjectId | Yes | Ref: `Student`, Indexed | Student author of the submission |
-| `fileUrl` | String | Yes | Valid URI / path | Uploaded deliverable (PDF, ZIP, DOCX) |
-| `notes` | String | No | Default: `""` | Student comment or repository link |
-| `submittedAt` | Date | Auto | Default: `Date.now` | Precise upload timestamp |
-| `isLate` | Boolean | Auto | Computed | `submittedAt > assignment.dueDate` |
-| `score` | Number | No | Min: `0` | Faculty awarded score |
-| `feedback` | String | No | Default: `""` | Qualitative instructor feedback |
-| `status` | String | Yes | Enum: `["submitted", "graded", "returned"]` | Current workflow state |
+#### REQ-CUR-003: Master Catalog Subjects Blueprint
+* **User Persona:** University Administrator (`admin`)
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As an administrator, I want to maintain a master catalog of academic subjects with course codes, credit hours, prerequisites, and standard grading schemes, so that operational term courses can be consistently spawned from verified academic blueprints.
+* **User Experience & Business Rules:**
+  1. Admin adds master subjects specifying:
+     * Subject Title and Standard Catalog Code (e.g., "SWE201", "Introduction to Software Engineering").
+     * Credit Hours (weighted units between 1 and 10, typically 3 hours).
+     * Prerequisite Subjects: Admin can select one or more prerequisite subjects from the catalog that a student must complete before taking this subject.
+     * Default Assessment Breakdown (Grade Schema): Default maximum points for Coursework (20 pts), Midterm Exam (30 pts), and Final Exam (50 pts), summing to 100 points.
+  2. Catalog subjects remain permanent institutional blueprints; active course offerings are instantiated from them each term.
 
----
-
-### 3.6 Communication Models
-
-#### 3.6.1 `Chat`
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `chatName` | String | Yes | Trimmed string | Discussion room title |
-| `isGroupChat` | Boolean | Yes | Default: `false` | Direct (false) vs Group/Course (true) |
-| `users` | Array[ObjectId] | Yes | Ref: `User` | Active participants |
-| `course` | ObjectId | No | Ref: `Course`, Indexed | Optional automated link to Course offering |
-| `latestMessage` | ObjectId | No | Ref: `Message` | Pointer to most recent message |
-| `groupAdmin` | ObjectId | No | Ref: `User` | Room administrator (Instructor for courses) |
-| `university` | ObjectId | No | Ref: `University`, Indexed | Tenant scoping identifier |
-
-#### 3.6.2 `Message`
-| Field | Type | Required | Constraints / Default | Description |
-|---|---|---|---|---|
-| `sender` | ObjectId | Yes | Ref: `User` | Message author |
-| `content` | String | Yes | Trimmed string | Message text content |
-| `chat` | ObjectId | Yes | Ref: `Chat`, Indexed | Parent discussion room |
-| `readBy` | Array[ObjectId] | No | Ref: `User` | Users who have viewed message |
+#### REQ-CUR-004: Sequential Level Study Plan Templates (`SemesterTemplate`)
+* **User Persona:** University Administrator (`admin`)
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As an administrator, I want to organize each major's curriculum into ordered academic levels (Level 1, Level 2, up to Level $N$) with prescribed core subjects, so that students can be enrolled automatically according to their study plan.
+* **User Experience & Business Rules:**
+  1. Each major maintains study plan templates indexed strictly from Level 1 up to the program maximum.
+  2. Sequence Integrity: Level indices must start at 1, cannot be duplicated within the same major, and cannot have missing gaps (e.g., Level 2 cannot exist without Level 1). Deleting a level automatically re-sequences subsequent levels.
+  3. Admin assigns master catalog subjects to each level template.
+  4. All prescribed subjects in a template represent mandatory degree requirements contributing to graduation credits and GPA.
 
 ---
 
-## 4. Role-Based Access Control (RBAC) Matrix
+### Module 3: Semester Lifecycle & Automated Enrollment Engine
 
-The table below strictly defines operational permissions by persona:
+#### REQ-SEM-001: Automated Cohort Semester Launch
+* **User Persona:** University Administrator (`admin`)
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As an administrator, I want to launch an academic term by selecting majors and levels, so that the system automatically instantiates courses, assigns faculty, enrolls eligible students, initializes gradebooks, and creates course chat rooms in a single streamlined action.
+* **User Experience & Business Rules:**
+  1. **Launch Wizard Interface:**
+     * Admin enters term details: Term Label (e.g., "Fall 2026/2027"), Start Date, End Date, and Add/Drop Deadline.
+     * Admin selects the target Academic Major(s).
+     * Admin chooses whether to launch **"All Levels"** or select specific levels (e.g., Level 1 and Level 3).
+     * Admin can inspect prescribed subjects and optionally customize which subjects are offered for that term.
+  2. **Automated Atomic Enrollment Execution:**
+     * The system creates the active Semester record.
+     * Instantiates active Course Offerings from the catalog subjects, linking designated instructors.
+     * Identifies all students enrolled in that major whose incoming semester matches the template level index.
+     * Enrolls the student cohort directly into the active courses.
+     * Advances each student's incoming semester counter by +1.
+     * Initializes blank Grade records linked to each student and course.
+     * Provisions dedicated Course Discussion Rooms with the instructor as group admin and students as members.
+  3. **Operational Safeguards:**
+     * Prevents launching any level that has **0 eligible students** registered in the major.
+     * Prevents launching any level that has **0 assigned subjects**.
 
-| Capability / Operational Endpoint | `super-admin` | `admin` | `teacher` | `student` | `guest` |
-|---|:---:|:---:|:---:|:---:|:---:|
-| **Platform Provisioning & University CRUD** | **Full** | Denied | Denied | Denied | Denied |
-| **System Telemetry & Audit Logs (`/system`)** | **Full** | **Own Univ** | Denied | Denied | Denied |
-| **Colleges, Majors, Catalog Subjects CRUD** | **Full** | **Own Univ** | Read Only | Read Only | Denied |
-| **Semester Templates CRUD (`/semester-templates`)** | **Full** | **Own Univ** | Read Only | Read Only | Denied |
-| **One-Click Term Launch (`/semesters/startSemester`)** | **Full** | **Own Univ** | Denied | Denied | Denied |
-| **Semester Lifecycle (`/semesters` CRUD, End)** | **Full** | **Own Univ** | Read Only | Read Only | Denied |
-| **Course Offering Management (`/courses` CRUD)** | **Full** | **Own Univ** | Assigned Only | Enrolled Only | Denied |
-| **Syllabus Sections & Lessons Management** | **Full** | **Own Univ** | Assigned Only | Read Only | Denied |
-| **Add/Drop Course Registration (`/enrollment`)** | **Full** | **Full** | Denied | **Self Only** | Denied |
-| **Publish Assignments & Grade Submissions** | **Full** | **Own Univ** | Assigned Only | Denied | Denied |
-| **Submit Assignments (`/assignments/.../submit`)** | Denied | Denied | Denied | **Self Only** | Denied |
-| **Enter & Recalculate Grades (`/grades/:id`)** | **Full** | **Own Univ** | Assigned Only | Denied | Denied |
-| **Inspect Official Transcript & GPA (`/transcripts`)** | **Full** | **Own Univ** | Assigned Only | **Self Only** | Denied |
-| **Chat & Discussion Channels (`/chats`, `/messages`)** | **Full** | **Member** | **Member** | **Member** | Denied |
-| **User Directory Management (`/students`, `/teachers`)** | **Full** | **Own Univ** | Read Only | Read Only | Denied |
-| **Self Profile & Password Update (`/users/profile`)** | **Self** | **Self** | **Self** | **Self** | Denied |
-| **Authentication (`/auth/login`, `/register`)** | Open | Open | Open | Open | **Open** |
+#### REQ-SEM-002: Prerequisite Validation During Cohort Launch
+* **User Persona:** University Administrator (`admin`)
+* **Status:** `[Status: Planned / Next for Implementation]`
+* **User Story:** As an administrator, when launching a cohort semester, I want the system to flag students who failed a required prerequisite in the preceding term, so that academic advisors can intervene or hold advance registrations.
+* **User Experience & Business Rules:**
+  1. During term launch, the system checks whether enrolled students have passed (Grade $\ge 60\%$) all prerequisites for the spawned courses.
+  2. Students with missing prerequisites are either flagged with an "Academic Prerequisite Hold" on that specific course or presented in an administrative review modal before final launch confirmation.
 
----
+#### REQ-SEM-003: Semester Conclude & Deletion Safeguards
+* **User Persona:** University Administrator (`admin`)
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As an administrator, I want to finalize an active semester upon completion of final exams, or safely delete a term if entered in error.
+* **User Experience & Business Rules:**
+  1. **Conclude Semester:** Admin marks the semester as concluded. This locks the term, releases the study plan template from active status, and freezes further grade modifications.
+  2. **Delete Semester Safeguard:** Deleting a semester safely rolls back student enrollment records, deletes course offerings, and cleans up linked sections and grades.
 
-## 5. Detailed Functional Requirements by Operational Module
-
-### 5.1 Authentication & Session Management
-- **FR-AUTH-001: User Login**
-  - **Endpoint:** `POST /api/v1/auth/login`
-  - **Actor:** Public / Any Registered User
-  - **Input Schema:** `{ email: string, password: string }`
-  - **Business Rules:**
-    1. Authenticate against `User.findOne({ email }).select("+password")`.
-    2. Validate password via `bcrypt.compare`.
-    3. Rate limited: Maximum 10 attempts per 15 minutes per IP address.
-    4. Issue signed JWT (HS256) containing `{ userId, role, universityId }` with 24-hour expiration (`1d`).
-    5. Set JWT as HTTP-Only, secure cookie `token` and return in response JSON.
-  - **Success Response (200):** `{ success: true, token: string, user: { _id, email, name, role, university } }`
-  - **Errors:** `400 Bad Request` (Validation), `401 Unauthorized` (Invalid credentials), `429 Too Many Requests`.
-
-- **FR-AUTH-002: User Registration**
-  - **Endpoint:** `POST /api/v1/auth/register`
-  - **Actor:** Public User
-  - **Input Schema:** `{ firstName: string, lastName: string, email: string, password: string, phone?: string }`
-  - **Business Rules:**
-    1. Enforce strict input validation via Zod/Joi.
-    2. Ensure email uniqueness (`User.exists({ email })`).
-    3. Default role assignment: `"user"` / `"student"`. Prevent self-escalation to `admin` or `super-admin`.
-    4. Password must be hashed via `hashPassword` before persistence.
-  - **Success Response (201):** `{ success: true, message: "User registered successfully", user: { ... } }`
-
-- **FR-AUTH-003: User Logout**
-  - **Endpoint:** `POST /api/v1/auth/logout`
-  - **Business Rules:** Clears HTTP-only `token` cookie and invalidates client session.
+#### REQ-SEM-004: Student Course Schedule & Drop Portal (Self-Addition Disabled)
+* **User Persona:** Student (`student`)
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As an enrolled student, during the active enrollment window, I want to review my auto-enrolled semester courses and have the ability to drop an unwanted course (provided my load remains $\ge 12$ credit hours), while the ability to manually add courses for myself is disabled and handled exclusively through semester launch.
+* **User Experience & Business Rules:**
+  1. **Course Assignment Exclusivity:** Course enrollment is performed exclusively by the university administration upon semester launch (`startSemesterService`) according to the student's major and academic level template. Manual self-registration by students is disabled.
+  2. **Browse-Only Semester Catalog:** Students can explore the catalog of courses offered in the active semester in view-only mode to inspect descriptions, syllabi, instructors, and prerequisites. The registration action is disabled with an explanatory notice: *"Course registration is performed automatically upon semester launch according to your study plan. Self-addition is currently disabled."*
+  3. **Course Dropping Rules:**
+     * The student can drop a course only while the current date is before the semester's defined `addDropDeadline`.
+     * **Minimum Load: 12 Credit Hours.** A student cannot drop a course if their remaining registered load would fall below 12 credit hours.
+     * Dropping a course removes it from the student's active schedule, cleans up the unearned grade record, and removes the student from the course chat room.
 
 ---
 
-### 5.2 User & Profile Administration
-- **FR-USR-001: Profile Retrieval & Self-Update**
-  - **Endpoint:** `GET /api/v1/users/profile` | `PATCH /api/v1/users/:id`
-  - **Actor:** Authenticated User
-  - **Business Rules:** Users can update their `firstName`, `lastName`, `phone`, and `avatar`. Non-admin users cannot alter their own `role`, `isAdmin`, or `university` fields.
+### Module 4: Digital Course Delivery & Learning Management (LMS)
 
-- **FR-USR-002: Role Directories (`Students`, `Teachers`, `Admins`)**
-  - **Endpoints:** `GET /api/v1/students`, `GET /api/v1/teachers`, `GET /api/v1/admins`
-  - **Actor:** `admin`, `super-admin`
-  - **Business Rules:** Supports multi-tenant scoping (`university`), search queries, and standard pagination (`page`, `limit`).
+#### REQ-LMS-001: Course Overview & Media Customization
+* **User Persona:** Faculty Member (`teacher`), University Admin
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As an instructor, I want to customize my course overview, write learning objectives, specify requirements, and upload a cover banner, so that enrolled students have a clear understanding of expectations.
+* **User Experience & Business Rules:**
+  1. Instructors can edit Course Description, Learning Outcomes ("What you will learn"), and Prerequisites/Requirements.
+  2. Instructors can upload high-resolution image cover banners that display on student course cards.
 
----
+#### REQ-LMS-002: Modular Syllabus Authoring (Sections & Lessons)
+* **User Persona:** Faculty Member (`teacher`), Student (`student`)
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As an instructor, I want to organize my course into thematic units (Sections) containing lectures (Lessons), so that students can navigate and study course material sequentially.
+* **User Experience & Business Rules:**
+  1. **Thematic Sections:** Instructors create ordered sections (e.g., "Unit 1: Fundamentals of Database Design").
+  2. **Lectures / Lessons:** Within any section, instructors can add lessons of two types:
+     * **Video Lecture:** Video media streaming URL with estimated watch duration in minutes.
+     * **Interactive Reading Topic:** Formatted rich-text explanation with estimated reading time.
+  3. **Study Time Aggregation:** The system automatically sums lesson times to display total estimated study duration per section and for the entire course.
+  4. **Empty State Handling:** When a course has no sections yet, the UI displays a clean empty state with an "Add New Section" prompt without crashing or displaying errors.
 
-### 5.3 Academic Structure & Curriculum Management
-- **FR-STR-001: College Management**
-  - **Endpoints:** `POST /api/v1/colleges`, `GET /api/v1/colleges`, `PATCH /api/v1/colleges/:id`, `DELETE /api/v1/colleges/:id`
-  - **Actor:** `admin`, `super-admin`
-  - **Business Rules:**
-    - Query alias `/api/v1/collages` supported for backward compatibility.
-    - Scoped strictly to `req.user.universityId`.
-    - Deletion cascade check: Cannot delete college if associated majors exist unless confirmed.
+#### REQ-LMS-003: Student Lecture Consumption & Video Player
+* **User Persona:** Student (`student`)
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As a student, I want to watch video lectures and read interactive topics within a dedicated distraction-free viewer, so that I can study my curriculum online.
+* **User Experience & Business Rules:**
+  1. Students open a course to view the syllabus table of contents with badges indicating available video or text content.
+  2. Selecting a lesson opens the dedicated lesson viewer with responsive video playback, full-screen options, and rich formatted text.
 
-- **FR-STR-002: Major Program Management**
-  - **Endpoints:** `POST /api/v1/majors`, `GET /api/v1/majors`, `PATCH /api/v1/majors/:id`, `DELETE /api/v1/majors/:id`
-  - **Actor:** `admin`, `super-admin`
-  - **Business Rules:** Associated directly with parent `College`. Supports query filtering by `college`.
-
-- **FR-STR-003: Master Catalog Subjects Blueprint**
-  - **Endpoints:** `POST /api/v1/subjects`, `GET /api/v1/subjects`, `PATCH /api/v1/subjects/:id`, `DELETE /api/v1/subjects/:id`
-  - **Actor:** `admin`, `super-admin`
-  - **Business Rules:**
-    - Sets catalog definition: Course Code, Name, Credit Hours (1–10), and Prerequisites (`prerequisites: [ObjectId]`).
-    - Establishes baseline default `gradeSchema` (Default: 20 Coursework, 30 Midterm, 50 Final).
-    - Serves as the blueprint when active term courses are spawned.
-
-- **FR-STR-004: Semester Study Plan Templates**
-  - **Endpoints:** `POST /api/v1/semester-templates`, `GET /api/v1/semester-templates`, `GET /api/v1/semester-templates/major/:majorId`, `PATCH /api/v1/semester-templates/:id`, `DELETE /api/v1/semester-templates/:id`
-  - **Actor:** `admin`, `super-admin`
-  - **Business Rules:**
-    - Maps the prescribed catalog `subjects` for academic levels (Level 1 to Level N).
-    - If template `name` is omitted, defaults to `"Semester {index}"`.
+#### REQ-LMS-004: Standalone Course File & Materials Library
+* **User Persona:** Faculty Member (`teacher`), Student (`student`)
+* **Status:** `[Status: Planned / Next for Implementation]`
+* **User Story:** As an instructor, I want a dedicated "Course Materials" repository tab to upload lecture slide decks, syllabus PDFs, and reference papers for student download, without having to frame them as assignments.
+* **User Experience & Business Rules:**
+  1. Instructors can upload reference files (PDF, PPTX, DOCX, ZIP) with a title and optional description.
+  2. Students can view, search, and download reference materials directly from the course interface.
 
 ---
 
-### 5.4 Academic Semester Lifecycle & Term Launch
-- **FR-SEM-001: Flexible Multi-Tier Term Launch (`startSemesterService`)**
-  - **Endpoint:** `POST /api/v1/semesters/startSemester`
-  - **Actor:** `admin`, `super-admin`
-  - **Hierarchical Selection Flow:**
-    1. **Tier 1 (Major Scope):** Administrator selects one or more Academic Majors to activate for this operational term.
-    2. **Tier 2 (Semester / Level Scope):** For each selected Major, the administrator can:
-       - Toggle **"Select All Semesters"** (`allSemesters: true`) to automatically launch all curriculum levels (Levels 1 through $N$) defined for that program.
-       - OR manually select specific levels/semesters (e.g., Level 1 and Level 3 only).
-    3. **Tier 3 (Subject Customization):** For each semester template being launched:
-       - **Default Mode:** Keep all subjects prescribed in `SemesterTemplate.subjects` (recommended standard).
-       - **Customized Mode:** Select a specific subset of subjects to include in this term's active course offerings (e.g., omitting or substituting specific subjects).
-  - **Input Schema:**
-    ```json
-    {
-      "semesterData": {
-        "name": "Fall Semester 2026/2027",
-        "startDate": "2026-09-01T00:00:00.000Z",
-        "endDate": "2027-01-15T23:59:59.000Z",
-        "addDropDeadline": "2026-09-20T23:59:59.000Z"
-      },
-      "majors": [
-        {
-          "majorId": "64f1a2b3c4d5e6f7a8b9c001",
-          "allSemesters": true
-        },
-        {
-          "majorId": "64f1a2b3c4d5e6f7a8b9c002",
-          "semesters": [
-            {
-              "templateId": "64f1a2b3c4d5e6f7a8b9c011"
-            },
-            {
-              "templateId": "64f1a2b3c4d5e6f7a8b9c012",
-              "subjects": ["64f1a2b3c4d5e6f7a8b9c101", "64f1a2b3c4d5e6f7a8b9c102"]
-            }
-          ]
-        }
-      ],
-      "semesters": [
-        "64f1a2b3c4d5e6f7a8b9c099"
-      ]
-    }
-    ```
-  - **Business Rules (ACID Multi-Document Transaction):**
-    1. Open atomic MongoDB session (`mongoose.startSession()`) and start transaction.
-    2. Resolve target semester templates and subject configurations:
-       - For majors with `allSemesters: true`: query all `SemesterTemplate` records belonging to `majorId`. Subjects default to `template.subjects`.
-       - For majors with explicit `semesters`: resolve each template and its optional custom `subjects` array (defaults to `template.subjects` if omitted/empty).
-       - For direct `semesters` array: support legacy template IDs and objects with custom subjects.
-    3. For each resolved `SemesterTemplate`:
-       a. Identify eligible student cohort: Students where `major === template.major` and `comingSemester === template.index` (unconditionally enrolled; no administrative hold flags in this baseline).
-       b. Create active `Semester` record bound to `universityId`.
-       c. Mark `SemesterTemplate.active = true`.
-       d. For each resolved catalog `Subject` (either custom selected subjects or template default subjects):
-          - Instantiate an active `Course` offering copying `name`, `code`, `creditHours`, `prerequisites`, `gradeSchema`, `teachers`.
-          - Provision dedicated course discussion room (`Chat`) with instructor as `groupAdmin` and enrolled cohort as members.
-       e. For each student in the cohort:
-          - Advance `student.comingSemester += 1`.
-          - Append `newSemester._id` to `student.semesters`.
-          - Instantiate initialized `Grade` records (`total: 0, percent: 0`) for each generated course and link to `Course.students`.
-       f. Attach generated courses and student list to `Semester`.
-    4. Commit transaction. If any failure occurs, rollback all modifications cleanly.
-  - **Success Response (200):** `{ success: true, message: "Semesters and courses started successfully" }`
+### Module 5: Coursework & Assignment Hub
 
-- **FR-SEM-002: Semester Finalization & Deletion Safeguards**
-  - **Endpoints:** `POST /api/v1/semesters/:id/end` | `DELETE /api/v1/semesters/:id`
-  - **Business Rules:**
-    - `end`: Sets `semester.completed = true` and frees `SemesterTemplate.active = false`.
-    - `delete`: Executes cascade cleanup: removes enrolled semester IDs from `student.semesters`, deletes associated courses, and purges child syllabus sections.
+#### REQ-ASG-001: Assignment Publishing
+* **User Persona:** Faculty Member (`teacher`)
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As an instructor, I want to publish homework assignments with titles, instructions, deadlines, maximum points, and attachment rubrics, so that students understand what deliverables are expected.
+* **User Experience & Business Rules:**
+  1. The instructor opens the course "Assignments & Tasks" tab.
+  2. Creates an assignment specifying: Title, Detailed Instructions, Due Date & Time, Maximum Score (default 100), and optional rubric/starter file attachment.
+  3. The assignment becomes immediately visible on all enrolled students' course dashboards.
+
+#### REQ-ASG-002: Student Deliverable Submission
+* **User Persona:** Student (`student`)
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As a student, I want to upload my completed homework deliverable and write notes to my instructor, with clear confirmation of whether my submission was on time.
+* **User Experience & Business Rules:**
+  1. Students view the assignment deadline and instructions.
+  2. Students upload their deliverable file (PDF, ZIP, DOCX, etc.) and can add optional submission notes or web links.
+  3. **Late Tracking:** If submitted past the deadline, the system automatically marks the submission as **"Late"** (متأخر) with an amber badge.
+  4. Students can re-submit an updated file anytime prior to the instructor grading the task.
+
+#### REQ-ASG-003: Faculty Submission Evaluation & Feedback
+* **User Persona:** Faculty Member (`teacher`)
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As an instructor, I want to review submitted student files, assign scores within the maximum points limit, and provide qualitative feedback comments.
+* **User Experience & Business Rules:**
+  1. The instructor opens an assignment to view the submission roster showing student names, submission timestamps, on-time/late flags, and file download links.
+  2. The instructor enters an awarded numerical score (validated between 0 and maximum points) and optional written feedback.
+  3. The submission status updates to **"Graded"**, and the student is immediately able to view their score and instructor comments.
 
 ---
 
-### 5.5 Course Delivery, Sections & Lesson Authoring (LMS)
-- **FR-CRS-001: Course Offerings Management**
-  - **Endpoints:** `GET /api/v1/courses`, `GET /api/v1/courses/:id`, `PATCH /api/v1/courses/:id`, `DELETE /api/v1/courses/:id`
-  - **Actor:** `admin`, `teacher` (assigned), `student` (enrolled)
-  - **Business Rules:** Scoped to tenant. Delete course cascades deletion to sections, grades, chat channels, and pulls course reference from semesters.
+### Module 6: Continuous Assessment & Academic Records (SIS)
 
-- **FR-CRS-002: Syllabus Sections & Lessons Management**
-  - **Endpoints:**
-    - `GET /api/v1/sections?course=:courseId`
-    - `POST /api/v1/sections` (Create Section)
-    - `PATCH /api/v1/sections/:id` (Update Section)
-    - `DELETE /api/v1/sections/:id` (Delete Section)
-    - `POST /api/v1/sections/:sectionId/lessons` (Add Lesson)
-    - `PATCH /api/v1/sections/:sectionId/lessons/:lessonId` (Update Lesson)
-    - `DELETE /api/v1/sections/:sectionId/lessons/:lessonId` (Delete Lesson)
-  - **Actor:** Assigned `teacher`, `admin`, `super-admin`
-  - **Business Rules:**
-    - Allows structuring course into ordered thematic sections.
-    - Each lesson specifies `type: "video"` (requires valid media streaming `url`) or `type: "text"` (requires rich HTML `topic`).
-    - Section `studyTime` automatically recalculated as the sum of lesson durations.
+#### REQ-SIS-001: Continuous Assessment Gradebook
+* **User Persona:** Faculty Member (`teacher`), University Admin
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As an instructor, I want to maintain a tabular gradebook for my enrolled course, entering marks for coursework, midterm, and final exams, with automatic total and percentage calculations.
+* **User Experience & Business Rules:**
+  1. The instructor accesses the course "Gradebook" interface.
+  2. A roster table displays all enrolled students and score columns corresponding to the course schema (e.g., Coursework max 20, Midterm max 30, Final Exam max 50).
+  3. The system enforces maximum allowed points per column and prevents entering negative or out-of-range values.
+  4. Upon saving, the system preserves individual component marks and automatically recalculates the student's Total Score (0–100) and Percentage.
 
----
+#### REQ-SIS-002: Real-Time Student Grade Tracking
+* **User Persona:** Student (`student`)
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As a student, I want to inspect my current grades for all enrolled courses so that I can monitor my academic standing throughout the semester.
+* **User Experience & Business Rules:**
+  1. Students navigate to the "Grades" portal.
+  2. Displays course cards showing the breakdown of earned marks (Coursework, Midterm, Final), cumulative percentage, and letter grade equivalents.
 
-### 5.6 Student Course Enrollment & Add/Drop Portal
+#### REQ-SIS-003: Standard 4.0 GPA Calculation Engine
+* **User Persona:** Student (`student`), University Admin
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As a student and registrar, I want the system to compute standardized 4.0 Semester GPA (SGPA) and career Cumulative GPA (CGPA) based on official percentage scales, so that academic performance is universally recognized.
+* **User Experience & Business Rules:**
+  1. **Grading Scale Conversion:**
+     * **95–100%:** A+ (4.00 Grade Points) — Excellent / Passed
+     * **90–94%:** A (3.75 Grade Points) — Passed
+     * **85–89%:** B+ (3.50 Grade Points) — Passed
+     * **80–84%:** B (3.00 Grade Points) — Passed
+     * **75–79%:** C+ (2.50 Grade Points) — Passed
+     * **70–74%:** C (2.00 Grade Points) — Passed
+     * **65–69%:** D+ (1.50 Grade Points) — Passed
+     * **60–64%:** D (1.00 Grade Points) — Minimum Passing
+     * **0–59%:** F (0.00 Grade Points) — Failed
+  2. **Formulas:**
+     * $\text{Quality Points} = \text{Grade Points} \times \text{Course Credit Hours}$
+     * $\text{Semester GPA (SGPA)} = \frac{\sum \text{Quality Points in Semester}}{\sum \text{Attempted Credits in Semester}}$
+     * $\text{Cumulative GPA (CGPA)} = \frac{\sum \text{Quality Points across All Semesters}}{\sum \text{Attempted Credits across All Semesters}}$
+  3. **Academic Standings:**
+     * $\text{CGPA} \ge 3.50$: **First Class Honors (امتياز)**
+     * $3.00 \le \text{CGPA} < 3.50$: **Very Good (جيد جداً)**
+     * $2.00 \le \text{CGPA} < 3.00$: **Good Standing (جيد)**
+     * $\text{CGPA} < 2.00$: **Academic Probation (تحت الملاحظة الأكاديمية)**
+  4. **Failed Courses:** A failed course contributes 0 quality points; its credit hours are included in attempted hours, counting against SGPA and CGPA.
 
-> [!NOTE]
-> **Operational Context:**  
-> As defined in §5.4 (`FR-SEM-001`), core course assignment is **100% automated upon semester launch** by the student's major. The Add/Drop Portal documented below serves as a **secondary adjustment window** allowing students to make optional modifications during the active enrollment period (e.g., dropping an optional course, balancing load between 12 and 19 credit hours, or registering for an elective or retake course).
+#### REQ-SIS-004: Academic Probation Load Restrictions
+* **User Persona:** Student (`student`), University Admin
+* **Status:** `[Status: Planned / Next for Implementation]`
+* **User Story:** As an academic registrar, I want students placed on Academic Probation (CGPA < 2.0) to have their maximum registered credit hours automatically capped at 12–14 hours, so that they can concentrate on improving their grades.
+* **User Experience & Business Rules:**
+  1. When a student's CGPA drops below 2.0, their Add/Drop maximum load limit is dynamically reduced from 19 hours to 14 hours.
+  2. The student receives a prominent banner advising them to consult their academic advisor.
 
-- **FR-ENR-001: Available Courses Discovery**
-  - **Endpoint:** `GET /api/v1/enrollment/available-courses`
-  - **Actor:** Enrolled `student`
-  - **Business Rules:**
-    1. Identify student's active semester.
-    2. Check Add/Drop window status (`isAddDropOpen`): Validates current date against `semester.addDropDeadline` (fallback: 14 days from `startDate`).
-    3. Retrieve all course offerings in the semester.
-    4. Calculate current registered credit hours.
-    5. Evaluate prerequisites for each course against student's historical `Grade` records (requires `percent >= 60` or passed mark in prerequisite subject).
-    6. Return courses marked with `isEnrolled`, `eligible`, and `missingPrerequisites`.
-  - **Success Response (200):**
-    ```json
-    {
-      "success": true,
-      "data": {
-        "semester": { "_id": "...", "name": "...", "isAddDropOpen": true },
-        "currentCreditHours": 15,
-        "minCreditHours": 12,
-        "maxCreditHours": 19,
-        "isAddDropOpen": true,
-        "courses": [...]
-      }
-    }
-    ```
-
-- **FR-ENR-002: Course Registration (`Register`)**
-  - **Endpoint:** `POST /api/v1/enrollment/register`
-  - **Actor:** Enrolled `student`
-  - **Input Schema:** `{ courseId: string }`
-  - **Business Rules:**
-    1. Reject with `400 Bad Request` if Add/Drop window has closed.
-    2. Reject with `400 Bad Request` if student is already registered in the course.
-    3. Reject with `400 Bad Request` if course prerequisites are not satisfied.
-    4. Calculate new credit total (`currentCredits + course.creditHours`). Reject with `400 Bad Request` if total exceeds 19 credit hours.
-    5. Create initialized `Grade` record for student and course.
-    6. Add student and grade reference to `course.students`.
-    7. Synchronize course chat channel (`syncCourseStudentRoster({ action: "add" })`).
-  - **Success Response (200):** `{ success: true, message: "Enrolled in course successfully", data: { courseId, currentCreditHours } }`
-
-- **FR-ENR-003: Course Drop (`Drop`)**
-  - **Endpoint:** `POST /api/v1/enrollment/drop`
-  - **Actor:** Enrolled `student`
-  - **Input Schema:** `{ courseId: string }`
-  - **Business Rules:**
-    1. Reject with `400 Bad Request` if Add/Drop window has closed.
-    2. Reject with `400 Bad Request` if student is not registered in the course.
-    3. Calculate remaining credits (`currentCredits - course.creditHours`). Reject with `400 Bad Request` if remaining credits drop below 12 credit hours.
-    4. Remove student from `course.students`.
-    5. Delete associated `Grade` records for this course.
-    6. Remove student from course discussion room (`syncCourseStudentRoster({ action: "remove" })`).
-  - **Success Response (200):** `{ success: true, message: "Dropped course successfully", data: { courseId, currentCreditHours } }`
+#### REQ-SIS-005: Official Printable Academic Transcript
+* **User Persona:** Student (`student`), University Admin
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As a student or university administrator, I want to generate and print an official academic transcript showing chronological semesters, course details, term SGPAs, career CGPA, and institutional stamps, formatted cleanly for paper printing.
+* **User Experience & Business Rules:**
+  1. Displays student demographic data: Full Name, Student ID, College, Major, Admission Date, and Graduation/Academic Standing.
+  2. Presents a chronological table for every enrolled semester listing: Course Code, Course Title, Credit Hours, Percentage Score, Letter Grade, Grade Points, and Total Quality Points.
+  3. Summarizes each term: Attempted Credits, Earned Credits, and Term SGPA.
+  4. Summarizes career total: Total Earned Credits, Total Quality Points, and Cumulative CGPA.
+  5. **High-Fidelity Paper Printing:** Optimized with print formatting (`@media print`) that removes browser navigation bars and renders official university header, watermark, registrar signature block, and official stamp box.
 
 ---
 
-### 5.7 Continuous Assessment & Faculty Gradebook (SIS)
-- **FR-GRD-001: Gradebook Entry & Recalculation**
-  - **Endpoints:** `GET /api/v1/grades/course/:courseId` | `PATCH /api/v1/grades/:id`
-  - **Actor:** Assigned `teacher`, `admin`, `super-admin`
-  - **Input Schema:** `{ grade: { "0": { value: 18 }, "1": { value: 27 }, "2": { value: 45 } } }`
-  - **Business Rules:**
-    1. Validates that each item score does not exceed the maximum allowed points defined in `Subject.gradeSchema`.
-    2. Automatically recalculates `total` score and `percent`.
-    3. Dual fallback on `GET /api/v1/grades/:id`: If ID matches a `Grade`, returns grade; if ID matches a `Course`, returns full course student gradebook.
+### Module 7: Campus Collaboration & Communication
+
+#### REQ-COM-001: Automated Course Discussion Channels
+* **User Persona:** Faculty Member (`teacher`), Student (`student`)
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As an instructor and enrolled student, I want a dedicated discussion room automatically created for each course offering, so that we can communicate about lectures and coursework.
+* **User Experience & Business Rules:**
+  1. Room is created automatically upon semester launch with the course title and section.
+  2. Instructor is designated as channel administrator.
+  3. Student roster is synchronized automatically: students adding the course gain access, students dropping lose access.
+  4. Supports real-time text exchange, timestamps, and sender identification.
+
+#### REQ-COM-002: Direct 1-on-1 Private Messaging
+* **User Persona:** All Authenticated Users
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As a student or faculty member, I want to initiate private direct conversations with peers and professors, so that we can discuss academic topics privately.
+* **User Experience & Business Rules:**
+  1. Users can search for university members by name and start a direct conversation.
+  2. Provides real-time message delivery, conversation history, and unread indicators.
+
+#### REQ-COM-003: Persistent In-App Notification Center
+* **User Persona:** All Authenticated Users
+* **Status:** `[Status: Planned / Next for Implementation]`
+* **User Story:** As a student or professor, I want an in-app notification center (bell icon) with an unread badge counter, so that I can track assignment deadlines, graded homework, and term announcements even if I missed the immediate screen popup.
+* **User Experience & Business Rules:**
+  1. A bell icon in the top navigation bar displays a badge with the count of unread notifications.
+  2. Clicking the bell opens a dropdown list of recent events (e.g., *"Instructor Faisal posted Homework 2"*, *"Your submission was graded: 18/20"*, *"Add/Drop window closes in 24 hours"*).
+  3. Clicking a notification navigates directly to the relevant course, assignment, or gradebook page and marks the notification as read.
 
 ---
 
-### 5.8 Assignments & Student Submissions Engine
-- **FR-ASG-001: Assignment Publishing**
-  - **Endpoint:** `POST /api/v1/courses/:courseId/assignments`
-  - **Actor:** Assigned `teacher`, `admin`, `super-admin`
-  - **Input Schema:** `{ title: string, description?: string, dueDate: Date, maxScore?: number, attachmentUrl?: string }`
-  - **Business Rules:** Validates `dueDate` timestamp and persists assignment linked to `course`.
+### Module 8: Identity, Admissions & Access Administration
 
-- **FR-ASG-002: Student Deliverable Submission**
-  - **Endpoint:** `POST /api/v1/assignments/:assignmentId/submit`
-  - **Actor:** Enrolled `student`
-  - **Input Schema:** `{ fileUrl: string, notes?: string }`
-  - **Business Rules:**
-    1. Enforces student enrollment in parent course.
-    2. Compares submission timestamp with `assignment.dueDate` to set `isLate: true/false`.
-    3. Supports update/resubmission prior to instructor grading.
+#### REQ-IDN-001: Student Admissions & Matriculation
+* **User Persona:** University Administrator (`admin`)
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As an admissions administrator, I want to register incoming students, assign them to their degree major, and set their initial academic level, so that they are recognized in cohort launches.
+* **User Experience & Business Rules:**
+  1. Admin enters Student Name, Email, Contact Phone, and selects Degree Major.
+  2. Sets Incoming Semester Level (defaults to Level 1).
+  3. The system generates secure temporary credentials and dispatches an automated welcome email.
 
-- **FR-ASG-003: Faculty Submission Evaluation**
-  - **Endpoint:** `PATCH /api/v1/assignments/submissions/:submissionId/grade`
-  - **Actor:** Assigned `teacher`, `admin`
-  - **Input Schema:** `{ score: number, feedback?: string }`
-  - **Business Rules:** Validates `0 <= score <= assignment.maxScore`. Updates status to `"graded"`.
+#### REQ-IDN-002: Faculty Appointments & Subject Assignments
+* **User Persona:** University Administrator (`admin`)
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As an administrator, I want to recruit faculty members, record their academic title and specialization, and assign them to departments and courses.
+* **User Experience & Business Rules:**
+  1. Admin creates faculty account with Name, Academic Title (e.g., Dr., Prof., Eng.), Specialization, and Email.
+  2. Admin assigns faculty to catalog subjects or specific course offerings.
 
----
-
-### 5.9 Cumulative GPA & Official Academic Transcript Engine
-- **FR-TRN-001: Standard 4.0 GPA Calculation Engine**
-  - **Grading Scale Reference:**
-    | Score Range (%) | Letter Grade | Grade Points | Status |
-    |:---:|:---:|:---:|:---:|
-    | 95 – 100 | **A+** | 4.00 | Passed |
-    | 90 – 94 | **A** | 3.75 | Passed |
-    | 85 – 89 | **B+** | 3.50 | Passed |
-    | 80 – 84 | **B** | 3.00 | Passed |
-    | 75 – 79 | **C+** | 2.50 | Passed |
-    | 70 – 74 | **C** | 2.00 | Passed |
-    | 65 – 69 | **D+** | 1.50 | Passed |
-    | 60 – 64 | **D** | 1.00 | Minimum Pass |
-    | 0 – 59 | **F** | 0.00 | Fail |
-  - **Calculation Algorithms:**
-    - $\text{Quality Points} = \text{Grade Points} \times \text{Course Credit Hours}$
-    - $\text{SGPA} = \frac{\sum \text{Quality Points in Semester}}{\sum \text{Attempted Credit Hours in Semester}}$
-    - $\text{CGPA} = \frac{\sum \text{Quality Points across All Semesters}}{\sum \text{Attempted Credit Hours across All Semesters}}$
-    - **Academic Standing Rules:**
-      - $\text{CGPA} \ge 3.50 \implies \text{امتياز (First Class Honors)}$
-      - $3.00 \le \text{CGPA} < 3.50 \implies \text{جيد جداً (Very Good)}$
-      - $2.00 \le \text{CGPA} < 3.00 \implies \text{جيد (Good Standing)}$
-      - $\text{CGPA} < 2.00 \implies \text{تحت الملاحظة الأكاديمية (Academic Probation)}$
-    - **Failed Course Policy:**
-      - When a student fails a course ($\text{Grade} < 60\%$, letter grade `F`, 0.00 grade points), the failing result is permanently factored into the term SGPA and career CGPA.
-      - Quality points contributed = 0, credit hours are counted in `Attempted Credits`, and `Earned Credits` = 0.
-      - In this baseline, the system does not enforce automated retake scheduling, probation registration blocks, or academic suspension; the student continues their program progression according to their major's level sequence.
-
-- **FR-TRN-002: Official Printable Academic Transcript Retrieval**
-  - **Endpoints:** `GET /api/v1/transcripts/my-transcript` | `GET /api/v1/transcripts/student/:studentId`
-  - **Actor:** `student` (Self), `admin`, `teacher`
-  - **Business Rules:**
-    1. Compiles student personal and institutional details.
-    2. Aggregates chronologically enrolled semesters.
-    3. Calculates term SGPA, credits attempted, credits earned, and itemized course records (Code, Title, Hours, Score, Letter, Points, Quality Points).
-    4. Computes career CGPA and graduation standing.
-    5. Formatted for high-fidelity `@media print` paper output with official stamps and registrar signature blocks.
+#### REQ-IDN-003: Secure Authentication & Self-Profile Update
+* **User Persona:** All Users
+* **Status:** `[Status: Implemented & Verified]`
+* **User Story:** As any platform user, I want to log in securely, update my profile details, upload an avatar, and change my password.
+* **User Experience & Business Rules:**
+  1. Secure authentication verifying registered email and password.
+  2. Profile screen allows updating First Name, Last Name, Phone Number, and uploading a Profile Avatar image.
+  3. Secure password change requiring confirmation of current password.
+  4. Role integrity: Non-admin users cannot alter their own role, student ID, or major.
 
 ---
 
-### 5.10 Real-Time Course Channels & Collaboration
-- **FR-CHT-001: Automated Course Channel Provisioning**
-  - **Business Rules:** Instantiated automatically during semester launch or course creation (`ensureCourseChatChannel`). Sets instructor as `groupAdmin`.
-- **FR-CHT-002: Roster Synchronization**
-  - **Business Rules:** Triggered upon student enrollment (`$addToSet`) and drop (`$pull`), ensuring the channel members accurately reflect the active class list at all times.
-- **FR-CHT-003: WebSocket Real-Time Messaging**
-  - **Events:** `send_msg`, `msg_receive`, `typing`, `stop_typing`.
+## 5. Non-Functional Requirements (User Experience & System Quality)
+
+### 5.1 Usability & Localization (Arabic-First RTL)
+* **NFR-USE-001 (Arabic-First Experience):** The user interface must render natively in Right-to-Left (RTL) orientation using modern Arabic typography (Google Cairo font). All academic terms (الكليات, التخصصات, المواد, الخطة الدراسية, الحذف والإضافة, السجل الأكاديمي) must align with standard higher education terminology.
+* **NFR-USE-002 (Visual Excellence & Responsive Design):** The interface must support full desktop, tablet, and mobile responsiveness. It must offer both sleek Dark Mode and clean Light Mode with high contrast and smooth state transitions.
+* **NFR-USE-003 (Clarity & Feedback):** Every user action (saving grades, adding courses, submitting homework) must provide immediate visual feedback (loading spinners on buttons, affirmative green success banners, or clear error explanations).
+
+### 5.2 Reliability & Operational Integrity
+* **NFR-REL-001 (Atomic Term Launch):** Semester launching must execute as a single all-or-nothing operation. If any student or course enrollment encounters an issue, the entire operation must roll back cleanly so that no half-created semesters exist.
+* **NFR-REL-002 (Data Cascading Safety):** Deleting a course or semester must cleanly detach or purge linked sections, homework submissions, and grade entries, preventing orphaned records.
+
+### 5.3 Performance & Responsiveness
+* **NFR-PER-001 (Fast Page Rendering):** Catalog listings (students, courses, subjects) must support paginated loading (20–50 items per page) so that screens render under 500ms even with thousands of institutional records.
+* **NFR-PER-002 (Real-Time Communication):** Course chat and direct messages must deliver instantaneously without requiring manual browser refreshes.
+
+### 5.4 Privacy & Data Security
+* **NFR-SEC-001 (Tenant Data Isolation):** Users belonging to one university must never view, query, or interact with records, courses, or users of another university.
+* **NFR-SEC-002 (Role Access Enforcement):** Students can never alter course syllabus materials or other students' grades; faculty can only grade courses they are actively assigned to teach.
+* **NFR-SEC-003 (Credential Security):** Passwords must be strongly encrypted. Sessions must be securely protected against unauthorized hijacking.
 
 ---
 
-### 5.11 System Governance, Health Metrics & Audit Trails
-- **FR-SYS-001: Health Telemetry & Administrative Dashboards**
-  - **Endpoints:** `GET /api/v1/system/adminDashData`, `GET /api/v1/system/stats`
-  - **Actor:** `admin`, `super-admin`
-  - **Business Rules:** Returns real-time institutional metrics (Total Colleges, Majors, Courses, Faculty, Students) and host telemetry (CPU, RAM, Uptime).
+## 6. Implementation & Roadmap Summary
+
+To provide clear visibility for the next implementation steps, the table below maps all functional capabilities by operational readiness:
+
+| Requirement ID | Functional Capability | User Persona | Operational Status |
+| :--- | :--- | :--- | :---: |
+| **REQ-CUR-001** | College & Faculty Administration | University Admin | ✅ **Implemented & Verified** |
+| **REQ-CUR-002** | Academic Major / Department Setup | University Admin | ✅ **Implemented & Verified** |
+| **REQ-CUR-003** | Master Subject Catalog & Prerequisites | University Admin | ✅ **Implemented & Verified** |
+| **REQ-CUR-004** | Sequential Study Plan Templates (1..N) | University Admin | ✅ **Implemented & Verified** |
+| **REQ-SEM-001** | Automated Cohort Semester Launch | University Admin | ✅ **Implemented & Verified** |
+| **REQ-SEM-003** | Semester Conclude & Safe Deletion | University Admin | ✅ **Implemented & Verified** |
+| **REQ-SEM-004** | Course Schedule & Drop Portal (Self-Add Disabled) | Student | ✅ **Implemented & Verified** |
+| **REQ-LMS-001** | Course Overview & Media Cover Banner | Faculty Member | ✅ **Implemented & Verified** |
+| **REQ-LMS-002** | Syllabus Thematic Sections & Lessons | Faculty Member | ✅ **Implemented & Verified** |
+| **REQ-LMS-003** | Student Lecture Streaming & Viewer | Student | ✅ **Implemented & Verified** |
+| **REQ-ASG-001** | Assignment Publishing with Due Dates | Faculty Member | ✅ **Implemented & Verified** |
+| **REQ-ASG-002** | Student Homework Deliverable Upload | Student | ✅ **Implemented & Verified** |
+| **REQ-ASG-003** | Faculty Homework Review & Feedback | Faculty Member | ✅ **Implemented & Verified** |
+| **REQ-SIS-001** | Continuous Assessment Gradebook Grid | Faculty Member | ✅ **Implemented & Verified** |
+| **REQ-SIS-002** | Real-Time Student Grade Dashboard | Student | ✅ **Implemented & Verified** |
+| **REQ-SIS-003** | Standard 4.0 SGPA & CGPA Engine | Student / Admin | ✅ **Implemented & Verified** |
+| **REQ-SIS-005** | Official Printable Academic Transcript | Student / Admin | ✅ **Implemented & Verified** |
+| **REQ-COM-001** | Automated Course Discussion Rooms | Faculty & Student | ✅ **Implemented & Verified** |
+| **REQ-COM-002** | 1-on-1 Direct Messaging | All Users | ✅ **Implemented & Verified** |
+| **REQ-IDN-001** | Student Admissions & Level Assignment | University Admin | ✅ **Implemented & Verified** |
+| **REQ-IDN-002** | Faculty Recruitment & Specialization | University Admin | ✅ **Implemented & Verified** |
+| **REQ-IDN-003** | Profile & Password Self-Management | All Users | ✅ **Implemented & Verified** |
+| **REQ-GOV-002** | Administrative Telemetry & Health Dashboard | University Admin | ✅ **Implemented & Verified** |
+| **REQ-GOV-001** | Multi-Tenant University Provisioning Portal | Super Admin | ✅ **Implemented & Verified** |
+| **REQ-SEM-002** | Prerequisite Check on Cohort Launch | University Admin | 🚀 **Planned Next for Implementation** |
+| **REQ-COM-003** | Persistent In-App Notification Center | All Users | 🚀 **Planned Next for Implementation** |
+| **REQ-LMS-004** | Course General Resource & File Library | Faculty & Student | 🚀 **Planned Next for Implementation** |
+| **REQ-SIS-004** | Academic Probation Credit-Hour Caps | Student & Admin | 🚀 **Planned Next for Implementation** |
+| **REQ-GOV-003** | Searchable Administrative Audit Log Viewer | University Admin | 🚀 **Planned Next for Implementation** |
 
 ---
-
-## 6. Non-Functional Requirements (NFRs)
-
-### 6.1 Security & Multi-Tenant Data Isolation
-- **NFR-SEC-001:** Institutional queries must enforce `university: req.user.universityId`.
-- **NFR-SEC-002:** Passwords hashed with bcrypt (salt rounds $\ge 10$).
-- **NFR-SEC-003:** Authentication tokens transmitted in HTTP-only, SameSite cookies.
-- **NFR-SEC-004:** Public authentication routes rate-limited to 10 requests per 15 minutes.
-- **NFR-SEC-005:** Input payloads sanitized against NoSQL injection and XSS.
-
-### 6.2 Data Integrity & ACID Transactions
-- **NFR-DAT-001:** Multi-document operational flows (such as `startSemesterService`) must execute inside MongoDB replica set sessions with full automatic rollback on error.
-- **NFR-DAT-002:** Course deletions must cascade to clean up child sections, grades, chat channels, and semester course lists.
-
-### 6.3 Performance, Indexing & Pagination
-- **NFR-PER-001:** All listing endpoints must support standard pagination (`page`, `limit`) with page limits clamped to 100 items.
-- **NFR-PER-002:** Mandatory database indexes on foreign keys: `university`, `college`, `major`, `semester`, `course`, `student`.
-
-### 6.4 Usability & Localization (Arabic RTL)
-- **NFR-USE-001:** User interface must render natively in Arabic RTL orientation using Google Cairo font.
-- **NFR-USE-002:** Dark/Light theme toggle with persistent user preference storage.
-- **NFR-USE-003:** Full responsive support across desktop, tablet, and mobile devices.
-
----
-
-## 7. External Interfaces & Communications
-
-### 7.1 REST API Architecture
-- Base URL: `http://localhost:5000/api/v1`
-- Protocol: HTTP/1.1 & HTTP/2, JSON request/response payloads.
-- OpenAPI Specification: Maintained live at `/api/docs` (Swagger UI) and `/api/docs.json`.
-
-### 7.2 WebSocket Protocol
-- Real-time communication powered by Socket.IO on port 5000.
-- Authenticated handshake verifying user identity.
-
----
-
-## 8. Traceability & Verification Standards
-
-| SRS Requirement | Backend Implementation File | Vitest Verification Suite |
-|---|---|---|
-| **FR-AUTH-001 / 002** | `modules/auth/auth.controller.js` | `tests/modules/auth.test.js`, `core/rate-limit.test.js` |
-| **FR-STR-001 - 004** | `modules/colleges/`, `majors/`, `subjects/` | `tests/modules/academics-crud.test.js`, `semester-templates.test.js` |
-| **FR-SEM-001 / 002** | `modules/semesters/semesters.service.js` | `tests/modules/semester-transaction.test.js`, `cascade-delete.test.js` |
-| **FR-CRS-001 / 002** | `modules/courses/courses.service.js` | `tests/modules/sections-routes.test.js` |
-| **FR-ENR-001 - 003** | `modules/enrollment/enrollment.service.js` | `tests/modules/enrollment.test.js` |
-| **FR-ASG-001 - 003** | `modules/assignments/assignments.service.js` | `tests/modules/assignments.test.js` |
-| **FR-GRD-001** | `modules/grades/grades.service.js` | `tests/modules/grades-route-fallback.test.js` |
-| **FR-TRN-001 / 002** | `modules/transcripts/transcripts.service.js` | `tests/modules/transcripts.test.js` |
-| **FR-CHT-001 - 003** | `modules/chat/chat.service.js` | `tests/modules/auto-course-chat.test.js`, `chat.test.js` |
-| **NFR-SEC-001** | `core/middleware/rbac.middleware.js` | `tests/core/tenant-isolation.test.js` |
-| **NFR-DAT-001** | `modules/semesters/semesters.service.js` | `tests/modules/semester-transaction.test.js` |
-
----
-*End of Software Requirements Specification (SRS) - Gahbaz Higher Education Platform*
+*End of Software Requirements Specification (SRS) - Gahbaz Higher Education Platform (Version 2.0.0)*
