@@ -17,6 +17,7 @@ import {
   Alert,
   Box,
   Divider,
+  ThemeIcon,
   useMantineTheme,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
@@ -71,7 +72,8 @@ export default function Universities() {
   const [createdCredentials, setCreatedCredentials] = useState(null)
 
   // Active switched context from storage
-  const activeSwitchedId = localStorage.getItem('gahbaz_active_university_id')
+  const activeSwitchedId = typeof window !== 'undefined' ? localStorage.getItem('gahbaz_active_university_id') : null
+  const activeSwitchedName = typeof window !== 'undefined' ? localStorage.getItem('gahbaz_active_university_name') : null
 
   // Fetch universities
   const queryParams = {
@@ -390,7 +392,7 @@ export default function Universities() {
             window.location.reload()
           }}
         >
-          أنت تتصفح حالياً المنصة مقيداً بسياق: <b>{localStorage.getItem('gahbaz_active_university_name')}</b>. جميع العمليات الأكاديمية والاستعراض تجري ضمن هذه المؤسسة فقط. اضغط على زر الإغلاق للعودة للمنصة العامة.
+          أنت تتصفح حالياً المنصة مقيداً بسياق: <b>{activeSwitchedName || 'جامعة محددة'}</b>. جميع العمليات الأكاديمية والاستعراض تجري ضمن هذه المؤسسة فقط. اضغط على زر الإغلاق للعودة للمنصة العامة.
         </Alert>
       )}
 
