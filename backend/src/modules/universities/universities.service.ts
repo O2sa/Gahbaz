@@ -36,20 +36,16 @@ export const provisionUniversityService = async (data: CreateUniversityInput) =>
   const tempPassword = `Univ@${crypto.randomBytes(4).toString("hex")}#9`;
   const hashedPassword = await hashPassword(tempPassword);
 
-  // 4. Atomic transaction
-  const session = await mongoose.startSession();
-  let createdUniversity: any;
-  let createdAdmin: any;
-
-  try {
-    session.startTransaction();
+  // 4. Atomic transaction with standalone fallback
+  const executeCore = async (sess?: mongoose.ClientSession) => {
+    const sessionOption = sess ? { session: sess } : {};
 
     const university = new University({
       name: normalizedName,
       code: normalizedCode,
       active: true,
     });
-    await university.save({ session });
+    await university.save(sessionOption);
 
     const user = await User.create(
       [
@@ -61,31 +57,63 @@ export const provisionUniversityService = async (data: CreateUniversityInput) =>
           university: university._id,
         },
       ],
-      { session }
+      sessionOption
     );
 
     university.admin = user[0]._id as any;
-    await university.save({ session });
+    await university.save(sessionOption);
 
-    await session.commitTransaction();
-    createdUniversity = university;
-    createdAdmin = user[0];
-  } catch (error) {
-    await session.abortTransaction();
-    throw error;
-  } finally {
-    session.endSession();
+    return {
+      university: university.toObject ? university.toObject() : university,
+      admin: {
+        _id: user[0]._id,
+        name: user[0].name,
+        email: user[0].email,
+      },
+      tempPassword,
+    };
+  };
+
+  let session: mongoose.ClientSession | null = null;
+  try {
+    session = await mongoose.startSession();
+  } catch {
+    return await executeCore(undefined);
   }
 
-  return {
-    university: createdUniversity.toObject ? createdUniversity.toObject() : createdUniversity,
-    admin: {
-      _id: createdAdmin._id,
-      name: createdAdmin.name,
-      email: createdAdmin.email,
-    },
-    tempPassword,
-  };
+  try {
+    let result: any;
+    try {
+      session.startTransaction();
+      result = await executeCore(session);
+      await session.commitTransaction();
+    } catch (err: any) {
+      try {
+        await session.abortTransaction();
+      } catch {
+        // Ignore if already aborted
+      }
+
+      const isReplicaSetError =
+        err?.code === 20 ||
+        err?.codeName === "IllegalOperation" ||
+        (typeof err?.message === "string" &&
+          (err.message.includes("replica set") ||
+            err.message.includes("Transaction numbers are only allowed")));
+
+      if (isReplicaSetError) {
+        // Fallback: standalone MongoDB does not support multi-document transactions
+        result = await executeCore(undefined);
+      } else {
+        throw err;
+      }
+    }
+    return result;
+  } finally {
+    if (session) {
+      await session.endSession();
+    }
+  }
 };
 
 export const getUniversitiesService = async (query: UniversityQueryInput) => {
