@@ -14,11 +14,15 @@ import { IconChevronLeft, IconHome } from '@tabler/icons-react'
 export default function PageHeader({
   title,
   description,
+  subtitle,
   breadcrumbs = [],
   action,
+  actions,
 }) {
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const finalDesc = description || subtitle
+  const finalAction = action || actions
 
   return (
     <Box mb="xl">
@@ -69,13 +73,13 @@ export default function PageHeader({
           >
             {title}
           </Title>
-          {description && (
+          {finalDesc && (
             <Text size="sm" color="dimmed" mt={4} sx={{ maxWidth: 640, lineHeight: 1.6 }}>
-              {description}
+              {finalDesc}
             </Text>
           )}
         </Box>
-        {action && <Box>{action}</Box>}
+        {finalAction && <Box>{finalAction}</Box>}
       </Group>
     </Box>
   )

@@ -359,13 +359,13 @@ export default function Universities() {
     <Box p="md">
       <PageHeader
         title="إدارة الجامعات والمؤسسات التعليمية"
-        subtitle="تهيئة بيئات الجامعات المستقلة والتحكم في حالتها التشغيلية ومتابعة التبني الرقمي"
+        description="تهيئة بيئات الجامعات المستقلة والتحكم في حالتها التشغيلية ومتابعة التبني الرقمي"
         breadcrumbs={[
           { title: 'الرئيسية', href: '/dashboard' },
           { title: 'حوكمة المنصة', href: '/universities' },
           { title: 'إدارة الجامعات' },
         ]}
-        actions={
+        action={
           <Button
             leftIcon={<IconPlus size={16} />}
             color="brand"
@@ -456,6 +456,17 @@ export default function Universities() {
             radius="md"
             sx={{ width: 140 }}
           />
+        }
+        actions={
+          <Button
+            size="sm"
+            leftIcon={<IconPlus size={15} />}
+            color="brand"
+            radius="md"
+            onClick={openAdd}
+          >
+            تهيئة جامعة جديدة
+          </Button>
         }
       />
 
