@@ -7,6 +7,15 @@ import env from "../config/env.js";
 
 const demoUsers = [
   {
+    name: "المدير العام للمنصة",
+    firstName: "المدير",
+    lastName: "العام",
+    email: "superadmin@gahbaz.edu",
+    plainPassword: "SuperAdmin@123456",
+    role: "super-admin",
+    kind: "Admin",
+  },
+  {
     name: "عبدالرحمن الغامدي",
     firstName: "عبدالرحمن",
     lastName: "الغامدي",

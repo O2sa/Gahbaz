@@ -101,7 +101,10 @@ export const createSuperAdmin = async (options: CreateSuperAdminOptions = {}) =>
 };
 
 // Execute if run directly from CLI
-if (process.argv[1]?.replace(/\\/g, "/").endsWith("src/scripts/createSuperAdmin.js")) {
+if (
+  process.argv[1]?.replace(/\\/g, "/").includes("src/scripts/createSuperAdmin") ||
+  import.meta.url.includes("createSuperAdmin")
+) {
   createSuperAdmin()
     .then(async () => {
       await mongoose.disconnect();
