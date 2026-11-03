@@ -29,12 +29,14 @@ import {
   IconBuildingBank,
 } from '@tabler/icons-react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 export default function AppNavbar({ opened, setOpened, user }) {
   const navigate = useNavigate()
   const location = useLocation()
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const { t } = useTranslation('nav')
 
   const handleNav = (path) => {
     navigate(path)
@@ -117,10 +119,10 @@ export default function AppNavbar({ opened, setOpened, user }) {
               mb={6}
               sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
             >
-              حوكمة المنصة
+              {t('governance', { defaultValue: 'حوكمة المنصة' })}
             </Text>
             <NavLink
-              label="إدارة الجامعات والمؤسسات"
+              label={t('manageUniversities', { defaultValue: 'إدارة الجامعات والمؤسسات' })}
               icon={<IconBuildingBank size={19} stroke={1.6} />}
               active={isActive('/universities')}
               onClick={() => handleNav('/universities')}
@@ -138,7 +140,7 @@ export default function AppNavbar({ opened, setOpened, user }) {
                   }}
                 >
                   <Text size="xs" color="dimmed" weight={500}>
-                    السياق المؤسسي الفعّال:
+                    {t('activeContext', { defaultValue: 'السياق المؤسسي الفعّال:' })}
                   </Text>
                   <Text size="xs" weight={700} color={isDark ? '#86efac' : '#166534'} truncate>
                     {activeSwitchedUnivName || 'جامعة محددة'}
@@ -156,7 +158,7 @@ export default function AppNavbar({ opened, setOpened, user }) {
                       window.location.reload()
                     }}
                   >
-                    إلغاء التبديل والعودة للمنصة
+                    {t('cancelSwitch', { defaultValue: 'إلغاء التبديل والعودة للمنصة' })}
                   </Button>
                 </Paper>
               </Box>
@@ -175,31 +177,33 @@ export default function AppNavbar({ opened, setOpened, user }) {
             mb={6}
             sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
           >
-            الرئيسية
+            {t('overview', { defaultValue: 'الرئيسية' })}
           </Text>
           <NavLink
-            label="لوحة التحكم"
+            label={t('dashboard', { defaultValue: 'لوحة التحكم' })}
             icon={<IconDashboard size={19} stroke={1.6} />}
             active={isActive('/dashboard')}
             onClick={() => handleNav('/dashboard')}
             sx={navLinkStyle('/dashboard')}
           />
+          {!isAdmin && (
+            <NavLink
+              label={t('courses', { defaultValue: 'المقررات والدورات' })}
+              icon={<IconBook size={19} stroke={1.6} />}
+              active={isActive('/courses')}
+              onClick={() => handleNav('/courses')}
+              sx={navLinkStyle('/courses')}
+            />
+          )}
           <NavLink
-            label="المقررات والدورات"
-            icon={<IconBook size={19} stroke={1.6} />}
-            active={isActive('/courses')}
-            onClick={() => handleNav('/courses')}
-            sx={navLinkStyle('/courses')}
-          />
-          <NavLink
-            label="المحادثات الأكاديمية"
+            label={t('chat', { defaultValue: 'المحادثات الأكاديمية' })}
             icon={<IconMessageDots size={19} stroke={1.6} />}
             active={isActive('/chat')}
             onClick={() => handleNav('/chat')}
             sx={navLinkStyle('/chat')}
           />
           <NavLink
-            label="الملف الشخصي"
+            label={t('profile', { defaultValue: 'الملف الشخصي' })}
             icon={<IconUser size={19} stroke={1.6} />}
             active={isActive('/profile')}
             onClick={() => handleNav('/profile')}
@@ -220,42 +224,35 @@ export default function AppNavbar({ opened, setOpened, user }) {
                 mb={6}
                 sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
               >
-                الإدارة الأكاديمية
+                {t('academicAdmin', { defaultValue: 'الإدارة الأكاديمية' })}
               </Text>
               <NavLink
-                label="الكليات والأقسام"
+                label={t('colleges', { defaultValue: 'الكليات والأقسام' })}
                 icon={<IconBuildingSkyscraper size={19} stroke={1.6} />}
                 active={isActive('/collages')}
                 onClick={() => handleNav('/collages')}
                 sx={navLinkStyle('/collages')}
               />
               <NavLink
-                label="التخصصات والبرامج"
+                label={t('majors', { defaultValue: 'التخصصات والبرامج' })}
                 icon={<IconCertificate size={19} stroke={1.6} />}
                 active={isActive('/majors')}
                 onClick={() => handleNav('/majors')}
                 sx={navLinkStyle('/majors')}
               />
               <NavLink
-                label="دليل المواد الأكاديمية"
+                label={t('subjects', { defaultValue: 'دليل المواد الأكاديمية' })}
                 icon={<IconBooks size={19} stroke={1.6} />}
                 active={isActive('/subjects')}
                 onClick={() => handleNav('/subjects')}
                 sx={navLinkStyle('/subjects')}
               />
               <NavLink
-                label="الفصول الدراسية"
+                label={t('semesters', { defaultValue: 'الفصول الدراسية' })}
                 icon={<IconCalendarEvent size={19} stroke={1.6} />}
                 active={isActive('/semesters')}
                 onClick={() => handleNav('/semesters')}
                 sx={navLinkStyle('/semesters')}
-              />
-              <NavLink
-                label="المقررات المفتوحة"
-                icon={<IconBook size={19} stroke={1.6} />}
-                active={isActive('/courses')}
-                onClick={() => handleNav('/courses')}
-                sx={navLinkStyle('/courses')}
               />
             </Box>
 
@@ -270,24 +267,24 @@ export default function AppNavbar({ opened, setOpened, user }) {
                 mb={6}
                 sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
               >
-                المستخدمون والصلاحيات
+                {t('users', { defaultValue: 'المستخدمون والصلاحيات' })}
               </Text>
               <NavLink
-                label="الطلاب"
+                label={t('students', { defaultValue: 'الطلاب' })}
                 icon={<IconSchool size={19} stroke={1.6} />}
                 active={isActive('/users/students')}
                 onClick={() => handleNav('/users/students')}
                 sx={navLinkStyle('/users/students')}
               />
               <NavLink
-                label="أعضاء هيئة التدريس"
+                label={t('teachers', { defaultValue: 'أعضاء هيئة التدريس' })}
                 icon={<IconUserCheck size={19} stroke={1.6} />}
                 active={isActive('/users/teachers')}
                 onClick={() => handleNav('/users/teachers')}
                 sx={navLinkStyle('/users/teachers')}
               />
               <NavLink
-                label="إداريو النظام"
+                label={t('admins', { defaultValue: 'إداريو النظام' })}
                 icon={<IconShieldCheck size={19} stroke={1.6} />}
                 active={isActive('/users') && !isActive('/users/students') && !isActive('/users/teachers')}
                 onClick={() => handleNav('/users')}
@@ -310,10 +307,10 @@ export default function AppNavbar({ opened, setOpened, user }) {
                 mb={6}
                 sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
               >
-                التدريس الأكاديمي
+                {t('academicTeaching', { defaultValue: 'التدريس الأكاديمي' })}
               </Text>
               <NavLink
-                label="المقررات المسندة"
+                label={t('assignedCourses', { defaultValue: 'المقررات المسندة' })}
                 icon={<IconBook size={19} stroke={1.6} />}
                 active={isActive('/courses')}
                 onClick={() => handleNav('/courses')}
@@ -336,31 +333,31 @@ export default function AppNavbar({ opened, setOpened, user }) {
                 mb={6}
                 sx={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}
               >
-                الأكاديميا والتسجيل
+                {t('academicsRegistration', { defaultValue: 'الأكاديميا والتسجيل' })}
               </Text>
               <NavLink
-                label="مقرراتي الدراسية"
+                label={t('myCourses', { defaultValue: 'مقرراتي الدراسية' })}
                 icon={<IconBook size={19} stroke={1.6} />}
                 active={isActive('/courses')}
                 onClick={() => handleNav('/courses')}
                 sx={navLinkStyle('/courses')}
               />
               <NavLink
-                label="بوابة المقررات والحذف"
+                label={t('enrollmentPortal', { defaultValue: 'بوابة المقررات والحذف' })}
                 icon={<IconArrowsExchange size={19} stroke={1.6} />}
                 active={isActive('/enrollment')}
                 onClick={() => handleNav('/enrollment')}
                 sx={navLinkStyle('/enrollment')}
               />
               <NavLink
-                label="سجل الدرجات"
+                label={t('gradesRecord', { defaultValue: 'سجل الدرجات' })}
                 icon={<IconCertificate size={19} stroke={1.6} />}
                 active={isActive('/grades')}
                 onClick={() => handleNav('/grades')}
                 sx={navLinkStyle('/grades')}
               />
               <NavLink
-                label="السجل الأكاديمي"
+                label={t('transcript', { defaultValue: 'السجل الأكاديمي' })}
                 icon={<IconReportAnalytics size={19} stroke={1.6} />}
                 active={isActive('/transcript')}
                 onClick={() => handleNav('/transcript')}
@@ -373,3 +370,4 @@ export default function AppNavbar({ opened, setOpened, user }) {
     </Navbar>
   )
 }
+

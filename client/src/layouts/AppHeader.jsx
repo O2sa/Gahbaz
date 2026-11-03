@@ -14,13 +14,16 @@ import {
 } from '@mantine/core'
 import { IconBell, IconSchool, IconSun, IconMoonStars } from '@tabler/icons-react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import UserMenu from './UserMenu.jsx'
+import LanguageSwitcher from '../components/common/LanguageSwitcher.jsx'
 
 export default function AppHeader({ opened, setOpened, user }) {
   const navigate = useNavigate()
   const { colorScheme, toggleColorScheme } = useMantineColorScheme()
   const theme = useMantineTheme()
   const isDark = colorScheme === 'dark'
+  const { t } = useTranslation(['nav', 'common'])
 
   return (
     <Header
@@ -86,19 +89,22 @@ export default function AppHeader({ opened, setOpened, user }) {
                   WebkitTextFillColor: 'transparent',
                 }}
               >
-                منصة جَهْبَذ
+                {t('platformTitle', { defaultValue: 'منصة جَهْبَذ' })}
               </Text>
               <Text size={10} color="dimmed" weight={500} sx={{ lineHeight: 1 }}>
-                النظام الأكاديمي الذكي
+                {t('platformSubtitle', { defaultValue: 'النظام الأكاديمي الذكي' })}
               </Text>
             </Box>
           </Group>
         </Group>
 
-        <Group spacing="md">
+        <Group spacing="sm">
+          {/* Language Switcher */}
+          <LanguageSwitcher variant="light" size="sm" />
+
           {/* Dark / Light Mode Toggle */}
           <Tooltip
-            label={isDark ? 'التبديل إلى الوضع النهاري' : 'التبديل إلى الوضع الليلي'}
+            label={isDark ? t('lightMode', { defaultValue: 'التبديل إلى الوضع النهاري' }) : t('darkMode', { defaultValue: 'التبديل إلى الوضع الليلي' })}
             withArrow
             position="bottom"
           >
@@ -126,7 +132,7 @@ export default function AppHeader({ opened, setOpened, user }) {
           </Tooltip>
 
           {/* Notifications Bell */}
-          <Tooltip label="الإشعارات والتنبيهات" withArrow position="bottom">
+          <Tooltip label={t('notifications.info', { ns: 'common', defaultValue: 'الإشعارات والتنبيهات' })} withArrow position="bottom">
             <Indicator
               inline
               size={9}
@@ -160,3 +166,4 @@ export default function AppHeader({ opened, setOpened, user }) {
     </Header>
   )
 }
+

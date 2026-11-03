@@ -35,6 +35,7 @@ import {
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import customFetch from '../../../utils/customFetch'
+import LanguageSwitcher from '../../../components/common/LanguageSwitcher.jsx'
 
 const Header = () => {
   const [opened, setOpened] = useState(false)
@@ -68,6 +69,25 @@ const Header = () => {
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 5,
   })
+
+  const { data: authStatus } = useQuery({
+    queryKey: ['authStatus'],
+    queryFn: async () => {
+      try {
+        const res = await customFetch.get('/auth/status', {
+          skipAuthRedirect: true,
+          skipErrorNotification: true,
+        })
+        return res?.data || res
+      } catch {
+        return { registrationEnabled: true }
+      }
+    },
+    staleTime: 1000 * 60 * 5,
+    retry: false,
+  })
+
+  const registrationEnabled = authStatus?.registrationEnabled !== false
 
   const handleLogout = async () => {
     try {
@@ -281,19 +301,24 @@ const Header = () => {
               >
                 تسجيل الدخول
               </Button>
-              <Button
-                component={RouterLink}
-                to="/register"
-                variant="gradient"
-                gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
-                radius="md"
-                leftIcon={<IconArrowLeft size={16} />}
-                sx={{ fontWeight: 700 }}
-              >
-                إنشاء حساب
-              </Button>
+              {registrationEnabled && (
+                <Button
+                  component={RouterLink}
+                  to="/register"
+                  variant="gradient"
+                  gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
+                  radius="md"
+                  leftIcon={<IconArrowLeft size={16} />}
+                  sx={{ fontWeight: 700 }}
+                >
+                  إنشاء حساب
+                </Button>
+              )}
             </>
           )}
+
+          {/* Language Switcher */}
+          <LanguageSwitcher variant="light" size="sm" />
 
           {/* Desktop Theme Mode Toggle */}
           <Tooltip
@@ -420,6 +445,10 @@ const Header = () => {
               {isDark ? 'التبديل إلى الوضع النهاري' : 'التبديل إلى الوضع الليلي'}
             </Button>
 
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <LanguageSwitcher variant="light" size="md" />
+            </Box>
+
             <Divider my="sm" />
 
             {user ? (
@@ -439,16 +468,18 @@ const Header = () => {
                 <Button component={RouterLink} to="/login" variant="default" fullWidth onClick={() => setOpened(false)}>
                   تسجيل الدخول
                 </Button>
-                <Button
-                  component={RouterLink}
-                  to="/register"
-                  variant="gradient"
-                  gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
-                  fullWidth
-                  onClick={() => setOpened(false)}
-                >
-                  إنشاء حساب جديد
-                </Button>
+                {registrationEnabled && (
+                  <Button
+                    component={RouterLink}
+                    to="/register"
+                    variant="gradient"
+                    gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
+                    fullWidth
+                    onClick={() => setOpened(false)}
+                  >
+                    إنشاء حساب جديد
+                  </Button>
+                )}
               </>
             )}
           </Stack>
