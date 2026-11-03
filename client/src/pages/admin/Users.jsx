@@ -1,30 +1,27 @@
-import React, { useEffect } from 'react'
-
+import React from 'react'
 import { TabsLinks } from '../../components/TabsLinks'
-
-import { BsStack } from 'react-icons/bs'
-import { IconAdjustmentsMinus, IconSchoolBell, IconUserBolt } from '@tabler/icons-react'
-import { MdAdminPanelSettings } from 'react-icons/md'
 import { FaChalkboardTeacher } from 'react-icons/fa'
 import { PiStudent } from 'react-icons/pi'
 import { RiAdminLine } from 'react-icons/ri'
 import { Helmet } from 'react-helmet'
+import { useTranslation } from 'react-i18next'
 
-export default function Users({ queryClient }) {
+export default function Users() {
+  const { t } = useTranslation('admin')
 
   const tabs = [
     {
-      name: 'المدراء',
+      name: t('users.tabs.admins'),
       icon: RiAdminLine,
       to: '.',
     },
     {
-      name: 'المعلمون',
+      name: t('users.tabs.teachers'),
       icon: FaChalkboardTeacher,
       to: 'teachers',
     },
     {
-      name: 'الطلاب',
+      name: t('users.tabs.students'),
       icon: PiStudent,
       to: 'students',
     },
@@ -33,7 +30,7 @@ export default function Users({ queryClient }) {
   return (
     <>
       <Helmet>
-        <title>{'منصة جهبذ |  المستخدمون'}</title>
+        <title>{`منصة جهبذ | ${t('users.helmet')}`}</title>
       </Helmet>
       <TabsLinks tabs={tabs} />
     </>

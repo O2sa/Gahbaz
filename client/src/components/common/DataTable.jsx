@@ -15,6 +15,7 @@ import {
   rem,
 } from '@mantine/core'
 import { IconSearch } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 import EmptyState from './EmptyState.jsx'
 
 export default function DataTable({
@@ -33,6 +34,8 @@ export default function DataTable({
 }) {
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const { t, i18n } = useTranslation('common')
+  const isRtl = !i18n.language?.startsWith('en')
 
   const page = meta?.page || 1
   const limit = meta?.limit || 10
@@ -60,7 +63,7 @@ export default function DataTable({
         <Group spacing="sm" sx={{ flex: 1 }}>
           {onSearchChange && (
             <TextInput
-              placeholder="البحث بالاسم أو الكود..."
+              placeholder={t('actions.search', { defaultValue: 'البحث...' })}
               icon={<IconSearch size={16} stroke={1.5} />}
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
@@ -80,7 +83,7 @@ export default function DataTable({
             radius="md"
             sx={{ fontWeight: 700 }}
           >
-            إجمالي: {total}
+            {t('table.recordsFound', { count: total, defaultValue: `إجمالي: ${total}` })}
           </Badge>
           {actions}
         </Group>
@@ -126,7 +129,7 @@ export default function DataTable({
                   key={col.key || idx}
                   style={{
                     width: col.width,
-                    textAlign: col.align || 'right',
+                    textAlign: col.align || (isRtl ? 'right' : 'left'),
                   }}
                 >
                   {col.title}
@@ -152,7 +155,7 @@ export default function DataTable({
                     <td
                       key={col.key || cIdx}
                       style={{
-                        textAlign: col.align || 'right',
+                        textAlign: col.align || (isRtl ? 'right' : 'left'),
                         fontSize: rem(14),
                       }}
                     >
@@ -165,7 +168,7 @@ export default function DataTable({
               <tr>
                 <td colSpan={columns.length} style={{ textAlign: 'center', padding: '48px 0' }}>
                   <EmptyState
-                    title={emptyTitle}
+                    title={emptyTitle || t('table.noRecords', { defaultValue: 'لا توجد سجلات متاحة' })}
                     description={emptyDescription}
                   />
                 </td>
@@ -182,24 +185,24 @@ export default function DataTable({
           <Group position="apart" pt="xs">
             <Group spacing="xs">
               <Text size="xs" color="dimmed">
-                عرض:
+                {t('table.display', { defaultValue: 'عرض:' })}
               </Text>
               {onLimitChange && (
                 <Select
                   value={String(limit)}
                   onChange={(val) => onLimitChange(Number(val))}
                   data={[
-                    { value: '10', label: '10 عناصر' },
-                    { value: '25', label: '25 عنصر' },
-                    { value: '50', label: '50 عنصر' },
+                    { value: '10', label: '10' },
+                    { value: '25', label: '25' },
+                    { value: '50', label: '50' },
                   ]}
                   size="xs"
                   radius="md"
-                  sx={{ width: 110 }}
+                  sx={{ width: 80 }}
                 />
               )}
               <Text size="xs" color="dimmed">
-                الصفحة {page} من {totalPages}
+                {t('table.pageOf', { page, totalPages, defaultValue: `الصفحة ${page} من ${totalPages}` })}
               </Text>
             </Group>
 

@@ -7,6 +7,7 @@ import {
   TextInput,
   NumberInput,
   Select,
+  MultiSelect,
   Stack,
   Text,
   Badge,
@@ -15,6 +16,7 @@ import { useForm } from '@mantine/form'
 import { useDisclosure, useDebouncedValue } from '@mantine/hooks'
 import { IconPlus, IconPencil, IconTrash, IconBook } from '@tabler/icons-react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   DataTable,
   PageHeader,
@@ -27,10 +29,14 @@ import {
   useDeleteSubject,
 } from '../../hooks/useSubjects.js'
 import { useColleges } from '../../hooks/useColleges.js'
+import { useTeachers } from '../../hooks/useTeachers.js'
 import dayjs from 'dayjs'
 
 export default function Subjects() {
-  const { id: collegeId } = useParams()
+  const { t } = useTranslation('admin')
+  const { t: tCommon } = useTranslation('common')
+  const params = useParams()
+  const collegeId = params.id || params.collageId || params.collegeId
 
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
@@ -51,10 +57,16 @@ export default function Subjects() {
   }
   const { data: subjectsRes, isLoading } = useSubjects(queryParams)
   const { data: collegesRes } = useColleges({ limit: 100 })
+  const { data: teachersRes } = useTeachers({ limit: 100 })
 
   const collegeOptions = (collegesRes?.data || []).map((c) => ({
     value: c._id || c.id,
     label: c.name,
+  }))
+
+  const teacherOptions = (teachersRes?.data || []).map((t) => ({
+    value: t._id || t.id,
+    label: `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.name || t.email,
   }))
 
   const createMutation = useCreateSubject()
@@ -68,10 +80,11 @@ export default function Subjects() {
       code: '',
       creditHours: 3,
       college: collegeId || '',
+      teachers: [],
     },
     validate: {
-      name: (val) => (!val?.trim() ? 'اسم المادة مطلوب' : null),
-      creditHours: (val) => (val < 1 || val > 10 ? 'عدد الساعات بين 1 و 10' : null),
+      name: (val) => (!val?.trim() ? t('subjects.validation.nameRequired') : null),
+      creditHours: (val) => (val < 1 || val > 10 ? t('subjects.validation.creditsRange') : null),
     },
   })
 
@@ -82,10 +95,11 @@ export default function Subjects() {
       code: '',
       creditHours: 3,
       college: '',
+      teachers: [],
     },
     validate: {
-      name: (val) => (!val?.trim() ? 'اسم المادة مطلوب' : null),
-      creditHours: (val) => (val < 1 || val > 10 ? 'عدد الساعات بين 1 و 10' : null),
+      name: (val) => (!val?.trim() ? t('subjects.validation.nameRequired') : null),
+      creditHours: (val) => (val < 1 || val > 10 ? t('subjects.validation.creditsRange') : null),
     },
   })
 
@@ -93,7 +107,7 @@ export default function Subjects() {
     try {
       await createMutation.mutateAsync({
         ...values,
-        credits: values.creditHours,
+        teachers: values.teachers || [],
       })
       addForm.reset()
       closeAdd()
@@ -109,6 +123,7 @@ export default function Subjects() {
       code: row.code || '',
       creditHours: row.creditHours || row.credits || 3,
       college: row.college?._id || row.college || '',
+      teachers: (row.teachers || []).map((t) => (typeof t === 'object' ? t._id || t.id : t)),
     })
   }
 
@@ -119,7 +134,7 @@ export default function Subjects() {
         id: editSubject._id || editSubject.id,
         data: {
           ...values,
-          credits: values.creditHours,
+          teachers: values.teachers || [],
         },
       })
       setEditSubject(null)
@@ -141,7 +156,7 @@ export default function Subjects() {
   const columns = [
     {
       key: 'name',
-      title: 'المادة الدراسية',
+      title: t('subjects.table.subject'),
       render: (row) => (
         <Group spacing="xs">
           <IconBook size={18} color="#7c3aed" />
@@ -151,7 +166,7 @@ export default function Subjects() {
             </Text>
             {row.code && (
               <Text size="xs" color="dimmed">
-                رمز المادة: {row.code}
+                {t('subjects.table.code', { code: row.code })}
               </Text>
             )}
           </div>
@@ -160,27 +175,62 @@ export default function Subjects() {
     },
     {
       key: 'college',
-      title: 'الكلية التابعة',
+      title: t('subjects.table.college'),
       align: 'center',
       render: (row) => (
         <Badge color="blue" variant="light" size="sm">
-          {row.college?.name || 'عام'}
+          {row.college?.name || t('subjects.general')}
         </Badge>
       ),
     },
     {
+      key: 'teachers',
+      title: t('subjects.table.faculty'),
+      align: 'center',
+      render: (row) => {
+        const teachersList = row.teachers || []
+        if (teachersList.length === 0) {
+          return (
+            <Text size="xs" color="dimmed">
+              {t('subjects.unspecified')}
+            </Text>
+          )
+        }
+        return (
+          <Group spacing={4} position="center">
+            {teachersList.map((tItem) => {
+              const name =
+                typeof tItem === 'object'
+                  ? `${tItem.firstName || ''} ${tItem.lastName || ''}`.trim() || tItem.name
+                  : t('subjects.teacherBadge')
+              return (
+                <Badge
+                  key={typeof tItem === 'object' ? tItem._id || tItem.id : tItem}
+                  color="teal"
+                  variant="light"
+                  size="sm"
+                >
+                  {name}
+                </Badge>
+              )
+            })}
+          </Group>
+        )
+      },
+    },
+    {
       key: 'creditHours',
-      title: 'الساعات المعتمدة',
+      title: t('subjects.table.credits'),
       align: 'center',
       render: (row) => (
         <Badge color="violet" variant="light" size="sm">
-          {row.creditHours || row.credits || 3} ساعات
+          {t('subjects.creditHoursBadge', { count: row.creditHours || row.credits || 3 })}
         </Badge>
       ),
     },
     {
       key: 'createdAt',
-      title: 'تاريخ الإنشاء',
+      title: t('subjects.table.createdAt'),
       align: 'center',
       render: (row) => (
         <Text size="xs" color="dimmed">
@@ -190,7 +240,7 @@ export default function Subjects() {
     },
     {
       key: 'actions',
-      title: 'الإجراءات',
+      title: t('subjects.table.actions'),
       align: 'left',
       render: (row) => (
         <Group spacing={6} position="left">
@@ -199,7 +249,7 @@ export default function Subjects() {
             variant="light"
             size="sm"
             onClick={() => handleEditOpen(row)}
-            title="تعديل المادة"
+            title={tCommon('actions.edit')}
           >
             <IconPencil size={15} />
           </ActionIcon>
@@ -208,7 +258,7 @@ export default function Subjects() {
             variant="light"
             size="sm"
             onClick={() => setDeleteId(row._id || row.id)}
-            title="حذف المادة"
+            title={tCommon('actions.delete')}
           >
             <IconTrash size={15} />
           </ActionIcon>
@@ -220,12 +270,12 @@ export default function Subjects() {
   return (
     <>
       <PageHeader
-        title="دليل المواد الأكاديمية (Catalog Subjects)"
-        description="إدارة المواد الدراسية التأسيسية، الرموز الأكاديمية، والساعات المعتمدة"
+        title={t('subjects.title')}
+        description={t('subjects.subtitle')}
         breadcrumbs={[
-          { title: 'الرئيسية', href: '/' },
-          ...(collegeId ? [{ title: 'الكليات', href: '/collages' }] : []),
-          { title: 'دليل المواد الأكاديمية' },
+          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          ...(collegeId ? [{ title: t('colleges.breadcrumb'), href: '/collages' }] : []),
+          { title: t('subjects.breadcrumb') },
         ]}
         action={
           <Button
@@ -236,7 +286,7 @@ export default function Subjects() {
               openAdd()
             }}
           >
-            إضافة مادة جديدة
+            {t('subjects.createTitle')}
           </Button>
         }
       />
@@ -256,53 +306,62 @@ export default function Subjects() {
           setLimit(l)
           setPage(1)
         }}
-        emptyTitle="لا توجد مواد مسجلة"
-        emptyDescription="ابدأ بإضافة مواد دراسية لتضمينها في الخطط الدراسية وقوالب الفصول."
+        emptyTitle={t('subjects.emptyTitle')}
+        emptyDescription={t('subjects.emptyDescription')}
       />
 
       {/* Add Subject Modal */}
       <Modal
         opened={addOpened}
         onClose={closeAdd}
-        title={<Text weight={700}>إضافة مادة دراسية جديدة</Text>}
+        title={<Text weight={700}>{t('subjects.createTitle')}</Text>}
       >
         <form onSubmit={addForm.onSubmit(handleAddSubmit)}>
           <Stack spacing="md">
             <TextInput
-              label="اسم المادة"
-              placeholder="مثال: هندسة البرمجيات المتقدمة"
+              label={t('subjects.name')}
+              placeholder={t('subjects.namePlaceholder')}
               required
               {...addForm.getInputProps('name')}
             />
             <TextInput
-              label="رمز المادة (Course Code)"
-              placeholder="مثال: CS101"
+              label={t('subjects.code')}
+              placeholder={t('subjects.codePlaceholder')}
               {...addForm.getInputProps('code')}
             />
             <Select
-              label="الكلية التابعة"
-              placeholder="اختر الكلية"
+              label={t('subjects.college')}
+              placeholder={t('majors.selectCollege')}
               data={collegeOptions}
               searchable
               {...addForm.getInputProps('college')}
             />
             <NumberInput
-              label="الساعات المعتمدة"
+              label={t('subjects.creditHours')}
               min={1}
               max={10}
               required
               {...addForm.getInputProps('creditHours')}
             />
+            <MultiSelect
+              label={t('subjects.teachers')}
+              placeholder={t('subjects.teachers')}
+              data={teacherOptions}
+              searchable
+              clearable
+              nothingFound={t('subjects.unspecified')}
+              {...addForm.getInputProps('teachers')}
+            />
             <Group position="right" mt="md">
               <Button variant="default" onClick={closeAdd}>
-                إلغاء
+                {tCommon('actions.cancel')}
               </Button>
               <Button
                 type="submit"
                 color="brand"
                 loading={createMutation.isPending}
               >
-                إضافة
+                {tCommon('actions.create')}
               </Button>
             </Group>
           </Stack>
@@ -313,43 +372,52 @@ export default function Subjects() {
       <Modal
         opened={Boolean(editSubject)}
         onClose={() => setEditSubject(null)}
-        title={<Text weight={700}>تعديل المادة الدراسية</Text>}
+        title={<Text weight={700}>{t('subjects.editTitle')}</Text>}
       >
         <form onSubmit={editForm.onSubmit(handleEditSubmit)}>
           <Stack spacing="md">
             <TextInput
-              label="اسم المادة"
+              label={t('subjects.name')}
               required
               {...editForm.getInputProps('name')}
             />
             <TextInput
-              label="رمز المادة"
+              label={t('subjects.code')}
               {...editForm.getInputProps('code')}
             />
             <Select
-              label="الكلية التابعة"
-              placeholder="اختر الكلية"
+              label={t('subjects.college')}
+              placeholder={t('majors.selectCollege')}
               data={collegeOptions}
               searchable
               {...editForm.getInputProps('college')}
             />
             <NumberInput
-              label="الساعات المعتمدة"
+              label={t('subjects.creditHours')}
               min={1}
               max={10}
               required
               {...editForm.getInputProps('creditHours')}
             />
+            <MultiSelect
+              label={t('subjects.teachers')}
+              placeholder={t('subjects.teachers')}
+              data={teacherOptions}
+              searchable
+              clearable
+              nothingFound={t('subjects.unspecified')}
+              {...editForm.getInputProps('teachers')}
+            />
             <Group position="right" mt="md">
               <Button variant="default" onClick={() => setEditSubject(null)}>
-                إلغاء
+                {tCommon('actions.cancel')}
               </Button>
               <Button
                 type="submit"
                 color="brand"
                 loading={updateMutation.isPending}
               >
-                حفظ التعديلات
+                {tCommon('actions.save')}
               </Button>
             </Group>
           </Stack>
@@ -361,9 +429,9 @@ export default function Subjects() {
         opened={Boolean(deleteId)}
         onClose={() => setDeleteId(null)}
         onConfirm={handleDeleteConfirm}
-        title="حذف المادة"
-        message="هل أنت متأكد من حذف هذه المادة؟ قد يؤثر ذلك على قوالب الفصول المرتبطة بها."
-        confirmLabel="حذف"
+        title={t('subjects.deleteConfirmTitle')}
+        message={t('subjects.deleteConfirmMessage')}
+        confirmLabel={tCommon('actions.delete')}
         isLoading={deleteMutation.isPending}
       />
     </>

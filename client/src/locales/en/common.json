@@ -16,7 +16,8 @@
     "reset": "Reset",
     "viewDetails": "View Details",
     "print": "Print",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "home": "Home"
   },
   "status": {
     "active": "Active",

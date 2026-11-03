@@ -25,6 +25,7 @@ import {
 } from '@mantine/core'
 import { useParams, Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { notifications } from '@mantine/notifications'
 import {
   IconFileText,
@@ -55,6 +56,9 @@ import {
 } from '../../components/assignments'
 
 export default function CourseAssignments() {
+  const { t } = useTranslation('admin')
+  const { t: tCommon } = useTranslation('common')
+  const { t: tNav } = useTranslation('nav')
   const { courseId } = useParams()
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
@@ -64,8 +68,8 @@ export default function CourseAssignments() {
   const { data: userResponse } = useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
-      const res = await customFetch.get('/users/showMe')
-      return res.data?.user || res.data || {}
+      const res = await customFetch.get('/users/current-user').catch(() => customFetch.get('/users/showMe'))
+      return res.data?.data || res.data?.user || res.data || {}
     },
   })
   const role = userResponse?.role || 'admin'
@@ -114,7 +118,6 @@ export default function CourseAssignments() {
   const { data: mySubmissionsResponse } = useQuery({
     queryKey: ['assignments', 'my-submissions', courseId],
     queryFn: async () => {
-      // Fetch status for each assignment if student
       if (!isStudent || assignments.length === 0) return {}
       const results = {}
       await Promise.all(
@@ -144,8 +147,8 @@ export default function CourseAssignments() {
     },
     onSuccess: () => {
       notifications.show({
-        title: 'تم حذف التكليف',
-        message: 'تم حذف التكليف الدراسي وتسليماته بنجاح.',
+        title: tCommon('notifications.success'),
+        message: t('assignmentsData.deleteAssignment'),
         color: 'teal',
         icon: <IconCheck size={16} />,
       })
@@ -154,8 +157,8 @@ export default function CourseAssignments() {
     },
     onError: (err) => {
       notifications.show({
-        title: 'تعذر الحذف',
-        message: err?.response?.data?.message || 'حدث خطأ أثناء محاولة حذف التكليف.',
+        title: tCommon('notifications.error'),
+        message: err?.response?.data?.message || tCommon('notifications.error'),
         color: 'red',
         icon: <IconAlertCircle size={16} />,
       })
@@ -209,7 +212,7 @@ export default function CourseAssignments() {
     if (diffMs < 0) {
       return (
         <Badge color="red" size="sm" variant="light" leftSection={<IconClock size={12} />}>
-          انتهى الموعد (تسليم متأخر)
+          {t('assignmentsData.pastDue')}
         </Badge>
       )
     }
@@ -220,14 +223,14 @@ export default function CourseAssignments() {
     if (diffDays === 0) {
       return (
         <Badge color="orange" size="sm" variant="filled" leftSection={<IconClock size={12} />}>
-          ينتهي اليوم ({diffHours} ساعة متبقية)
+          {t('assignmentsData.dueToday', { hours: diffHours })}
         </Badge>
       )
     }
 
     return (
       <Badge color="teal" size="sm" variant="light" leftSection={<IconClock size={12} />}>
-        متبقي {diffDays} {diffDays === 1 ? 'يوم' : 'أيام'}
+        {t('assignmentsData.daysRemaining', { days: diffDays })}
       </Badge>
     )
   }
@@ -235,22 +238,22 @@ export default function CourseAssignments() {
   return (
     <Stack spacing="lg">
       <PageHeader
-        title="التكليفات والواجبات الدراسية"
+        title={t('assignmentsData.title')}
         description={
           courseData?.name
-            ? `مقرر: ${courseData.name} (${courseData.code || '—'})`
-            : 'إدارة واستعراض التكليفات وتسليمات الطلاب'
+            ? `${tNav('courses')}: ${courseData.name} (${courseData.code || '—'})`
+            : t('assignmentsData.subtitle')
         }
-        breadcrumb={[
-          { label: 'الرئيسية', to: '/' },
-          { label: 'المقررات الدراسية', to: '/courses' },
+        breadcrumbs={[
+          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          { title: tNav('courses') || 'المقررات', href: '/courses' },
           {
-            label: courseData?.name || 'تفاصيل المقرر',
-            to: `/courses/${courseId}`,
+            title: courseData?.name || tNav('courses'),
+            href: `/courses/${courseId}`,
           },
-          { label: 'التكليفات والواجبات' },
+          { title: t('assignmentsData.title') },
         ]}
-        actions={
+        action={
           <Group spacing="sm">
             <Button
               component={Link}
@@ -259,7 +262,7 @@ export default function CourseAssignments() {
               size="sm"
               leftIcon={<IconArrowRight size={16} />}
             >
-              العودة للمقرر
+              {tCommon('actions.back')}
             </Button>
             {isFaculty && (
               <Button
@@ -271,7 +274,7 @@ export default function CourseAssignments() {
                   setFormModalOpened(true)
                 }}
               >
-                إضافة تكليف جديد
+                {t('assignmentsData.addNew')}
               </Button>
             )}
           </Group>
@@ -285,7 +288,7 @@ export default function CourseAssignments() {
             <Group position="apart">
               <div>
                 <Text size="xs" color="dimmed" weight={600} transform="uppercase">
-                  إجمالي التكليفات المنشورة
+                  {t('assignmentsData.totalPublished')}
                 </Text>
                 <Title order={3} mt={4} color="indigo">
                   {totalAssignments}
@@ -301,7 +304,7 @@ export default function CourseAssignments() {
             <Group position="apart">
               <div>
                 <Text size="xs" color="dimmed" weight={600} transform="uppercase">
-                  التكليفات النشطة حالياً
+                  {t('assignmentsData.activeNow')}
                 </Text>
                 <Title order={3} mt={4} color="teal">
                   {activeAssignments}
@@ -317,7 +320,7 @@ export default function CourseAssignments() {
             <Group position="apart">
               <div>
                 <Text size="xs" color="dimmed" weight={600} transform="uppercase">
-                  الطلاب المسجلون بالشعبة
+                  {t('assignmentsData.enrolledStudents')}
                 </Text>
                 <Title order={3} mt={4} color="blue">
                   {courseData?.students?.length || 0}
@@ -337,18 +340,21 @@ export default function CourseAssignments() {
           <Group position="apart" mb="sm">
             <div>
               <Text size="sm" weight={700}>
-                إنجاز الواجبات والتكليفات
+                {t('assignmentsData.progressTitle')}
               </Text>
               <Text size="xs" color="dimmed">
-                تم تسليم {Object.keys(mySubmissions).length} من أصل {totalAssignments} تكليف
+                {t('assignmentsData.progressSub', {
+                  count: Object.keys(mySubmissions).length,
+                  total: totalAssignments,
+                })}
               </Text>
             </div>
             <Badge size="lg" color="indigo" variant="light">
               {totalAssignments > 0
-                ? `${Math.round(
-                    (Object.keys(mySubmissions).length / totalAssignments) * 100
-                  )}% منجز`
-                : 'لا توجد تكليفات'}
+                ? t('assignmentsData.progressCompleted', {
+                    percent: Math.round((Object.keys(mySubmissions).length / totalAssignments) * 100),
+                  })
+                : tCommon('table.noRecords')}
             </Badge>
           </Group>
           <Progress
@@ -368,7 +374,7 @@ export default function CourseAssignments() {
       <Paper p="sm" withBorder radius="md">
         <Group position="apart">
           <TextInput
-            placeholder="البحث في عنوان التكليف أو الشرح..."
+            placeholder={t('assignmentsData.searchPlaceholder')}
             icon={<IconSearch size={16} />}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -379,9 +385,9 @@ export default function CourseAssignments() {
           {isStudent && (
             <Tabs value={studentTab} onTabChange={setStudentTab} variant="pills" color="indigo">
               <Tabs.List>
-                <Tabs.Tab value="active">الحالية والنشطة</Tabs.Tab>
-                <Tabs.Tab value="submitted">المسلّمة</Tabs.Tab>
-                <Tabs.Tab value="past">المنتهية</Tabs.Tab>
+                <Tabs.Tab value="active">{t('assignmentsData.tabs.active')}</Tabs.Tab>
+                <Tabs.Tab value="submitted">{t('assignmentsData.tabs.submitted')}</Tabs.Tab>
+                <Tabs.Tab value="past">{t('assignmentsData.tabs.past')}</Tabs.Tab>
               </Tabs.List>
             </Tabs>
           )}
@@ -397,16 +403,12 @@ export default function CourseAssignments() {
         <EmptyState
           title={
             searchQuery
-              ? 'لا توجد تكليفات مطابقة لبحثك'
+              ? t('assignmentsData.emptySearch')
               : isStudent && studentTab === 'submitted'
-              ? 'لم تقم بتسليم أي تكليفات بعد'
-              : 'لا توجد تكليفات دراسية منشورة حالياً'
+              ? t('assignmentsData.emptySubmitted')
+              : t('assignmentsData.emptyNone')
           }
-          description={
-            isFaculty
-              ? 'يمكنك إضافة ونشر التكليف الأول للطلاب باستخدام الزر أعلاه.'
-              : 'سيظهر هنا أي تكليف يقوم أستاذ المقرر بنشره.'
-          }
+          description={t('assignmentsData.subtitle')}
           icon={IconFileText}
         />
       ) : (
@@ -414,11 +416,8 @@ export default function CourseAssignments() {
           {filteredAssignments.map((assignment) => {
             const dueDate = assignment.dueDate ? new Date(assignment.dueDate) : null
             const formattedDate = dueDate
-              ? dueDate.toLocaleString('ar-SA', {
-                  dateStyle: 'medium',
-                  timeStyle: 'short',
-                })
-              : 'غير محدد'
+              ? dueDate.toLocaleDateString()
+              : '—'
 
             const submission = mySubmissions[assignment._id]
             const isGraded = submission?.status === 'graded'
@@ -454,7 +453,7 @@ export default function CourseAssignments() {
                       </Text>
                     </Group>
                     <Badge color="indigo" size="md" variant="filled">
-                      {assignment.maxScore || 100} نقطة
+                      {t('assignmentsData.points', { count: assignment.maxScore || 100 })}
                     </Badge>
                   </Group>
 
@@ -466,7 +465,7 @@ export default function CourseAssignments() {
 
                   <Group spacing="xs" mb="sm" wrap="wrap">
                     <Badge color="gray" size="sm" variant="light" leftSection={<IconClock size={12} />}>
-                      الاستحقاق: {formattedDate}
+                      {t('assignmentsData.due', { date: formattedDate })}
                     </Badge>
                     {getDeadlineBadge(assignment.dueDate)}
                   </Group>
@@ -484,7 +483,7 @@ export default function CourseAssignments() {
                       leftIcon={<IconPaperclip size={14} />}
                       mb="sm"
                     >
-                      تنزيل ملف التعليمات أو نموذج الواجب
+                      {t('assignmentsData.downloadBrief')}
                     </Button>
                   )}
 
@@ -510,7 +509,7 @@ export default function CourseAssignments() {
                         <Group spacing={6}>
                           <IconCheck size={16} color={isGraded ? theme.colors.teal[6] : theme.colors.blue[6]} />
                           <Text size="xs" weight={700}>
-                            {isGraded ? 'تم تقييم التكليف' : 'تم تسليم الحل بنجاح'}
+                            {isGraded ? t('assignmentsData.graded') : t('assignmentsData.submittedSuccess')}
                           </Text>
                         </Group>
                         {isGraded && (
@@ -523,7 +522,7 @@ export default function CourseAssignments() {
 
                       {submission.feedback && (
                         <Text size="xs" color="dimmed" mt={4} sx={{ fontStyle: 'italic' }}>
-                          « ملاحظات الأستاذ: {submission.feedback} »
+                          {t('assignmentsData.instructorFeedback', { feedback: submission.feedback })}
                         </Text>
                       )}
                     </Paper>
@@ -546,7 +545,7 @@ export default function CourseAssignments() {
                             setSubmissionsDrawerOpened(true)
                           }}
                         >
-                          استعراض التسليمات والتصحيح
+                          {t('assignmentsData.reviewSubmissions')}
                         </Button>
 
                         <Group spacing={6}>
@@ -557,7 +556,7 @@ export default function CourseAssignments() {
                               setEditingAssignment(assignment)
                               setFormModalOpened(true)
                             }}
-                            title="تعديل التكليف"
+                            title={t('assignmentsData.editAssignment')}
                           >
                             <IconEdit size={16} />
                           </ActionIcon>
@@ -565,7 +564,7 @@ export default function CourseAssignments() {
                             color="red"
                             variant="subtle"
                             onClick={() => setDeleteConfirmAssignment(assignment)}
-                            title="حذف التكليف"
+                            title={t('assignmentsData.deleteAssignment')}
                           >
                             <IconTrash size={16} />
                           </ActionIcon>
@@ -583,7 +582,7 @@ export default function CourseAssignments() {
                             setSubmitModalOpened(true)
                           }}
                         >
-                          {submission ? 'استعراض أو إعادة التسليم' : 'تسليم الواجب الآن'}
+                          {submission ? t('assignmentsData.resubmit') : t('assignmentsData.submitNow')}
                         </Button>
                       </>
                     )}
@@ -625,14 +624,13 @@ export default function CourseAssignments() {
       <Modal
         opened={Boolean(deleteConfirmAssignment)}
         onClose={() => setDeleteConfirmAssignment(null)}
-        title="تأكيد حذف التكليف الدراسي"
+        title={t('assignmentsData.deleteConfirmTitle')}
         size="sm"
         radius="md"
       >
         <Stack spacing="md">
           <Text size="sm">
-            هل أنت متأكد من رغبتك في حذف التكليف «{deleteConfirmAssignment?.title}»؟ سيتم حذف جميع
-            تسليمات الطلاب المرتبطة به نهائياً.
+            {t('assignmentsData.deleteConfirmMessage')}
           </Text>
           <Group position="right">
             <Button
@@ -640,14 +638,14 @@ export default function CourseAssignments() {
               onClick={() => setDeleteConfirmAssignment(null)}
               disabled={deleteMutation.isLoading}
             >
-              إلغاء
+              {tCommon('actions.cancel')}
             </Button>
             <Button
               color="red"
               onClick={() => deleteMutation.mutate(deleteConfirmAssignment._id)}
               loading={deleteMutation.isLoading}
             >
-              تأكيد الحذف
+              {tCommon('actions.delete')}
             </Button>
           </Group>
         </Stack>

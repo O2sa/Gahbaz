@@ -18,6 +18,7 @@ import {
 import { useForm } from '@mantine/form'
 import { useDisclosure, useDebouncedValue } from '@mantine/hooks'
 import { IconPlus, IconPencil, IconTrash, IconShieldCheck, IconCopy, IconCheck } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 import {
   DataTable,
   PageHeader,
@@ -33,24 +34,26 @@ import dayjs from 'dayjs'
 
 const NAME_REGEX = /^[\u0600-\u06FFa-zA-Z\s\-]{3,70}$/
 
-const validateName = (val) => {
-  if (!val?.trim()) return 'اسم المدير مطلوب'
-  if (val.trim().length < 3) return 'يجب أن يتكون الاسم من 3 أحرف على الأقل'
-  if (val.trim().length > 70) return 'يجب ألا يتجاوز الاسم 70 حرفاً'
-  if (!NAME_REGEX.test(val.trim())) {
-    return 'يجب أن يحتوي الاسم على أحرف عربية أو إنجليزية ومسافات فقط بدون أرقام أو رموز'
-  }
-  return null
-}
-
-const PERMISSION_OPTIONS = [
-  { value: 'rw', label: 'قراءة وتعديل (افتراضي)' },
-  { value: 'r', label: 'قراءة فقط' },
-  { value: 'rwd', label: 'تحكم كامل (قراءة، تعديل، حذف)' },
-  { value: 'rd', label: 'قراءة وحذف' },
-]
-
 export default function Admins() {
+  const { t } = useTranslation('admin')
+  const { t: tCommon } = useTranslation('common')
+
+  const validateName = (val) => {
+    if (!val?.trim()) return t('users.validation.nameRequired')
+    if (val.trim().length < 3 || val.trim().length > 70) return t('users.validation.nameLength')
+    if (!NAME_REGEX.test(val.trim())) {
+      return t('users.validation.nameLettersOnly')
+    }
+    return null
+  }
+
+  const PERMISSION_OPTIONS = [
+    { value: 'rw', label: t('users.permissions.rw') },
+    { value: 'r', label: t('users.permissions.r') },
+    { value: 'rwd', label: t('users.permissions.rwd') },
+    { value: 'rd', label: t('users.permissions.rd') },
+  ]
+
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
   const [search, setSearch] = useState('')
@@ -83,7 +86,7 @@ export default function Admins() {
     },
     validate: {
       name: validateName,
-      email: (val) => (!val?.includes('@') ? 'البريد الإلكتروني غير صالح' : null),
+      email: (val) => (!val?.includes('@') ? t('users.validation.emailInvalid') : null),
     },
   })
 
@@ -155,9 +158,9 @@ export default function Admins() {
   const columns = [
     {
       key: 'name',
-      title: 'المدير',
+      title: t('users.tabs.admins'),
       render: (row) => {
-        const adminName = row.name || row.userName || 'مدير'
+        const adminName = row.name || row.userName || t('common:roles.admin')
         return (
           <Group spacing="sm">
             <Avatar color="violet" radius="xl" size="sm">
@@ -177,7 +180,7 @@ export default function Admins() {
     },
     {
       key: 'role',
-      title: 'الدور',
+      title: t('users.fields.role'),
       align: 'center',
       render: (row) => (
         <Badge
@@ -185,29 +188,23 @@ export default function Admins() {
           variant="filled"
           size="sm"
         >
-          {row.role === 'super-admin' ? 'مدير عام' : 'مدير نظام'}
+          {row.role === 'super-admin' ? 'Super Admin' : 'Admin'}
         </Badge>
       ),
     },
     {
       key: 'permissions',
-      title: 'مستوى الصلاحيات',
+      title: t('users.fields.permissions'),
       align: 'center',
       render: (row) => (
         <Badge color="blue" variant="light" size="sm">
-          {row.permissions === 'rwd'
-            ? 'تحكم كامل'
-            : row.permissions === 'rw'
-            ? 'قراءة وتعديل'
-            : row.permissions === 'r'
-            ? 'قراءة فقط'
-            : row.permissions || 'rw'}
+          {t(`users.permissions.${row.permissions || 'rw'}`)}
         </Badge>
       ),
     },
     {
       key: 'createdAt',
-      title: 'تاريخ الإنشاء',
+      title: t('colleges.table.createdAt'),
       align: 'center',
       render: (row) => (
         <Text size="xs" color="dimmed">
@@ -217,7 +214,7 @@ export default function Admins() {
     },
     {
       key: 'actions',
-      title: 'الإجراءات',
+      title: t('colleges.table.actions'),
       align: 'left',
       render: (row) => (
         <Group spacing={6} position="left">
@@ -226,7 +223,7 @@ export default function Admins() {
             variant="light"
             size="sm"
             onClick={() => handleEditOpen(row)}
-            title="تعديل بيانات المدير"
+            title={tCommon('actions.edit')}
           >
             <IconPencil size={15} />
           </ActionIcon>
@@ -235,7 +232,7 @@ export default function Admins() {
             variant="light"
             size="sm"
             onClick={() => setDeleteId(row._id || row.id)}
-            title="حذف المدير"
+            title={tCommon('actions.delete')}
           >
             <IconTrash size={15} />
           </ActionIcon>
@@ -247,11 +244,11 @@ export default function Admins() {
   return (
     <>
       <PageHeader
-        title="إدارة المسؤولين"
-        description="إدارة الحسابات الإدارية والصلاحيات والوصول للنظام"
+        title={t('users.title')}
+        description={t('users.subtitle')}
         breadcrumbs={[
-          { title: 'الرئيسية', href: '/' },
-          { title: 'المسؤولون' },
+          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          { title: t('users.tabs.admins') },
         ]}
         action={
           <Button
@@ -259,7 +256,7 @@ export default function Admins() {
             color="brand"
             onClick={openAdd}
           >
-            إضافة مدير جديد
+            {t('users.addAdmin')}
           </Button>
         }
       />
@@ -279,53 +276,51 @@ export default function Admins() {
           setLimit(l)
           setPage(1)
         }}
-        emptyTitle="لا يوجد إداريون مسجلون"
-        emptyDescription="ابدأ بإضافة مديرين لمنحهم صلاحيات إدارة النظام."
+        emptyTitle={t('common:table.noRecords')}
+        emptyDescription={t('users.subtitle')}
       />
 
       {/* Add Admin Modal */}
       <Modal
         opened={addOpened}
         onClose={closeAdd}
-        title={<Text weight={700}>إضافة مدير جديد</Text>}
+        title={<Text weight={700}>{t('users.addAdmin')}</Text>}
       >
         <form onSubmit={addForm.onSubmit(handleAddSubmit)}>
           <Stack spacing="md">
             <TextInput
-              label="اسم المدير الكامل"
-              placeholder="مثال: أحمد عبدالكريم السالم"
-              description="يجب أن يتكون من أحرف عربية أو إنجليزية ومسافات فقط"
+              label={t('users.fields.name')}
+              placeholder={t('users.fields.name')}
               required
               {...addForm.getInputProps('name')}
             />
             <TextInput
-              label="البريد الإلكتروني"
+              label={t('users.fields.email')}
               placeholder="admin@example.com"
               required
               {...addForm.getInputProps('email')}
             />
             <Select
-              label="مستوى الصلاحيات"
+              label={t('users.fields.permissions')}
               data={PERMISSION_OPTIONS}
               required
               {...addForm.getInputProps('permissions')}
             />
             <PasswordInput
-              label="كلمة المرور"
-              placeholder="اتركه فارغاً للتوليد التلقائي"
-              description="إذا تركته فارغاً، سيتم توليد كلمة مرور عشوائية وتزويدك بها"
+              label={t('users.fields.password')}
+              placeholder={t('users.fields.password')}
               {...addForm.getInputProps('password')}
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={closeAdd}>
-                إلغاء
+                {tCommon('actions.cancel')}
               </Button>
               <Button
                 type="submit"
                 color="brand"
                 loading={createMutation.isPending}
               >
-                إضافة المدير
+                {tCommon('actions.create')}
               </Button>
             </Group>
           </Stack>
@@ -336,37 +331,37 @@ export default function Admins() {
       <Modal
         opened={Boolean(editAdmin)}
         onClose={() => setEditAdmin(null)}
-        title={<Text weight={700}>تعديل بيانات المدير</Text>}
+        title={<Text weight={700}>{t('users.tabs.admins')}</Text>}
       >
         <form onSubmit={editForm.onSubmit(handleEditSubmit)}>
           <Stack spacing="md">
             <TextInput
-              label="اسم المدير"
+              label={t('users.fields.name')}
               required
               {...editForm.getInputProps('name')}
             />
             <TextInput
-              label="البريد الإلكتروني"
+              label={t('users.fields.email')}
               required
               disabled
               {...editForm.getInputProps('email')}
             />
             <Select
-              label="مستوى الصلاحيات"
+              label={t('users.fields.permissions')}
               data={PERMISSION_OPTIONS}
               required
               {...editForm.getInputProps('permissions')}
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={() => setEditAdmin(null)}>
-                إلغاء
+                {tCommon('actions.cancel')}
               </Button>
               <Button
                 type="submit"
                 color="brand"
                 loading={updateMutation.isPending}
               >
-                حفظ التعديلات
+                {tCommon('actions.save')}
               </Button>
             </Group>
           </Stack>
@@ -377,27 +372,27 @@ export default function Admins() {
       <Modal
         opened={Boolean(createdCredentials)}
         onClose={() => setCreatedCredentials(null)}
-        title={<Text weight={700} color="teal">تمت إضافة المدير بنجاح</Text>}
+        title={<Text weight={700} color="teal">{t('users.tempPasswordModal.title')}</Text>}
       >
         <Stack spacing="md">
           <Text size="sm">
-            تم إنشاء الحساب الإداري وتوليد بيانات الدخول المؤقتة التالية:
+            {t('users.tempPasswordModal.subtitle')}
           </Text>
           <Paper withBorder p="md" radius="md" bg="gray.0">
             <Stack spacing="xs">
               <Text size="sm">
-                <strong>الاسم:</strong> {createdCredentials?.name}
+                <strong>{t('users.fields.name')}:</strong> {createdCredentials?.name}
               </Text>
               <Text size="sm">
-                <strong>البريد الإلكتروني:</strong> {createdCredentials?.email}
+                <strong>{t('users.fields.email')}:</strong> {createdCredentials?.email}
               </Text>
               <Group position="apart" align="center">
                 <Text size="sm">
-                  <strong>كلمة المرور المؤقتة:</strong>{' '}
+                  <strong>{t('users.tempPasswordModal.copyPassword')}:</strong>{' '}
                   <Code color="teal">{createdCredentials?.tempPassword}</Code>
                 </Text>
                 <CopyButton
-                  value={`البريد الإلكتروني: ${createdCredentials?.email}\nكلمة المرور: ${createdCredentials?.tempPassword}`}
+                  value={`${t('users.fields.email')}: ${createdCredentials?.email}\n${t('users.fields.password')}: ${createdCredentials?.tempPassword}`}
                 >
                   {({ copied, copy }) => (
                     <Button
@@ -406,7 +401,7 @@ export default function Admins() {
                       leftIcon={copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
                       onClick={copy}
                     >
-                      {copied ? 'تم النسخ!' : 'نسخ بيانات الدخول'}
+                      {copied ? t('users.tempPasswordModal.copied') : t('users.tempPasswordModal.copyPassword')}
                     </Button>
                   )}
                 </CopyButton>
@@ -414,7 +409,7 @@ export default function Admins() {
             </Stack>
           </Paper>
           <Button fullWidth onClick={() => setCreatedCredentials(null)}>
-            تم
+            {tCommon('actions.confirm')}
           </Button>
         </Stack>
       </Modal>
@@ -424,9 +419,9 @@ export default function Admins() {
         opened={Boolean(deleteId)}
         onClose={() => setDeleteId(null)}
         onConfirm={handleDeleteConfirm}
-        title="حذف المدير"
-        message="هل أنت متأكد من حذف هذا الحساب الإداري؟"
-        confirmLabel="حذف المدير"
+        title={t('users.deleteConfirmTitle')}
+        message={t('users.deleteConfirmMessage')}
+        confirmLabel={tCommon('actions.delete')}
         isLoading={deleteMutation.isPending}
       />
     </>

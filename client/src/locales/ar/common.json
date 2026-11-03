@@ -16,7 +16,8 @@
     "reset": "إعادة ضبط",
     "viewDetails": "عرض التفاصيل",
     "print": "طباعة",
-    "refresh": "تحديث"
+    "refresh": "تحديث",
+    "home": "الرئيسية"
   },
   "status": {
     "active": "نشط",

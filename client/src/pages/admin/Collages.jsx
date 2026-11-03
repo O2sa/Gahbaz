@@ -14,6 +14,7 @@ import { useForm } from '@mantine/form'
 import { useDisclosure, useDebouncedValue } from '@mantine/hooks'
 import { IconPlus, IconPencil, IconTrash, IconBuildingSkyscraper, IconEye } from '@tabler/icons-react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   DataTable,
   PageHeader,
@@ -28,6 +29,9 @@ import {
 import dayjs from 'dayjs'
 
 export default function Collages() {
+  const { t } = useTranslation('admin')
+  const { t: tCommon } = useTranslation('common')
+
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
   const [search, setSearch] = useState('')
@@ -56,8 +60,8 @@ export default function Collages() {
       numberOfSemesters: 8,
     },
     validate: {
-      name: (val) => (!val?.trim() ? 'اسم الكلية مطلوب' : null),
-      numberOfSemesters: (val) => (val < 1 ? 'يجب أن يكون عدد الفصول 1 على الأقل' : null),
+      name: (val) => (!val?.trim() ? t('colleges.validation.nameRequired') : null),
+      numberOfSemesters: (val) => (val < 1 ? t('colleges.validation.semestersMin') : null),
     },
   })
 
@@ -68,7 +72,7 @@ export default function Collages() {
       numberOfSemesters: 8,
     },
     validate: {
-      name: (val) => (!val?.trim() ? 'اسم الكلية مطلوب' : null),
+      name: (val) => (!val?.trim() ? t('colleges.validation.nameRequired') : null),
     },
   })
 
@@ -116,7 +120,7 @@ export default function Collages() {
   const columns = [
     {
       key: 'name',
-      title: 'اسم الكلية',
+      title: t('colleges.table.collegeName'),
       render: (row) => (
         <Group spacing="xs">
           <IconBuildingSkyscraper size={18} color="#7c3aed" />
@@ -133,17 +137,17 @@ export default function Collages() {
     },
     {
       key: 'numberOfSemesters',
-      title: 'عدد الفصول',
+      title: t('colleges.table.semesters'),
       align: 'center',
       render: (row) => (
         <Badge color="violet" variant="light" size="sm">
-          {row.numberOfSemesters || 8} فصول
+          {t('colleges.semestersBadge', { count: row.numberOfSemesters || 8 })}
         </Badge>
       ),
     },
     {
       key: 'createdAt',
-      title: 'تاريخ الإنشاء',
+      title: t('colleges.table.createdAt'),
       align: 'center',
       render: (row) => (
         <Text size="xs" color="dimmed">
@@ -153,7 +157,7 @@ export default function Collages() {
     },
     {
       key: 'actions',
-      title: 'الإجراءات',
+      title: t('colleges.table.actions'),
       align: 'left',
       render: (row) => (
         <Group spacing={8} position="left">
@@ -165,14 +169,14 @@ export default function Collages() {
             color="brand"
             leftIcon={<IconEye size={14} />}
           >
-            استعراض التخصصات والمواد
+            {t('colleges.viewMajors')}
           </Button>
           <ActionIcon
             color="brand"
             variant="light"
             size="sm"
             onClick={() => handleEditOpen(row)}
-            title="تعديل الكلية"
+            title={t('colleges.editTooltip')}
           >
             <IconPencil size={15} />
           </ActionIcon>
@@ -181,7 +185,7 @@ export default function Collages() {
             variant="light"
             size="sm"
             onClick={() => setDeleteId(row._id || row.id)}
-            title="حذف الكلية"
+            title={t('colleges.deleteTooltip')}
           >
             <IconTrash size={15} />
           </ActionIcon>
@@ -193,11 +197,11 @@ export default function Collages() {
   return (
     <>
       <PageHeader
-        title="الكليات الأكاديمية"
-        description="إدارة الكليات والأقسام وتحديد الفصول الدراسية"
+        title={t('colleges.title')}
+        description={t('colleges.subtitle')}
         breadcrumbs={[
-          { title: 'الرئيسية', href: '/' },
-          { title: 'الكليات' },
+          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          { title: t('colleges.breadcrumb') },
         ]}
         action={
           <Button
@@ -205,7 +209,7 @@ export default function Collages() {
             color="brand"
             onClick={openAdd}
           >
-            إضافة كلية جديدة
+            {t('colleges.createTitle')}
           </Button>
         }
       />
@@ -225,26 +229,26 @@ export default function Collages() {
           setLimit(l)
           setPage(1)
         }}
-        emptyTitle="لا توجد كليات مسجلة"
-        emptyDescription="ابدأ بإضافة كلية جديدة لإدارة التخصصات والمقررات."
+        emptyTitle={t('colleges.emptyTitle')}
+        emptyDescription={t('colleges.emptyDescription')}
       />
 
       {/* Add College Modal */}
       <Modal
         opened={addOpened}
         onClose={closeAdd}
-        title={<Text weight={700}>إضافة كلية جديدة</Text>}
+        title={<Text weight={700}>{t('colleges.createTitle')}</Text>}
       >
         <form onSubmit={addForm.onSubmit(handleAddSubmit)}>
           <Stack spacing="md">
             <TextInput
-              label="اسم الكلية"
-              placeholder="مثال: كلية الهندسة وتكنولوجيا المعلومات"
+              label={t('colleges.name')}
+              placeholder={t('colleges.namePlaceholder')}
               required
               {...addForm.getInputProps('name')}
             />
             <NumberInput
-              label="عدد الفصول الدراسية"
+              label={t('colleges.numberOfSemesters')}
               placeholder="8"
               min={1}
               max={16}
@@ -253,14 +257,14 @@ export default function Collages() {
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={closeAdd}>
-                إلغاء
+                {tCommon('actions.cancel')}
               </Button>
               <Button
                 type="submit"
                 color="brand"
                 loading={createMutation.isPending}
               >
-                إضافة
+                {tCommon('actions.create')}
               </Button>
             </Group>
           </Stack>
@@ -271,17 +275,17 @@ export default function Collages() {
       <Modal
         opened={Boolean(editCollege)}
         onClose={() => setEditCollege(null)}
-        title={<Text weight={700}>تعديل الكلية</Text>}
+        title={<Text weight={700}>{t('colleges.editTitle')}</Text>}
       >
         <form onSubmit={editForm.onSubmit(handleEditSubmit)}>
           <Stack spacing="md">
             <TextInput
-              label="اسم الكلية"
+              label={t('colleges.name')}
               required
               {...editForm.getInputProps('name')}
             />
             <NumberInput
-              label="عدد الفصول الدراسية"
+              label={t('colleges.numberOfSemesters')}
               min={1}
               max={16}
               required
@@ -289,14 +293,14 @@ export default function Collages() {
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={() => setEditCollege(null)}>
-                إلغاء
+                {tCommon('actions.cancel')}
               </Button>
               <Button
                 type="submit"
                 color="brand"
                 loading={updateMutation.isPending}
               >
-                حفظ التعديلات
+                {tCommon('actions.save')}
               </Button>
             </Group>
           </Stack>
@@ -308,9 +312,9 @@ export default function Collages() {
         opened={Boolean(deleteId)}
         onClose={() => setDeleteId(null)}
         onConfirm={handleDeleteConfirm}
-        title="حذف الكلية"
-        message="هل أنت متأكد من حذف هذه الكلية؟ قد يؤثر ذلك على التخصصات المرتبطة بها."
-        confirmLabel="حذف الكلية"
+        title={t('colleges.deleteConfirmTitle')}
+        message={t('colleges.deleteConfirmMessage')}
+        confirmLabel={tCommon('actions.delete')}
         isLoading={deleteMutation.isPending}
       />
     </>

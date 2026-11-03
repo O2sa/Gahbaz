@@ -1,48 +1,48 @@
-import React, { useState } from 'react'
-import PropTypes from 'prop-types'
-// import { SpecialCard } from '../components/Specialcard'
-
-
-import { BsStack } from 'react-icons/bs'
-
-import { useLocation, useParams } from 'react-router-dom'
+import React from 'react'
+import { useParams, Navigate } from 'react-router-dom'
 import { TabsLinks } from '../../components/TabsLinks'
-import { BsInfoSquare } from "react-icons/bs";
-import { GiLevelEndFlag } from "react-icons/gi";
-
-import { MdOutlinePlayLesson } from "react-icons/md";
+import { BsInfoSquare } from 'react-icons/bs'
+import { GiLevelEndFlag } from 'react-icons/gi'
+import { MdOutlinePlayLesson } from 'react-icons/md'
 import { Helmet } from 'react-helmet'
-export default function CreateCourse ({ ...props })  {
-  // const courseId = useLocation().search || ''
-  const { id } = useParams()
-  // console.log('courseId', id)
+import { useTranslation } from 'react-i18next'
+import { useDashboardContext } from '../../layouts/MainLayout.jsx'
+
+export default function CreateCourse() {
+  const { t } = useTranslation('admin')
+  const { courseId, id } = useParams()
+  const effectiveCourseId = courseId || id
+  const { user } = useDashboardContext()
+  const role = user?.role || user?.__t
+
+  if (role === 'student') {
+    return <Navigate to={`/courses/${effectiveCourseId}`} replace />
+  }
 
   const tabs = [
     {
-      name: 'المعلومات الأساسية',
+      name: t('courses.basicInfo', 'المعلومات الأساسية'),
       icon: BsInfoSquare,
       to: '.',
     },
-    // {
-    //   name: 'المعلومات الثانوية',
-    //   icon: BsStack,
-    //   to: 'fields',
-    // },
     {
-      name: 'الدروس',
+      name: t('courses.lessons', 'الدروس'),
       icon: MdOutlinePlayLesson,
-      to: `lessons`,
+      to: 'lessons',
     },
     {
-      name: 'درجات الطلاب',
+      name: t('courses.grades', 'درجات الطلاب'),
       icon: GiLevelEndFlag,
-      to: `grades`,
+      to: 'grades',
     },
   ]
-  return <>
-                             <Helmet>
-            <title>{ 'منصة جهبذ | تعديل بيانات الدورة' }</title>
+
+  return (
+    <>
+      <Helmet>
+        <title>{`منصة جهبذ | ${t('courses.editCourse')}`}</title>
       </Helmet>
-  <TabsLinks tabs={tabs} />
-  </>
+      <TabsLinks tabs={tabs} />
+    </>
+  )
 }

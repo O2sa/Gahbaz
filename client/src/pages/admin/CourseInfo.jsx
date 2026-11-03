@@ -16,6 +16,7 @@ import {
   useMantineTheme,
 } from '@mantine/core'
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   IconCheck,
   IconArrowRight,
@@ -30,8 +31,27 @@ import {
 import CourseContent from '../../components/CourseContent'
 import { PageHeader } from '../../components/common/index.js'
 import { CourseChatDrawer } from '../../components/chat/index.js'
+import { useDashboardContext } from '../../layouts/MainLayout.jsx'
 
 export default function CourseInfo({ course }) {
+  const { t } = useTranslation('admin')
+  const { t: tCommon } = useTranslation('common')
+  const { t: tNav } = useTranslation('nav')
+
+  const { user } = useDashboardContext()
+  const role = user?.role || user?.__t
+  const userId = (user?._id || user?.id || user?.userId || '').toString()
+
+  const isSuperAdmin = role === 'super-admin'
+  const isAdmin = role === 'admin' || isSuperAdmin
+  const isTeacher = role === 'teacher'
+  const isCourseTeacher =
+    isTeacher &&
+    (course?.data?.teachers || course?.teachers || []).some(
+      (tItem) => (typeof tItem === 'object' ? tItem._id || tItem.id : tItem)?.toString() === userId
+    )
+  const canEditCourse = isAdmin || isCourseTeacher
+  const canManageGrades = isAdmin || isCourseTeacher
   const navigate = useNavigate()
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
@@ -43,10 +63,10 @@ export default function CourseInfo({ course }) {
   const teacherNames =
     courseData.teacher ??
     courseData.teachers
-      ?.map((t) =>
-        typeof t === 'object'
-          ? `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.name
-          : t
+      ?.map((tItem) =>
+        typeof tItem === 'object'
+          ? `${tItem.firstName || ''} ${tItem.lastName || ''}`.trim() || tItem.name
+          : tItem
       )
       .filter(Boolean)
       .join(' • ')
@@ -61,30 +81,45 @@ export default function CourseInfo({ course }) {
   return (
     <Box>
       <PageHeader
-        title={courseData.name || 'تفاصيل المقرر'}
-        description={courseData.subtitle || 'عرض توصيف المقرر، المخرجات التعليمية والمحتوى الدراسي'}
+        title={courseData.name || t('courses.title')}
+        description={courseData.subtitle || t('courses.subtitle')}
         breadcrumbs={[
-          { title: 'الرئيسية', href: '/' },
-          { title: 'المقررات الدراسية', href: '/courses' },
-          { title: courseData.name || 'المقرر' },
+          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          {
+            title: courseData.semester?.name || t('semesters.title'),
+            href: courseData.semester?._id
+              ? `/semesters/${courseData.semester._id}`
+              : '/semesters',
+          },
+          { title: courseData.name || tNav('courses') },
         ]}
         action={
           <Group spacing="xs">
             <Button
               variant="default"
               leftIcon={<IconArrowRight size={16} />}
-              onClick={() => navigate('/courses')}
+              onClick={() => {
+                if (window.history.state && window.history.state.idx > 0) {
+                  navigate(-1)
+                } else if (courseData.semester?._id) {
+                  navigate(`/semesters/${courseData.semester._id}`)
+                } else {
+                  navigate('/semesters')
+                }
+              }}
             >
-              رجوع إلى المقررات
+              {tCommon('actions.back')}
             </Button>
-            <Button
-              component={Link}
-              to={`/courses/${courseData._id || courseData.id}/edit`}
-              leftIcon={<IconEdit size={16} />}
-              color="brand"
-            >
-              تعديل المقرر
-            </Button>
+            {canEditCourse && (
+              <Button
+                component={Link}
+                to={`/courses/${courseData._id || courseData.id}/edit`}
+                leftIcon={<IconEdit size={16} />}
+                color="brand"
+              >
+                {t('courses.editCourse')}
+              </Button>
+            )}
           </Group>
         }
       />
@@ -116,7 +151,7 @@ export default function CourseInfo({ course }) {
                 )}
                 {courseData.code && (
                   <Badge color="gray" variant="outline" size="md">
-                    رمز المقرر: {courseData.code}
+                    {t('subjects.table.code', { code: courseData.code })}
                   </Badge>
                 )}
               </Group>
@@ -150,16 +185,16 @@ export default function CourseInfo({ course }) {
                       src={typeof val === 'object' ? val.avatar : undefined}
                       color="brand"
                     >
-                      {typeof val === 'object' ? (val.firstName?.charAt(0) || 'أ') : 'أ'}
+                      {typeof val === 'object' ? (val.firstName?.charAt(0) || 'U') : 'U'}
                     </Avatar>
                   ))}
                 </Avatar.Group>
                 <Stack spacing={0}>
                   <Text size="xs" color="dimmed">
-                    عضو هيئة التدريس:
+                    {t('courses.teacher')}:
                   </Text>
                   <Text weight={600} size="sm" sx={{ color: isDark ? '#f1f5f9' : '#0f172a' }}>
-                    {teacherNames || 'غير محدد'}
+                    {teacherNames || t('subjects.unspecified')}
                   </Text>
                 </Stack>
               </Group>
@@ -172,7 +207,7 @@ export default function CourseInfo({ course }) {
                     size="md"
                     leftSection={<IconFolder size={14} />}
                   >
-                    {`${sections.length} أقسام`}
+                    {t('courses.sectionsCount', { count: sections.length })}
                   </Badge>
                   <Badge
                     color="violet"
@@ -180,7 +215,7 @@ export default function CourseInfo({ course }) {
                     size="md"
                     leftSection={<IconVideo size={14} />}
                   >
-                    {`${totalLessons} دروس`}
+                    {t('courses.lessonsCount', { count: totalLessons })}
                   </Badge>
                 </Group>
               )}
@@ -195,19 +230,21 @@ export default function CourseInfo({ course }) {
                 radius="md"
                 leftIcon={<IconPlayerPlay size={18} />}
               >
-                استعراض محتوى ودروس المقرر
+                {t('courses.lectureNotes')}
               </Button>
-              <Button
-                component={Link}
-                to={`/courses/${courseData._id || courseData.id}/grades`}
-                variant="light"
-                color="teal"
-                size="md"
-                radius="md"
-                leftIcon={<IconCertificate size={18} />}
-              >
-                دفتر درجات الطلاب (Gradebook)
-              </Button>
+              {canManageGrades && (
+                <Button
+                  component={Link}
+                  to={`/courses/${courseData._id || courseData.id}/grades`}
+                  variant="light"
+                  color="teal"
+                  size="md"
+                  radius="md"
+                  leftIcon={<IconCertificate size={18} />}
+                >
+                  {t('courses.grades')}
+                </Button>
+              )}
               <Button
                 component={Link}
                 to={`/courses/${courseData._id || courseData.id}/assignments`}
@@ -217,7 +254,7 @@ export default function CourseInfo({ course }) {
                 radius="md"
                 leftIcon={<IconFileText size={18} />}
               >
-                التكليفات والواجبات (Assignments)
+                {t('courses.assignments')}
               </Button>
               <Button
                 onClick={() => setChatDrawerOpened(true)}
@@ -227,7 +264,7 @@ export default function CourseInfo({ course }) {
                 radius="md"
                 leftIcon={<IconMessageDots size={18} />}
               >
-                غرفة المناقشة الأكاديمية (Course Chat)
+                {t('courses.liveChat')}
               </Button>
             </Group>
           </Grid.Col>
@@ -281,7 +318,7 @@ export default function CourseInfo({ course }) {
         {descriptionText && (
           <Box mb="xl">
             <Title order={4} mb="xs" sx={{ color: isDark ? '#ffffff' : '#0f172a' }}>
-              عن المقرر
+              {t('courses.aboutCourse')}
             </Title>
             <Text size="sm" color={isDark ? 'gray.3' : 'gray.7'} sx={{ lineHeight: 1.8 }}>
               {descriptionText}
@@ -299,7 +336,7 @@ export default function CourseInfo({ course }) {
             sx={{ borderColor: isDark ? 'rgba(16, 185, 129, 0.25)' : '#d3f9d8' }}
           >
             <Title order={4} color={isDark ? 'teal.3' : 'teal.9'} mb="md">
-              ما الذي ستتعلمه في هذا المقرر؟
+              {t('courses.whatYouWillLearn')}
             </Title>
             <Grid>
               {courseData.willLearn.map((item, idx) => (
@@ -321,7 +358,7 @@ export default function CourseInfo({ course }) {
         {courseData.requirements?.length > 0 && (
           <Box mb="xl">
             <Title order={4} mb="xs" sx={{ color: isDark ? '#ffffff' : '#0f172a' }}>
-              متطلبات المقرر
+              {t('courses.requirements')}
             </Title>
             <List
               spacing="xs"

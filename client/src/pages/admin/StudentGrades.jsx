@@ -27,6 +27,7 @@ import {
 } from '@mantine/core'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useParams, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { notifications } from '@mantine/notifications'
 import {
   IconUsers,
@@ -44,19 +45,20 @@ import {
 } from '@tabler/icons-react'
 import customFetch from '../../utils/customFetch'
 import { PageHeader, EmptyState } from '../../components/common'
+import { useDashboardContext } from '../../layouts/MainLayout.jsx'
 
 // Helper: Calculate official letter grade and color
-export const getLetterGrade = (total) => {
+export const getLetterGrade = (total, t) => {
   const score = Number(total) || 0
-  if (score >= 95) return { grade: 'A+', label: 'ممتاز مرتفع', color: 'teal', variant: 'filled' }
-  if (score >= 90) return { grade: 'A', label: 'ممتاز', color: 'teal', variant: 'light' }
-  if (score >= 85) return { grade: 'B+', label: 'جيد جداً مرتفع', color: 'blue', variant: 'filled' }
-  if (score >= 80) return { grade: 'B', label: 'جيد جداً', color: 'blue', variant: 'light' }
-  if (score >= 75) return { grade: 'C+', label: 'جيد مرتفع', color: 'cyan', variant: 'filled' }
-  if (score >= 70) return { grade: 'C', label: 'جيد', color: 'cyan', variant: 'light' }
-  if (score >= 65) return { grade: 'D+', label: 'مقبول مرتفع', color: 'yellow', variant: 'light' }
-  if (score >= 60) return { grade: 'D', label: 'مقبول', color: 'orange', variant: 'light' }
-  return { grade: 'F', label: 'راسب', color: 'red', variant: 'filled' }
+  if (score >= 95) return { grade: 'A+', label: t ? t('grades.letters.aPlus') : 'ممتاز مرتفع', color: 'teal', variant: 'filled' }
+  if (score >= 90) return { grade: 'A', label: t ? t('grades.letters.a') : 'ممتاز', color: 'teal', variant: 'light' }
+  if (score >= 85) return { grade: 'B+', label: t ? t('grades.letters.bPlus') : 'جيد جداً مرتفع', color: 'blue', variant: 'filled' }
+  if (score >= 80) return { grade: 'B', label: t ? t('grades.letters.b') : 'جيد جداً', color: 'blue', variant: 'light' }
+  if (score >= 75) return { grade: 'C+', label: t ? t('grades.letters.cPlus') : 'جيد مرتفع', color: 'cyan', variant: 'filled' }
+  if (score >= 70) return { grade: 'C', label: t ? t('grades.letters.c') : 'جيد', color: 'cyan', variant: 'light' }
+  if (score >= 65) return { grade: 'D+', label: t ? t('grades.letters.dPlus') : 'مقبول مرتفع', color: 'yellow', variant: 'light' }
+  if (score >= 60) return { grade: 'D', label: t ? t('grades.letters.d') : 'مقبول', color: 'orange', variant: 'light' }
+  return { grade: 'F', label: t ? t('grades.letters.f') : 'راسب', color: 'red', variant: 'filled' }
 }
 
 export const loader =
@@ -81,10 +83,21 @@ export const loader =
   }
 
 export default function StudentGrades() {
+  const { t } = useTranslation('admin')
+  const { t: tCommon } = useTranslation('common')
+  const { t: tNav } = useTranslation('nav')
   const { courseId } = useParams()
   const queryClient = useQueryClient()
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+
+  const { user } = useDashboardContext()
+  const role = user?.role || user?.__t
+  const userId = (user?._id || user?.id || user?.userId || '').toString()
+
+  const isSuperAdmin = role === 'super-admin'
+  const isAdmin = role === 'admin' || isSuperAdmin
+  const isTeacher = role === 'teacher'
 
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
@@ -107,6 +120,12 @@ export default function StudentGrades() {
   // Normalize data (support enriched envelope and legacy array fallback)
   const isEnriched = responseData && !Array.isArray(responseData) && responseData.grades
   const course = isEnriched ? responseData.course : null
+  const isCourseTeacher =
+    isTeacher &&
+    (course?.teachers || []).some(
+      (tItem) => (typeof tItem === 'object' ? tItem._id || tItem.id : tItem)?.toString() === userId
+    )
+  const canManageGrades = isAdmin || isCourseTeacher
   const rawGrades = isEnriched
     ? responseData.grades
     : Array.isArray(responseData)
@@ -125,9 +144,9 @@ export default function StudentGrades() {
     : {
         total: 100,
         grade: {
-          0: { name: 'تكاليف', value: 20 },
-          1: { name: 'نصفي', value: 30 },
-          2: { name: 'نهائي', value: 50 },
+          0: { name: t('grades.table.assignments'), value: 20 },
+          1: { name: t('grades.table.midterm'), value: 30 },
+          2: { name: t('grades.table.final'), value: 50 },
         },
       }
 
@@ -167,7 +186,7 @@ export default function StudentGrades() {
       const payload = {}
       for (const k in scores) {
         payload[k] = {
-          name: gradeSchema.grade?.[k]?.name || `بند ${k}`,
+          name: gradeSchema.grade?.[k]?.name || `Item ${k}`,
           value: Number(scores[k]) || 0,
         }
       }
@@ -176,8 +195,8 @@ export default function StudentGrades() {
     },
     onSuccess: () => {
       notifications.show({
-        title: 'تم تحديث الدرجة بنجاح',
-        message: 'تم حفظ درجات الطالب وإعادة احتساب المجموع تلقائياً.',
+        title: tCommon('notifications.success'),
+        message: t('grades.saveSuccess'),
         color: 'teal',
         icon: <IconCheck size={16} />,
       })
@@ -185,9 +204,9 @@ export default function StudentGrades() {
       setEditingGrade(null)
     },
     onError: (err) => {
-      const msg = err.response?.data?.message || err.response?.data?.msg || 'تعذر حفظ الدرجة'
+      const msg = err.response?.data?.message || err.response?.data?.msg || tCommon('notifications.error')
       notifications.show({
-        title: 'خطأ في الحفظ',
+        title: tCommon('notifications.error'),
         message: msg,
         color: 'red',
         icon: <IconAlertCircle size={16} />,
@@ -222,7 +241,9 @@ export default function StudentGrades() {
     const initial = {}
     if (gradeSchema.grade) {
       for (const k in gradeSchema.grade) {
-        initial[k] = gradeDoc.grade?.[k]?.value ?? 0
+        const item = gradeDoc.grade?.[k]
+        const val = typeof item === 'object' && item !== null ? item.value : item
+        initial[k] = val !== undefined && val !== null && !isNaN(Number(val)) ? Number(val) : 0
       }
     }
     setFormScores(initial)
@@ -243,7 +264,7 @@ export default function StudentGrades() {
         <Stack align="center" spacing="md">
           <Loader size="xl" color="brand" />
           <Text size="sm" color="dimmed">
-            جاري تحميل سجل درجات المقرر والطلاب...
+            {tCommon('table.loading')}
           </Text>
         </Stack>
       </Center>
@@ -254,12 +275,12 @@ export default function StudentGrades() {
     return (
       <Alert
         icon={<IconAlertCircle size={18} />}
-        title="تعذر تحميل دفتر الدرجات"
+        title={tCommon('notifications.error')}
         color="red"
         radius="md"
         my="xl"
       >
-        {error.response?.data?.message || 'حدث خطأ أثناء جلب درجات هذا المقرر.'}
+        {error.response?.data?.message || tCommon('notifications.error')}
       </Alert>
     )
   }
@@ -269,13 +290,13 @@ export default function StudentGrades() {
   return (
     <>
       <PageHeader
-        title={course?.name ? `دفتر درجات مقرر: ${course.name}` : 'دفتر درجات الطلاب'}
-        description={`رصد وتقييم أداء الطلاب في المقرر الدراسي (${course?.code || 'رمز المقرر'}) ومتابعة نسب الإنجاز والتحصيل`}
+        title={course?.name ? `${t('grades.title')}: ${course.name}` : t('grades.title')}
+        description={t('grades.subtitle')}
         breadcrumbs={[
-          { title: 'الرئيسية', href: '/' },
-          { title: 'المقررات', href: '/courses' },
-          { title: course?.name || 'المقرر', href: `/courses/${courseId}` },
-          { title: 'دفتر الدرجات' },
+          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          { title: tNav('courses') || 'المقررات', href: '/courses' },
+          { title: course?.name || tNav('courses'), href: `/courses/${courseId}` },
+          { title: t('grades.title') },
         ]}
         action={
           <Button
@@ -285,7 +306,7 @@ export default function StudentGrades() {
             radius="md"
             leftIcon={<IconArrowRight size={16} />}
           >
-            العودة لصفحة المقرر
+            {tCommon('actions.back')}
           </Button>
         }
       />
@@ -304,7 +325,7 @@ export default function StudentGrades() {
           <Group position="apart">
             <div>
               <Text size="xs" color="dimmed" weight={700}>
-                إجمالي الطلاب المسجلين
+                {t('grades.stats.enrolledStudents')}
               </Text>
               <Title order={2} mt={4}>
                 {telemetry.totalStudents}
@@ -320,7 +341,7 @@ export default function StudentGrades() {
           <Group position="apart">
             <div>
               <Text size="xs" color="dimmed" weight={700}>
-                متوسط درجات الدفعة
+                {t('grades.stats.averageScore')}
               </Text>
               <Title order={2} mt={4}>
                 {telemetry.averageScore} / 100
@@ -336,7 +357,7 @@ export default function StudentGrades() {
           <Group position="apart">
             <div>
               <Text size="xs" color="dimmed" weight={700}>
-                أعلى درجة تم رصدها
+                {t('grades.stats.highestScore')}
               </Text>
               <Title order={2} mt={4}>
                 {telemetry.maxScore}
@@ -352,7 +373,7 @@ export default function StudentGrades() {
           <Group position="apart">
             <div>
               <Text size="xs" color="dimmed" weight={700}>
-                نسبة النجاح العامة
+                {t('grades.stats.passRate')}
               </Text>
               <Title order={2} mt={4}>
                 {telemetry.passingRate}%
@@ -377,7 +398,7 @@ export default function StudentGrades() {
       >
         <Group position="apart" align="center">
           <TextInput
-            placeholder="البحث باسم الطالب أو البريد الإلكتروني..."
+            placeholder={t('grades.filters.searchPlaceholder')}
             icon={<IconSearch size={16} />}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.currentTarget.value)}
@@ -387,10 +408,9 @@ export default function StudentGrades() {
 
           <Select
             data={[
-              { value: 'all', label: 'كافة الطلاب' },
-              { value: 'passed', label: 'الناجحون (60 فأكثر)' },
-              { value: 'failed', label: 'الراسبون (أقل من 60)' },
-              { value: 'unrecorded', label: 'غير المرصود لهم (صفر)' },
+              { value: 'all', label: t('grades.filters.all') },
+              { value: 'passed', label: t('grades.filters.passed') },
+              { value: 'failed', label: t('grades.filters.failed') },
             ]}
             value={statusFilter}
             onChange={setStatusFilter}
@@ -403,12 +423,8 @@ export default function StudentGrades() {
       {/* Gradebook Table */}
       {filteredGrades.length === 0 ? (
         <EmptyState
-          title="لا توجد سجلات درجات مطابقة"
-          description={
-            rawGrades.length === 0
-              ? 'لم يتم تسجيل أي طلاب في هذا المقرر الدراسي بعد.'
-              : 'لم يتم العثور على نتائج تطابق معايير البحث والتصفية المحددة.'
-          }
+          title={t('common:table.noRecords')}
+          description={t('grades.subtitle')}
         />
       ) : (
         <Paper
@@ -427,18 +443,18 @@ export default function StudentGrades() {
                   backgroundColor: isDark ? theme.colors.dark[6] : theme.colors.gray[1],
                 }}
               >
-                <th>الطالب</th>
+                <th>{t('grades.table.student')}</th>
                 {assessmentKeys.map((k) => (
                   <th key={k} style={{ textAlign: 'center' }}>
                     {gradeSchema.grade[k].name}{' '}
                     <Text component="span" size="xs" color="dimmed">
-                      (من {gradeSchema.grade[k].value})
+                      ({gradeSchema.grade[k].value})
                     </Text>
                   </th>
                 ))}
-                <th style={{ textAlign: 'center' }}>المجموع (100)</th>
-                <th style={{ textAlign: 'center' }}>التقدير</th>
-                <th style={{ textAlign: 'center' }}>إجراءات</th>
+                <th style={{ textAlign: 'center' }}>{t('grades.table.total')}</th>
+                <th style={{ textAlign: 'center' }}>{t('grades.table.grade')}</th>
+                {canManageGrades && <th style={{ textAlign: 'center' }}>{t('grades.table.actions')}</th>}
               </tr>
             </thead>
             <tbody>
@@ -446,10 +462,10 @@ export default function StudentGrades() {
                 const studentName =
                   g.student?.name ||
                   `${g.student?.firstName || ''} ${g.student?.lastName || ''}`.trim() ||
-                  'طالب'
+                  t('common:roles.student')
                 const studentEmail = g.student?.email || '—'
                 const total = Number(g.total || 0)
-                const letter = getLetterGrade(total)
+                const letter = getLetterGrade(total, t)
 
                 return (
                   <tr key={g._id}>
@@ -480,7 +496,13 @@ export default function StudentGrades() {
 
                     {/* Dynamic Assessment Columns */}
                     {assessmentKeys.map((k) => {
-                      const score = g.grade?.[k]?.value ?? 0
+                      const item = g.grade?.[k]
+                      const score =
+                        typeof item === 'object' && item !== null
+                          ? item.value ?? 0
+                          : typeof item === 'number'
+                          ? item
+                          : 0
                       return (
                         <td key={k} style={{ textAlign: 'center' }}>
                           <Text weight={600} size="sm">
@@ -513,17 +535,19 @@ export default function StudentGrades() {
                     </td>
 
                     {/* Edit Action Button */}
-                    <td style={{ textAlign: 'center' }}>
-                      <Button
-                        size="xs"
-                        variant="light"
-                        color="brand"
-                        leftIcon={<IconEdit size={14} />}
-                        onClick={() => handleOpenEdit(g)}
-                      >
-                        رصد الدرجات
-                      </Button>
-                    </td>
+                    {canManageGrades && (
+                      <td style={{ textAlign: 'center' }}>
+                        <Button
+                          size="xs"
+                          variant="light"
+                          color="brand"
+                          leftIcon={<IconEdit size={14} />}
+                          onClick={() => handleOpenEdit(g)}
+                        >
+                          {t('grades.editGradeTitle')}
+                        </Button>
+                      </td>
+                    )}
                   </tr>
                 )
               })}
@@ -542,7 +566,7 @@ export default function StudentGrades() {
               <IconCertificate size={18} />
             </ThemeIcon>
             <Text weight={700} size="md">
-              رصد وتعديل درجات الطالب
+              {t('grades.editGradeTitle')}
             </Text>
           </Group>
         }
@@ -565,7 +589,7 @@ export default function StudentGrades() {
                   color="brand"
                   size="md"
                 >
-                  {(editingGrade.student?.name || 'ط').charAt(0)}
+                  {(editingGrade.student?.name || 'S').charAt(0)}
                 </Avatar>
                 <div>
                   <Text weight={700} size="sm">
@@ -579,18 +603,18 @@ export default function StudentGrades() {
               </Group>
             </Paper>
 
-            <Divider label="بنود التقييم الفصلي" labelPosition="center" />
+            <Divider label={t('grades.table.grade')} labelPosition="center" />
 
             {/* Inputs for each assessment item */}
             {assessmentKeys.map((k) => {
               const maxVal = gradeSchema.grade?.[k]?.value || 100
-              const label = gradeSchema.grade?.[k]?.name || `بند ${k}`
+              const label = gradeSchema.grade?.[k]?.name || `Item ${k}`
 
               return (
                 <NumberInput
                   key={k}
-                  label={`${label} (الحد الأقصى: ${maxVal})`}
-                  placeholder={`أدخل درجة بين 0 و ${maxVal}`}
+                  label={`${label} (Max: ${maxVal})`}
+                  placeholder={`0 - ${maxVal}`}
                   min={0}
                   max={maxVal}
                   value={formScores[k] ?? 0}
@@ -609,7 +633,7 @@ export default function StudentGrades() {
               <Group position="apart">
                 <div>
                   <Text size="xs" color="dimmed">
-                    المجموع المحتسب:
+                    {t('grades.table.total')}:
                   </Text>
                   <Title order={3} color={modalTotal >= 60 ? 'teal' : 'red'}>
                     {modalTotal} / 100
@@ -617,17 +641,17 @@ export default function StudentGrades() {
                 </div>
                 <Badge
                   size="lg"
-                  color={getLetterGrade(modalTotal).color}
-                  variant={getLetterGrade(modalTotal).variant}
+                  color={getLetterGrade(modalTotal, t).color}
+                  variant={getLetterGrade(modalTotal, t).variant}
                 >
-                  التقدير: {getLetterGrade(modalTotal).grade}
+                  {getLetterGrade(modalTotal, t).grade} ({getLetterGrade(modalTotal, t).label})
                 </Badge>
               </Group>
             </Paper>
 
             <Group position="right" mt="md">
               <Button variant="default" onClick={() => setEditingGrade(null)}>
-                إلغاء
+                {tCommon('actions.cancel')}
               </Button>
               <Button
                 color="brand"
@@ -639,7 +663,7 @@ export default function StudentGrades() {
                   })
                 }
               >
-                حفظ الدرجات
+                {tCommon('actions.save')}
               </Button>
             </Group>
           </Stack>

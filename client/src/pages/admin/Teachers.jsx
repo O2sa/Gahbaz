@@ -18,6 +18,7 @@ import {
 import { useForm } from '@mantine/form'
 import { useDisclosure, useDebouncedValue } from '@mantine/hooks'
 import { IconPlus, IconPencil, IconTrash, IconSchool, IconCopy, IconCheck } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 import {
   DataTable,
   PageHeader,
@@ -33,16 +34,6 @@ import dayjs from 'dayjs'
 
 const NAME_REGEX = /^[\u0600-\u06FFa-zA-Z\s\-]{3,70}$/
 
-const validateName = (val) => {
-  if (!val?.trim()) return 'اسم الأستاذ مطلوب'
-  if (val.trim().length < 3) return 'يجب أن يتكون الاسم من 3 أحرف على الأقل'
-  if (val.trim().length > 70) return 'يجب ألا يتجاوز الاسم 70 حرفاً'
-  if (!NAME_REGEX.test(val.trim())) {
-    return 'يجب أن يحتوي الاسم على أحرف عربية أو إنجليزية ومسافات فقط بدون أرقام أو رموز'
-  }
-  return null
-}
-
 const TITLE_OPTIONS = [
   { value: 'دكتور', label: 'دكتور' },
   { value: 'أستاذ دكتور', label: 'أستاذ دكتور' },
@@ -54,6 +45,18 @@ const TITLE_OPTIONS = [
 ]
 
 export default function Teachers() {
+  const { t } = useTranslation('admin')
+  const { t: tCommon } = useTranslation('common')
+
+  const validateName = (val) => {
+    if (!val?.trim()) return t('users.validation.nameRequired')
+    if (val.trim().length < 3 || val.trim().length > 70) return t('users.validation.nameLength')
+    if (!NAME_REGEX.test(val.trim())) {
+      return t('users.validation.nameLettersOnly')
+    }
+    return null
+  }
+
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
   const [search, setSearch] = useState('')
@@ -87,7 +90,7 @@ export default function Teachers() {
     },
     validate: {
       name: validateName,
-      email: (val) => (!val?.includes('@') ? 'البريد الإلكتروني غير صالح' : null),
+      email: (val) => (!val?.includes('@') ? t('users.validation.emailInvalid') : null),
     },
   })
 
@@ -161,9 +164,9 @@ export default function Teachers() {
   const columns = [
     {
       key: 'name',
-      title: 'الأستاذ',
+      title: t('users.tabs.teachers'),
       render: (row) => {
-        const teacherName = row.name || row.userName || 'أستاذ'
+        const teacherName = row.name || row.userName || t('common:roles.teacher')
         return (
           <Group spacing="sm">
             <Avatar color="teal" radius="xl" size="sm">
@@ -190,7 +193,7 @@ export default function Teachers() {
     },
     {
       key: 'phone',
-      title: 'رقم الهاتف',
+      title: t('users.fields.phone'),
       align: 'center',
       render: (row) => (
         <Text size="xs" color="dimmed" dir="ltr">
@@ -200,17 +203,17 @@ export default function Teachers() {
     },
     {
       key: 'coursesCount',
-      title: 'المقررات',
+      title: t('admin:dashboard.stats.totalCourses'),
       align: 'center',
       render: (row) => (
         <Badge color="indigo" variant="light" size="sm">
-          {row.courses?.length || 0} مقرر
+          {row.courses?.length || 0}
         </Badge>
       ),
     },
     {
       key: 'createdAt',
-      title: 'تاريخ الانضمام',
+      title: t('colleges.table.createdAt'),
       align: 'center',
       render: (row) => (
         <Text size="xs" color="dimmed">
@@ -220,7 +223,7 @@ export default function Teachers() {
     },
     {
       key: 'actions',
-      title: 'الإجراءات',
+      title: t('colleges.table.actions'),
       align: 'left',
       render: (row) => (
         <Group spacing={6} position="left">
@@ -229,7 +232,7 @@ export default function Teachers() {
             variant="light"
             size="sm"
             onClick={() => handleEditOpen(row)}
-            title="تعديل بيانات الأستاذ"
+            title={tCommon('actions.edit')}
           >
             <IconPencil size={15} />
           </ActionIcon>
@@ -238,7 +241,7 @@ export default function Teachers() {
             variant="light"
             size="sm"
             onClick={() => setDeleteId(row._id || row.id)}
-            title="حذف الأستاذ"
+            title={tCommon('actions.delete')}
           >
             <IconTrash size={15} />
           </ActionIcon>
@@ -250,11 +253,11 @@ export default function Teachers() {
   return (
     <>
       <PageHeader
-        title="هيئة التدريس"
-        description="إدارة الأساتذة والمحاضرين وتعيين المقررات الدراسية"
+        title={t('users.tabs.teachers')}
+        description={t('users.subtitle')}
         breadcrumbs={[
-          { title: 'الرئيسية', href: '/' },
-          { title: 'الأساتذة' },
+          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          { title: t('users.tabs.teachers') },
         ]}
         action={
           <Button
@@ -262,7 +265,7 @@ export default function Teachers() {
             color="brand"
             onClick={openAdd}
           >
-            إضافة أستاذ جديد
+            {t('users.addTeacher')}
           </Button>
         }
       />
@@ -282,58 +285,56 @@ export default function Teachers() {
           setLimit(l)
           setPage(1)
         }}
-        emptyTitle="لا يوجد أساتذة مسجلين"
-        emptyDescription="ابدأ بإضافة أعضاء هيئة التدريس لتعيين المقررات لهم."
+        emptyTitle={t('common:table.noRecords')}
+        emptyDescription={t('users.subtitle')}
       />
 
       {/* Add Teacher Modal */}
       <Modal
         opened={addOpened}
         onClose={closeAdd}
-        title={<Text weight={700}>إضافة أستاذ جديد</Text>}
+        title={<Text weight={700}>{t('users.addTeacher')}</Text>}
       >
         <form onSubmit={addForm.onSubmit(handleAddSubmit)}>
           <Stack spacing="md">
             <Select
-              label="اللقب الأكاديمي"
+              label={t('users.fields.title')}
               data={TITLE_OPTIONS}
               required
               {...addForm.getInputProps('title')}
             />
             <TextInput
-              label="الاسم الكامل"
-              placeholder="مثال: خالد عبدالرحمن السالم"
-              description="يجب أن يتكون من أحرف عربية أو إنجليزية ومسافات فقط"
+              label={t('users.fields.name')}
+              placeholder={t('users.fields.name')}
               required
               {...addForm.getInputProps('name')}
             />
             <TextInput
-              label="البريد الإلكتروني"
-              placeholder="khaled@example.com"
+              label={t('users.fields.email')}
+              placeholder="teacher@example.com"
               required
               {...addForm.getInputProps('email')}
             />
             <TextInput
-              label="رقم الهاتف"
+              label={t('users.fields.phone')}
               placeholder="05xxxxxxxx"
               {...addForm.getInputProps('phone')}
             />
             <PasswordInput
-              label="كلمة المرور"
-              placeholder="اتركه فارغاً للتوليد التلقائي"
-              description="إذا تركته فارغاً، سيتم توليد كلمة مرور عشوائية وتزويدك بها"
+              label={t('users.fields.password')}
+              placeholder={t('users.fields.password')}
               {...addForm.getInputProps('password')}
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={closeAdd}>
-                إلغاء
+                {tCommon('actions.cancel')}
               </Button>
               <Button
                 type="submit"
                 color="brand"
                 loading={createMutation.isPending}
               >
-                إضافة الأستاذ
+                {tCommon('actions.create')}
               </Button>
             </Group>
           </Stack>
@@ -344,42 +345,41 @@ export default function Teachers() {
       <Modal
         opened={Boolean(editTeacher)}
         onClose={() => setEditTeacher(null)}
-        title={<Text weight={700}>تعديل بيانات الأستاذ</Text>}
+        title={<Text weight={700}>{t('users.tabs.teachers')}</Text>}
       >
         <form onSubmit={editForm.onSubmit(handleEditSubmit)}>
           <Stack spacing="md">
             <Select
-              label="اللقب الأكاديمي"
+              label={t('users.fields.title')}
               data={TITLE_OPTIONS}
               required
               {...editForm.getInputProps('title')}
             />
             <TextInput
-              label="الاسم الكامل"
+              label={t('users.fields.name')}
               required
               {...editForm.getInputProps('name')}
             />
             <TextInput
-              label="البريد الإلكتروني"
+              label={t('users.fields.email')}
               required
               disabled
               {...editForm.getInputProps('email')}
             />
             <TextInput
-              label="رقم الهاتف"
-              placeholder="05xxxxxxxx"
+              label={t('users.fields.phone')}
               {...editForm.getInputProps('phone')}
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={() => setEditTeacher(null)}>
-                إلغاء
+                {tCommon('actions.cancel')}
               </Button>
               <Button
                 type="submit"
                 color="brand"
                 loading={updateMutation.isPending}
               >
-                حفظ التعديلات
+                {tCommon('actions.save')}
               </Button>
             </Group>
           </Stack>
@@ -390,27 +390,27 @@ export default function Teachers() {
       <Modal
         opened={Boolean(createdCredentials)}
         onClose={() => setCreatedCredentials(null)}
-        title={<Text weight={700} color="teal">تمت إضافة الأستاذ بنجاح</Text>}
+        title={<Text weight={700} color="teal">{t('users.tempPasswordModal.title')}</Text>}
       >
         <Stack spacing="md">
           <Text size="sm">
-            تم إنشاء حساب عضو هيئة التدريس وتوليد بيانات الدخول المؤقتة التالية:
+            {t('users.tempPasswordModal.subtitle')}
           </Text>
           <Paper withBorder p="md" radius="md" bg="gray.0">
             <Stack spacing="xs">
               <Text size="sm">
-                <strong>الاسم:</strong> {createdCredentials?.name}
+                <strong>{t('users.fields.name')}:</strong> {createdCredentials?.name}
               </Text>
               <Text size="sm">
-                <strong>البريد الإلكتروني:</strong> {createdCredentials?.email}
+                <strong>{t('users.fields.email')}:</strong> {createdCredentials?.email}
               </Text>
               <Group position="apart" align="center">
                 <Text size="sm">
-                  <strong>كلمة المرور المؤقتة:</strong>{' '}
+                  <strong>{t('users.tempPasswordModal.copyPassword')}:</strong>{' '}
                   <Code color="teal">{createdCredentials?.tempPassword}</Code>
                 </Text>
                 <CopyButton
-                  value={`البريد الإلكتروني: ${createdCredentials?.email}\nكلمة المرور: ${createdCredentials?.tempPassword}`}
+                  value={`${t('users.fields.email')}: ${createdCredentials?.email}\n${t('users.fields.password')}: ${createdCredentials?.tempPassword}`}
                 >
                   {({ copied, copy }) => (
                     <Button
@@ -419,7 +419,7 @@ export default function Teachers() {
                       leftIcon={copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
                       onClick={copy}
                     >
-                      {copied ? 'تم النسخ!' : 'نسخ بيانات الدخول'}
+                      {copied ? t('users.tempPasswordModal.copied') : t('users.tempPasswordModal.copyPassword')}
                     </Button>
                   )}
                 </CopyButton>
@@ -427,7 +427,7 @@ export default function Teachers() {
             </Stack>
           </Paper>
           <Button fullWidth onClick={() => setCreatedCredentials(null)}>
-            تم
+            {tCommon('actions.confirm')}
           </Button>
         </Stack>
       </Modal>
@@ -437,9 +437,9 @@ export default function Teachers() {
         opened={Boolean(deleteId)}
         onClose={() => setDeleteId(null)}
         onConfirm={handleDeleteConfirm}
-        title="حذف الأستاذ"
-        message="هل أنت متأكد من حذف هذا الأستاذ من النظام؟"
-        confirmLabel="حذف الأستاذ"
+        title={t('users.deleteConfirmTitle')}
+        message={t('users.deleteConfirmMessage')}
+        confirmLabel={tCommon('actions.delete')}
         isLoading={deleteMutation.isPending}
       />
     </>

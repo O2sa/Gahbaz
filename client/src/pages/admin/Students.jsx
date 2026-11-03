@@ -18,6 +18,7 @@ import {
 import { useForm } from '@mantine/form'
 import { useDisclosure, useDebouncedValue } from '@mantine/hooks'
 import { IconPlus, IconPencil, IconTrash, IconSchool, IconCopy, IconCheck } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 import {
   DataTable,
   PageHeader,
@@ -34,17 +35,19 @@ import dayjs from 'dayjs'
 
 const NAME_REGEX = /^[\u0600-\u06FFa-zA-Z\s\-]{3,70}$/
 
-const validateName = (val) => {
-  if (!val?.trim()) return 'اسم الطالب مطلوب'
-  if (val.trim().length < 3) return 'يجب أن يتكون الاسم من 3 أحرف على الأقل'
-  if (val.trim().length > 70) return 'يجب ألا يتجاوز الاسم 70 حرفاً'
-  if (!NAME_REGEX.test(val.trim())) {
-    return 'يجب أن يحتوي الاسم على أحرف عربية أو إنجليزية ومسافات فقط بدون أرقام أو رموز'
-  }
-  return null
-}
-
 export default function Students() {
+  const { t } = useTranslation('admin')
+  const { t: tCommon } = useTranslation('common')
+
+  const validateName = (val) => {
+    if (!val?.trim()) return t('users.validation.nameRequired')
+    if (val.trim().length < 3 || val.trim().length > 70) return t('users.validation.nameLength')
+    if (!NAME_REGEX.test(val.trim())) {
+      return t('users.validation.nameLettersOnly')
+    }
+    return null
+  }
+
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
   const [search, setSearch] = useState('')
@@ -85,7 +88,7 @@ export default function Students() {
     },
     validate: {
       name: validateName,
-      email: (val) => (!val?.includes('@') ? 'البريد الإلكتروني غير صالح' : null),
+      email: (val) => (!val?.includes('@') ? t('users.validation.emailInvalid') : null),
     },
   })
 
@@ -165,9 +168,9 @@ export default function Students() {
   const columns = [
     {
       key: 'name',
-      title: 'الطالب',
+      title: t('users.tabs.students'),
       render: (row) => {
-        const studentName = row.name || row.userName || 'طالب'
+        const studentName = row.name || row.userName || t('common:roles.student')
         return (
           <Group spacing="sm">
             <Avatar color="brand" radius="xl" size="sm">
@@ -187,7 +190,7 @@ export default function Students() {
     },
     {
       key: 'studentId',
-      title: 'الرقم الأكاديمي',
+      title: t('users.fields.academicLevel'),
       align: 'center',
       render: (row) => (
         <Badge color="gray" variant="outline" size="sm">
@@ -197,10 +200,10 @@ export default function Students() {
     },
     {
       key: 'major',
-      title: 'التخصص',
+      title: t('users.fields.major'),
       align: 'center',
       render: (row) => {
-        const majorName = row.major?.name || 'غير محدد'
+        const majorName = row.major?.name || t('subjects.unspecified')
         return (
           <Badge color={row.major ? 'indigo' : 'gray'} variant="light" size="sm">
             {majorName}
@@ -210,7 +213,7 @@ export default function Students() {
     },
     {
       key: 'phone',
-      title: 'رقم الهاتف',
+      title: t('users.fields.phone'),
       align: 'center',
       render: (row) => (
         <Text size="xs" color="dimmed" dir="ltr">
@@ -220,7 +223,7 @@ export default function Students() {
     },
     {
       key: 'createdAt',
-      title: 'تاريخ التسجيل',
+      title: t('colleges.table.createdAt'),
       align: 'center',
       render: (row) => (
         <Text size="xs" color="dimmed">
@@ -230,7 +233,7 @@ export default function Students() {
     },
     {
       key: 'actions',
-      title: 'الإجراءات',
+      title: t('colleges.table.actions'),
       align: 'left',
       render: (row) => (
         <Group spacing={6} position="left">
@@ -239,7 +242,7 @@ export default function Students() {
             variant="light"
             size="sm"
             onClick={() => handleEditOpen(row)}
-            title="تعديل بيانات الطالب"
+            title={tCommon('actions.edit')}
           >
             <IconPencil size={15} />
           </ActionIcon>
@@ -248,7 +251,7 @@ export default function Students() {
             variant="light"
             size="sm"
             onClick={() => setDeleteId(row._id || row.id)}
-            title="حذف الطالب"
+            title={tCommon('actions.delete')}
           >
             <IconTrash size={15} />
           </ActionIcon>
@@ -260,11 +263,11 @@ export default function Students() {
   return (
     <>
       <PageHeader
-        title="دليل الطلاب"
-        description="إدارة الطلاب المسجلين والبيانات الأكاديمية والنتائج"
+        title={t('users.tabs.students')}
+        description={t('users.subtitle')}
         breadcrumbs={[
-          { title: 'الرئيسية', href: '/' },
-          { title: 'الطلاب' },
+          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          { title: t('users.tabs.students') },
         ]}
         action={
           <Button
@@ -272,7 +275,7 @@ export default function Students() {
             color="brand"
             onClick={openAdd}
           >
-            تسجيل طالب جديد
+            {t('users.addStudent')}
           </Button>
         }
       />
@@ -292,65 +295,63 @@ export default function Students() {
           setLimit(l)
           setPage(1)
         }}
-        emptyTitle="لا يوجد طلاب مسجلين"
-        emptyDescription="ابدأ بتسجيل طلاب جدد في النظام لإدراجهم في المقررات."
+        emptyTitle={t('common:table.noRecords')}
+        emptyDescription={t('users.subtitle')}
       />
 
       {/* Add Student Modal */}
       <Modal
         opened={addOpened}
         onClose={closeAdd}
-        title={<Text weight={700}>تسجيل طالب جديد</Text>}
+        title={<Text weight={700}>{t('users.addStudent')}</Text>}
       >
         <form onSubmit={addForm.onSubmit(handleAddSubmit)}>
           <Stack spacing="md">
             <TextInput
-              label="اسم الطالب الكامل"
-              placeholder="مثال: أحمد محمد علي"
-              description="يجب أن يتكون من أحرف عربية أو إنجليزية ومسافات فقط"
+              label={t('users.fields.name')}
+              placeholder={t('users.fields.name')}
               required
               {...addForm.getInputProps('name')}
             />
             <TextInput
-              label="البريد الإلكتروني"
-              placeholder="ahmed@example.com"
+              label={t('users.fields.email')}
+              placeholder="student@example.com"
               required
               {...addForm.getInputProps('email')}
             />
             <Select
-              label="التخصص الأكاديمي"
-              placeholder="اختر التخصص (اختياري)"
+              label={t('users.fields.major')}
+              placeholder={t('users.fields.major')}
               data={majorOptions}
               searchable
               clearable
               {...addForm.getInputProps('major')}
             />
             <TextInput
-              label="رقم الهاتف"
+              label={t('users.fields.phone')}
               placeholder="05xxxxxxxx"
               {...addForm.getInputProps('phone')}
             />
             <TextInput
-              label="الرقم الأكاديمي"
-              placeholder="مثال: 20261001"
+              label={t('users.fields.academicLevel')}
+              placeholder="20261001"
               {...addForm.getInputProps('studentId')}
             />
             <PasswordInput
-              label="كلمة المرور"
-              placeholder="اتركه فارغاً للتوليد التلقائي"
-              description="إذا تركته فارغاً، سيتم توليد كلمة مرور عشوائية وتزويدك بها"
+              label={t('users.fields.password')}
+              placeholder={t('users.fields.password')}
               {...addForm.getInputProps('password')}
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={closeAdd}>
-                إلغاء
+                {tCommon('actions.cancel')}
               </Button>
               <Button
                 type="submit"
                 color="brand"
                 loading={createMutation.isPending}
               >
-                تسجيل الطالب
+                {tCommon('actions.create')}
               </Button>
             </Group>
           </Stack>
@@ -361,48 +362,47 @@ export default function Students() {
       <Modal
         opened={Boolean(editStudent)}
         onClose={() => setEditStudent(null)}
-        title={<Text weight={700}>تعديل بيانات الطالب</Text>}
+        title={<Text weight={700}>{t('users.tabs.students')}</Text>}
       >
         <form onSubmit={editForm.onSubmit(handleEditSubmit)}>
           <Stack spacing="md">
             <TextInput
-              label="اسم الطالب"
+              label={t('users.fields.name')}
               required
               {...editForm.getInputProps('name')}
             />
             <TextInput
-              label="البريد الإلكتروني"
+              label={t('users.fields.email')}
               required
               disabled
               {...editForm.getInputProps('email')}
             />
             <Select
-              label="التخصص الأكاديمي"
-              placeholder="اختر التخصص (اختياري)"
+              label={t('users.fields.major')}
+              placeholder={t('users.fields.major')}
               data={majorOptions}
               searchable
               clearable
               {...editForm.getInputProps('major')}
             />
             <TextInput
-              label="رقم الهاتف"
-              placeholder="05xxxxxxxx"
+              label={t('users.fields.phone')}
               {...editForm.getInputProps('phone')}
             />
             <TextInput
-              label="الرقم الأكاديمي"
+              label={t('users.fields.academicLevel')}
               {...editForm.getInputProps('studentId')}
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={() => setEditStudent(null)}>
-                إلغاء
+                {tCommon('actions.cancel')}
               </Button>
               <Button
                 type="submit"
                 color="brand"
                 loading={updateMutation.isPending}
               >
-                حفظ التعديلات
+                {tCommon('actions.save')}
               </Button>
             </Group>
           </Stack>
@@ -413,27 +413,27 @@ export default function Students() {
       <Modal
         opened={Boolean(createdCredentials)}
         onClose={() => setCreatedCredentials(null)}
-        title={<Text weight={700} color="teal">تم تسجيل الطالب بنجاح</Text>}
+        title={<Text weight={700} color="teal">{t('users.tempPasswordModal.title')}</Text>}
       >
         <Stack spacing="md">
           <Text size="sm">
-            تم إنشاء حساب الطالب وتوليد بيانات الدخول المؤقتة التالية. يرجى تزويد الطالب بها لتسجيل الدخول:
+            {t('users.tempPasswordModal.subtitle')}
           </Text>
           <Paper withBorder p="md" radius="md" bg="gray.0">
             <Stack spacing="xs">
               <Text size="sm">
-                <strong>الاسم:</strong> {createdCredentials?.name}
+                <strong>{t('users.fields.name')}:</strong> {createdCredentials?.name}
               </Text>
               <Text size="sm">
-                <strong>البريد الإلكتروني:</strong> {createdCredentials?.email}
+                <strong>{t('users.fields.email')}:</strong> {createdCredentials?.email}
               </Text>
               <Group position="apart" align="center">
                 <Text size="sm">
-                  <strong>كلمة المرور المؤقتة:</strong>{' '}
+                  <strong>{t('users.tempPasswordModal.copyPassword')}:</strong>{' '}
                   <Code color="teal">{createdCredentials?.tempPassword}</Code>
                 </Text>
                 <CopyButton
-                  value={`البريد الإلكتروني: ${createdCredentials?.email}\nكلمة المرور: ${createdCredentials?.tempPassword}`}
+                  value={`${t('users.fields.email')}: ${createdCredentials?.email}\n${t('users.fields.password')}: ${createdCredentials?.tempPassword}`}
                 >
                   {({ copied, copy }) => (
                     <Button
@@ -442,7 +442,7 @@ export default function Students() {
                       leftIcon={copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
                       onClick={copy}
                     >
-                      {copied ? 'تم النسخ!' : 'نسخ بيانات الدخول'}
+                      {copied ? t('users.tempPasswordModal.copied') : t('users.tempPasswordModal.copyPassword')}
                     </Button>
                   )}
                 </CopyButton>
@@ -450,7 +450,7 @@ export default function Students() {
             </Stack>
           </Paper>
           <Button fullWidth onClick={() => setCreatedCredentials(null)}>
-            تم
+            {tCommon('actions.confirm')}
           </Button>
         </Stack>
       </Modal>
@@ -460,9 +460,9 @@ export default function Students() {
         opened={Boolean(deleteId)}
         onClose={() => setDeleteId(null)}
         onConfirm={handleDeleteConfirm}
-        title="حذف الطالب"
-        message="هل أنت متأكد من حذف هذا الطالب من النظام؟"
-        confirmLabel="حذف الطالب"
+        title={t('users.deleteConfirmTitle')}
+        message={t('users.deleteConfirmMessage')}
+        confirmLabel={tCommon('actions.delete')}
         isLoading={deleteMutation.isPending}
       />
     </>

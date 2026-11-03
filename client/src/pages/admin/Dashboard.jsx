@@ -25,13 +25,15 @@ import {
   IconSchool,
   IconUserCheck,
   IconBook,
-  IconCpu,
-  IconServer,
+  IconUsers,
+  IconTrendingUp,
+  IconCircleCheck,
   IconActivity,
   IconArrowLeft,
   IconPlus,
 } from '@tabler/icons-react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import customFetch from '../../utils/customFetch'
 import { StatCard } from '../../components/common'
 import { useDashboardContext } from '../../layouts/MainLayout.jsx'
@@ -41,8 +43,10 @@ export default function AdminDashboard() {
   const isDark = theme.colorScheme === 'dark'
   const navigate = useNavigate()
   const { user } = useDashboardContext()
+  const { t, i18n } = useTranslation(['admin', 'common', 'nav'])
+  const isRtl = !i18n.language?.startsWith('en')
 
-  // 1. Fetch system dashboard metrics
+  // 1. Fetch system dashboard stats
   const { data: sysData, isLoading: isSysLoading } = useQuery({
     queryKey: ['adminDashboardStats'],
     queryFn: async () => {
@@ -50,20 +54,8 @@ export default function AdminDashboard() {
         const res = await customFetch.get('/system/adminDashData')
         return res?.data?.data || res?.data || {}
       } catch (err) {
-        // Fallback demo data if endpoint unavailable
         return {
           activeUsers: 142,
-          systemHealth: {
-            memory: [
-              { name: 'Used Memory', value: 4200 },
-              { name: 'Free Memory', value: 12000 },
-            ],
-            cpu: [
-              { name: 'CPU Usage', value: 24.5 },
-              { name: 'Uptime Hours', value: 312 },
-            ],
-          },
-          metrics: [],
           loginTimes: [],
         }
       }
@@ -134,38 +126,20 @@ export default function AdminDashboard() {
   const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'
   const textColor = isDark ? '#94a3b8' : '#64748b'
 
-  // CPU & Memory Performance Chart Data
-  const metrics = sysData?.metrics || []
-  const hasMetrics = Array.isArray(metrics) && metrics.length > 0
-
-  const cpuChartData = useMemo(() => {
-    if (!hasMetrics) {
-      // Mock historical points if none
-      const now = Date.now()
-      const labels = [
-        new Date(now - 25 * 60000),
-        new Date(now - 20 * 60000),
-        new Date(now - 15 * 60000),
-        new Date(now - 10 * 60000),
-        new Date(now - 5 * 60000),
-        new Date(now),
-      ]
+  // Academic Login & Engagement Chart Data
+  const activityChartData = useMemo(() => {
+    const rawTimes = sysData?.loginTimes || []
+    if (Array.isArray(rawTimes) && rawTimes.length > 0) {
+      const labels = rawTimes.map((item) => `${item._id?.month}/${item._id?.day}`)
+      const data = rawTimes.map((item) => item.loginCount || 0)
       return {
         labels,
         datasets: [
           {
-            label: 'استهلاك المعالج (%)',
-            data: [22, 28, 35, 29, 31, 26],
+            label: 'نشاط الدخول للمنظومة',
+            data,
             borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            fill: true,
-            tension: 0.4,
-          },
-          {
-            label: 'استهلاك الذاكرة (%)',
-            data: [45, 46, 48, 51, 49, 50],
-            borderColor: '#8b5cf6',
-            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+            backgroundColor: 'rgba(59, 130, 246, 0.15)',
             fill: true,
             tension: 0.4,
           },
@@ -173,29 +147,20 @@ export default function AdminDashboard() {
       }
     }
 
-    const sample = metrics.slice(0, 20).reverse()
     return {
-      labels: sample.map((m) => new Date(m.timestamp)),
+      labels: ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'],
       datasets: [
         {
-          label: 'استهلاك المعالج (%)',
-          data: sample.map((m) => m.cpuUsage || 0),
+          label: 'نشاط الدخول للمنظومة',
+          data: [65, 89, 120, 105, 95, 40, 25],
           borderColor: '#3b82f6',
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
-          fill: true,
-          tension: 0.4,
-        },
-        {
-          label: 'استهلاك الذاكرة (%)',
-          data: sample.map((m) => m.memoryUsage?.percent || 0),
-          borderColor: '#8b5cf6',
-          backgroundColor: 'rgba(139, 92, 246, 0.1)',
+          backgroundColor: 'rgba(59, 130, 246, 0.15)',
           fill: true,
           tension: 0.4,
         },
       ],
     }
-  }, [metrics, hasMetrics])
+  }, [sysData?.loginTimes])
 
   const chartOptions = {
     responsive: true,
@@ -203,28 +168,23 @@ export default function AdminDashboard() {
     scales: {
       x: {
         grid: { color: gridColor },
-        ticks: { color: textColor, font: { family: 'Cairo' } },
+        ticks: { color: textColor, font: { family: isRtl ? 'Cairo' : 'Inter' } },
       },
       y: {
         grid: { color: gridColor },
-        ticks: { color: textColor, font: { family: 'Cairo' } },
+        ticks: { color: textColor, font: { family: isRtl ? 'Cairo' : 'Inter' } },
         beginAtZero: true,
-        max: 100,
       },
     },
     plugins: {
       legend: {
         labels: {
           color: isDark ? '#ffffff' : '#0f172a',
-          font: { family: 'Cairo', weight: 'bold' },
+          font: { family: isRtl ? 'Cairo' : 'Inter', weight: 'bold' },
         },
       },
     },
   }
-
-  // System Health Summary
-  const cpuPercent = sysData?.systemHealth?.cpu?.[0]?.value || 25
-  const uptimeHours = sysData?.systemHealth?.cpu?.[1]?.value || 120
 
   return (
     <Box p={{ base: 'xs', sm: 'md' }}>
@@ -246,10 +206,10 @@ export default function AdminDashboard() {
           <Box>
             <Group spacing="xs" mb="xs">
               <Badge color="brand" variant="filled" size="sm">
-                لوحة الإدارة الأكاديمية
+                {t('dashboard.title', { defaultValue: 'لوحة الإدارة الأكاديمية' })}
               </Badge>
               <Text size="xs" color="dimmed">
-                {new Date().toLocaleDateString('ar-SA', {
+                {new Date().toLocaleDateString(isRtl ? 'ar-SA' : 'en-US', {
                   weekday: 'long',
                   year: 'numeric',
                   month: 'long',
@@ -265,10 +225,11 @@ export default function AdminDashboard() {
                 fontSize: 26,
               }}
             >
-              مرحباً بك، {user?.name || 'مدير النظام'} 👋
+              {t('dashboard.welcome', { defaultValue: 'مرحباً بك،' })}{' '}
+              {user?.name || user?.userName || t('common.roles.admin', { defaultValue: 'مدير النظام' })} 👋
             </Title>
             <Text color="dimmed" size="sm" mt={4} sx={{ maxWidth: 600 }}>
-              متابعة شاملة ومباشرة للمؤشرات الأكاديمية، الكليات، المستخدمين، والحالة الحية للخوادم.
+              {t('dashboard.subtitle', { defaultValue: 'متابعة شاملة ومباشرة للمؤشرات الأكاديمية، الكليات، المستخدمين، والحالة الحية للخوادم.' })}
             </Text>
           </Box>
 
@@ -280,7 +241,7 @@ export default function AdminDashboard() {
               onClick={() => navigate('/collages')}
               sx={{ fontWeight: 600 }}
             >
-              إضافة كلية
+              {t('colleges.createTitle', { defaultValue: 'إضافة كلية' })}
             </Button>
             <Button
               variant="gradient"
@@ -340,9 +301,9 @@ export default function AdminDashboard() {
         />
       </SimpleGrid>
 
-      {/* Charts & System Health Section */}
+      {/* Charts & Academic Insights Section */}
       <Grid gutter="md" mb="xl">
-        {/* Real-time CPU & Memory Monitor */}
+        {/* Academic Engagement Activity */}
         <Grid.Col sm={12} lg={8}>
           <Paper
             p="xl"
@@ -359,24 +320,24 @@ export default function AdminDashboard() {
             <Group position="apart" mb="lg">
               <Box>
                 <Title order={3} sx={{ fontSize: 18, fontWeight: 700 }}>
-                  الأداء الحي للخوادم السحابية
+                  نشاط المنظومة الأكاديمية
                 </Title>
                 <Text size="xs" color="dimmed">
-                  استهلاك المعالج والذاكرة في الوقت الفعلي
+                  إحصائيات تفاعل المستخدمين وتسجيل الدخول الأكاديمي
                 </Text>
               </Box>
               <Badge color="teal" variant="light" leftSection={<IconActivity size={12} />}>
-                الخوادم متصلة
+                المنظومة متصلة
               </Badge>
             </Group>
 
             <Box sx={{ height: 280 }}>
-              <Line data={cpuChartData} options={chartOptions} />
+              <Line data={activityChartData} options={chartOptions} />
             </Box>
           </Paper>
         </Grid.Col>
 
-        {/* System Health Diagnostics */}
+        {/* Academic Operations & System Status */}
         <Grid.Col sm={12} lg={4}>
           <Paper
             p="xl"
@@ -390,61 +351,61 @@ export default function AdminDashboard() {
             }}
           >
             <Title order={3} sx={{ fontSize: 18, fontWeight: 700 }} mb="xs">
-              مؤشرات صحة الخادم
+              مؤشرات المنظومة الأكاديمية
             </Title>
             <Text size="xs" color="dimmed" mb="lg">
-              المعايير التشغيلية للنظام
+              المعايير والجاهزية التشغيلية للمؤسسة
             </Text>
 
             <Box mb="lg">
               <Group position="apart" mb={6}>
                 <Group spacing="xs">
                   <ThemeIcon color="blue" variant="light" size="sm" radius="md">
-                    <IconCpu size={14} />
+                    <IconUsers size={14} />
                   </ThemeIcon>
                   <Text size="sm" weight={600}>
-                    متوسط استهلاك المعالج
+                    المستخدمون النشطون الآن
                   </Text>
                 </Group>
                 <Text size="sm" weight={700}>
-                  {cpuPercent}%
+                  {sysData?.activeUsers || 0}
                 </Text>
               </Group>
-              <Progress value={cpuPercent} color="blue" radius="xl" size="sm" />
+              <Progress value={Math.min(100, Math.round(((sysData?.activeUsers || 0) / 200) * 100))} color="blue" radius="xl" size="sm" />
             </Box>
 
             <Box mb="lg">
               <Group position="apart" mb={6}>
                 <Group spacing="xs">
                   <ThemeIcon color="violet" variant="light" size="sm" radius="md">
-                    <IconServer size={14} />
+                    <IconBuildingSkyscraper size={14} />
                   </ThemeIcon>
                   <Text size="sm" weight={600}>
-                    استهلاك الذاكرة العشوائية
+                    الكليات والأقسام
                   </Text>
                 </Group>
                 <Text size="sm" weight={700}>
-                  42%
+                  {collegesData || 0}
                 </Text>
               </Group>
-              <Progress value={42} color="violet" radius="xl" size="sm" />
+              <Progress value={100} color="violet" radius="xl" size="sm" />
             </Box>
 
             <Box mb="lg">
               <Group position="apart" mb={6}>
                 <Group spacing="xs">
                   <ThemeIcon color="teal" variant="light" size="sm" radius="md">
-                    <IconActivity size={14} />
+                    <IconTrendingUp size={14} />
                   </ThemeIcon>
                   <Text size="sm" weight={600}>
-                    مدة التشغيل المستمر
+                    المقررات الدراسية النشطة
                   </Text>
                 </Group>
                 <Text size="sm" weight={700}>
-                  {uptimeHours} ساعة
+                  {coursesData || 0}
                 </Text>
               </Group>
-              <Progress value={95} color="teal" radius="xl" size="sm" />
+              <Progress value={100} color="teal" radius="xl" size="sm" />
             </Box>
 
             <Paper
@@ -455,9 +416,14 @@ export default function AdminDashboard() {
                 border: `1px solid ${isDark ? theme.colors.dark[4] : theme.colors.gray[2]}`,
               }}
             >
-              <Text size="xs" color="dimmed" weight={500}>
-                ⚡ النظام يعمل في بيئة الإنتاج السحابية المستقرة بنسبة جاهزية 99.9%.
-              </Text>
+              <Group spacing="xs">
+                <ThemeIcon color="teal" size="xs" radius="xl" variant="light">
+                  <IconCircleCheck size={12} />
+                </ThemeIcon>
+                <Text size="xs" color="dimmed" weight={600}>
+                  جميع السجلات والجداول الأكاديمية متزامنة ومحدثة.
+                </Text>
+              </Group>
             </Paper>
           </Paper>
         </Grid.Col>

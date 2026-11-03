@@ -1,0 +1,320 @@
+{
+  "dashboard": {
+    "title": "لوحة القيادة والمؤشرات الأكاديمية",
+    "subtitle": "نظرة شمولية حية على الأداء المؤسسي، إحصاءات الطلاب وأعضاء هيئة التدريس",
+    "stats": {
+      "totalStudents": "إجمالي الطلاب",
+      "totalTeachers": "أعضاء هيئة التدريس",
+      "totalCourses": "الشعب والمقررات",
+      "totalColleges": "الكليات والأقسام",
+      "activeSemester": "الفصل الدراسي الحالي",
+      "enrollmentRate": "نسبة إقبال التسجيل"
+    },
+    "recentActivity": "سجل العمليات والأنشطة الأحدث",
+    "quickActions": "روابط الإجراءات السريعة"
+  },
+  "colleges": {
+    "title": "الكليات والأقسام الأكاديمية",
+    "subtitle": "إدارة الكليات والأقسام وتحديد الفصول الدراسية",
+    "breadcrumb": "الكليات",
+    "createTitle": "إضافة كلية جديدة",
+    "editTitle": "تعديل بيانات الكلية",
+    "name": "اسم الكلية",
+    "namePlaceholder": "مثال: كلية الهندسة وتكنولوجيا المعلومات",
+    "numberOfSemesters": "عدد الفصول الدراسية",
+    "semestersBadge": "{{count}} فصول",
+    "viewMajors": "استعراض التخصصات والمواد",
+    "editTooltip": "تعديل الكلية",
+    "deleteTooltip": "حذف الكلية",
+    "emptyTitle": "لا توجد كليات مسجلة",
+    "emptyDescription": "ابدأ بإضافة كلية جديدة لإدارة التخصصات والمقررات.",
+    "deleteConfirmTitle": "حذف الكلية",
+    "deleteConfirmMessage": "هل أنت متأكد من حذف هذه الكلية؟ قد يؤثر ذلك على التخصصات المرتبطة بها.",
+    "validation": {
+      "nameRequired": "اسم الكلية مطلوب",
+      "semestersMin": "يجب أن يكون عدد الفصول 1 على الأقل"
+    },
+    "table": {
+      "collegeName": "اسم الكلية",
+      "majorsCount": "عدد التخصصات",
+      "semesters": "عدد الفصول",
+      "createdAt": "تاريخ الإنشاء",
+      "actions": "الإجراءات"
+    }
+  },
+  "majors": {
+    "title": "التخصصات والبرامج الأكاديمية",
+    "subtitle": "إدارة التخصصات، ربطها بالكليات، وإعداد الخطط الدراسية وقوالب الفصول",
+    "breadcrumb": "التخصصات",
+    "createTitle": "إضافة تخصص جديد",
+    "editTitle": "تعديل التخصص الأكاديمي",
+    "name": "اسم التخصص",
+    "namePlaceholder": "مثال: هندسة البرمجيات",
+    "college": "الكلية التابع لها التخصص",
+    "selectCollege": "اختر الكلية",
+    "department": "القسم الأكاديمي (اختياري)",
+    "departmentPlaceholder": "مثال: قسم علوم الحاسوب",
+    "defaultCollege": "الكلية الرئيسية",
+    "curriculumBadge": "{{count}} فصول / مستويات",
+    "curriculumButton": "الخطة الدراسية والقوالب",
+    "editTooltip": "تعديل التخصص",
+    "deleteTooltip": "حذف التخصص",
+    "emptyTitle": "لا توجد تخصصات مسجلة",
+    "emptyDescription": "ابدأ بإضافة تخصصات لتوزيع الطلاب والخطط الدراسية عليها.",
+    "deleteConfirmTitle": "حذف التخصص",
+    "deleteConfirmMessage": "هل أنت متأكد من حذف هذا التخصص الأكاديمي؟ سيؤدي ذلك لحذف قوالب الفصول المرتبطة به.",
+    "validation": {
+      "nameRequired": "اسم التخصص مطلوب",
+      "collegeRequired": "يرجى اختيار الكلية"
+    },
+    "table": {
+      "majorName": "اسم التخصص",
+      "collegeName": "الكلية التابع لها",
+      "studyPlan": "الخطة الدراسية",
+      "createdAt": "تاريخ الإنشاء",
+      "actions": "الإجراءات"
+    }
+  },
+  "subjects": {
+    "title": "دليل المواد الأكاديمية (Catalog Subjects)",
+    "subtitle": "إدارة المواد الدراسية التأسيسية، الرموز الأكاديمية، والساعات المعتمدة",
+    "breadcrumb": "دليل المواد الأكاديمية",
+    "createTitle": "إضافة مادة جديدة",
+    "editTitle": "تعديل بيانات المادة",
+    "name": "المادة الدراسية",
+    "namePlaceholder": "مثال: هياكل البيانات والخوارزميات",
+    "code": "رمز المادة",
+    "codePlaceholder": "مثال: CS201",
+    "creditHours": "الساعات المعتمدة",
+    "creditHoursBadge": "{{count}} ساعات",
+    "college": "الكلية التابعة",
+    "general": "عام",
+    "teachers": "هيئة التدريس",
+    "unspecified": "غير محدد",
+    "teacherBadge": "أستاذ",
+    "emptyTitle": "لا توجد مواد مسجلة",
+    "emptyDescription": "ابدأ بإضافة مواد دراسية لتضمينها في قوالب الفصول.",
+    "deleteConfirmTitle": "حذف المادة",
+    "deleteConfirmMessage": "هل أنت متأكد من حذف هذه المادة الأكاديمية؟",
+    "validation": {
+      "nameRequired": "اسم المادة مطلوب",
+      "creditsRange": "عدد الساعات بين 1 و 10"
+    },
+    "table": {
+      "subject": "المادة الدراسية",
+      "code": "رمز المادة: {{code}}",
+      "college": "الكلية التابعة",
+      "faculty": "هيئة التدريس",
+      "credits": "الساعات المعتمدة",
+      "createdAt": "تاريخ الإنشاء",
+      "actions": "الإجراءات"
+    }
+  },
+  "semestersTemplate": {
+    "title": "قوالب الفصول الدراسية",
+    "subtitle": "إعداد وتكوين الخطط القياسية لتوزيع المواد بحسب المستويات",
+    "breadcrumb": "قوالب الفصول",
+    "createTitle": "إنشاء قالب فصلي جديد",
+    "editTitle": "تعديل قالب الفصل",
+    "templateName": "اسم القالب / المستوى",
+    "templateNamePlaceholder": "مثال: المستوى الأول",
+    "levelIndex": "رقم المستوى الدراسي",
+    "selectSubjects": "المواد المقررة في هذا المستوى",
+    "selectSubjectsPlaceholder": "اختر المقررات من دليل المواد",
+    "emptyTitle": "لا توجد قوالب فصول مسجلة لهذا التخصص",
+    "emptyDescription": "ابدأ بإضافة قوالب لتوزيع المواد على المستويات الدراسية.",
+    "deleteConfirmTitle": "حذف قالب الفصل",
+    "deleteConfirmMessage": "هل أنت متأكد من حذف هذا القالب الدراسي؟",
+    "hoursCount": "{{count}} ساعة معتمدة",
+    "subjectsCount": "{{count}} مواد",
+    "table": {
+      "level": "المستوى",
+      "template": "اسم القالب",
+      "subjects": "المواد المقررة",
+      "totalCredits": "إجمالي الساعات",
+      "createdAt": "تاريخ الإنشاء",
+      "actions": "الإجراءات"
+    }
+  },
+  "semesters": {
+    "title": "الفصول الدراسية وتدشين التسجيل",
+    "subtitle": "إطلاق الفصول الجديدة بنظام المعاملات الذرية وضبط فترات الحذف والإضافة",
+    "launchWizard": "معالج إطلاق فصل دراسي جديد",
+    "termName": "مسمى الفصل الدراسي",
+    "termNamePlaceholder": "مثال: فصل الخريف 2026/2027",
+    "academicYear": "العام الجامعي",
+    "startDate": "تاريخ البداية",
+    "endDate": "تاريخ النهاية",
+    "addDropDeadline": "آخر موعد للحذف والإضافة",
+    "selectMajor": "التخصص الأكاديمي",
+    "selectMajorPlaceholder": "اختر التخصص الأكاديمي لإطلاق فصوله",
+    "allSemestersSwitch": "إطلاق كافة المستويات الدراسية لهذا التخصص دفعة واحدة",
+    "selectSemesters": "تحديد مستويات معينة",
+    "seasonFall": "فصل الخريف",
+    "seasonSpring": "فصل الربيع",
+    "seasonSummer": "الفصل الصيفي",
+    "activeBadge": "فصل دراسي جاري",
+    "closedBadge": "فصل دراسي منتهي",
+    "launchSuccessTitle": "تم إطلاق الفصل الدراسي بنجاح تام!",
+    "launchSuccessMessage": "تم توليد الشعب الأكاديمية وتسجيل الطلاب المؤهلين آلياً.",
+    "coursesGenerated": "شعبة تم توليدها",
+    "studentsEnrolled": "طالب تم تسجيلهم",
+    "table": {
+      "term": "الفصل الدراسي",
+      "period": "فترة الفصل",
+      "status": "الحالة",
+      "coursesCount": "عدد الشعب",
+      "actions": "الإجراءات"
+    },
+    "wizard": {
+      "step1Title": "بيانات الفصل",
+      "step1Desc": "المسمى والمواعيد",
+      "step2Title": "التخصص والمستويات",
+      "step2Desc": "تحديد القوالب",
+      "step3Title": "المعاينة والإطلاق",
+      "step3Desc": "المعاملة الذرية"
+    }
+  },
+  "courses": {
+    "title": "إدارة المقررات والشعب الدراسية",
+    "subtitle": "توزيع الشعب، القاعات، أوقات المحاضرات وأساتذة المواد",
+    "addSection": "إضافة شعبة جديدة",
+    "sectionNumber": "رقم الشعبة",
+    "capacity": "الطاقة الاستيعابية",
+    "teacher": "أستاذ المادة",
+    "room": "القاعة الدراسية",
+    "schedule": "مواعيد المحاضرات",
+    "enrolledStudents": "الطلاب المسجلون",
+    "lectureNotes": "المحاضرات والمصادر",
+    "assignments": "التكاليف والواجبات",
+    "grades": "رصد الدرجات",
+    "liveChat": "المحادثة الفورية للمقرر",
+    "editCourse": "تعديل المقرر",
+    "sectionsCount": "{{count}} أقسام",
+    "lessonsCount": "{{count}} دروس",
+    "aboutCourse": "عن المقرر",
+    "whatYouWillLearn": "ما الذي ستتعلمه في هذا المقرر؟",
+    "requirements": "متطلبات المقرر"
+  },
+  "assignmentsData": {
+    "title": "التكليفات والواجبات الدراسية",
+    "subtitle": "إدارة واستعراض التكليفات وتسليمات الطلاب",
+    "addNew": "إضافة تكليف جديد",
+    "totalPublished": "إجمالي التكليفات المنشورة",
+    "activeNow": "التكليفات النشطة حالياً",
+    "enrolledStudents": "الطلاب المسجلون بالشعبة",
+    "progressTitle": "إنجاز الواجبات والتكليفات",
+    "progressSub": "تم تسليم {{count}} من أصل {{total}} تكليف",
+    "progressCompleted": "{{percent}}% منجز",
+    "searchPlaceholder": "البحث في عنوان التكليف أو الشرح...",
+    "tabs": {
+      "active": "الحالية والنشطة",
+      "submitted": "المسلّمة",
+      "past": "المنتهية"
+    },
+    "points": "{{count}} نقطة",
+    "due": "الاستحقاق: {{date}}",
+    "pastDue": "انتهى الموعد (تسليم متأخر)",
+    "dueToday": "ينتهي اليوم ({{hours}} ساعة متبقية)",
+    "daysRemaining": "متبقي {{days}} أيام",
+    "downloadBrief": "تنزيل ملف التعليمات أو نموذج الواجب",
+    "graded": "تم تقييم التكليف",
+    "submittedSuccess": "تم تسليم الحل بنجاح",
+    "instructorFeedback": "ملاحظات الأستاذ: {{feedback}}",
+    "reviewSubmissions": "استعراض التسليمات والتصحيح",
+    "editAssignment": "تعديل التكليف",
+    "deleteAssignment": "حذف التكليف",
+    "submitNow": "تسليم الواجب الآن",
+    "resubmit": "استعراض أو إعادة التسليم",
+    "deleteConfirmTitle": "تأكيد حذف التكليف الدراسي",
+    "deleteConfirmMessage": "هل أنت متأكد من رغبتك في حذف هذا التكليف؟ سيتم حذف جميع تسليمات الطلاب المرتبطة به نهائياً.",
+    "emptySearch": "لا توجد تكليفات مطابقة لبحثك",
+    "emptyNone": "لا توجد تكليفات دراسية منشورة حالياً",
+    "emptySubmitted": "لم تقم بتسليم أي تكليفات بعد"
+  },
+  "users": {
+    "title": "دليل المستخدمين والصلاحيات",
+    "subtitle": "إدارة بيانات الطلاب، الأساتذة، ومسؤولي النظام وضبط الحسابات",
+    "helmet": "المستخدمون",
+    "addAdmin": "إضافة مسؤول جديد",
+    "addTeacher": "إضافة عضو هيئة تدريس",
+    "addStudent": "إضافة طالب جديد",
+    "tabs": {
+      "admins": "المدراء",
+      "teachers": "المعلمون",
+      "students": "الطلاب"
+    },
+    "permissions": {
+      "rw": "قراءة وتعديل (افتراضي)",
+      "r": "قراءة فقط",
+      "rwd": "تحكم كامل (قراءة، تعديل، حذف)",
+      "rd": "قراءة وحذف"
+    },
+    "fields": {
+      "name": "الاسم الكامل",
+      "email": "البريد الإلكتروني",
+      "phone": "رقم الجوال",
+      "permissions": "الصلاحيات",
+      "password": "كلمة المرور المؤقتة (اختياري)",
+      "role": "الدور والصلاحية",
+      "major": "التخصص الأكاديمي",
+      "college": "الكلية",
+      "academicLevel": "المستوى الأكاديمي",
+      "title": "الرتبة العلمية"
+    },
+    "tempPasswordModal": {
+      "title": "تم إنشاء الحساب بنجاح",
+      "subtitle": "تم توليد بيانات الدخول وكلمة المرور المؤقتة للمستخدم:",
+      "copyPassword": "نسخ كلمة المرور",
+      "copied": "تم النسخ"
+    },
+    "deleteConfirmTitle": "تأكيد حذف المستخدم",
+    "deleteConfirmMessage": "هل أنت متأكد من رغبتك في حذف هذا الحساب نهائياً؟",
+    "validation": {
+      "nameRequired": "الاسم مطلوب",
+      "nameLength": "يجب أن يتكون الاسم من 3 أحرف على الأقل وألا يتجاوز 70 حرفاً",
+      "nameLettersOnly": "يجب أن يحتوي الاسم على أحرف عربية أو إنجليزية ومسافات فقط",
+      "emailInvalid": "البريد الإلكتروني غير صالح"
+    }
+  },
+  "grades": {
+    "title": "رصد ومتابعة درجات الطلاب",
+    "subtitle": "استعراض السجلات الأكاديمية واعتماد نتائج الاختبارات والتقييمات",
+    "stats": {
+      "enrolledStudents": "الطلاب المقيدون",
+      "averageScore": "متوسط درجات الشعبة",
+      "highestScore": "أعلى درجة مسجلة",
+      "passRate": "نسبة النجاح العامة"
+    },
+    "filters": {
+      "all": "جميع الطلاب",
+      "passed": "الناجحون فقط",
+      "failed": "الراسبون",
+      "searchPlaceholder": "البحث بالاسم أو الرقم الجامعي..."
+    },
+    "table": {
+      "student": "الطالب",
+      "midterm": "النصفي (30)",
+      "assignments": "الواجبات (20)",
+      "final": "النهائي (50)",
+      "total": "المجموع (100)",
+      "grade": "التقدير",
+      "status": "الحالة الأكاديمية",
+      "actions": "الإجراءات"
+    },
+    "editGradeTitle": "رصد وتعديل درجات الطالب",
+    "saveGrades": "اعتماد وحفظ الدرجات",
+    "saveSuccess": "تم تحديث درجات الطالب بنجاح",
+    "letters": {
+      "aPlus": "ممتاز مرتفع",
+      "a": "ممتاز",
+      "bPlus": "جيد جداً مرتفع",
+      "b": "جيد جداً",
+      "cPlus": "جيد مرتفع",
+      "c": "جيد",
+      "dPlus": "مقبول مرتفع",
+      "d": "مقبول",
+      "f": "راسب"
+    }
+  }
+}

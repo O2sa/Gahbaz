@@ -26,6 +26,7 @@ import {
 } from '@tabler/icons-react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import {
   DataTable,
   PageHeader,
@@ -35,6 +36,8 @@ import customFetch from '../../utils/customFetch.js'
 import { notifications } from '@mantine/notifications'
 
 export default function SemestersTemplate() {
+  const { t } = useTranslation('admin')
+  const { t: tCommon } = useTranslation('common')
   const params = useParams()
   const majorId = params.majorId || params.id
   const navigate = useNavigate()
@@ -91,7 +94,7 @@ export default function SemestersTemplate() {
   const subjectsList = Array.isArray(subjectsRes) ? subjectsRes : []
   const subjectOptions = subjectsList.map((s) => ({
     value: s._id || s.id,
-    label: `${s.code ? `${s.code} - ` : ''}${s.name} (${s.creditHours || s.credits || 3} س)`,
+    label: `${s.code ? `${s.code} - ` : ''}${s.name} (${s.creditHours || s.credits || 3} ${tCommon('table.creditsShort') || 'س'})`,
   }))
 
   // Mutations
@@ -106,8 +109,8 @@ export default function SemestersTemplate() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['semester-templates', majorId] })
       notifications.show({
-        title: 'تم بنجاح',
-        message: 'تم إضافة الفصل الدراسي إلى الخطة بنجاح',
+        title: tCommon('notifications.success'),
+        message: t('semestersTemplate.createTitle'),
         color: 'teal',
       })
       addForm.reset()
@@ -123,8 +126,8 @@ export default function SemestersTemplate() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['semester-templates', majorId] })
       notifications.show({
-        title: 'تم بنجاح',
-        message: 'تم تحديث قالب الفصل الدراسي بنجاح',
+        title: tCommon('notifications.success'),
+        message: t('semestersTemplate.editTitle'),
         color: 'teal',
       })
       setEditTemplate(null)
@@ -139,8 +142,8 @@ export default function SemestersTemplate() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['semester-templates', majorId] })
       notifications.show({
-        title: 'تم بنجاح',
-        message: 'تم حذف قالب الفصل بنجاح',
+        title: tCommon('notifications.success'),
+        message: t('semestersTemplate.deleteConfirmTitle'),
         color: 'teal',
       })
       setDeleteId(null)
@@ -155,7 +158,7 @@ export default function SemestersTemplate() {
       subjects: [],
     },
     validate: {
-      name: (val) => (!val?.trim() ? 'عنوان الفصل أو المستوى مطلوب' : null),
+      name: (val) => (!val?.trim() ? t('semestersTemplate.templateName') : null),
     },
   })
 
@@ -167,7 +170,11 @@ export default function SemestersTemplate() {
       subjects: [],
     },
     validate: {
-      name: (val) => (!val?.trim() ? 'عنوان الفصل أو المستوى مطلوب' : null),
+      name: (val) => (!val?.trim() ? t('semestersTemplate.templateName') : null),
+      index: (val) => {
+        if (!val || val < 1) return t('semestersTemplate.levelIndex')
+        return null
+      },
     },
   })
 
@@ -175,7 +182,7 @@ export default function SemestersTemplate() {
     setEditTemplate(row)
     const existingSubjectIds = (row.subjects || []).map((s) => (typeof s === 'object' ? s._id : s))
     editForm.setValues({
-      name: row.name || `المستوى ${row.index || 1}`,
+      name: row.name || `${t('semestersTemplate.table.level')} ${row.index || 1}`,
       index: row.index || 1,
       subjects: existingSubjectIds,
     })
@@ -184,17 +191,17 @@ export default function SemestersTemplate() {
   const columns = [
     {
       key: 'index',
-      title: 'المستوى الأكاديمي',
+      title: t('semestersTemplate.table.level'),
       align: 'center',
       render: (row) => (
         <Badge color="brand" variant="filled" size="md">
-          المستوى {row.index ?? '—'}
+          {t('semestersTemplate.table.level')} {row.index ?? '—'}
         </Badge>
       ),
     },
     {
       key: 'name',
-      title: 'مسمى الفصل بالخطة',
+      title: t('semestersTemplate.table.template'),
       render: (row) => (
         <Group spacing="xs">
           <IconCalendarEvent size={18} color="#7c3aed" />
@@ -206,13 +213,13 @@ export default function SemestersTemplate() {
     },
     {
       key: 'subjects',
-      title: 'المواد الإلزامية المقررة',
+      title: t('semestersTemplate.table.subjects'),
       render: (row) => {
         const subs = row.subjects || []
         if (subs.length === 0) {
           return (
             <Text size="xs" color="dimmed">
-              لم يتم تعيين مواد لهذا الفصل بعد
+              {t('semestersTemplate.emptyDescription')}
             </Text>
           )
         }
@@ -233,7 +240,7 @@ export default function SemestersTemplate() {
     },
     {
       key: 'totalCredits',
-      title: 'إجمالي الساعات',
+      title: t('semestersTemplate.table.totalCredits'),
       align: 'center',
       render: (row) => {
         const total = (row.subjects || []).reduce((acc, s) => {
@@ -242,14 +249,14 @@ export default function SemestersTemplate() {
         }, 0)
         return (
           <Badge color="violet" variant="outline" size="sm">
-            {total} ساعة معتمدة
+            {t('semestersTemplate.hoursCount', { count: total })}
           </Badge>
         )
       },
     },
     {
       key: 'actions',
-      title: 'الإجراءات',
+      title: t('semestersTemplate.table.actions'),
       align: 'left',
       render: (row) => (
         <Group spacing={6} position="left">
@@ -258,7 +265,7 @@ export default function SemestersTemplate() {
             variant="light"
             size="sm"
             onClick={() => handleEditOpen(row)}
-            title="تعديل قالب الفصل"
+            title={tCommon('actions.edit')}
           >
             <IconPencil size={15} />
           </ActionIcon>
@@ -267,7 +274,7 @@ export default function SemestersTemplate() {
             variant="light"
             size="sm"
             onClick={() => setDeleteId(row._id || row.id)}
-            title="حذف الفصل من الخطة"
+            title={tCommon('actions.delete')}
           >
             <IconTrash size={15} />
           </ActionIcon>
@@ -276,18 +283,20 @@ export default function SemestersTemplate() {
     },
   ]
 
-  const majorTitle = major.name ? `الخطة الدراسية: ${major.name}` : 'الخطة الدراسية للتخصص'
+  const majorTitle = major.name
+    ? `${t('semestersTemplate.title')}: ${major.name}`
+    : t('semestersTemplate.title')
 
   return (
     <Box>
       <PageHeader
         title={majorTitle}
-        description="تحديد المستويات الدراسية والمواد الإلزامية لكل فصل دراسي (مخرجات الخطة المعتمدة)"
+        description={t('semestersTemplate.subtitle')}
         breadcrumbs={[
-          { title: 'الرئيسية', href: '/' },
-          { title: 'التخصصات', href: '/majors' },
-          { title: major.name || 'التخصص', href: `/majors/${majorId}` },
-          { title: 'الخطة الدراسية' },
+          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          { title: t('majors.breadcrumb'), href: '/majors' },
+          { title: major.name || t('majors.breadcrumb'), href: `/majors/${majorId}` },
+          { title: t('semestersTemplate.breadcrumb') },
         ]}
         action={
           <Group spacing="xs">
@@ -296,18 +305,18 @@ export default function SemestersTemplate() {
               leftIcon={<IconArrowRight size={16} />}
               onClick={() => navigate('/majors')}
             >
-              رجوع للتخصصات
+              {tCommon('actions.back')}
             </Button>
             <Button
               leftIcon={<IconPlus size={16} />}
               color="brand"
               onClick={() => {
                 addForm.setFieldValue('index', sortedTemplates.length + 1)
-                addForm.setFieldValue('name', `المستوى ${sortedTemplates.length + 1}`)
+                addForm.setFieldValue('name', `${t('semestersTemplate.table.level')} ${sortedTemplates.length + 1}`)
                 openAdd()
               }}
             >
-              إضافة فصل / مستوى للخطة
+              {t('semestersTemplate.createTitle')}
             </Button>
           </Group>
         }
@@ -318,8 +327,8 @@ export default function SemestersTemplate() {
         data={sortedTemplates}
         meta={{ page: 1, limit: 50, total: sortedTemplates.length, totalPages: 1 }}
         isLoading={isLoading}
-        emptyTitle="لا توجد فصول دراسية محددة في الخطة بعد"
-        emptyDescription="أضف المستويات الدراسية وحدد المواد الإلزامية لكل مستوى لبدء الفصول الدراسية تلقائياً."
+        emptyTitle={t('semestersTemplate.emptyTitle')}
+        emptyDescription={t('semestersTemplate.emptyDescription')}
       />
 
       {/* Add Template Modal */}
@@ -327,42 +336,41 @@ export default function SemestersTemplate() {
         opened={addOpened}
         onClose={closeAdd}
         size="lg"
-        title={<Text weight={700}>إضافة فصل دراسي للخطة</Text>}
+        title={<Text weight={700}>{t('semestersTemplate.createTitle')}</Text>}
       >
         <form onSubmit={addForm.onSubmit((v) => createMutation.mutateAsync(v))}>
           <Stack spacing="md">
             <TextInput
-              label="مسمى الفصل / المستوى"
-              placeholder="مثال: المستوى 1 (الفصل الدراسي الأول)"
+              label={t('semestersTemplate.templateName')}
+              placeholder={t('semestersTemplate.templateNamePlaceholder')}
               required
               {...addForm.getInputProps('name')}
             />
             <NumberInput
-              label="رقم المستوى التسلسلي (Index)"
+              label={t('semestersTemplate.levelIndex')}
               min={1}
-              max={16}
               required
+              disabled
               {...addForm.getInputProps('index')}
             />
             <MultiSelect
-              label="المواد الإلزامية المقررة لهذا المستوى"
-              placeholder="اختر المواد المقررة من دليل المواد"
+              label={t('semestersTemplate.selectSubjects')}
+              placeholder={t('semestersTemplate.selectSubjectsPlaceholder')}
               data={subjectOptions}
               searchable
               clearable
-              nothingFound="لا توجد مواد مطابقة"
               {...addForm.getInputProps('subjects')}
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={closeAdd}>
-                إلغاء
+                {tCommon('actions.cancel')}
               </Button>
               <Button
                 type="submit"
                 color="brand"
                 loading={createMutation.isPending}
               >
-                إضافة للخطة
+                {tCommon('actions.create')}
               </Button>
             </Group>
           </Stack>
@@ -374,7 +382,7 @@ export default function SemestersTemplate() {
         opened={Boolean(editTemplate)}
         onClose={() => setEditTemplate(null)}
         size="lg"
-        title={<Text weight={700}>تعديل مواد الفصل الدراسي</Text>}
+        title={<Text weight={700}>{t('semestersTemplate.editTitle')}</Text>}
       >
         <form
           onSubmit={editForm.onSubmit((values) =>
@@ -383,36 +391,35 @@ export default function SemestersTemplate() {
         >
           <Stack spacing="md">
             <TextInput
-              label="مسمى الفصل / المستوى"
+              label={t('semestersTemplate.templateName')}
               required
               {...editForm.getInputProps('name')}
             />
             <NumberInput
-              label="رقم المستوى التسلسلي"
+              label={t('semestersTemplate.levelIndex')}
               min={1}
-              max={16}
+              max={sortedTemplates.length}
               required
               {...editForm.getInputProps('index')}
             />
             <MultiSelect
-              label="المواد الإلزامية المقررة لهذا المستوى"
-              placeholder="اختر المواد المقررة"
+              label={t('semestersTemplate.selectSubjects')}
+              placeholder={t('semestersTemplate.selectSubjectsPlaceholder')}
               data={subjectOptions}
               searchable
               clearable
-              nothingFound="لا توجد مواد مطابقة"
               {...editForm.getInputProps('subjects')}
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={() => setEditTemplate(null)}>
-                إلغاء
+                {tCommon('actions.cancel')}
               </Button>
               <Button
                 type="submit"
                 color="brand"
                 loading={updateMutation.isPending}
               >
-                حفظ التعديلات
+                {tCommon('actions.save')}
               </Button>
             </Group>
           </Stack>
@@ -424,9 +431,9 @@ export default function SemestersTemplate() {
         opened={Boolean(deleteId)}
         onClose={() => setDeleteId(null)}
         onConfirm={() => deleteMutation.mutateAsync(deleteId)}
-        title="حذف الفصل من الخطة"
-        message="هل أنت متأكد من حذف هذا الفصل من الخطة الدراسية؟"
-        confirmLabel="حذف"
+        title={t('semestersTemplate.deleteConfirmTitle')}
+        message={t('semestersTemplate.deleteConfirmMessage')}
+        confirmLabel={tCommon('actions.delete')}
         isLoading={deleteMutation.isPending}
       />
     </Box>

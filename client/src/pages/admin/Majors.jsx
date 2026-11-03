@@ -20,6 +20,7 @@ import {
   IconFileAnalytics,
 } from '@tabler/icons-react'
 import { useParams, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   DataTable,
   PageHeader,
@@ -35,7 +36,10 @@ import { useColleges } from '../../hooks/useColleges.js'
 import dayjs from 'dayjs'
 
 export default function Majors() {
-  const { id: collegeId } = useParams()
+  const { t } = useTranslation('admin')
+  const { t: tCommon } = useTranslation('common')
+  const params = useParams()
+  const collegeId = params.id || params.collageId || params.collegeId
 
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
@@ -74,8 +78,8 @@ export default function Majors() {
       college: collegeId || '',
     },
     validate: {
-      name: (val) => (!val?.trim() ? 'اسم التخصص مطلوب' : null),
-      college: (val) => (!val ? 'يرجى اختيار الكلية' : null),
+      name: (val) => (!val?.trim() ? t('majors.validation.nameRequired') : null),
+      college: (val) => (!val ? t('majors.validation.collegeRequired') : null),
     },
   })
 
@@ -87,8 +91,8 @@ export default function Majors() {
       college: '',
     },
     validate: {
-      name: (val) => (!val?.trim() ? 'اسم التخصص مطلوب' : null),
-      college: (val) => (!val ? 'يرجى اختيار الكلية' : null),
+      name: (val) => (!val?.trim() ? t('majors.validation.nameRequired') : null),
+      college: (val) => (!val ? t('majors.validation.collegeRequired') : null),
     },
   })
 
@@ -137,7 +141,7 @@ export default function Majors() {
   const columns = [
     {
       key: 'name',
-      title: 'اسم التخصص',
+      title: t('majors.table.majorName'),
       render: (row) => (
         <Group spacing="xs">
           <IconCertificate size={18} color="#7c3aed" />
@@ -158,27 +162,27 @@ export default function Majors() {
     },
     {
       key: 'college',
-      title: 'الكلية التابع لها',
+      title: t('majors.table.collegeName'),
       align: 'center',
       render: (row) => (
         <Badge color="blue" variant="light" size="sm">
-          {row.college?.name || row.department || 'الكلية الرئيسية'}
+          {row.college?.name || row.department || t('majors.defaultCollege')}
         </Badge>
       ),
     },
     {
       key: 'semesterTemplates',
-      title: 'الخطة الدراسية',
+      title: t('majors.table.studyPlan'),
       align: 'center',
       render: (row) => (
         <Badge color="teal" variant="outline" size="sm">
-          {row.semesterTemplates?.length || 0} فصول / مستويات
+          {t('majors.curriculumBadge', { count: row.semesterTemplates?.length || 0 })}
         </Badge>
       ),
     },
     {
       key: 'createdAt',
-      title: 'تاريخ الإنشاء',
+      title: t('majors.table.createdAt'),
       align: 'center',
       render: (row) => (
         <Text size="xs" color="dimmed">
@@ -188,7 +192,7 @@ export default function Majors() {
     },
     {
       key: 'actions',
-      title: 'الإجراءات',
+      title: t('majors.table.actions'),
       align: 'left',
       render: (row) => (
         <Group spacing={8} position="left">
@@ -200,14 +204,14 @@ export default function Majors() {
             color="brand"
             leftIcon={<IconFileAnalytics size={14} />}
           >
-            الخطة الدراسية والقوالب
+            {t('majors.curriculumButton')}
           </Button>
           <ActionIcon
             color="brand"
             variant="light"
             size="sm"
             onClick={() => handleEditOpen(row)}
-            title="تعديل التخصص"
+            title={t('majors.editTooltip')}
           >
             <IconPencil size={15} />
           </ActionIcon>
@@ -216,7 +220,7 @@ export default function Majors() {
             variant="light"
             size="sm"
             onClick={() => setDeleteId(row._id || row.id)}
-            title="حذف التخصص"
+            title={t('majors.deleteTooltip')}
           >
             <IconTrash size={15} />
           </ActionIcon>
@@ -228,12 +232,12 @@ export default function Majors() {
   return (
     <>
       <PageHeader
-        title="التخصصات والبرامج الأكاديمية"
-        description="إدارة التخصصات، ربطها بالكليات، وإعداد الخطط الدراسية وقوالب الفصول"
+        title={t('majors.title')}
+        description={t('majors.subtitle')}
         breadcrumbs={[
-          { title: 'الرئيسية', href: '/' },
-          ...(collegeId ? [{ title: 'الكليات', href: '/collages' }] : []),
-          { title: 'التخصصات' },
+          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          ...(collegeId ? [{ title: t('colleges.breadcrumb'), href: '/collages' }] : []),
+          { title: t('majors.breadcrumb') },
         ]}
         action={
           <Button
@@ -244,7 +248,7 @@ export default function Majors() {
               openAdd()
             }}
           >
-            إضافة تخصص جديد
+            {t('majors.createTitle')}
           </Button>
         }
       />
@@ -264,47 +268,47 @@ export default function Majors() {
           setLimit(l)
           setPage(1)
         }}
-        emptyTitle="لا توجد تخصصات مسجلة"
-        emptyDescription="ابدأ بإضافة تخصصات لتوزيع الطلاب والخطط الدراسية عليها."
+        emptyTitle={t('majors.emptyTitle')}
+        emptyDescription={t('majors.emptyDescription')}
       />
 
       {/* Add Major Modal */}
       <Modal
         opened={addOpened}
         onClose={closeAdd}
-        title={<Text weight={700}>إضافة تخصص أكاديمي جديد</Text>}
+        title={<Text weight={700}>{t('majors.createTitle')}</Text>}
       >
         <form onSubmit={addForm.onSubmit(handleAddSubmit)}>
           <Stack spacing="md">
             <TextInput
-              label="اسم التخصص"
-              placeholder="مثال: هندسة البرمجيات"
+              label={t('majors.name')}
+              placeholder={t('majors.namePlaceholder')}
               required
               {...addForm.getInputProps('name')}
             />
             <Select
-              label="الكلية التابع لها التخصص"
-              placeholder="اختر الكلية"
+              label={t('majors.college')}
+              placeholder={t('majors.selectCollege')}
               data={collegeOptions}
               required
               searchable
               {...addForm.getInputProps('college')}
             />
             <TextInput
-              label="القسم الأكاديمي (اختياري)"
-              placeholder="مثال: قسم علوم الحاسوب"
+              label={t('majors.department')}
+              placeholder={t('majors.departmentPlaceholder')}
               {...addForm.getInputProps('department')}
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={closeAdd}>
-                إلغاء
+                {tCommon('actions.cancel')}
               </Button>
               <Button
                 type="submit"
                 color="brand"
                 loading={createMutation.isPending}
               >
-                إضافة
+                {tCommon('actions.create')}
               </Button>
             </Group>
           </Stack>
@@ -315,37 +319,37 @@ export default function Majors() {
       <Modal
         opened={Boolean(editMajor)}
         onClose={() => setEditMajor(null)}
-        title={<Text weight={700}>تعديل التخصص</Text>}
+        title={<Text weight={700}>{t('majors.editTitle')}</Text>}
       >
         <form onSubmit={editForm.onSubmit(handleEditSubmit)}>
           <Stack spacing="md">
             <TextInput
-              label="اسم التخصص"
+              label={t('majors.name')}
               required
               {...editForm.getInputProps('name')}
             />
             <Select
-              label="الكلية التابع لها التخصص"
-              placeholder="اختر الكلية"
+              label={t('majors.college')}
+              placeholder={t('majors.selectCollege')}
               data={collegeOptions}
               required
               searchable
               {...editForm.getInputProps('college')}
             />
             <TextInput
-              label="القسم الأكاديمي"
+              label={t('majors.department')}
               {...editForm.getInputProps('department')}
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={() => setEditMajor(null)}>
-                إلغاء
+                {tCommon('actions.cancel')}
               </Button>
               <Button
                 type="submit"
                 color="brand"
                 loading={updateMutation.isPending}
               >
-                حفظ التعديلات
+                {tCommon('actions.save')}
               </Button>
             </Group>
           </Stack>
@@ -357,9 +361,9 @@ export default function Majors() {
         opened={Boolean(deleteId)}
         onClose={() => setDeleteId(null)}
         onConfirm={handleDeleteConfirm}
-        title="حذف التخصص"
-        message="هل أنت متأكد من حذف هذا التخصص الأكاديمي؟ سيؤدي ذلك لحذف قوالب الفصول المرتبطة به."
-        confirmLabel="حذف"
+        title={t('majors.deleteConfirmTitle')}
+        message={t('majors.deleteConfirmMessage')}
+        confirmLabel={tCommon('actions.delete')}
         isLoading={deleteMutation.isPending}
       />
     </>

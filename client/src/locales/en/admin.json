@@ -1,0 +1,320 @@
+{
+  "dashboard": {
+    "title": "Academic Dashboard & Metrics",
+    "subtitle": "Comprehensive live institutional telemetry, student statistics, and faculty directory",
+    "stats": {
+      "totalStudents": "Total Students",
+      "totalTeachers": "Faculty Teachers",
+      "totalCourses": "Courses & Sections",
+      "totalColleges": "Colleges & Departments",
+      "activeSemester": "Current Semester",
+      "enrollmentRate": "Enrollment Rate"
+    },
+    "recentActivity": "Recent Platform Operations",
+    "quickActions": "Quick Action Links"
+  },
+  "colleges": {
+    "title": "Colleges & Academic Departments",
+    "subtitle": "Manage institutional facilities, colleges, and university divisions",
+    "breadcrumb": "Colleges",
+    "createTitle": "Add New College",
+    "editTitle": "Edit College Details",
+    "name": "College Name",
+    "namePlaceholder": "e.g. College of Engineering & IT",
+    "numberOfSemesters": "Number of Semesters",
+    "semestersBadge": "{{count}} Terms",
+    "viewMajors": "View Majors & Subjects",
+    "editTooltip": "Edit College",
+    "deleteTooltip": "Delete College",
+    "emptyTitle": "No registered colleges",
+    "emptyDescription": "Start by adding a new college to manage academic majors and subjects.",
+    "deleteConfirmTitle": "Delete College",
+    "deleteConfirmMessage": "Are you sure you want to delete this college? This may affect linked majors.",
+    "validation": {
+      "nameRequired": "College name is required",
+      "semestersMin": "Number of semesters must be at least 1"
+    },
+    "table": {
+      "collegeName": "College Name",
+      "majorsCount": "Academic Majors",
+      "semesters": "Semesters",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    }
+  },
+  "majors": {
+    "title": "Academic Majors & Degree Programs",
+    "subtitle": "Manage curricula, degree plans, and department specializations",
+    "breadcrumb": "Majors",
+    "createTitle": "Add New Major",
+    "editTitle": "Edit Academic Major",
+    "name": "Major Name",
+    "namePlaceholder": "e.g. Software Engineering",
+    "college": "Associated College",
+    "selectCollege": "Select College",
+    "department": "Academic Department (Optional)",
+    "departmentPlaceholder": "e.g. Department of Computer Science",
+    "defaultCollege": "Main College",
+    "curriculumBadge": "{{count}} Terms / Levels",
+    "curriculumButton": "Curriculum & Templates",
+    "editTooltip": "Edit Major",
+    "deleteTooltip": "Delete Major",
+    "emptyTitle": "No registered majors",
+    "emptyDescription": "Start by adding majors to assign students and curriculum plans.",
+    "deleteConfirmTitle": "Delete Major",
+    "deleteConfirmMessage": "Are you sure you want to delete this major? Linked semester templates will also be removed.",
+    "validation": {
+      "nameRequired": "Major name is required",
+      "collegeRequired": "Please select a college"
+    },
+    "table": {
+      "majorName": "Major Name",
+      "collegeName": "Associated College",
+      "studyPlan": "Curriculum Plan",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    }
+  },
+  "subjects": {
+    "title": "Subjects Catalog & Master Curriculum",
+    "subtitle": "Master catalog of foundational subjects, academic course codes, and credit hours",
+    "breadcrumb": "Subjects Catalog",
+    "createTitle": "Add New Subject",
+    "editTitle": "Edit Subject Details",
+    "name": "Subject Name",
+    "namePlaceholder": "e.g. Data Structures and Algorithms",
+    "code": "Subject Code",
+    "codePlaceholder": "e.g. CS201",
+    "creditHours": "Credit Hours",
+    "creditHoursBadge": "{{count}} Credits",
+    "college": "Associated College",
+    "general": "General",
+    "teachers": "Faculty Teachers",
+    "unspecified": "Unassigned",
+    "teacherBadge": "Teacher",
+    "emptyTitle": "No registered subjects",
+    "emptyDescription": "Start by adding subjects to include them into semester templates.",
+    "deleteConfirmTitle": "Delete Subject",
+    "deleteConfirmMessage": "Are you sure you want to delete this subject?",
+    "validation": {
+      "nameRequired": "Subject name is required",
+      "creditsRange": "Credit hours must be between 1 and 10"
+    },
+    "table": {
+      "subject": "Academic Subject",
+      "code": "Code: {{code}}",
+      "college": "College",
+      "faculty": "Faculty Teachers",
+      "credits": "Credit Hours",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    }
+  },
+  "semestersTemplate": {
+    "title": "Semester Templates",
+    "subtitle": "Configure standardized academic curriculum templates across degree levels",
+    "breadcrumb": "Semester Templates",
+    "createTitle": "Create New Template",
+    "editTitle": "Edit Semester Template",
+    "templateName": "Template / Level Name",
+    "templateNamePlaceholder": "e.g. Level 1 - Fall Foundation",
+    "levelIndex": "Level Number / Index",
+    "selectSubjects": "Prescribed Subjects in this Level",
+    "selectSubjectsPlaceholder": "Select subjects from master catalog",
+    "emptyTitle": "No templates registered for this major",
+    "emptyDescription": "Start by adding templates to distribute curriculum subjects across academic levels.",
+    "deleteConfirmTitle": "Delete Semester Template",
+    "deleteConfirmMessage": "Are you sure you want to delete this semester template?",
+    "hoursCount": "{{count}} Credit Hours",
+    "subjectsCount": "{{count}} Subjects",
+    "table": {
+      "level": "Level",
+      "template": "Template Name",
+      "subjects": "Assigned Subjects",
+      "totalCredits": "Total Credits",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    }
+  },
+  "semesters": {
+    "title": "Semesters & Rollout Wizard",
+    "subtitle": "Launch academic terms with atomic transactions and configure add/drop periods",
+    "launchWizard": "Semester Rollout Wizard",
+    "termName": "Semester Term Name",
+    "termNamePlaceholder": "e.g. Fall Semester 2026/2027",
+    "academicYear": "Academic Year",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "addDropDeadline": "Add/Drop Deadline",
+    "selectMajor": "Academic Major",
+    "selectMajorPlaceholder": "Select major to launch terms for",
+    "allSemestersSwitch": "Launch all degree levels for this major in one atomic batch",
+    "selectSemesters": "Select specific degree levels",
+    "seasonFall": "Fall Semester",
+    "seasonSpring": "Spring Semester",
+    "seasonSummer": "Summer Term",
+    "activeBadge": "Active Term",
+    "closedBadge": "Term Completed",
+    "launchSuccessTitle": "Semester Launched Successfully!",
+    "launchSuccessMessage": "Academic course sections generated and eligible students enrolled atomically.",
+    "coursesGenerated": "Sections Generated",
+    "studentsEnrolled": "Students Enrolled",
+    "table": {
+      "term": "Semester Term",
+      "period": "Term Period",
+      "status": "Status",
+      "coursesCount": "Sections Count",
+      "actions": "Actions"
+    },
+    "wizard": {
+      "step1Title": "Term Details",
+      "step1Desc": "Name & Dates",
+      "step2Title": "Major & Levels",
+      "step2Desc": "Select Templates",
+      "step3Title": "Review & Launch",
+      "step3Desc": "Atomic Transaction"
+    }
+  },
+  "courses": {
+    "title": "Courses & Sections Management",
+    "subtitle": "Manage sections, lecture halls, class schedules, and assigned faculty",
+    "addSection": "Add New Section",
+    "sectionNumber": "Section #",
+    "capacity": "Capacity Limit",
+    "teacher": "Course Instructor",
+    "room": "Lecture Room",
+    "schedule": "Class Schedule",
+    "enrolledStudents": "Enrolled Students",
+    "lectureNotes": "Lectures & Resources",
+    "assignments": "Assignments & Homework",
+    "grades": "Gradebook",
+    "liveChat": "Real-time Course Chat",
+    "editCourse": "Edit Course",
+    "sectionsCount": "{{count}} Sections",
+    "lessonsCount": "{{count}} Lessons",
+    "aboutCourse": "About Course",
+    "whatYouWillLearn": "What You Will Learn in this Course",
+    "requirements": "Course Requirements"
+  },
+  "assignmentsData": {
+    "title": "Assignments & Coursework",
+    "subtitle": "Manage coursework, view student submissions and grading",
+    "addNew": "Add New Assignment",
+    "totalPublished": "Published Assignments",
+    "activeNow": "Currently Active",
+    "enrolledStudents": "Enrolled Students",
+    "progressTitle": "Assignment Completion Progress",
+    "progressSub": "Submitted {{count}} of {{total}} assignments",
+    "progressCompleted": "{{percent}}% Completed",
+    "searchPlaceholder": "Search assignment title or description...",
+    "tabs": {
+      "active": "Active & Upcoming",
+      "submitted": "Submitted",
+      "past": "Past Due"
+    },
+    "points": "{{count}} Points",
+    "due": "Due: {{date}}",
+    "pastDue": "Past Due (Late Submission)",
+    "dueToday": "Due Today ({{hours}} hours left)",
+    "daysRemaining": "{{days}} days remaining",
+    "downloadBrief": "Download Assignment Brief / Worksheet",
+    "graded": "Graded",
+    "submittedSuccess": "Solution Submitted Successfully",
+    "instructorFeedback": "Instructor Feedback: {{feedback}}",
+    "reviewSubmissions": "Review Submissions & Grade",
+    "editAssignment": "Edit Assignment",
+    "deleteAssignment": "Delete Assignment",
+    "submitNow": "Submit Assignment Now",
+    "resubmit": "View or Resubmit",
+    "deleteConfirmTitle": "Confirm Assignment Deletion",
+    "deleteConfirmMessage": "Are you sure you want to delete this assignment? All associated student submissions will be permanently removed.",
+    "emptySearch": "No assignments match your search",
+    "emptyNone": "No assignments currently published",
+    "emptySubmitted": "You haven't submitted any assignments yet"
+  },
+  "users": {
+    "title": "User Directory & Roles",
+    "subtitle": "Manage student records, faculty profiles, system admins, and credentials",
+    "helmet": "Users Directory",
+    "addAdmin": "Add New Admin",
+    "addTeacher": "Add Faculty Teacher",
+    "addStudent": "Add New Student",
+    "tabs": {
+      "admins": "Admins",
+      "teachers": "Teachers",
+      "students": "Students"
+    },
+    "permissions": {
+      "rw": "Read & Write (Default)",
+      "r": "Read Only",
+      "rwd": "Full Control (Read, Write, Delete)",
+      "rd": "Read & Delete"
+    },
+    "fields": {
+      "name": "Full Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "permissions": "Permissions",
+      "password": "Temporary Password (Optional)",
+      "role": "Role & Permissions",
+      "major": "Academic Major",
+      "college": "College",
+      "academicLevel": "Academic Level",
+      "title": "Academic Title"
+    },
+    "tempPasswordModal": {
+      "title": "Account Created Successfully",
+      "subtitle": "Login credentials and temporary password generated for user:",
+      "copyPassword": "Copy Password",
+      "copied": "Copied"
+    },
+    "deleteConfirmTitle": "Confirm User Deletion",
+    "deleteConfirmMessage": "Are you sure you want to permanently delete this user account?",
+    "validation": {
+      "nameRequired": "Name is required",
+      "nameLength": "Name must be between 3 and 70 characters",
+      "nameLettersOnly": "Name must contain letters and spaces only",
+      "emailInvalid": "Invalid email address"
+    }
+  },
+  "grades": {
+    "title": "Student Grades & Continuous Assessment",
+    "subtitle": "Review academic rosters, record exam scores, and authorize term results",
+    "stats": {
+      "enrolledStudents": "Enrolled Students",
+      "averageScore": "Section Average",
+      "highestScore": "Top Score",
+      "passRate": "Overall Pass Rate"
+    },
+    "filters": {
+      "all": "All Students",
+      "passed": "Passed Only",
+      "failed": "Failed",
+      "searchPlaceholder": "Search by student name or ID..."
+    },
+    "table": {
+      "student": "Student",
+      "midterm": "Midterm (30)",
+      "assignments": "Homework (20)",
+      "final": "Final (50)",
+      "total": "Total (100)",
+      "grade": "Grade",
+      "status": "Academic Status",
+      "actions": "Actions"
+    },
+    "editGradeTitle": "Record & Update Student Grades",
+    "saveGrades": "Save & Authorize Grades",
+    "saveSuccess": "Student grades updated successfully",
+    "letters": {
+      "aPlus": "Excellent Plus (A+)",
+      "a": "Excellent (A)",
+      "bPlus": "Very Good Plus (B+)",
+      "b": "Very Good (B)",
+      "cPlus": "Good Plus (C+)",
+      "c": "Good (C)",
+      "dPlus": "Pass Plus (D+)",
+      "d": "Pass (D)",
+      "f": "Fail (F)"
+    }
+  }
+}
