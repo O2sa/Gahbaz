@@ -1,0 +1,43 @@
+{
+  "dashboard": {
+    "bannerBadge": "Faculty Portal",
+    "currentSemester": "Current Semester: Fall 2026/2027",
+    "welcome": "Welcome, Dr. {{name}} 👋",
+    "defaultName": "Instructor",
+    "subtitle": "Manage your courses, upload lectures and lesson materials, submit student grades, and collaborate.",
+    "browseCourses": "Browse Assigned Courses",
+    "activeCourses": "Active Assigned Courses",
+    "activeCoursesDesc": "Courses assigned to you this term",
+    "totalStudents": "Total Enrolled Students",
+    "totalStudentsDesc": "Students across all your courses",
+    "semesterStatus": "Academic Term Status",
+    "semesterStatusDesc": "Academic term currently in progress",
+    "quickTasks": "Quick Academic Tasks",
+    "manageLessons": "Manage Lectures & Lessons",
+    "manageLessonsDesc": "Upload course materials, video lectures, and organize sections.",
+    "recordGrades": "Record Student Grades",
+    "recordGradesDesc": "Enter midterm scores, continuous assessments, and final exams.",
+    "academicChat": "Academic Discussions",
+    "academicChatDesc": "Real-time communication with students for Q&A and support."
+  },
+  "courses": {
+    "title": "Active Open Courses",
+    "subtitle": "Manage and monitor courses, associated semesters, and assigned faculty",
+    "course": "Course",
+    "courseCode": "Course Code: {{code}}",
+    "term": "Academic Term",
+    "general": "General",
+    "program": "Major & College",
+    "instructor": "Course Instructor",
+    "unassigned": "Instructor Not Assigned",
+    "credits": "Credits",
+    "creditsBadge": "{{count}} Cr",
+    "status": "Status",
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "viewDetails": "View Details",
+    "editCourse": "Edit Course",
+    "emptyTitle": "No Courses Found",
+    "emptyDesc": "No active courses found in the system currently."
+  }
+}

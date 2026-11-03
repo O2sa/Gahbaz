@@ -22,10 +22,13 @@ import {
   IconVideo,
 } from '@tabler/icons-react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { StatCard } from '../../components/common'
 import { useDashboardContext } from '../../layouts/MainLayout.jsx'
 
 export default function TeacherDashboard() {
+  const { t } = useTranslation('teacher')
+  const { t: tCommon } = useTranslation('common')
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
   const navigate = useNavigate()
@@ -49,10 +52,10 @@ export default function TeacherDashboard() {
           <Box>
             <Group spacing="xs" mb="xs">
               <Badge color="blue" variant="filled" size="sm">
-                بوابة هيئة التدريس
+                {t('dashboard.bannerBadge')}
               </Badge>
               <Text size="xs" color="dimmed">
-                الفصل الدراسي الحالي: الأول 2026/2027
+                {t('dashboard.currentSemester')}
               </Text>
             </Group>
             <Title
@@ -63,10 +66,10 @@ export default function TeacherDashboard() {
                 fontSize: 26,
               }}
             >
-              مرحباً د. {user?.name || 'الأستاذ'} 👋
+              {t('dashboard.welcome', { name: user?.name || t('dashboard.defaultName') })}
             </Title>
             <Text color="dimmed" size="sm" mt={4} sx={{ maxWidth: 600 }}>
-              تابع مقرراتك الدراسية، رفع المحاضرات والدروس، ورصد درجات الطلاب والتفاعل معهم.
+              {t('dashboard.subtitle')}
             </Text>
           </Box>
 
@@ -78,7 +81,7 @@ export default function TeacherDashboard() {
             onClick={() => navigate('/courses')}
             sx={{ fontWeight: 700 }}
           >
-            تصفح المقررات المسندة
+            {t('dashboard.browseCourses')}
           </Button>
         </Group>
       </Paper>
@@ -94,25 +97,25 @@ export default function TeacherDashboard() {
         mb="xl"
       >
         <StatCard
-          title="المقررات الدراسية النشطة"
+          title={t('dashboard.activeCourses')}
           value={4}
-          description="مساقات مسندة لك هذا الفصل"
+          description={t('dashboard.activeCoursesDesc')}
           icon={<IconBook size={24} />}
           color="blue"
           diff={0}
         />
         <StatCard
-          title="إجمالي الطلاب المسجلين"
+          title={t('dashboard.totalStudents')}
           value={185}
-          description="طالب في كافة مقرراتك"
+          description={t('dashboard.totalStudentsDesc')}
           icon={<IconUsers size={24} />}
           color="teal"
           diff={12}
         />
         <StatCard
-          title="حالة الفصل الدراسي"
-          value="نشط"
-          description="الفصل الأكاديمي قيد التدريس"
+          title={t('dashboard.semesterStatus')}
+          value={t('courses.inProgress')}
+          description={t('dashboard.semesterStatusDesc')}
           icon={<IconCalendar size={24} />}
           color="indigo"
         />
@@ -120,7 +123,7 @@ export default function TeacherDashboard() {
 
       {/* Quick Action Navigation Cards */}
       <Title order={3} sx={{ fontSize: 18, fontWeight: 700 }} mb="md">
-        المهام الأكاديمية السريعة
+        {t('dashboard.quickTasks')}
       </Title>
 
       <SimpleGrid
@@ -150,10 +153,10 @@ export default function TeacherDashboard() {
             <IconVideo size={24} />
           </ThemeIcon>
           <Text weight={700} size="md" mb={4}>
-            إدارة المحاضرات والدروس
+            {t('dashboard.manageLessons')}
           </Text>
           <Text size="xs" color="dimmed">
-            رفع ملفات الدروس، مقاطع الفيديو التعليمية وتنظيم الوحدات.
+            {t('dashboard.manageLessonsDesc')}
           </Text>
         </Card>
 
@@ -176,10 +179,10 @@ export default function TeacherDashboard() {
             <IconCertificate size={24} />
           </ThemeIcon>
           <Text weight={700} size="md" mb={4}>
-            رصد درجات الطلاب
+            {t('dashboard.recordGrades')}
           </Text>
           <Text size="xs" color="dimmed">
-            إدخال نتائج الاختبارات الشهرية والأنشطة والامتحان النهائي.
+            {t('dashboard.recordGradesDesc')}
           </Text>
         </Card>
 
@@ -202,10 +205,10 @@ export default function TeacherDashboard() {
             <IconMessageDots size={24} />
           </ThemeIcon>
           <Text weight={700} size="md" mb={4}>
-            المحادثات الأكاديمية
+            {t('dashboard.academicChat')}
           </Text>
           <Text size="xs" color="dimmed">
-            التواصل الفوري مع الطلاب للرد على الأسئلة والاستفسارات.
+            {t('dashboard.academicChatDesc')}
           </Text>
         </Card>
       </SimpleGrid>
