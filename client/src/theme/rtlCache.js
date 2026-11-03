@@ -1,9 +1,1 @@
-import { createEmotionCache } from '@mantine/core'
-import rtlPlugin from 'stylis-plugin-rtl'
-
-export const rtlCache = createEmotionCache({
-  key: 'mantine-rtl',
-  stylisPlugins: [rtlPlugin],
-})
-
-export default rtlCache
+export { rtlCache, ltrCache, getEmotionCache, default } from './emotionCache.js'

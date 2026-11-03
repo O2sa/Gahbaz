@@ -1,0 +1,53 @@
+{
+  "actions": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "create": "إضافة جديدة",
+    "search": "بحث...",
+    "confirm": "تأكيد",
+    "close": "إغلاق",
+    "back": "رجوع",
+    "next": "التالي",
+    "submit": "إرسال",
+    "download": "تحميل",
+    "filter": "تصفية",
+    "reset": "إعادة ضبط",
+    "viewDetails": "عرض التفاصيل",
+    "print": "طباعة",
+    "refresh": "تحديث"
+  },
+  "status": {
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "pending": "قيد الانتظار",
+    "completed": "مكتمل",
+    "inProgress": "قيد التنفيذ",
+    "enrolled": "مسجل",
+    "dropped": "منسحب",
+    "success": "ناجح",
+    "failed": "راسب"
+  },
+  "roles": {
+    "admin": "مشرف النظام",
+    "teacher": "عضو هيئة تدريس",
+    "student": "طالب"
+  },
+  "table": {
+    "noRecords": "لا توجد سجلات متاحة",
+    "recordsFound": "{{count}} سجل",
+    "actions": "الإجراءات",
+    "loading": "جاري تحميل البيانات..."
+  },
+  "notifications": {
+    "success": "تم بنجاح",
+    "error": "حدث خطأ",
+    "warning": "تنبيه",
+    "info": "معلومة"
+  },
+  "dialogs": {
+    "confirmDeleteTitle": "تأكيد الحذف",
+    "confirmDeleteMessage": "هل أنت متأكد من رغبتك في حذف هذا العنصر؟ لا يمكن التراجع عن هذا الإجراء."
+  }
+}
