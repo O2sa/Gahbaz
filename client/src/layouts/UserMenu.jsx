@@ -19,6 +19,7 @@ import {
 } from '@tabler/icons-react'
 import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import authApi from '../api/auth.api.js'
 import { notifications } from '@mantine/notifications'
 import { useDashboardContext } from './MainLayout.jsx'
@@ -50,6 +51,7 @@ export default function UserMenu({ user }) {
   const queryClient = useQueryClient()
   const { logoutUser } = useDashboardContext()
   const isDark = theme.colorScheme === 'dark'
+  const { t } = useTranslation(['nav', 'common'])
 
   const handleLogout = async () => {
     try {
@@ -61,8 +63,8 @@ export default function UserMenu({ user }) {
         navigate('/login')
       }
       notifications.show({
-        title: 'تم تسجيل الخروج',
-        message: 'تم تسجيل خروجك بنجاح من المنصة',
+        title: t('logout', { defaultValue: 'تم تسجيل الخروج' }),
+        message: t('common.notifications.success', { defaultValue: 'تم تسجيل خروجك بنجاح من المنصة' }),
         color: 'blue',
       })
     } catch (err) {
@@ -72,9 +74,9 @@ export default function UserMenu({ user }) {
   }
 
   const roleLabels = {
-    admin: 'مدير النظام',
-    teacher: 'عضو هيئة التدريس',
-    student: 'طالب جامعي',
+    admin: t('roles.admin', { ns: 'common', defaultValue: 'مدير النظام' }),
+    teacher: t('roles.teacher', { ns: 'common', defaultValue: 'عضو هيئة التدريس' }),
+    student: t('roles.student', { ns: 'common', defaultValue: 'طالب جامعي' }),
   }
 
   const roleColors = {
@@ -84,7 +86,7 @@ export default function UserMenu({ user }) {
   }
 
   const role = user?.role || 'admin'
-  const name = user?.name || user?.userName || 'المستخدم'
+  const name = user?.name || user?.userName || t('common.roles.user', { defaultValue: 'المستخدم' })
   const email = user?.email || 'admin@gahbaz.edu'
 
   return (
@@ -142,21 +144,21 @@ export default function UserMenu({ user }) {
           onClick={() => navigate('/')}
           sx={{ fontWeight: 600, fontSize: 13 }}
         >
-          صفحة البدء الرئيسية
+          {t('overview', { defaultValue: 'صفحة البدء الرئيسية' })}
         </Menu.Item>
         <Menu.Item
           icon={<IconUser size={16} stroke={1.6} />}
           onClick={() => navigate('/profile')}
           sx={{ fontWeight: 600, fontSize: 13 }}
         >
-          الملف الأكاديمي
+          {t('profile', { defaultValue: 'الملف الأكاديمي' })}
         </Menu.Item>
         <Menu.Item
           icon={<IconSettings size={16} stroke={1.6} />}
           onClick={() => navigate('/profile')}
           sx={{ fontWeight: 600, fontSize: 13 }}
         >
-          إعدادات الحساب
+          {t('settings', { defaultValue: 'إعدادات الحساب' })}
         </Menu.Item>
 
         <Menu.Divider />
@@ -167,7 +169,7 @@ export default function UserMenu({ user }) {
           onClick={handleLogout}
           sx={{ fontWeight: 600, fontSize: 13 }}
         >
-          تسجيل الخروج
+          {t('logout', { defaultValue: 'تسجيل الخروج' })}
         </Menu.Item>
       </Menu.Dropdown>
     </Menu>

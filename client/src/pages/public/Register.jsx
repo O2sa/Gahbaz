@@ -15,12 +15,16 @@ import {
   Grid,
   Anchor,
   Checkbox,
+  Alert,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { Link, useNavigate } from 'react-router-dom'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { notifications } from '@mantine/notifications'
 import { Helmet } from 'react-helmet'
+import { useTranslation } from 'react-i18next'
 import customFetch from '../../utils/customFetch'
+import LanguageSwitcher from '../../components/common/LanguageSwitcher.jsx'
 import {
   IconSchool,
   IconMail,
@@ -29,13 +33,32 @@ import {
   IconUser,
   IconPhone,
   IconCheck,
+  IconAlertCircle,
+  IconLogin,
 } from '@tabler/icons-react'
 
 export default function Register() {
   const navigate = useNavigate()
   const theme = useMantineTheme()
+  const queryClient = useQueryClient()
   const isDark = theme.colorScheme === 'dark'
   const [loading, setLoading] = useState(false)
+  const { t } = useTranslation(['auth', 'common'])
+
+  const { data: authStatus } = useQuery({
+    queryKey: ['authStatus'],
+    queryFn: async () => {
+      try {
+        const res = await customFetch.get('/auth/status')
+        return res?.data || res
+      } catch {
+        return { registrationEnabled: true }
+      }
+    },
+    staleTime: 1000 * 60 * 5,
+  })
+
+  const registrationEnabled = authStatus?.registrationEnabled !== false
 
   const form = useForm({
     initialValues: {
@@ -46,30 +69,47 @@ export default function Register() {
       password: '',
     },
     validate: {
-      firstName: (value) => (value.trim().length >= 2 ? null : 'يرجى إدخال الاسم الأول'),
-      lastName: (value) => (value.trim().length >= 2 ? null : 'يرجى إدخال الاسم الأخير'),
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'يرجى إدخال بريد إلكتروني صحيح'),
-      password: (value) => (value.length >= 6 ? null : 'كلمة المرور يجب أن لا تقل عن 6 أحرف'),
+      firstName: (value) => (value.trim().length >= 2 ? null : t('errors.validation.required', { ns: 'common', defaultValue: 'يرجى إدخال الاسم الأول' })),
+      lastName: (value) => (value.trim().length >= 2 ? null : t('errors.validation.required', { ns: 'common', defaultValue: 'يرجى إدخال الاسم الأخير' })),
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : t('errors.validation.invalidEmail', { ns: 'common', defaultValue: 'يرجى إدخال بريد إلكتروني صحيح' })),
+      password: (value) => (value.length >= 6 ? null : t('errors.validation.passwordTooShort', { ns: 'common', defaultValue: 'كلمة المرور يجب أن لا تقل عن 6 أحرف' })),
     },
   })
 
   const handleSubmit = async (values) => {
+    if (!registrationEnabled) {
+      notifications.show({
+        title: t('register.disabledNotice', { defaultValue: 'التسجيل مغلق' }),
+        message: t('register.disabledNotice', { defaultValue: 'التسجيل معطل حالياً بواسطة إدارة المنظومة.' }),
+        color: 'red',
+      })
+      return
+    }
+
     setLoading(true)
     try {
-      await customFetch.post('/auth/register', values)
+      const res = await customFetch.post('/auth/register', values)
+      const token = res?.data?.token || res?.token
+      if (token) {
+        localStorage.setItem('token', token)
+      }
+      queryClient.clear()
+      await queryClient.resetQueries()
+
       notifications.show({
-        title: 'تم إنشاء الحساب بنجاح',
-        message: 'تم تسجيل حسابك الأكاديمي الجديد، يمكنك الآن تسجيل الدخول',
+        title: t('common.notifications.success', { defaultValue: 'تم إنشاء الحساب الأكاديمي بنجاح' }),
+        message: t('register.successWelcome', { defaultValue: 'مرحباً بك! يرجى استكمال إعداد بيانات جامعتك للبدء.' }),
         color: 'teal',
         autoClose: 5000,
       })
-      navigate('/login')
+      navigate('/onboarding/university')
     } catch (error) {
       notifications.show({
-        title: 'خطأ في إنشاء الحساب',
+        title: t('common.notifications.error', { defaultValue: 'خطأ في إنشاء الحساب' }),
         message:
+          error?.response?.data?.message ||
           error?.response?.data?.msg ||
-          'حدث خطأ أثناء إنشاء الحساب، يرجى التحقق من البيانات والمحاولة مجدداً.',
+          t('register.errorGeneric', { defaultValue: 'حدث خطأ أثناء إنشاء الحساب، يرجى التحقق من البيانات والمحاولة مجدداً.' }),
         color: 'red',
         autoClose: 5000,
       })
@@ -81,7 +121,7 @@ export default function Register() {
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Helmet>
-        <title>منصة جهبذ | إنشاء حساب جديد</title>
+        <title>{t('register.title', { defaultValue: 'منصة جهبذ | إنشاء حساب جديد' })}</title>
       </Helmet>
 
       <Grid gutter={0} sx={{ flex: 1, minHeight: '100vh' }}>
@@ -102,130 +142,161 @@ export default function Register() {
           }}
         >
           <Box sx={{ maxWidth: 460, width: '100%', margin: '0 auto' }}>
-            {/* Header Mobile Brand */}
-            <Group spacing="xs" mb="xl">
-              <ActionIcon
-                size={40}
-                radius="md"
-                variant="gradient"
-                gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
-              >
-                <IconSchool size={24} color="white" />
-              </ActionIcon>
-              <Box>
-                <Text weight={800} size="md">
-                  منصة جَهْبَذ
-                </Text>
-                <Text size={10} color="dimmed">
-                  المنظومة الأكاديمية الذكية
-                </Text>
-              </Box>
+            {/* Header Mobile Brand & Language Switcher */}
+            <Group position="apart" mb="xl">
+              <Group spacing="xs">
+                <ActionIcon
+                  size={40}
+                  radius="md"
+                  variant="gradient"
+                  gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
+                >
+                  <IconSchool size={24} color="white" />
+                </ActionIcon>
+                <Box>
+                  <Text weight={800} size="md">
+                    {t('nav.platformTitle', { defaultValue: 'منصة جَهْبَذ' })}
+                  </Text>
+                  <Text size={10} color="dimmed">
+                    {t('nav.platformSubtitle', { defaultValue: 'المنظومة الأكاديمية الذكية' })}
+                  </Text>
+                </Box>
+              </Group>
+
+              <LanguageSwitcher variant="subtle" size="sm" />
             </Group>
 
             <Title order={2} sx={{ fontWeight: 800, fontSize: 28, color: isDark ? '#ffffff' : '#0f172a' }}>
-              إنشاء حساب جديد
+              {t('register.title', { defaultValue: 'إنشاء حساب جديد' })}
             </Title>
             <Text color="dimmed" size="sm" mt={4} mb="xl">
-              انضم إلى المنظومة الأكاديمية وابدأ مسيرتك التعليمية الرقمية
+              {t('register.subtitle', { defaultValue: 'انضم إلى المنظومة الأكاديمية وابدأ مسيرتك التعليمية الرقمية' })}
             </Text>
 
-            <form onSubmit={form.onSubmit(handleSubmit)}>
-              <Stack spacing="md">
-                <Grid gutter="xs">
-                  <Grid.Col span={6}>
-                    <TextInput
-                      label="الاسم الأول"
-                      placeholder="أحمد"
-                      icon={<IconUser size={16} />}
-                      size="sm"
-                      radius="md"
-                      disabled={loading}
-                      {...form.getInputProps('firstName')}
-                    />
-                  </Grid.Col>
-                  <Grid.Col span={6}>
-                    <TextInput
-                      label="الاسم الأخير"
-                      placeholder="الغامدي"
-                      icon={<IconUser size={16} />}
-                      size="sm"
-                      radius="md"
-                      disabled={loading}
-                      {...form.getInputProps('lastName')}
-                    />
-                  </Grid.Col>
-                </Grid>
-
-                <TextInput
-                  label="رقم الهاتف"
-                  placeholder="05xxxxxxxx"
-                  icon={<IconPhone size={16} />}
-                  size="sm"
+            {!registrationEnabled ? (
+              <Stack spacing="lg">
+                <Alert
+                  icon={<IconAlertCircle size={20} />}
+                  title={t('register.disabledNotice', { defaultValue: 'التسجيل مغلق مؤقتاً' })}
+                  color="orange"
                   radius="md"
-                  disabled={loading}
-                  {...form.getInputProps('phone')}
-                />
-
-                <TextInput
-                  label="البريد الإلكتروني"
-                  placeholder="name@university.edu"
-                  icon={<IconMail size={16} />}
-                  size="sm"
-                  radius="md"
-                  disabled={loading}
-                  {...form.getInputProps('email')}
-                />
-
-                <PasswordInput
-                  label="كلمة المرور"
-                  placeholder="••••••••"
-                  icon={<IconLock size={16} />}
-                  size="sm"
-                  radius="md"
-                  disabled={loading}
-                  {...form.getInputProps('password')}
-                />
-
-                <Checkbox
-                  label="أوافق على الشروط وسياسة الاستخدام الأكاديمي"
-                  size="xs"
-                  defaultChecked
-                  mt={4}
-                />
+                  variant="light"
+                >
+                  {t('register.disabledNotice', { defaultValue: 'نعتذر، تم إيقاف استقبال طلبات التسجيل الجديدة مؤقتاً بأمر إدارة المنظومة. إذا كان لديك حساب بالفعل يرجى تسجيل الدخول.' })}
+                </Alert>
 
                 <Button
-                  type="submit"
+                  component={Link}
+                  to="/login"
                   fullWidth
                   size="md"
                   radius="md"
                   variant="gradient"
                   gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
-                  loading={loading}
-                  leftIcon={<IconArrowLeft size={18} />}
-                  mt="xs"
-                  sx={{
-                    fontWeight: 700,
-                    height: 48,
-                    boxShadow: isDark
-                      ? '0 4px 16px rgba(59, 130, 246, 0.35)'
-                      : '0 4px 16px rgba(30, 64, 175, 0.25)',
-                  }}
+                  leftIcon={<IconLogin size={18} />}
                 >
-                  إنشاء الحساب الأكاديمي
+                  {t('register.loginNow', { defaultValue: 'الذهاب إلى تسجيل الدخول' })}
                 </Button>
               </Stack>
-            </form>
+            ) : (
+              <form onSubmit={form.onSubmit(handleSubmit)}>
+                <Stack spacing="md">
+                  <Grid gutter="xs">
+                    <Grid.Col span={6}>
+                      <TextInput
+                        label={t('register.firstName', { defaultValue: 'الاسم الأول' })}
+                        placeholder="أحمد"
+                        icon={<IconUser size={16} />}
+                        size="sm"
+                        radius="md"
+                        disabled={loading}
+                        {...form.getInputProps('firstName')}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={6}>
+                      <TextInput
+                        label={t('register.lastName', { defaultValue: 'الاسم الأخير' })}
+                        placeholder="الغامدي"
+                        icon={<IconUser size={16} />}
+                        size="sm"
+                        radius="md"
+                        disabled={loading}
+                        {...form.getInputProps('lastName')}
+                      />
+                    </Grid.Col>
+                  </Grid>
+
+                  <TextInput
+                    label={t('register.phone', { defaultValue: 'رقم الهاتف' })}
+                    placeholder="05xxxxxxxx"
+                    icon={<IconPhone size={16} />}
+                    size="sm"
+                    radius="md"
+                    disabled={loading}
+                    {...form.getInputProps('phone')}
+                  />
+
+                  <TextInput
+                    label={t('register.email', { defaultValue: 'البريد الإلكتروني' })}
+                    placeholder="name@university.edu"
+                    icon={<IconMail size={16} />}
+                    size="sm"
+                    radius="md"
+                    disabled={loading}
+                    {...form.getInputProps('email')}
+                  />
+
+                  <PasswordInput
+                    label={t('register.password', { defaultValue: 'كلمة المرور' })}
+                    placeholder="••••••••"
+                    icon={<IconLock size={16} />}
+                    size="sm"
+                    radius="md"
+                    disabled={loading}
+                    {...form.getInputProps('password')}
+                  />
+
+                  <Checkbox
+                    label={t('register.agreeTerms', { defaultValue: 'أوافق على الشروط وسياسة الاستخدام الأكاديمي' })}
+                    size="xs"
+                    defaultChecked
+                    mt={4}
+                  />
+
+                  <Button
+                    type="submit"
+                    fullWidth
+                    size="md"
+                    radius="md"
+                    variant="gradient"
+                    gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
+                    loading={loading}
+                    leftIcon={<IconArrowLeft size={18} />}
+                    mt="xs"
+                    sx={{
+                      fontWeight: 700,
+                      height: 48,
+                      boxShadow: isDark
+                        ? '0 4px 16px rgba(59, 130, 246, 0.35)'
+                        : '0 4px 16px rgba(30, 64, 175, 0.25)',
+                    }}
+                  >
+                    {t('register.submit', { defaultValue: 'إنشاء الحساب الأكاديمي' })}
+                  </Button>
+                </Stack>
+              </form>
+            )}
 
             <Text align="center" size="sm" mt="xl" color="dimmed">
-              لديك حساب بالفعل؟{' '}
+              {t('register.hasAccount', { defaultValue: 'لديك حساب بالفعل؟' })}{' '}
               <Anchor component={Link} to="/login" weight={700} color="brand">
-                تسجيل الدخول
+                {t('register.loginNow', { defaultValue: 'تسجيل الدخول' })}
               </Anchor>
             </Text>
 
             <Text align="center" size="xs" mt="md" color="dimmed">
               <Anchor component={Link} to="/" color="dimmed">
-                العودة إلى الصفحة الرئيسية
+                {t('common.actions.backToHome', { defaultValue: 'العودة إلى الصفحة الرئيسية' })}
               </Anchor>
             </Text>
           </Box>
@@ -332,7 +403,7 @@ export default function Register() {
                   <IconCheck size={16} color="#34d399" />
                 </Box>
                 <Text size="sm" weight={600} color="gray.2">
-                  وصول مباشر لجدول المحاضرات والاختبارات
+                  إعداد فوري لجامعتك وكلياتك ومساقاتك
                 </Text>
               </Group>
 

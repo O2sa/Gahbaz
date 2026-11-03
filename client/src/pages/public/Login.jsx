@@ -18,10 +18,12 @@ import {
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { Link, useNavigate } from 'react-router-dom'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { notifications } from '@mantine/notifications'
 import { Helmet } from 'react-helmet'
+import { useTranslation } from 'react-i18next'
 import customFetch from '../../utils/customFetch'
+import LanguageSwitcher from '../../components/common/LanguageSwitcher.jsx'
 import {
   IconSchool,
   IconMail,
@@ -39,6 +41,22 @@ const Login = () => {
   const queryClient = useQueryClient()
   const isDark = theme.colorScheme === 'dark'
   const [loading, setLoading] = useState(false)
+  const { t } = useTranslation(['auth', 'common'])
+
+  const { data: authStatus } = useQuery({
+    queryKey: ['authStatus'],
+    queryFn: async () => {
+      try {
+        const res = await customFetch.get('/auth/status')
+        return res?.data || res
+      } catch {
+        return { registrationEnabled: true }
+      }
+    },
+    staleTime: 1000 * 60 * 5,
+  })
+
+  const registrationEnabled = authStatus?.registrationEnabled !== false
 
   const form = useForm({
     initialValues: {
@@ -46,8 +64,8 @@ const Login = () => {
       password: '',
     },
     validate: {
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'يرجى إدخال بريد إلكتروني صحيح'),
-      password: (value) => (value.length >= 4 ? null : 'كلمة المرور يجب أن لا تقل عن 4 أحرف'),
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : t('errors.validation.invalidEmail', { ns: 'common', defaultValue: 'يرجى إدخال بريد إلكتروني صحيح' })),
+      password: (value) => (value.length >= 4 ? null : t('errors.validation.passwordTooShort', { ns: 'common', defaultValue: 'كلمة المرور يجب أن لا تقل عن 4 أحرف' })),
     },
   })
 
@@ -61,19 +79,29 @@ const Login = () => {
       }
       queryClient.clear()
       await queryClient.resetQueries()
+
+      const loggedUser = res?.data?.user || res?.user
+      const needsOnboarding = loggedUser?.role === 'admin' && loggedUser?.university?.needsSetup
+
       notifications.show({
-        title: 'تم تسجيل الدخول بنجاح',
-        message: 'مرحباً بك مجدداً في منصة جهبذ الأكاديمية',
+        title: t('common.notifications.success', { defaultValue: 'تم تسجيل الدخول بنجاح' }),
+        message: t('login.welcomeBack', { defaultValue: 'مرحباً بك مجدداً في منصة جهبذ الأكاديمية' }),
         color: 'teal',
         autoClose: 4000,
       })
-      navigate('/dashboard')
+
+      if (needsOnboarding) {
+        navigate('/onboarding/university')
+      } else {
+        navigate('/dashboard')
+      }
     } catch (error) {
       notifications.show({
-        title: 'خطأ في تسجيل الدخول',
+        title: t('common.notifications.error', { defaultValue: 'خطأ في تسجيل الدخول' }),
         message:
           error?.response?.data?.msg ||
-          'البريد الإلكتروني أو كلمة المرور غير صحيحة، يرجى التحقق وإعادة المحاولة.',
+          error?.response?.data?.message ||
+          t('login.errorInvalid', { defaultValue: 'البريد الإلكتروني أو كلمة المرور غير صحيحة، يرجى التحقق وإعادة المحاولة.' }),
         color: 'red',
         autoClose: 5000,
       })
@@ -90,11 +118,11 @@ const Login = () => {
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Helmet>
-        <title>منصة جهبذ | تسجيل الدخول</title>
+        <title>{t('login.title', { defaultValue: 'منصة جهبذ | تسجيل الدخول' })}</title>
       </Helmet>
 
       <Grid gutter={0} sx={{ flex: 1, minHeight: '100vh' }}>
-        {/* Left Side: Interactive Login Form (in RTL, it is on the left) */}
+        {/* Left Side: Interactive Login Form */}
         <Grid.Col
           xs={12}
           md={6}
@@ -111,31 +139,35 @@ const Login = () => {
           }}
         >
           <Box sx={{ maxWidth: 440, width: '100%', margin: '0 auto' }}>
-            {/* Header Mobile Brand */}
-            <Group spacing="xs" mb="xl">
-              <ActionIcon
-                size={40}
-                radius="md"
-                variant="gradient"
-                gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
-              >
-                <IconSchool size={24} color="white" />
-              </ActionIcon>
-              <Box>
-                <Text weight={800} size="md">
-                  منصة جَهْبَذ
-                </Text>
-                <Text size={10} color="dimmed">
-                  المنظومة الأكاديمية الذكية
-                </Text>
-              </Box>
+            {/* Header Mobile Brand & Language Switcher */}
+            <Group position="apart" mb="xl">
+              <Group spacing="xs">
+                <ActionIcon
+                  size={40}
+                  radius="md"
+                  variant="gradient"
+                  gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
+                >
+                  <IconSchool size={24} color="white" />
+                </ActionIcon>
+                <Box>
+                  <Text weight={800} size="md">
+                    {t('nav.platformTitle', { defaultValue: 'منصة جَهْبَذ' })}
+                  </Text>
+                  <Text size={10} color="dimmed">
+                    {t('nav.platformSubtitle', { defaultValue: 'المنظومة الأكاديمية الذكية' })}
+                  </Text>
+                </Box>
+              </Group>
+
+              <LanguageSwitcher variant="subtle" size="sm" />
             </Group>
 
             <Title order={2} sx={{ fontWeight: 800, fontSize: 28, color: isDark ? '#ffffff' : '#0f172a' }}>
-              تسجيل الدخول
+              {t('login.title', { defaultValue: 'تسجيل الدخول' })}
             </Title>
             <Text color="dimmed" size="sm" mt={4} mb="xl">
-              أهلاً بك مجدداً، أدخل بياناتك للوصول إلى حسابك الأكاديمي
+              {t('login.subtitle', { defaultValue: 'أهلاً بك مجدداً، أدخل بياناتك للوصول إلى حسابك الأكاديمي' })}
             </Text>
 
             {/* Quick Demo Credentials */}
@@ -151,7 +183,7 @@ const Login = () => {
               <Group spacing={6} mb={8}>
                 <IconSparkles size={16} color={isDark ? '#60a5fa' : '#2563eb'} />
                 <Text size="xs" weight={700} color={isDark ? 'blue.3' : 'brand'}>
-                  تجربة سريعة بضغطة زر واحدة:
+                  {t('login.demoHeading', { defaultValue: 'تجربة سريعة بضغطة زر واحدة:' })}
                 </Text>
               </Group>
               <Group spacing="xs" grow>
@@ -164,7 +196,7 @@ const Login = () => {
                   disabled={loading}
                   sx={{ fontWeight: 600 }}
                 >
-                  مدير النظام
+                  {t('roles.admin', { ns: 'common', defaultValue: 'مدير النظام' })}
                 </Button>
                 <Button
                   size="xs"
@@ -175,7 +207,7 @@ const Login = () => {
                   disabled={loading}
                   sx={{ fontWeight: 600 }}
                 >
-                  أستاذ
+                  {t('roles.teacher', { ns: 'common', defaultValue: 'أستاذ' })}
                 </Button>
                 <Button
                   size="xs"
@@ -186,7 +218,7 @@ const Login = () => {
                   disabled={loading}
                   sx={{ fontWeight: 600 }}
                 >
-                  طالب
+                  {t('roles.student', { ns: 'common', defaultValue: 'طالب' })}
                 </Button>
               </Group>
             </Paper>
@@ -195,8 +227,8 @@ const Login = () => {
             <form onSubmit={form.onSubmit(handleSubmit)}>
               <Stack spacing="md">
                 <TextInput
-                  label="البريد الإلكتروني"
-                  placeholder="name@gahbaz.edu"
+                  label={t('login.emailLabel', { defaultValue: 'البريد الإلكتروني' })}
+                  placeholder={t('login.emailPlaceholder', { defaultValue: 'name@gahbaz.edu' })}
                   icon={<IconMail size={16} />}
                   size="md"
                   radius="md"
@@ -205,8 +237,8 @@ const Login = () => {
                 />
 
                 <PasswordInput
-                  label="كلمة المرور"
-                  placeholder="••••••••"
+                  label={t('login.passwordLabel', { defaultValue: 'كلمة المرور' })}
+                  placeholder={t('login.passwordPlaceholder', { defaultValue: '••••••••' })}
                   icon={<IconLock size={16} />}
                   size="md"
                   radius="md"
@@ -215,9 +247,9 @@ const Login = () => {
                 />
 
                 <Group position="apart" mt={4}>
-                  <Checkbox label="تذكرني على هذا الجهاز" size="sm" />
+                  <Checkbox label={t('login.rememberMe', { defaultValue: 'تذكرني على هذا الجهاز' })} size="sm" />
                   <Anchor component="button" type="button" size="xs" color="dimmed">
-                    نسيت كلمة المرور؟
+                    {t('login.forgotPassword', { defaultValue: 'نسيت كلمة المرور؟' })}
                   </Anchor>
                 </Group>
 
@@ -239,21 +271,23 @@ const Login = () => {
                       : '0 4px 16px rgba(30, 64, 175, 0.25)',
                   }}
                 >
-                  تسجيل الدخول
+                  {t('login.submit', { defaultValue: 'تسجيل الدخول' })}
                 </Button>
               </Stack>
             </form>
 
-            <Text align="center" size="sm" mt="xl" color="dimmed">
-              ليس لديك حساب بعد؟{' '}
-              <Anchor component={Link} to="/register" weight={700} color="brand">
-                إنشاء حساب جديد
-              </Anchor>
-            </Text>
+            {registrationEnabled && (
+              <Text align="center" size="sm" mt="xl" color="dimmed">
+                {t('login.noAccount', { defaultValue: 'ليس لديك حساب بعد؟' })}{' '}
+                <Anchor component={Link} to="/register" weight={700} color="brand">
+                  {t('login.registerNow', { defaultValue: 'إنشاء حساب جديد' })}
+                </Anchor>
+              </Text>
+            )}
 
             <Text align="center" size="xs" mt="md" color="dimmed">
               <Anchor component={Link} to="/" color="dimmed">
-                العودة إلى الصفحة الرئيسية
+                {t('common.actions.backToHome', { defaultValue: 'العودة إلى الصفحة الرئيسية' })}
               </Anchor>
             </Text>
           </Box>

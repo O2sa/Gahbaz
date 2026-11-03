@@ -6,15 +6,19 @@ import arCommon from '../locales/ar/common.json'
 import enCommon from '../locales/en/common.json'
 import arNav from '../locales/ar/nav.json'
 import enNav from '../locales/en/nav.json'
+import arAuth from '../locales/ar/auth.json'
+import enAuth from '../locales/en/auth.json'
 
 const resources = {
   ar: {
     common: arCommon,
     nav: arNav,
+    auth: arAuth,
   },
   en: {
     common: enCommon,
     nav: enNav,
+    auth: enAuth,
   },
 }
 
@@ -26,7 +30,7 @@ i18n
     fallbackLng: 'ar',
     supportedLngs: ['ar', 'en'],
     defaultNS: 'common',
-    ns: ['common', 'nav'],
+    ns: ['common', 'nav', 'auth'],
     detection: {
       order: ['localStorage', 'navigator'],
       lookupLocalStorage: 'gahbaz-language',
