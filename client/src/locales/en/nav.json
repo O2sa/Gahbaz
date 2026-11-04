@@ -84,6 +84,12 @@
     "majorsAndDepts": "Majors & Departments",
     "academicSubjects": "Academic Subjects",
     "majorInfo": "Major Info",
-    "studyPlan": "Study Plan (Semester Templates)"
+    "studyPlan": "Study Plan (Semester Templates)",
+    "basicInfo": "Basic Information",
+    "lessons": "Sections & Lessons",
+    "grades": "Student Grades",
+    "courseInfo": "Basic Information",
+    "courseLessons": "Sections & Lessons",
+    "courseGrades": "Student Grades"
   }
 }

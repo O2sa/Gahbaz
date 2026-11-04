@@ -21,17 +21,20 @@ export default function CreateCourse() {
 
   const tabs = [
     {
-      name: t('courses.basicInfo'),
+      name: t('courses.basicInfo', { defaultValue: 'المعلومات الأساسية' }),
+      labelKey: 'courses.basicInfo',
       icon: BsInfoSquare,
       to: '.',
     },
     {
-      name: t('courses.lessons'),
+      name: t('courses.lessons', { defaultValue: 'الأقسام والدروس' }),
+      labelKey: 'courses.lessons',
       icon: MdOutlinePlayLesson,
       to: 'lessons',
     },
     {
-      name: t('courses.grades'),
+      name: t('courses.gradesTab', { defaultValue: 'درجات الطلاب' }),
+      labelKey: 'courses.gradesTab',
       icon: GiLevelEndFlag,
       to: 'grades',
     },

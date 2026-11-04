@@ -129,7 +129,11 @@ export const TabsLinks = ({ tabs = [] }) => {
                     />
                   )}
                   <Text size="sm">
-                    {tab.labelKey ? t(tab.labelKey, { defaultValue: tab.name }) : t(tab.name, { defaultValue: tab.name })}
+                    {tab.labelKey
+                      ? t(tab.labelKey, { defaultValue: tab.name })
+                      : typeof tab.name === 'string' && tab.name.includes('.')
+                      ? t(tab.name, { defaultValue: tab.name })
+                      : tab.name || tab.label || ''}
                   </Text>
                 </Box>
               </Link>
