@@ -1,16 +1,21 @@
 import React from 'react'
 import { Stack, Text, Title, Button, ThemeIcon, useMantineTheme } from '@mantine/core'
 import { IconInbox } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 
 export default function EmptyState({
-  title = 'لا توجد بيانات متاحة',
-  description = 'لم يتم العثور على أي عناصر لعرضها في الوقت الحالي',
+  title,
+  description,
   icon: Icon = IconInbox,
   actionLabel,
   onAction,
 }) {
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const { t } = useTranslation('common')
+
+  const resolvedTitle = title || t('table.noRecords')
+  const resolvedDesc = description !== undefined ? description : t('table.emptyDescription')
 
   return (
     <Stack align="center" justify="center" py="xl" spacing="sm">
@@ -33,11 +38,11 @@ export default function EmptyState({
           fontWeight: 700,
         }}
       >
-        {title}
+        {resolvedTitle}
       </Title>
-      {description && (
+      {resolvedDesc && (
         <Text size="sm" color="dimmed" sx={{ maxWidth: 360, textAlign: 'center', lineHeight: 1.6 }}>
-          {description}
+          {resolvedDesc}
         </Text>
       )}
       {actionLabel && onAction && (

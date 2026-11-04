@@ -200,7 +200,7 @@ export default function Collages() {
         title={t('colleges.title')}
         description={t('colleges.subtitle')}
         breadcrumbs={[
-          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          { title: tCommon('actions.home'), href: '/' },
           { title: t('colleges.breadcrumb') },
         ]}
         action={

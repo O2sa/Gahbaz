@@ -2,9 +2,11 @@ import React from 'react'
 import { Container, Title, Text, Button, Center, Stack, ThemeIcon } from '@mantine/core'
 import { IconAlertTriangle } from '@tabler/icons-react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 export default function Error() {
   const navigate = useNavigate()
+  const { t } = useTranslation('common')
 
   return (
     <Container size="sm" py={80}>
@@ -14,10 +16,10 @@ export default function Error() {
             <IconAlertTriangle size={48} />
           </ThemeIcon>
 
-          <Title order={2}>حدث خطأ غير متوقع</Title>
+          <Title order={2}>{t('errorPages.unexpectedTitle')}</Title>
 
           <Text color="dimmed" size="md" sx={{ maxWidth: 450 }}>
-            نعتذر، حدث خطأ أثناء معالجة طلبك. يمكنك المحاولة مرة أخرى أو العودة إلى الصفحة الرئيسية.
+            {t('errorPages.unexpectedDesc')}
           </Text>
 
           <Button
@@ -26,7 +28,7 @@ export default function Error() {
             onClick={() => navigate('/')}
             variant="filled"
           >
-            العودة إلى الصفحة الرئيسية
+            {t('actions.backToHome')}
           </Button>
         </Stack>
       </Center>

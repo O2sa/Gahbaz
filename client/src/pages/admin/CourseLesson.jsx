@@ -18,11 +18,13 @@ import {
 } from '@mantine/core'
 import { IconBook2, IconVideo, IconFileText, IconInfoCircle } from '@tabler/icons-react'
 import { Helmet } from 'react-helmet'
+import { useTranslation } from 'react-i18next'
 
 export default function CourseLesson() {
   const { sectionId, lessonId } = useParams()
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const { t } = useTranslation(['admin', 'common', 'nav'])
 
   const {
     data: lesson = {},
@@ -47,7 +49,7 @@ export default function CourseLesson() {
   return (
     <Box py="sm">
       <Helmet>
-        <title>{`منصة جهبذ | ${lesson?.name || 'الدرس'}`}</title>
+        <title>{`${t('platformTitle', { ns: 'nav', defaultValue: 'منصة جهبذ' })} | ${lesson?.name || t('courseBuilder.lessonTitle')}`}</title>
       </Helmet>
 
       <Stack spacing="xl">
@@ -62,7 +64,7 @@ export default function CourseLesson() {
                 fontSize: rem(24),
               }}
             >
-              {lesson?.name || 'عنوان الدرس'}
+              {lesson?.name || t('courseBuilder.lessonTitle')}
             </Title>
             <Group spacing="xs">
               {hasVideo && (
@@ -72,7 +74,7 @@ export default function CourseLesson() {
                   size="md"
                   leftSection={<IconVideo size={14} />}
                 >
-                  فيديو تعليمي
+                  {t('courseBuilder.addVideo')}
                 </Badge>
               )}
               {hasTopic && (
@@ -82,7 +84,7 @@ export default function CourseLesson() {
                   size="md"
                   leftSection={<IconFileText size={14} />}
                 >
-                  {`${lesson?.topic?.readingTime || 2} دقائق قراءة`}
+                  {t('courseBuilder.readingDuration', { count: lesson?.topic?.readingTime || 2 })}
                 </Badge>
               )}
             </Group>
@@ -147,7 +149,7 @@ export default function CourseLesson() {
                   fontWeight: 700,
                 }}
               >
-                المحتوى النصي والملاحظات
+                {t('courseBuilder.textContentAndNotes')}
               </Title>
             </Group>
 
@@ -167,7 +169,7 @@ export default function CourseLesson() {
                   marginBottom: rem(10),
                 },
                 '& ul, & ol': {
-                  paddingRight: rem(20),
+                  paddingInlineStart: rem(20),
                   marginBottom: rem(14),
                   color: isDark ? theme.colors.dark[1] : theme.colors.gray[8],
                 },
@@ -180,7 +182,7 @@ export default function CourseLesson() {
                   fontWeight: 600,
                 },
                 '& blockquote': {
-                  borderRight: `4px solid ${isDark ? theme.colors.brand[5] : theme.colors.brand[6]}`,
+                  borderInlineStart: `4px solid ${isDark ? theme.colors.brand[5] : theme.colors.brand[6]}`,
                   margin: `${rem(16)} 0`,
                   padding: `${rem(8)} ${rem(16)}`,
                   backgroundColor: isDark ? 'rgba(59, 130, 246, 0.08)' : 'rgba(30, 64, 175, 0.04)',
@@ -254,10 +256,10 @@ export default function CourseLesson() {
               <IconInfoCircle size={30} />
             </ThemeIcon>
             <Title order={4} mb="xs" sx={{ color: isDark ? '#ffffff' : '#0f172a' }}>
-              لا يوجد محتوى مضاف بعد
+              {t('courseBuilder.noLessonContent')}
             </Title>
             <Text color="dimmed" size="sm">
-              لم يتم رفع مقطع فيديو أو محتوى نصي لهذا الدرس حتى الآن.
+              {t('courseBuilder.noLessonContentDesc')}
             </Text>
           </Paper>
         )}

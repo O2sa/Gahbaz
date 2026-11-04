@@ -214,5 +214,24 @@
     "addDropClosed": "Add/Drop period is currently closed. New course additions are disabled.",
     "exceedsMaxCredits": "Enrolling in this course will exceed the maximum allowed limit ({{max}} credits).",
     "registerBtn": "Register for Course ({{credits}} Cr)"
+  },
+  "submissionModal": {
+    "title": "Submit Assignment Solution",
+    "editTitle": "Update Assignment Submission",
+    "dueDate": "Final Due Date:",
+    "lateWarning": "Notice: Due date has passed. This submission will be recorded as (Late).",
+    "fileLabel": "Your Solution File",
+    "dropzoneText": "Drag and drop your solution file here or click to browse",
+    "dropzoneHint": "Supports PDF, Word, ZIP or code files up to 25MB",
+    "notesLabel": "Additional Student Notes (Optional)",
+    "notesPlaceholder": "Add any explanations or comments regarding your solution...",
+    "submitButton": "Submit Assignment",
+    "submitLateButton": "Submit as (Late Submission)",
+    "fileRequired": "Please attach your solution file before submitting",
+    "success": "Solution submitted successfully to instructor",
+    "successLate": "Solution uploaded and recorded as (Late Submission) successfully",
+    "existingSubmissionTitle": "You have an existing submission recorded",
+    "viewPreviousFile": "View Previous File",
+    "maxScoreLabel": "Max Score: {{score}} pts"
   }
 }

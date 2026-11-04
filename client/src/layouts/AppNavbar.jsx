@@ -80,14 +80,13 @@ export default function AppNavbar({ opened, setOpened, user }) {
         : isDark
         ? theme.colors.dark[1]
         : theme.colors.gray[7],
-      borderRight: active
+      borderInlineStart: active
         ? `3px solid ${isDark ? '#3b82f6' : theme.colors.brand[6]}`
         : '3px solid transparent',
       '&:hover': {
         backgroundColor: isDark
           ? theme.colors.dark[5]
           : theme.colors.gray[1],
-        transform: 'translateX(-2px)',
       },
     }
   }
@@ -102,7 +101,7 @@ export default function AppNavbar({ opened, setOpened, user }) {
         backgroundColor: isDark
           ? 'rgba(26, 27, 30, 0.95)'
           : 'rgba(255, 255, 255, 0.95)',
-        borderLeft: `1px solid ${
+        borderInlineEnd: `1px solid ${
           isDark ? theme.colors.dark[5] : theme.colors.gray[2]
         }`,
       }}

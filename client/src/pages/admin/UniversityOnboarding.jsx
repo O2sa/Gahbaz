@@ -15,7 +15,6 @@ import {
   Alert,
   Loader,
   Center,
-  Grid,
   Card,
   Divider,
 } from '@mantine/core'
@@ -28,6 +27,7 @@ import {
   IconSchool,
   IconCheck,
   IconArrowLeft,
+  IconArrowRight,
   IconBuildingCommunity,
   IconBarcode,
   IconInfoCircle,
@@ -44,7 +44,8 @@ export default function UniversityOnboarding() {
   const theme = useMantineTheme()
   const queryClient = useQueryClient()
   const isDark = theme.colorScheme === 'dark'
-  const { t } = useTranslation(['auth', 'common'])
+  const { t, i18n } = useTranslation(['admin', 'auth', 'common', 'nav'])
+  const isRtl = i18n.dir() === 'rtl'
 
   const {
     data: userData,
@@ -81,15 +82,15 @@ export default function UniversityOnboarding() {
     validate: {
       name: (val) => {
         const trimmed = (val || '').trim()
-        if (trimmed.length < 3) return 'اسم الجامعة يجب أن لا يقل عن 3 أحرف'
-        if (trimmed.length > 100) return 'اسم الجامعة يجب أن لا يتجاوز 100 حرف'
+        if (trimmed.length < 3) return t('onboarding.validation.nameMin')
+        if (trimmed.length > 100) return t('onboarding.validation.nameMax')
         return null
       },
       code: (val) => {
         const trimmed = (val || '').trim()
-        if (trimmed.length < 2) return 'رمز الجامعة يجب أن لا يقل عن حرفين'
-        if (trimmed.length > 10) return 'رمز الجامعة يجب أن لا يتجاوز 10 أحرف'
-        if (!/^[A-Za-z0-9_-]+$/.test(trimmed)) return 'رمز الجامعة يجب أن يحتوي على أحرف إنجليزية وأرقام فقط'
+        if (trimmed.length < 2) return t('onboarding.validation.codeMin')
+        if (trimmed.length > 10) return t('onboarding.validation.codeMax')
+        if (!/^[A-Za-z0-9_-]+$/.test(trimmed)) return t('onboarding.validation.codeFormat')
         return null
       },
     },
@@ -136,8 +137,8 @@ export default function UniversityOnboarding() {
     },
     onSuccess: async () => {
       notifications.show({
-        title: 'تم إعداد الجامعة بنجاح!',
-        message: 'تم حفظ وتفعيل بيانات جامعتك في جهبذ. مرحباً بك في لوحة الإدارة الأكاديمية.',
+        title: t('onboarding.successTitle'),
+        message: t('onboarding.successDesc'),
         color: 'teal',
         icon: <IconCheck size={18} />,
         autoClose: 5000,
@@ -151,9 +152,9 @@ export default function UniversityOnboarding() {
         err?.response?.data?.message ||
         err?.response?.data?.msg ||
         err?.response?.data?.error?.message ||
-        'حدث خطأ أثناء حفظ بيانات الجامعة. يرجى التأكد من عدم تكرار الاسم أو الرمز.'
+        t('onboarding.errorDefault')
       notifications.show({
-        title: 'تعذر حفظ البيانات',
+        title: t('onboarding.errorTitle'),
         message: msg,
         color: 'red',
         autoClose: 6000,
@@ -181,7 +182,7 @@ export default function UniversityOnboarding() {
         <Stack align="center" spacing="md">
           <Loader size="xl" color="brand" />
           <Text size="sm" color="dimmed">
-            جارٍ تحميل بيانات المنظومة...
+            {t('onboarding.loading')}
           </Text>
         </Stack>
       </Center>
@@ -200,7 +201,7 @@ export default function UniversityOnboarding() {
       }}
     >
       <Helmet>
-        <title>منصة جهبذ | إعداد بيانات الجامعة</title>
+        <title>{`${t('platformTitle', { ns: 'nav', defaultValue: 'منصة جهبذ' })} | ${t('onboarding.title')}`}</title>
       </Helmet>
 
       {/* Top Bar with brand and logout */}
@@ -225,10 +226,10 @@ export default function UniversityOnboarding() {
               </ThemeIcon>
               <Box>
                 <Text weight={800} size="md">
-                  منصة جَهْبَذ
+                  {t('platformTitle', { ns: 'nav', defaultValue: 'منصة جَهْبَذ' })}
                 </Text>
                 <Text size={10} color="dimmed">
-                  إعداد المنظومة الأكاديمية
+                  {t('onboarding.subtitle')}
                 </Text>
               </Box>
             </Group>
@@ -242,7 +243,7 @@ export default function UniversityOnboarding() {
                 leftIcon={<IconLogout size={16} />}
                 onClick={handleLogout}
               >
-                {t('actions.logout', { ns: 'common', defaultValue: 'تسجيل الخروج' })}
+                {t('actions.logout', { ns: 'common' })}
               </Button>
             </Group>
           </Group>
@@ -269,37 +270,35 @@ export default function UniversityOnboarding() {
               gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
               leftSection={<IconSparkles size={14} />}
             >
-              الخطوة الأخيرة: تفعيل الجامعة
+              {t('onboarding.stepBadge')}
             </Badge>
             <Text size="xs" color="dimmed" weight={600}>
-              حساب مسؤول: {userData?.email}
+              {t('onboarding.adminAccount', { email: userData?.email })}
             </Text>
           </Group>
 
           <Title order={2} sx={{ fontWeight: 800, fontSize: 26 }} mb="xs">
-            أهلاً بك كمسؤول أكاديمي جديد! 🎓
+            {t('onboarding.welcome')}
           </Title>
           <Text color="dimmed" size="sm" mb="xl">
-            لاستكمال تفعيل حسابك كمسؤول وتجهيز بوابتك التعليمية بالكامل، يرجى تحديد الاسم الرسمي لجامعتك
-            أو مؤسستك الأكاديمية والرمز التعريفي المختصر.
+            {t('onboarding.welcomeDesc')}
           </Text>
 
           <Alert
             icon={<IconInfoCircle size={18} />}
-            title="تنويه إداري"
+            title={t('onboarding.alertTitle')}
             color="blue"
             radius="md"
             mb="xl"
           >
-            سيتم استخدام هذه البيانات لتعريف كلياتك، تخصصاتك، موادك ومقرراتك الدراسية أمام الأساتذة
-            والطلاب.
+            {t('onboarding.alertDesc')}
           </Alert>
 
           <form onSubmit={form.onSubmit((values) => mutation.mutate(values))}>
             <Stack spacing="lg">
               <TextInput
-                label="الاسم الرسمي للجامعة أو المؤسسة الأكاديمية"
-                placeholder="مثال: جامعة الملك سعود أو جامعة الإمام"
+                label={t('onboarding.univNameLabel')}
+                placeholder={t('onboarding.univNamePlaceholder')}
                 required
                 size="md"
                 radius="md"
@@ -309,9 +308,9 @@ export default function UniversityOnboarding() {
               />
 
               <TextInput
-                label="رمز الجامعة المختصر (Code)"
-                placeholder="مثال: KSU أو IMAMU"
-                description="رمز فريد باللغة الإنجليزية يتكون من 2 إلى 10 أحرف (سيتحول تلقائياً إلى أحرف كبيرة)."
+                label={t('onboarding.univCodeLabel')}
+                placeholder={t('onboarding.univCodePlaceholder')}
+                description={t('onboarding.univCodeDesc')}
                 required
                 size="md"
                 radius="md"
@@ -333,11 +332,11 @@ export default function UniversityOnboarding() {
                 }}
               >
                 <Text size="xs" color="dimmed" weight={700} mb="xs">
-                  معاينة هوية المنظومة:
+                  {t('onboarding.previewTitle')}
                 </Text>
                 <Group position="apart">
                   <Text weight={700} size="sm">
-                    {form.values.name.trim() || 'اسم جامعتك يظهر هنا'}
+                    {form.values.name.trim() || t('onboarding.previewPlaceholder')}
                   </Text>
                   <Badge variant="filled" color="brand" size="md">
                     {form.values.code.trim().toUpperCase() || 'CODE'}
@@ -354,7 +353,7 @@ export default function UniversityOnboarding() {
                 variant="gradient"
                 gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
                 loading={mutation.isLoading}
-                leftIcon={<IconArrowLeft size={20} />}
+                leftIcon={isRtl ? <IconArrowLeft size={20} /> : <IconArrowRight size={20} />}
                 sx={{
                   fontWeight: 700,
                   height: 50,
@@ -363,7 +362,7 @@ export default function UniversityOnboarding() {
                     : '0 4px 16px rgba(30, 64, 175, 0.25)',
                 }}
               >
-                حفظ بيانات الجامعة والبدء
+                {t('onboarding.submit')}
               </Button>
             </Stack>
           </form>

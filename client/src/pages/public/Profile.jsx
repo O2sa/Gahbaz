@@ -2,7 +2,6 @@ import {
   Avatar,
   Box,
   Button,
-  Center,
   Grid,
   Group,
   PasswordInput,
@@ -14,12 +13,12 @@ import {
   Paper,
   Badge,
   useMantineTheme,
-  rem,
 } from '@mantine/core'
 import React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import {
   IconArrowRight,
+  IconArrowLeft,
   IconLock,
   IconUpload,
   IconUser,
@@ -28,6 +27,7 @@ import {
   IconUserCheck,
 } from '@tabler/icons-react'
 import { useForm } from '@mantine/form'
+import { useTranslation } from 'react-i18next'
 import customFetch from '../../utils/customFetch'
 import { notifications } from '@mantine/notifications'
 import UploadProfile from './UploadProfile'
@@ -40,6 +40,9 @@ export default function Profile({ queryClient }) {
   const navigate = useNavigate()
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const { t, i18n } = useTranslation(['auth', 'common', 'nav', 'errors'])
+  const isRtl = i18n.dir() === 'rtl'
+  const BackArrowIcon = isRtl ? IconArrowRight : IconArrowLeft
 
   const {
     data: user = {},
@@ -55,9 +58,9 @@ export default function Profile({ queryClient }) {
       phone: '',
     },
     validate: {
-      firstName: (value) => (!value ? 'الاسم الأول مطلوب' : null),
-      lastName: (value) => (!value ? 'الاسم الأخير مطلوب' : null),
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'البريد الإلكتروني غير صحيح'),
+      firstName: (value) => (!value ? t('errors.validation.required', { ns: 'errors' }) : null),
+      lastName: (value) => (!value ? t('errors.validation.required', { ns: 'errors' }) : null),
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : t('errors.validation.invalidEmail', { ns: 'errors' })),
     },
   })
 
@@ -79,10 +82,10 @@ export default function Profile({ queryClient }) {
       confirmPassword: '',
     },
     validate: {
-      oldPassword: (value) => (value?.length < 6 ? 'كلمة السر يجب ألا تقل عن 6 أحرف' : null),
-      password: (value) => (value?.length < 6 ? 'كلمة السر يجب ألا تقل عن 6 أحرف' : null),
+      oldPassword: (value) => (value?.length < 6 ? t('errors.validation.passwordTooShort', { ns: 'errors' }) : null),
+      password: (value) => (value?.length < 6 ? t('errors.validation.passwordTooShort', { ns: 'errors' }) : null),
       confirmPassword: (value, values) =>
-        value !== values.password ? 'كلمات السر غير متطابقة' : null,
+        value !== values.password ? t('errors.codes.VALIDATION_ERROR', { ns: 'errors' }) : null,
     },
   })
 
@@ -101,8 +104,8 @@ export default function Profile({ queryClient }) {
       await customFetch.patch(`users/${user._id}`, values)
       notifications.show({
         id: 'profile-updated',
-        title: 'تم بنجاح!',
-        message: 'تم تحديث البيانات الشخصية بنجاح.',
+        title: t('notifications.success', { ns: 'common' }),
+        message: t('profile.profileUpdatedSuccess', { ns: 'auth' }),
         color: 'teal',
         autoClose: 4000,
       })
@@ -110,8 +113,8 @@ export default function Profile({ queryClient }) {
     } catch (error) {
       notifications.show({
         id: 'profile-update-error',
-        title: 'خطأ!',
-        message: error?.response?.data?.msg || 'حدث خطأ أثناء تحديث البيانات.',
+        title: t('notifications.error', { ns: 'common' }),
+        message: error?.response?.data?.msg || t('errors.generic', { ns: 'errors' }),
         color: 'red',
         autoClose: 5000,
       })
@@ -123,8 +126,8 @@ export default function Profile({ queryClient }) {
       await customFetch.post(`users/${user._id}/change-pass`, values)
       notifications.show({
         id: 'password-updated',
-        title: 'تم بنجاح!',
-        message: 'تم تغيير كلمة السر بنجاح.',
+        title: t('notifications.success', { ns: 'common' }),
+        message: t('profile.passwordUpdatedSuccess', { ns: 'auth' }),
         color: 'teal',
         autoClose: 4000,
       })
@@ -132,8 +135,8 @@ export default function Profile({ queryClient }) {
     } catch (error) {
       notifications.show({
         id: 'password-update-error',
-        title: 'خطأ!',
-        message: error?.response?.data?.msg || 'حدث خطأ أثناء تغيير كلمة السر.',
+        title: t('notifications.error', { ns: 'common' }),
+        message: error?.response?.data?.msg || t('errors.generic', { ns: 'errors' }),
         color: 'red',
         autoClose: 5000,
       })
@@ -146,44 +149,53 @@ export default function Profile({ queryClient }) {
 
   const getRoleBadge = () => {
     if (isStudent) {
+      const studentLabel = user?.major?.name
+        ? t('profile.roleStudent', { ns: 'auth', major: user.major.name })
+        : t('roles.student', { ns: 'common' })
+      const semesterSuffix = user?.comingSemester
+        ? ` (${t('profile.level', { ns: 'auth', level: user.comingSemester })})`
+        : ''
       return (
         <Badge color="teal" variant="light" size="md" leftSection={<IconSchool size={14} />}>
-          {`طالب ${user?.major?.name || ''} ${user?.comingSemester ? `(المستوى ${user.comingSemester})` : ''}`}
+          {`${studentLabel}${semesterSuffix}`}
         </Badge>
       )
     }
     if (isTeacher) {
       return (
         <Badge color="blue" variant="light" size="md" leftSection={<IconUserCheck size={14} />}>
-          عضو هيئة تدريس
+          {t('profile.roleTeacher', { ns: 'auth' })}
         </Badge>
       )
     }
     return (
       <Badge color="violet" variant="light" size="md" leftSection={<IconShieldCheck size={14} />}>
-        مدير نظام
+        {t('profile.roleAdmin', { ns: 'auth' })}
       </Badge>
     )
   }
 
-  const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.name || 'مستخدم'
+  const fullName =
+    `${user?.firstName || ''} ${user?.lastName || ''}`.trim() ||
+    user?.name ||
+    t('roles.user', { ns: 'common' })
 
   return (
     <Box>
       <Helmet>
-        <title>{'منصة جهبذ | الملف الشخصي'}</title>
+        <title>{`${t('platformTitle', { ns: 'nav' })} | ${t('profile.title', { ns: 'auth' })}`}</title>
       </Helmet>
 
       <PageHeader
-        title="الملف الشخصي"
-        description="إدارة معلومات الحساب الشخصي وتعديل كلمة المرور"
+        title={t('profile.title', { ns: 'auth' })}
+        description={t('profile.subtitle', { ns: 'auth' })}
         breadcrumbs={[
-          { title: 'الرئيسية', href: '/' },
-          { title: 'الملف الشخصي' },
+          { title: t('actions.home', { ns: 'common' }), href: '/' },
+          { title: t('profile.title', { ns: 'auth' }) },
         ]}
         action={
-          <Button variant="default" leftIcon={<IconArrowRight size={16} />} onClick={() => navigate(-1)}>
-            رجوع
+          <Button variant="default" leftIcon={<BackArrowIcon size={16} />} onClick={() => navigate(-1)}>
+            {t('actions.back', { ns: 'common' })}
           </Button>
         }
       />
@@ -233,7 +245,7 @@ export default function Profile({ queryClient }) {
 
           <UploadProfile queryClient={queryClient} user={user}>
             <Button size="sm" variant="light" color="brand" leftIcon={<IconUpload size={16} />}>
-              تغيير الصورة الشخصية
+              {t('profile.avatarTitle', { ns: 'auth' })}
             </Button>
           </UploadProfile>
         </Group>
@@ -258,7 +270,7 @@ export default function Profile({ queryClient }) {
         <Group spacing="xs" mb="lg">
           <IconUser size={20} color={isDark ? '#60a5fa' : '#2563eb'} />
           <Title order={4} sx={{ color: isDark ? '#ffffff' : '#0f172a', fontWeight: 700 }}>
-            المعلومات الشخصية
+            {t('profile.personalInfo', { ns: 'auth' })}
           </Title>
         </Group>
 
@@ -266,23 +278,23 @@ export default function Profile({ queryClient }) {
           <Grid gutter="md">
             <Grid.Col xs={12} sm={6}>
               <TextInput
-                label="الاسم الأول"
-                placeholder="الاسم الأول"
+                label={t('register.firstName', { ns: 'auth' })}
+                placeholder={t('register.firstName', { ns: 'auth' })}
                 required
                 {...form.getInputProps('firstName')}
               />
             </Grid.Col>
             <Grid.Col xs={12} sm={6}>
               <TextInput
-                label="الاسم الأخير"
-                placeholder="الاسم الأخير"
+                label={t('register.lastName', { ns: 'auth' })}
+                placeholder={t('register.lastName', { ns: 'auth' })}
                 required
                 {...form.getInputProps('lastName')}
               />
             </Grid.Col>
             <Grid.Col xs={12} sm={6}>
               <TextInput
-                label="البريد الإلكتروني"
+                label={t('register.email', { ns: 'auth' })}
                 placeholder="example@gahbaz.edu"
                 required
                 {...form.getInputProps('email')}
@@ -290,7 +302,7 @@ export default function Profile({ queryClient }) {
             </Grid.Col>
             <Grid.Col xs={12} sm={6}>
               <TextInput
-                label="رقم الهاتف"
+                label={t('register.phone', { ns: 'auth' })}
                 placeholder="05xxxxxxxx"
                 {...form.getInputProps('phone')}
               />
@@ -299,7 +311,7 @@ export default function Profile({ queryClient }) {
 
           <Group position="right" mt="xl">
             <Button type="submit" color="brand">
-              حفظ التعديلات
+              {t('profile.saveProfile', { ns: 'auth' })}
             </Button>
           </Group>
         </form>
@@ -323,7 +335,7 @@ export default function Profile({ queryClient }) {
         <Group spacing="xs" mb="lg">
           <IconLock size={20} color={isDark ? '#60a5fa' : '#2563eb'} />
           <Title order={4} sx={{ color: isDark ? '#ffffff' : '#0f172a', fontWeight: 700 }}>
-            تغيير كلمة المرور
+            {t('profile.passwordTitle', { ns: 'auth' })}
           </Title>
         </Group>
 
@@ -331,7 +343,7 @@ export default function Profile({ queryClient }) {
           <Grid gutter="md">
             <Grid.Col xs={12} md={4}>
               <PasswordInput
-                label="كلمة السر الحالية"
+                label={t('profile.oldPassword', { ns: 'auth' })}
                 placeholder="••••••••"
                 required
                 {...passform.getInputProps('oldPassword')}
@@ -339,7 +351,7 @@ export default function Profile({ queryClient }) {
             </Grid.Col>
             <Grid.Col xs={12} md={4}>
               <PasswordInput
-                label="كلمة السر الجديدة"
+                label={t('profile.newPassword', { ns: 'auth' })}
                 placeholder="••••••••"
                 required
                 {...passform.getInputProps('password')}
@@ -347,7 +359,7 @@ export default function Profile({ queryClient }) {
             </Grid.Col>
             <Grid.Col xs={12} md={4}>
               <PasswordInput
-                label="تأكيد كلمة السر الجديدة"
+                label={t('profile.confirmNewPassword', { ns: 'auth' })}
                 placeholder="••••••••"
                 required
                 {...passform.getInputProps('confirmPassword')}
@@ -357,7 +369,7 @@ export default function Profile({ queryClient }) {
 
           <Group position="right" mt="xl">
             <Button type="submit" color="brand" variant="light">
-              تحديث كلمة المرور
+              {t('profile.updatePassword', { ns: 'auth' })}
             </Button>
           </Group>
         </form>

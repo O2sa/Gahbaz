@@ -39,5 +39,68 @@
     "editCourse": "تعديل المقرر",
     "emptyTitle": "لا توجد مقررات دراسية",
     "emptyDesc": "لم يتم العثور على أي مقررات نشطة في النظام حالياً."
+  },
+  "assignments": {
+    "form": {
+      "editTitle": "تعديل التكليف الدراسي",
+      "createTitle": "إنشاء تكليف دراسي جديد",
+      "titleLabel": "عنوان التكليف",
+      "titlePlaceholder": "مثال: التكليف الأول - تحليل الخوارزميات",
+      "descLabel": "تفاصيل وتعليمات التكليف",
+      "descPlaceholder": "اكتب تعليمات وشروط حل التكليف هنا...",
+      "dueDateLabel": "تاريخ ووقت الاستحقاق",
+      "maxScoreLabel": "الدرجة العظمى",
+      "attachmentLabel": "ملف التعليمات أو نموذج الواجب (اختياري)",
+      "selectFileText": "انقر لاختيار ملف من جهازك أو اسحبه هنا",
+      "supportedFiles": "يدعم ملفات PDF، Word، ZIP حتى 25 ميجابايت",
+      "fileTooBig": "حجم الملف يتجاوز الحد المسموح (25 ميجابايت)",
+      "uploadError": "فشل رفع الملف",
+      "uploadErrorDesc": "حدث خطأ أثناء رفع ملف التعليمات.",
+      "saveCreate": "إنشاء التكليف ونشره",
+      "saveUpdate": "حفظ التعديلات",
+      "cancel": "إلغاء",
+      "createSuccess": "تم إنشاء التكليف الدراسي بنجاح",
+      "updateSuccess": "تم تحديث التكليف الدراسي بنجاح"
+    },
+    "grading": {
+      "modalTitle": "رصد وتقييم حل الطالب",
+      "studentInfo": "بيانات الطالب والتسليم",
+      "submittedDate": "تاريخ التسليم:",
+      "lateBadge": "تسليم متأخر",
+      "onTimeBadge": "تسليم في الموعد",
+      "studentNotes": "ملاحظات الطالب المرفقة مع الحل:",
+      "attachment": "الملف المرفق من الطالب:",
+      "downloadSolution": "تحميل ملف الحل",
+      "scoreLabel": "درجة الطالب (من {{max}})",
+      "scorePlaceholder": "أدخل الدرجة المستحقة",
+      "feedbackLabel": "ملاحظات وتوجيهات الأستاذ للطالب",
+      "feedbackPlaceholder": "اكتب ملاحظاتك على إجابة الطالب هنا...",
+      "saveGrade": "اعتماد وحفظ الدرجة",
+      "saveSuccess": "تم رصد الدرجة وحفظ الملاحظات بنجاح",
+      "saveError": "تعذر رصد الدرجة"
+    },
+    "submissions": {
+      "drawerTitle": "تسليمات الطلاب للتكليف",
+      "totalSubmissions": "إجمالي التسليمات: {{count}}",
+      "graded": "تم التقييم",
+      "pending": "بانتظار التقييم",
+      "late": "متأخر",
+      "searchPlaceholder": "البحث باسم الطالب أو بريده...",
+      "allStatuses": "كافة التسليمات",
+      "onlySubmitted": "بانتظار التقييم فقط",
+      "onlyGraded": "المقيّمة فقط",
+      "onlyLate": "المتأخرة فقط",
+      "table": {
+        "student": "الطالب",
+        "status": "الحالة",
+        "submittedAt": "وقت التسليم",
+        "file": "ملف الحل",
+        "score": "الدرجة",
+        "actions": "الإجراءات",
+        "gradeAction": "رصد الدرجة",
+        "editGradeAction": "تعديل الدرجة"
+      },
+      "empty": "لا توجد تسليمات لهذا التكليف حتى الآن"
+    }
   }
 }

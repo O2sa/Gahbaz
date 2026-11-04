@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import adminsApi from '../api/admins.api.js'
 import { notifications } from '@mantine/notifications'
+import i18n from '../i18n'
 
 export function useAdmins(params = {}) {
   return useQuery({
@@ -24,8 +25,8 @@ export function useCreateAdmin() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admins'] })
       notifications.show({
-        title: 'تم بنجاح',
-        message: 'تم إضافة المدير بنجاح',
+        title: i18n.t('notifications.success', { ns: 'common', defaultValue: 'تم بنجاح' }),
+        message: i18n.t('notifications.createSuccess', { ns: 'common', defaultValue: 'تم إضافة المدير بنجاح' }),
         color: 'teal',
       })
     },
@@ -39,8 +40,8 @@ export function useUpdateAdmin() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admins'] })
       notifications.show({
-        title: 'تم بنجاح',
-        message: 'تم تحديث بيانات المدير بنجاح',
+        title: i18n.t('notifications.success', { ns: 'common', defaultValue: 'تم بنجاح' }),
+        message: i18n.t('notifications.updateSuccess', { ns: 'common', defaultValue: 'تم تحديث بيانات المدير بنجاح' }),
         color: 'teal',
       })
     },
@@ -54,8 +55,8 @@ export function useDeleteAdmin() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admins'] })
       notifications.show({
-        title: 'تم بنجاح',
-        message: 'تم حذف المدير بنجاح',
+        title: i18n.t('notifications.success', { ns: 'common', defaultValue: 'تم بنجاح' }),
+        message: i18n.t('notifications.deleteSuccess', { ns: 'common', defaultValue: 'تم حذف المدير بنجاح' }),
         color: 'teal',
       })
     },

@@ -247,7 +247,7 @@ export default function Admins() {
         title={t('users.title')}
         description={t('users.subtitle')}
         breadcrumbs={[
-          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          { title: tCommon('actions.home'), href: '/' },
           { title: t('users.tabs.admins') },
         ]}
         action={

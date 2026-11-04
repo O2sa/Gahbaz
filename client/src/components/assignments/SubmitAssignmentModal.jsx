@@ -9,9 +9,7 @@ import {
   Progress,
   Paper,
   Alert,
-  Badge,
   useMantineTheme,
-  rem,
 } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -20,9 +18,9 @@ import {
   IconCheck,
   IconAlertCircle,
   IconClock,
-  IconPaperclip,
   IconFileCheck,
 } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 import customFetch from '../../utils/customFetch'
 import { uploadMedia } from '../../utils/mediaUpload'
 
@@ -36,6 +34,7 @@ export default function SubmitAssignmentModal({
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
   const queryClient = useQueryClient()
+  const { t, i18n } = useTranslation(['student', 'common', 'errors'])
 
   const [selectedFile, setSelectedFile] = useState(null)
   const [notes, setNotes] = useState('')
@@ -63,10 +62,10 @@ export default function SubmitAssignmentModal({
     },
     onSuccess: () => {
       notifications.show({
-        title: 'تم إرسال الحل بنجاح',
+        title: t('common:confirmModalTitle'),
         message: isLate
-          ? 'تم رفع الحل وتسجيله كـ (تسليم متأخر) بنجاح.'
-          : 'تم رفع الحل وتسليمه بنجاح للأستاذ.',
+          ? t('student:submissionModal.successLate')
+          : t('student:submissionModal.success'),
         color: isLate ? 'orange' : 'teal',
         icon: <IconCheck size={16} />,
       })
@@ -81,9 +80,9 @@ export default function SubmitAssignmentModal({
       const msg =
         err?.response?.data?.error?.message ||
         err?.response?.data?.message ||
-        'حدث خطأ أثناء إرسال الحل.'
+        t('errors:generic', { defaultValue: 'حدث خطأ أثناء إرسال الحل.' })
       notifications.show({
-        title: 'تعذر إرسال الحل',
+        title: t('common:actions.error', { defaultValue: 'خطأ' }),
         message: msg,
         color: 'red',
         icon: <IconAlertCircle size={16} />,
@@ -98,8 +97,8 @@ export default function SubmitAssignmentModal({
 
     if (!selectedFile && !existingSubmission?.fileUrl) {
       notifications.show({
-        title: 'ملف الحل مطلوب',
-        message: 'يرجى اختيار ملف الحل الخاص بك أولاً.',
+        title: t('common:confirmModalTitle'),
+        message: t('student:submissionModal.fileRequired'),
         color: 'orange',
       })
       return
@@ -125,8 +124,8 @@ export default function SubmitAssignmentModal({
     } catch (uploadErr) {
       setIsUploading(false)
       notifications.show({
-        title: 'فشل رفع الملف',
-        message: uploadErr.message || 'حدث خطأ أثناء رفع ملف الإجابة.',
+        title: t('common:actions.error', { defaultValue: 'خطأ' }),
+        message: uploadErr.message || t('errors:generic', { defaultValue: 'حدث خطأ أثناء رفع ملف الإجابة.' }),
         color: 'red',
         icon: <IconAlertCircle size={16} />,
       })
@@ -142,10 +141,10 @@ export default function SubmitAssignmentModal({
           <IconFileCheck size={22} color={theme.colors.indigo[6]} />
           <div>
             <Text weight={700} size="md">
-              تسليم إجابة: {assignment.title}
+              {`${t('student:submissionModal.title')}: ${assignment.title}`}
             </Text>
             <Text size="xs" color="dimmed">
-              الدرجة العظمى: {assignment.maxScore} درجة
+              {t('student:submissionModal.maxScoreLabel', { score: assignment.maxScore })}
             </Text>
           </div>
         </Group>
@@ -159,12 +158,12 @@ export default function SubmitAssignmentModal({
           {isLate && (
             <Alert
               icon={<IconClock size={16} />}
-              title="تنبيه: تجاوز موعد الاستحقاق"
+              title={t('student:submissionModal.lateWarning')}
               color="orange"
               radius="md"
               variant="light"
             >
-              انتهى الموعد المحدد للتسليم. يمكنك إرسال الحل الآن وسيتم توثيقه للأستاذ تحت وسم «تسليم متأخر (Late)».
+              {t('student:submissionModal.lateWarning')}
             </Alert>
           )}
 
@@ -181,11 +180,10 @@ export default function SubmitAssignmentModal({
               <Group position="apart">
                 <div>
                   <Text size="xs" weight={600} color="indigo">
-                    لديك تسليم سابق مسجل
+                    {t('student:submissionModal.existingSubmissionTitle')}
                   </Text>
                   <Text size="xs" color="dimmed">
-                    تاريخ التسليم:{' '}
-                    {new Date(existingSubmission.submittedAt).toLocaleString('ar-SA')}
+                    {`${t('student:submissionModal.dueDate')} ${new Date(existingSubmission.submittedAt).toLocaleString(i18n.language.startsWith('ar') ? 'ar-SA' : 'en-US')}`}
                   </Text>
                 </div>
                 <Button
@@ -197,7 +195,7 @@ export default function SubmitAssignmentModal({
                   variant="subtle"
                   color="indigo"
                 >
-                  استعراض الملف السابق
+                  {t('student:submissionModal.viewPreviousFile')}
                 </Button>
               </Group>
             </Paper>
@@ -206,7 +204,7 @@ export default function SubmitAssignmentModal({
           {/* File Picker Section */}
           <div>
             <Text size="sm" weight={600} mb={6}>
-              ملف الحل (PDF, DOCX, ZIP, صور حتى 50MB):
+              {t('student:submissionModal.fileLabel')}
             </Text>
 
             <input
@@ -248,19 +246,19 @@ export default function SubmitAssignmentModal({
                 color={selectedFile ? theme.colors.indigo[6] : theme.colors.gray[5]}
               />
               <Text size="sm" weight={600} mt={6}>
-                {selectedFile ? selectedFile.name : 'انقر لاختيار ملف الحل أو اسحبه هنا'}
+                {selectedFile ? selectedFile.name : t('student:submissionModal.dropzoneText')}
               </Text>
               <Text size="xs" color="dimmed" mt={2}>
                 {selectedFile
-                  ? `الحجم: ${(selectedFile.size / 1024 / 1024).toFixed(2)} MB`
-                  : 'يدعم جميع الصيغ الأكاديمية الشائعة (PDF, ZIP, DOCX)'}
+                  ? `${(selectedFile.size / 1024 / 1024).toFixed(2)} MB`
+                  : t('student:submissionModal.dropzoneHint')}
               </Text>
             </Paper>
 
             {isUploading && (
               <Stack spacing={4} mt="xs">
                 <Text size="xs" color="indigo">
-                  جارٍ رفع الملف... ({uploadProgress}%)
+                  {uploadProgress}%
                 </Text>
                 <Progress value={uploadProgress} size="sm" color="indigo" radius="xl" animated />
               </Stack>
@@ -269,8 +267,8 @@ export default function SubmitAssignmentModal({
 
           {/* Notes Textarea */}
           <Textarea
-            label="ملاحظات موجهة للأستاذ (اختياري)"
-            placeholder="أضف أي تفاصيل أو توضيحات تود مشاركتها مع أستاذ المقرر..."
+            label={t('student:submissionModal.notesLabel')}
+            placeholder={t('student:submissionModal.notesPlaceholder')}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             minRows={2}
@@ -282,14 +280,16 @@ export default function SubmitAssignmentModal({
               onClick={onClose}
               disabled={submitMutation.isLoading || isUploading}
             >
-              إلغاء
+              {t('actions.cancel', { ns: 'common' })}
             </Button>
             <Button
               type="submit"
               color="indigo"
               loading={submitMutation.isLoading || isUploading}
             >
-              {existingSubmission ? 'تأكيد إعادة التسليم' : 'تأكيد وإرسال الحل'}
+              {isLate
+                ? t('student:submissionModal.submitLateButton')
+                : t('student:submissionModal.submitButton')}
             </Button>
           </Group>
         </Stack>

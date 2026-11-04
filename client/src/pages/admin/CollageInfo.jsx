@@ -1,42 +1,29 @@
-import React, { useEffect } from 'react'
-
+import React from 'react'
 import { TabsLinks } from '../../components/TabsLinks'
- 
-import { BsStack } from 'react-icons/bs'
-import { Tabs } from '@mantine/core'
-import { AboutCollage, Subjects } from './index'
-import Majors from './Majors'
-import { IconBathFilled, IconMoodAngry } from '@tabler/icons-react'
-import { IconSubtask } from '@tabler/icons-react'
-import { RiCollageFill, RiCollageLine, RiMoreLine } from 'react-icons/ri'
-import { MdClass, MdKingBed, MdOutlineGolfCourse, MdSubject } from 'react-icons/md'
-import { FaBookOpen } from 'react-icons/fa'
-import { TbLayoutCollage } from 'react-icons/tb'
-import { BiCategory } from 'react-icons/bi'
-import { FiInfo } from 'react-icons/fi'
 import { GrInfo } from 'react-icons/gr'
 import { GoBook } from 'react-icons/go'
-import { FaLandmarkDome } from "react-icons/fa6";
-
+import { FaLandmarkDome } from 'react-icons/fa6'
+import { useTranslation } from 'react-i18next'
 
 export default function CollageInfo({ queryClient }) {
+  const { t } = useTranslation('nav')
   const tabs = [
     {
-      name: 'معلومات الكلية',
+      name: t('tabs.collegeInfo'),
       icon: GrInfo,
       to: '.',
     },
     {
-      name: 'التخصصات والأقسام',
+      name: t('tabs.majorsAndDepts'),
       icon: FaLandmarkDome,
       to: 'majors',
     },
     {
-      name: 'المواد الأكاديمية',
+      name: t('tabs.academicSubjects'),
       icon: GoBook,
       to: 'subjects',
     },
   ]
-  
+
   return <TabsLinks tabs={tabs} />
 }

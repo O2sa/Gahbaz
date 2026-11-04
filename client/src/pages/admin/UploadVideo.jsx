@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import axios from 'axios'
 import {
   Text,
   Group,
@@ -16,6 +15,7 @@ import { useDisclosure } from '@mantine/hooks'
 import { useParams } from 'react-router-dom'
 import { IconUpload, IconVideo, IconX } from '@tabler/icons-react'
 import { notifications } from '@mantine/notifications'
+import { useTranslation } from 'react-i18next'
 import { uploadMedia } from '../../utils/mediaUpload'
 
 const getVideoDuration = (file, setDuration) => {
@@ -44,6 +44,7 @@ export default function UploadVideo({
   const { courseId } = useParams()
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const { t } = useTranslation(['admin', 'common', 'errors'])
   const [internalOpened, { open, close: internalClose }] = useDisclosure(false)
   const isControlled = controlledOpened !== undefined
   const opened = isControlled ? controlledOpened : internalOpened
@@ -82,16 +83,16 @@ export default function UploadVideo({
         }
 
         notifications.show({
-          title: 'تم بنجاح',
-          message: 'تم رفع الفيديو بنجاح',
+          title: t('common:confirmModalTitle'),
+          message: t('courseBuilder.uploadVideoSuccess'),
           color: 'teal',
         })
         close()
       }
     } catch (error) {
       notifications.show({
-        title: 'خطأ',
-        message: 'فشل رفع الفيديو',
+        title: t('common:actions.error', { defaultValue: 'خطأ' }),
+        message: error?.response?.data?.msg || t('errors:generic', { defaultValue: 'فشل رفع الفيديو' }),
         color: 'red',
       })
     } finally {
@@ -110,7 +111,7 @@ export default function UploadVideo({
         onClose={close}
         title={
           <Text weight={700} size="md" sx={{ color: isDark ? '#ffffff' : '#0f172a' }}>
-            رفع فيديو الدرس
+            {t('courseBuilder.videoUploadTitle')}
           </Text>
         }
         centered
@@ -164,11 +165,11 @@ export default function UploadVideo({
                 sx={{ color: isDark ? '#f1f5f9' : '#0f172a', fontWeight: 600 }}
               >
                 {isVideoAlreadyUploaded
-                  ? 'تم رفع الفيديو مسبقاً'
-                  : 'انقر لاختيار مقطع فيديو أو اسحب الملف هنا'}
+                  ? t('courseBuilder.videoAlreadyUploaded')
+                  : t('courseBuilder.videoDropzoneTitle')}
               </Text>
               <Text size="xs" color="dimmed" align="center" mt={4}>
-                الحد الأقصى 100 ميجابايت (صيغة MP4 أو WebM)
+                {t('courseBuilder.videoDropzoneHint')}
               </Text>
             </div>
           </Group>
@@ -187,7 +188,7 @@ export default function UploadVideo({
 
         <Group position="apart" mt="lg">
           <Button variant="default" onClick={close}>
-            إلغاء
+            {t('actions.cancel', { ns: 'common' })}
           </Button>
           <Button
             onClick={handleUpload}
@@ -195,7 +196,7 @@ export default function UploadVideo({
             disabled={!selectedFile || isVideoAlreadyUploaded}
             color="brand"
           >
-            بدء الرفع
+            {t('courseBuilder.startUpload')}
           </Button>
         </Group>
       </Modal>

@@ -4,8 +4,9 @@ import { useQuery } from '@tanstack/react-query'
 import { useGetElements } from '../crud'
 import SemesterDetails from './SemesterDetails'
 import { Center, Loader, Box, Paper, Grid, Title, Text, Button, useMantineTheme } from '@mantine/core'
-import { IconArrowRight } from '@tabler/icons-react'
+import { IconArrowRight, IconArrowLeft } from '@tabler/icons-react'
 import { Helmet } from 'react-helmet'
+import { useTranslation } from 'react-i18next'
 import { PageHeader } from '../../components/common/index.js'
 
 export default function Semester({ queryClient }) {
@@ -14,6 +15,8 @@ export default function Semester({ queryClient }) {
   const navigate = useNavigate()
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const { t, i18n } = useTranslation(['admin', 'common', 'nav'])
+  const isRtl = i18n.dir() === 'rtl'
 
   const {
     data: semester = {},
@@ -41,25 +44,29 @@ export default function Semester({ queryClient }) {
     )
   }
 
-  const semesterTitle = semester?.name || 'تفاصيل الفصل الدراسي'
+  const semesterTitle = semester?.name || t('semesters.breadcrumb')
 
   return (
     <Box>
       <Helmet>
-        <title>{`منصة جهبذ | ${semesterTitle}`}</title>
+        <title>{`${t('platformTitle', { ns: 'nav', defaultValue: 'منصة جهبذ' })} | ${semesterTitle}`}</title>
       </Helmet>
 
       <PageHeader
         title={semesterTitle}
-        description="عرض تفاصيل الفصل الدراسي والمقررات الملحقة به"
+        description={t('semesters.subtitle')}
         breadcrumbs={[
-          { title: 'الرئيسية', href: '/' },
-          { title: 'الفصول الدراسية', href: '/semesters' },
+          { title: t('actions.home', { ns: 'common' }), href: '/' },
+          { title: t('semesters.breadcrumb'), href: '/semesters' },
           { title: semesterTitle },
         ]}
         action={
-          <Button variant="default" leftIcon={<IconArrowRight size={16} />} onClick={() => navigate(-1)}>
-            رجوع
+          <Button
+            variant="default"
+            leftIcon={isRtl ? <IconArrowRight size={16} /> : <IconArrowLeft size={16} />}
+            onClick={() => navigate(-1)}
+          >
+            {t('actions.back', { ns: 'common' })}
           </Button>
         }
       />
@@ -82,11 +89,11 @@ export default function Semester({ queryClient }) {
             </Title>
             {(semester.semester || semester.level) && (
               <Text size="sm" color="dimmed" mb="md">
-                {`${semester.semester || ''} ${semester.level ? `• المستوى ${semester.level}` : ''}`}
+                {`${semester.semester || ''} ${semester.level ? `• ${semester.level}` : ''}`}
               </Text>
             )}
             <Text size="md" color={isDark ? 'gray.3' : 'gray.7'} sx={{ lineHeight: 1.8 }}>
-              {semester.describtion || semester.description || 'لا يوجد وصف مضاف لهذا الفصل الدراسي.'}
+              {semester.describtion || semester.description || t('common:emptyDescription')}
             </Text>
           </Paper>
         </Grid.Col>

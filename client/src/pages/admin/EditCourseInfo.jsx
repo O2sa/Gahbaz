@@ -14,11 +14,15 @@ import {
   Title,
   ActionIcon,
   Divider,
+  MultiSelect,
 } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { IconPhoto, IconPlus, IconTrash, IconUpload } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 import { useGetElements, useUpdateElement } from '../crud'
 import UploadCourseCover from './UploadCourseCover'
+import { useTeachers } from '../../hooks/useTeachers.js'
+import customFetch from '../../utils/customFetch.js'
 
 export const loader =
   (queryClient) =>
@@ -35,6 +39,7 @@ export const loader =
 export const EditCourseInfo = ({ queryClient }) => {
   const params = useParams()
   const courseId = params.courseId || params.id
+  const { t } = useTranslation(['admin', 'common', 'errors'])
 
   const { data: course = {} } = useQuery({
     ...useGetElements(['courses', courseId]),
@@ -46,12 +51,29 @@ export const EditCourseInfo = ({ queryClient }) => {
     courseId,
   ])
 
+  const { data: teachersRes } = useTeachers({ limit: 100 })
+  const teacherOptions = (teachersRes?.data || []).map((tch) => ({
+    value: tch._id || tch.id,
+    label: `${tch.firstName || ''} ${tch.lastName || ''}`.trim() || tch.name || tch.email,
+  }))
+
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: async () => {
+      const res = await customFetch.get('/users/current-user').catch(() => customFetch.get('/users/showMe'))
+      return res.data?.data || res.data?.user || res.data || {}
+    },
+    staleTime: 1000 * 60 * 5,
+  })
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'super-admin'
+
   const courseData = course?.data || course
 
   const [formData, setFormData] = useState({
     describtion: '',
     willLearn: [],
     requirements: [],
+    teachers: [],
   })
 
   useEffect(() => {
@@ -60,6 +82,7 @@ export const EditCourseInfo = ({ queryClient }) => {
         describtion: courseData.description || courseData.describtion || '',
         willLearn: courseData.willLearn ? [...courseData.willLearn] : [],
         requirements: courseData.requirements ? [...courseData.requirements] : [],
+        teachers: (courseData.teachers || []).map((tch) => (typeof tch === 'object' ? tch._id || tch.id : tch)),
       })
     }
   }, [course])
@@ -90,14 +113,14 @@ export const EditCourseInfo = ({ queryClient }) => {
     try {
       await updateCourse({ ...formData, _id: courseId })
       notifications.show({
-        title: 'تم الحفظ',
-        message: 'تم تحديث بيانات الدورة بنجاح',
+        title: t('common:confirmModalTitle'),
+        message: t('courseBuilder.saveSuccess'),
         color: 'green',
       })
     } catch (error) {
       notifications.show({
-        title: 'خطأ',
-        message: error?.response?.data?.msg || 'حدث خطأ أثناء الحفظ',
+        title: t('common:actions.error', { defaultValue: 'خطأ' }),
+        message: error?.response?.data?.msg || t('errors:generic', { defaultValue: 'حدث خطأ أثناء الحفظ' }),
         color: 'red',
       })
     }
@@ -106,13 +129,13 @@ export const EditCourseInfo = ({ queryClient }) => {
   return (
     <Paper p="xl" radius="md" withBorder m="md">
       <Title order={3} mb="lg">
-        تعديل بيانات الدورة
+        {t('courseBuilder.editCourseTitle')}
       </Title>
 
       <Stack spacing="lg">
         <Box>
           <Text weight={600} mb="xs">
-            غلاف الدورة
+            {t('courseBuilder.coverTitle')}
           </Text>
           <Group align="flex-start" spacing="md">
             <Box
@@ -136,11 +159,11 @@ export const EditCourseInfo = ({ queryClient }) => {
             </Box>
             <Box>
               <Text size="sm" color="dimmed" mb="sm">
-                قم برفع صورة تعبيرية ذات جودة عالية للدورة
+                {t('courseBuilder.coverDesc')}
               </Text>
               <UploadCourseCover queryClient={queryClient}>
                 <Button variant="light" leftIcon={<IconUpload size={16} />}>
-                  رفع صورة الغلاف
+                  {t('courseBuilder.uploadCover')}
                 </Button>
               </UploadCourseCover>
             </Box>
@@ -150,8 +173,8 @@ export const EditCourseInfo = ({ queryClient }) => {
         <Divider />
 
         <Textarea
-          label="وصف الدورة"
-          placeholder="اكتب وصفاً مفصلاً للدورة..."
+          label={t('courseBuilder.courseDesc')}
+          placeholder={t('courseBuilder.courseDescPlaceholder')}
           minRows={4}
           value={formData.describtion}
           onChange={(e) => setFormData({ ...formData, describtion: e.target.value })}
@@ -159,16 +182,37 @@ export const EditCourseInfo = ({ queryClient }) => {
 
         <Divider />
 
+        {isAdmin && (
+          <>
+            <Box>
+              <Text weight={600} mb="xs">
+                {t('courseBuilder.facultyTeachers')}
+              </Text>
+              <MultiSelect
+                placeholder={t('courseBuilder.selectFaculty')}
+                data={teacherOptions}
+                value={formData.teachers}
+                onChange={(val) => setFormData((prev) => ({ ...prev, teachers: val }))}
+                searchable
+                clearable
+                nothingFound={t('courseBuilder.noFacultyFound')}
+                description={t('courseBuilder.facultyDesc')}
+              />
+            </Box>
+            <Divider />
+          </>
+        )}
+
         <Box>
           <Group position="apart" mb="sm">
-            <Text weight={600}>ما الذي سيتعلمه الطالب في هذه الدورة؟</Text>
+            <Text weight={600}>{t('courseBuilder.whatYouLearn')}</Text>
             <Button
               size="xs"
               variant="subtle"
               leftIcon={<IconPlus size={14} />}
               onClick={() => handleAddArrayItem('willLearn')}
             >
-              إضافة مخرج تعلم
+              {t('courseBuilder.addOutcome')}
             </Button>
           </Group>
           <Stack spacing="xs">
@@ -176,7 +220,7 @@ export const EditCourseInfo = ({ queryClient }) => {
               <Group key={idx} spacing="xs">
                 <TextInput
                   sx={{ flex: 1 }}
-                  placeholder={`مخرج التعلم ${idx + 1}`}
+                  placeholder={t('courseBuilder.outcomeItem', { index: idx + 1 })}
                   value={item}
                   onChange={(e) => handleArrayChange('willLearn', idx, e.target.value)}
                 />
@@ -196,14 +240,14 @@ export const EditCourseInfo = ({ queryClient }) => {
 
         <Box>
           <Group position="apart" mb="sm">
-            <Text weight={600}>متطلبات الدورة</Text>
+            <Text weight={600}>{t('courseBuilder.prerequisites')}</Text>
             <Button
               size="xs"
               variant="subtle"
               leftIcon={<IconPlus size={14} />}
               onClick={() => handleAddArrayItem('requirements')}
             >
-              إضافة متطلب
+              {t('courseBuilder.addPrerequisite')}
             </Button>
           </Group>
           <Stack spacing="xs">
@@ -211,7 +255,7 @@ export const EditCourseInfo = ({ queryClient }) => {
               <Group key={idx} spacing="xs">
                 <TextInput
                   sx={{ flex: 1 }}
-                  placeholder={`المتطلب ${idx + 1}`}
+                  placeholder={t('courseBuilder.requirementItem', { index: idx + 1 })}
                   value={item}
                   onChange={(e) => handleArrayChange('requirements', idx, e.target.value)}
                 />
@@ -231,7 +275,7 @@ export const EditCourseInfo = ({ queryClient }) => {
 
         <Group position="right">
           <Button onClick={handleSave} loading={isUpdating}>
-            حفظ التغييرات
+            {t('courseBuilder.saveChanges')}
           </Button>
         </Group>
       </Stack>

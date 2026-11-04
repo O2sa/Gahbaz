@@ -39,6 +39,7 @@ import {
   IconAlertCircle,
 } from '@tabler/icons-react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   DataTable,
   PageHeader,
@@ -57,6 +58,7 @@ export default function Universities() {
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
   const navigate = useNavigate()
+  const { t } = useTranslation(['admin', 'common', 'nav', 'auth'])
 
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
@@ -100,10 +102,10 @@ export default function Universities() {
       adminEmail: '',
     },
     validate: {
-      name: (val) => (!val?.trim() ? 'اسم الجامعة مطلوب' : val.trim().length < 3 ? 'يجب أن لا يقل عن 3 أحرف' : null),
-      code: (val) => (!val?.trim() ? 'كود الجامعة مطلوب' : val.trim().length < 2 ? 'يجب أن لا يقل عن حرفين' : null),
-      adminName: (val) => (!val?.trim() ? 'اسم المشرف مطلوب' : null),
-      adminEmail: (val) => (!val?.trim() ? 'البريد الإلكتروني مطلوب' : !/^\S+@\S+$/.test(val) ? 'صيغة البريد غير صحيحة' : null),
+      name: (val) => (!val?.trim() ? t('universities.validation.nameRequired') : val.trim().length < 3 ? t('universities.validation.nameLength') : null),
+      code: (val) => (!val?.trim() ? t('universities.validation.codeRequired') : val.trim().length < 2 ? t('universities.validation.codeLength') : null),
+      adminName: (val) => (!val?.trim() ? t('universities.validation.adminNameRequired') : null),
+      adminEmail: (val) => (!val?.trim() ? t('universities.validation.adminEmailRequired') : !/^\S+@\S+$/.test(val) ? t('universities.validation.adminEmailInvalid') : null),
     },
   })
 
@@ -114,8 +116,8 @@ export default function Universities() {
       code: '',
     },
     validate: {
-      name: (val) => (!val?.trim() ? 'اسم الجامعة مطلوب' : null),
-      code: (val) => (!val?.trim() ? 'كود الجامعة مطلوب' : null),
+      name: (val) => (!val?.trim() ? t('universities.validation.nameRequired') : null),
+      code: (val) => (!val?.trim() ? t('universities.validation.codeRequired') : null),
     },
   })
 
@@ -179,8 +181,8 @@ export default function Universities() {
       localStorage.removeItem('gahbaz_active_university_id')
       localStorage.removeItem('gahbaz_active_university_name')
       notifications.show({
-        title: 'عرض المنصة العامة',
-        message: 'تمت العودة إلى العرض الشامل لكافة الجامعات والمؤسسات',
+        title: t('universities.title'),
+        message: t('universities.table.cancelSwitch'),
         color: 'blue',
       })
     } else {
@@ -188,8 +190,8 @@ export default function Universities() {
       localStorage.setItem('gahbaz_active_university_id', univ._id)
       localStorage.setItem('gahbaz_active_university_name', `${univ.name} (${univ.code})`)
       notifications.show({
-        title: 'تم تبديل السياق المؤسسي',
-        message: `أنت تتصفح الآن بيئة "${univ.name}" كمدير نظام`,
+        title: t('universities.table.switchToUniversity'),
+        message: t('universities.activeContextBanner', { name: `${univ.name} (${univ.code})` }),
         color: 'teal',
       })
     }
@@ -204,13 +206,12 @@ export default function Universities() {
   const activeCount = universities.filter((u) => u.active).length
   const suspendedCount = universities.filter((u) => !u.active).length
   const totalStudents = universities.reduce((acc, u) => acc + (u.telemetry?.studentsCount || 0), 0)
-  const totalTeachers = universities.reduce((acc, u) => acc + (u.telemetry?.teachersCount || 0), 0)
 
   // Columns definition for DataTable
   const columns = [
     {
       key: 'name',
-      label: 'الجامعة والمؤسسة',
+      label: t('universities.table.institution'),
       render: (row) => {
         const isCurrentActive = activeSwitchedId === row._id
         return (
@@ -233,7 +234,7 @@ export default function Universities() {
                 </Badge>
                 {isCurrentActive && (
                   <Badge variant="dot" color="teal" size="xs">
-                    السياق النشط حالياً
+                    {t('universities.table.currentActive')}
                   </Badge>
                 )}
               </Group>
@@ -247,11 +248,11 @@ export default function Universities() {
     },
     {
       key: 'admin',
-      label: 'المشرف الرئيسي',
+      label: t('universities.table.mainAdmin'),
       render: (row) => (
         <Box>
           <Text size="sm" weight={600}>
-            {row.admin?.name || 'غير محدد'}
+            {row.admin?.name || t('universities.table.notSpecified')}
           </Text>
           <Text size="xs" color="dimmed">
             {row.admin?.email || '—'}
@@ -261,24 +262,24 @@ export default function Universities() {
     },
     {
       key: 'telemetry',
-      label: 'المؤشرات التشغيلية',
+      label: t('universities.table.telemetry'),
       render: (row) => {
-        const t = row.telemetry || {}
+        const tel = row.telemetry || {}
         return (
           <Group spacing={6}>
-            <Tooltip label="عدد الكليات والأقسام">
+            <Tooltip label={t('universities.table.collegesCountTooltip')}>
               <Badge variant="outline" color="blue" size="sm" leftSection={<IconBuildingSkyscraper size={12} />}>
-                {t.collegesCount || 0} كليات
+                {t('universities.table.collegesCount', { count: tel.collegesCount || 0 })}
               </Badge>
             </Tooltip>
-            <Tooltip label="عدد التخصصات الأكاديمية">
+            <Tooltip label={t('universities.table.majorsCountTooltip')}>
               <Badge variant="outline" color="indigo" size="sm" leftSection={<IconCertificate size={12} />}>
-                {t.majorsCount || 0} تخصص
+                {t('universities.table.majorsCount', { count: tel.majorsCount || 0 })}
               </Badge>
             </Tooltip>
-            <Tooltip label="عدد المقررات المفتوحة">
+            <Tooltip label={t('universities.table.coursesCountTooltip')}>
               <Badge variant="outline" color="violet" size="sm" leftSection={<IconBook size={12} />}>
-                {t.coursesCount || 0} مقرر
+                {t('universities.table.coursesCount', { count: tel.coursesCount || 0 })}
               </Badge>
             </Tooltip>
           </Group>
@@ -287,16 +288,16 @@ export default function Universities() {
     },
     {
       key: 'users',
-      label: 'المستخدمون المقيدون',
+      label: t('universities.table.registeredUsers'),
       render: (row) => {
-        const t = row.telemetry || {}
+        const tel = row.telemetry || {}
         return (
           <Group spacing={6}>
             <Badge variant="light" color="cyan" size="sm" leftSection={<IconSchool size={12} />}>
-              {t.studentsCount || 0} طالب
+              {t('universities.table.studentsCount', { count: tel.studentsCount || 0 })}
             </Badge>
             <Badge variant="light" color="teal" size="sm" leftSection={<IconUserCheck size={12} />}>
-              {t.teachersCount || 0} معلّم
+              {t('universities.table.teachersCount', { count: tel.teachersCount || 0 })}
             </Badge>
           </Group>
         )
@@ -304,25 +305,25 @@ export default function Universities() {
     },
     {
       key: 'active',
-      label: 'الحالة',
+      label: t('universities.table.status'),
       render: (row) => (
         <Badge
           variant="filled"
           color={row.active ? 'teal' : 'red'}
           size="sm"
         >
-          {row.active ? 'نشط تشغيلياً' : 'معلّق مؤقتاً'}
+          {row.active ? t('universities.table.activeStatus') : t('universities.table.suspendedStatus')}
         </Badge>
       ),
     },
     {
       key: 'actions',
-      label: 'الإجراءات',
+      label: t('universities.table.actions'),
       render: (row) => {
         const isCurrentActive = activeSwitchedId === row._id
         return (
           <Group spacing={6}>
-            <Tooltip label={isCurrentActive ? 'إلغاء التبديل والعودة للمنصة' : 'التبديل إلى بيئة هذه الجامعة'}>
+            <Tooltip label={isCurrentActive ? t('universities.table.cancelSwitch') : t('universities.table.switchToUniversity')}>
               <ActionIcon
                 color={isCurrentActive ? 'teal' : 'brand'}
                 variant={isCurrentActive ? 'filled' : 'light'}
@@ -331,7 +332,7 @@ export default function Universities() {
                 <IconArrowsExchange size={17} />
               </ActionIcon>
             </Tooltip>
-            <Tooltip label="تعديل بيانات الجامعة">
+            <Tooltip label={t('universities.table.editUniversity')}>
               <ActionIcon
                 color="blue"
                 variant="light"
@@ -340,7 +341,7 @@ export default function Universities() {
                 <IconPencil size={17} />
               </ActionIcon>
             </Tooltip>
-            <Tooltip label={row.active ? 'تعليق الجامعة' : 'تفعيل الجامعة'}>
+            <Tooltip label={row.active ? t('universities.table.suspendUniversity') : t('universities.table.activateUniversity')}>
               <ActionIcon
                 color={row.active ? 'orange' : 'teal'}
                 variant="light"
@@ -358,12 +359,12 @@ export default function Universities() {
   return (
     <Box p="md">
       <PageHeader
-        title="إدارة الجامعات والمؤسسات التعليمية"
-        description="تهيئة بيئات الجامعات المستقلة والتحكم في حالتها التشغيلية ومتابعة التبني الرقمي"
+        title={t('universities.title')}
+        description={t('universities.description')}
         breadcrumbs={[
-          { title: 'الرئيسية', href: '/dashboard' },
-          { title: 'حوكمة المنصة', href: '/universities' },
-          { title: 'إدارة الجامعات' },
+          { title: t('actions.home', { ns: 'common' }), href: '/dashboard' },
+          { title: t('universities.breadcrumbGovernance'), href: '/universities' },
+          { title: t('universities.breadcrumbManage') },
         ]}
         action={
           <Button
@@ -372,7 +373,7 @@ export default function Universities() {
             radius="md"
             onClick={openAdd}
           >
-            تهيئة جامعة جديدة
+            {t('universities.provisionNew')}
           </Button>
         }
       />
@@ -381,7 +382,7 @@ export default function Universities() {
       {activeSwitchedId && (
         <Alert
           icon={<IconAlertCircle size={18} />}
-          title="سياق مؤسسي محدد"
+          title={t('universities.activeContextTitle')}
           color="teal"
           radius="md"
           mb="lg"
@@ -392,39 +393,39 @@ export default function Universities() {
             window.location.reload()
           }}
         >
-          أنت تتصفح حالياً المنصة مقيداً بسياق: <b>{activeSwitchedName || 'جامعة محددة'}</b>. جميع العمليات الأكاديمية والاستعراض تجري ضمن هذه المؤسسة فقط. اضغط على زر الإغلاق للعودة للمنصة العامة.
+          {t('universities.activeContextBanner', { name: activeSwitchedName || t('universities.table.institution') })}
         </Alert>
       )}
 
       {/* Summary Stat Cards */}
       <SimpleGrid cols={4} breakpoints={[{ maxWidth: 'sm', cols: 2 }]} mb="lg">
         <StatCard
-          title="إجمالي الجامعات"
+          title={t('universities.totalUniversities')}
           value={totalUniversities}
           icon={IconBuildingBank}
           color="brand"
-          description="المؤسسات التعليمية المقيدة بالمنصة"
+          description={t('universities.totalUniversitiesDesc')}
         />
         <StatCard
-          title="الجامعات النشطة"
+          title={t('universities.activeUniversities')}
           value={activeCount}
           icon={IconCircleCheck}
           color="teal"
-          description="بيئات تشغيلية متاحة للدخول والتدريس"
+          description={t('universities.activeUniversitiesDesc')}
         />
         <StatCard
-          title="الجامعات المعلقة"
+          title={t('universities.suspendedUniversities')}
           value={suspendedCount}
           icon={IconShieldLock}
           color="red"
-          description="مؤسسات تم حظر دخول مستخدميها مؤقتاً"
+          description={t('universities.suspendedUniversitiesDesc')}
         />
         <StatCard
-          title="إجمالي الطلاب المسجلين"
+          title={t('universities.enrolledStudents')}
           value={totalStudents}
           icon={IconSchool}
           color="cyan"
-          description="في الجامعات المستعرضة حالياً"
+          description={t('universities.enrolledStudentsDesc')}
         />
       </SimpleGrid>
 
@@ -438,14 +439,14 @@ export default function Universities() {
         onSearchChange={setSearch}
         onPageChange={setPage}
         onLimitChange={setLimit}
-        emptyTitle="لا توجد جامعات مطابقة"
-        emptyDescription="لم يتم العثور على جامعات تطابق معايير البحث الحالية."
+        emptyTitle={t('universities.noUniversities')}
+        emptyDescription={t('universities.noUniversitiesDesc')}
         extraFilters={
           <Select
             data={[
-              { value: 'all', label: 'كافة الحالات' },
-              { value: 'true', label: 'النشطة فقط' },
-              { value: 'false', label: 'المعلقة فقط' },
+              { value: 'all', label: t('universities.allStatuses') },
+              { value: 'true', label: t('universities.onlyActive') },
+              { value: 'false', label: t('universities.onlySuspended') },
             ]}
             value={activeFilter}
             onChange={(val) => {
@@ -465,7 +466,7 @@ export default function Universities() {
             radius="md"
             onClick={openAdd}
           >
-            تهيئة جامعة جديدة
+            {t('universities.provisionNew')}
           </Button>
         }
       />
@@ -480,7 +481,7 @@ export default function Universities() {
               <IconBuildingBank size={18} />
             </ThemeIcon>
             <Text weight={700} size="md">
-              تهيئة جامعة وحساب إداري جديد
+              {t('universities.modals.provisionTitle')}
             </Text>
           </Group>
         }
@@ -491,37 +492,37 @@ export default function Universities() {
         <form onSubmit={addForm.onSubmit(handleAddSubmit)}>
           <Stack spacing="md">
             <TextInput
-              label="اسم الجامعة أو المؤسسة"
-              placeholder="مثال: جامعة الملك سعود"
+              label={t('universities.modals.univNameLabel')}
+              placeholder={t('universities.modals.univNamePlaceholder')}
               required
               {...addForm.getInputProps('name')}
             />
             <TextInput
-              label="كود الجامعة التعريفي"
-              placeholder="مثال: KSU"
-              description="كود أحرف إنجليزية فريد يمثل هوية المؤسسة"
+              label={t('universities.modals.univCodeLabel')}
+              placeholder={t('universities.modals.univCodePlaceholder')}
+              description={t('universities.modals.univCodeDesc')}
               required
               {...addForm.getInputProps('code')}
             />
-            <Divider my="xs" label="بيانات المشرف الإداري الرئيسي الأول" labelPosition="center" />
+            <Divider my="xs" label={t('universities.modals.adminDivider')} labelPosition="center" />
             <TextInput
-              label="اسم المشرف الرئيسي"
-              placeholder="مثال: د. فهد العتيبي"
+              label={t('universities.modals.adminNameLabel')}
+              placeholder={t('universities.modals.adminNamePlaceholder')}
               required
               {...addForm.getInputProps('adminName')}
             />
             <TextInput
-              label="البريد الإلكتروني للمشرف"
-              placeholder="admin@ksu.edu.sa"
+              label={t('universities.modals.adminEmailLabel')}
+              placeholder="admin@univ.edu.sa"
               required
               {...addForm.getInputProps('adminEmail')}
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={closeAdd}>
-                إلغاء
+                {t('actions.cancel', { ns: 'common' })}
               </Button>
               <Button type="submit" color="brand" loading={createMutation.isLoading}>
-                تهيئة وتوليد بيانات الدخول
+                {t('universities.modals.submitProvision')}
               </Button>
             </Group>
           </Stack>
@@ -538,7 +539,7 @@ export default function Universities() {
               <IconPencil size={18} />
             </ThemeIcon>
             <Text weight={700} size="md">
-              تعديل بيانات الجامعة
+              {t('universities.modals.editTitle')}
             </Text>
           </Group>
         }
@@ -549,21 +550,21 @@ export default function Universities() {
         <form onSubmit={editForm.onSubmit(handleEditSubmit)}>
           <Stack spacing="md">
             <TextInput
-              label="اسم الجامعة"
+              label={t('universities.modals.univNameLabel')}
               required
               {...editForm.getInputProps('name')}
             />
             <TextInput
-              label="كود الجامعة"
+              label={t('universities.modals.univCodeLabel')}
               required
               {...editForm.getInputProps('code')}
             />
             <Group position="right" mt="md">
               <Button variant="default" onClick={closeEdit}>
-                إلغاء
+                {t('actions.cancel', { ns: 'common' })}
               </Button>
               <Button type="submit" color="brand" loading={updateMutation.isLoading}>
-                حفظ التغييرات
+                {t('universities.modals.submitEdit')}
               </Button>
             </Group>
           </Stack>
@@ -580,7 +581,7 @@ export default function Universities() {
               <IconCheck size={18} />
             </ThemeIcon>
             <Text weight={700} size="md">
-              تمت تهيئة الجامعة بنجاح!
+              {t('universities.modals.successTitle')}
             </Text>
           </Group>
         }
@@ -591,19 +592,19 @@ export default function Universities() {
         {createdCredentials && (
           <Stack spacing="md">
             <Alert color="teal" radius="md">
-              تم إنشاء المؤسسة وحساب المشرف الإداري بنجاح. يُرجى نسخ بيانات الدخول المؤقتة وتسليمها للمسؤول قبل إغلاق هذه النافذة.
+              {t('universities.modals.successDesc')}
             </Alert>
             <Paper p="sm" withBorder radius="md">
-              <Text size="xs" color="dimmed">الجامعة والكود:</Text>
+              <Text size="xs" color="dimmed">{t('universities.modals.univAndCode')}</Text>
               <Text weight={700}>{createdCredentials.universityName} ({createdCredentials.universityCode})</Text>
             </Paper>
             <Paper p="sm" withBorder radius="md">
-              <Text size="xs" color="dimmed">المشرف والبريد الإلكتروني:</Text>
+              <Text size="xs" color="dimmed">{t('universities.modals.adminCreds')}</Text>
               <Text weight={600}>{createdCredentials.adminName}</Text>
               <Text size="sm" color="brand.7">{createdCredentials.adminEmail}</Text>
             </Paper>
             <Paper p="sm" withBorder radius="md" sx={{ backgroundColor: isDark ? theme.colors.dark[6] : theme.colors.gray[0] }}>
-              <Text size="xs" color="dimmed" mb={4}>كلمة المرور المؤقتة (Temporary Password):</Text>
+              <Text size="xs" color="dimmed" mb={4}>{t('auth:login.password')}:</Text>
               <Group position="apart">
                 <Code sx={{ fontSize: 16, fontWeight: 700, letterSpacing: '1px' }}>
                   {createdCredentials.tempPassword}
@@ -616,14 +617,14 @@ export default function Universities() {
                       leftIcon={copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
                       onClick={copy}
                     >
-                      {copied ? 'تم النسخ' : 'نسخ كلمة المرور'}
+                      {copied ? t('universities.modals.copied') : t('universities.modals.copyPassword')}
                     </Button>
                   )}
                 </CopyButton>
               </Group>
             </Paper>
             <Button fullWidth color="brand" onClick={() => setCreatedCredentials(null)}>
-              تم حفظ البيانات وإغلاق
+              {t('universities.modals.close')}
             </Button>
           </Stack>
         )}
@@ -634,13 +635,13 @@ export default function Universities() {
         opened={Boolean(confirmTarget)}
         onClose={() => setConfirmTarget(null)}
         isLoading={toggleMutation.isLoading}
-        title={confirmTarget?.active ? 'تأكيد تعليق الجامعة' : 'تأكيد تفعيل الجامعة'}
+        title={confirmTarget?.active ? t('universities.modals.confirmSuspendTitle') : t('universities.modals.confirmActivateTitle')}
         message={
           confirmTarget?.active
-            ? `هل أنت متأكد من تعليق حساب "${confirmTarget?.name}"؟ سيتم منع كافة طلابها ومعلميها وإدارييها من الدخول إلى المنصة فوراً.`
-            : `هل أنت متأكد من إعادة تفعيل حساب "${confirmTarget?.name}" واستئناف العمليات؟`
+            ? t('universities.modals.confirmSuspendMessage')
+            : t('universities.modals.confirmActivateMessage')
         }
-        confirmLabel={confirmTarget?.active ? 'تعليق المؤسسة' : 'تفعيل المؤسسة'}
+        confirmLabel={confirmTarget?.active ? t('universities.table.suspendUniversity') : t('universities.table.activateUniversity')}
         confirmColor={confirmTarget?.active ? 'orange' : 'teal'}
         onConfirm={async () => {
           if (!confirmTarget) return

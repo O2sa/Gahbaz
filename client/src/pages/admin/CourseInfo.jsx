@@ -84,7 +84,7 @@ export default function CourseInfo({ course }) {
         title={courseData.name || t('courses.title')}
         description={courseData.subtitle || t('courses.subtitle')}
         breadcrumbs={[
-          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          { title: tCommon('actions.home'), href: '/' },
           {
             title: courseData.semester?.name || t('semesters.title'),
             href: courseData.semester?._id

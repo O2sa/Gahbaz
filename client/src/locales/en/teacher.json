@@ -39,5 +39,68 @@
     "editCourse": "Edit Course",
     "emptyTitle": "No Courses Found",
     "emptyDesc": "No active courses found in the system currently."
+  },
+  "assignments": {
+    "form": {
+      "editTitle": "Edit Assignment",
+      "createTitle": "Create New Assignment",
+      "titleLabel": "Assignment Title",
+      "titlePlaceholder": "e.g. Assignment 1 - Algorithm Analysis",
+      "descLabel": "Assignment Instructions & Details",
+      "descPlaceholder": "Provide clear instructions and guidelines here...",
+      "dueDateLabel": "Due Date & Time",
+      "maxScoreLabel": "Maximum Score",
+      "attachmentLabel": "Instruction File or Problem Set (Optional)",
+      "selectFileText": "Click to select a file from your device or drop it here",
+      "supportedFiles": "Supports PDF, Word, ZIP files up to 25MB",
+      "fileTooBig": "File size exceeds maximum limit of 25MB",
+      "uploadError": "File Upload Failed",
+      "uploadErrorDesc": "An error occurred while uploading the instruction file.",
+      "saveCreate": "Create & Publish Assignment",
+      "saveUpdate": "Save Changes",
+      "cancel": "Cancel",
+      "createSuccess": "Assignment created and published successfully",
+      "updateSuccess": "Assignment updated successfully"
+    },
+    "grading": {
+      "modalTitle": "Grade & Review Submission",
+      "studentInfo": "Student & Submission Details",
+      "submittedDate": "Submission Date:",
+      "lateBadge": "Late Submission",
+      "onTimeBadge": "On-time",
+      "studentNotes": "Student Notes:",
+      "attachment": "Student Attachment:",
+      "downloadSolution": "Download Solution File",
+      "scoreLabel": "Student Score (out of {{max}})",
+      "scorePlaceholder": "Enter assigned score",
+      "feedbackLabel": "Teacher Feedback & Remarks",
+      "feedbackPlaceholder": "Provide constructive feedback to the student...",
+      "saveGrade": "Save & Finalize Grade",
+      "saveSuccess": "Student grade and feedback saved successfully",
+      "saveError": "Failed to record student grade"
+    },
+    "submissions": {
+      "drawerTitle": "Assignment Student Submissions",
+      "totalSubmissions": "Total Submissions: {{count}}",
+      "graded": "Graded",
+      "pending": "Pending Review",
+      "late": "Late",
+      "searchPlaceholder": "Search by student name or email...",
+      "allStatuses": "All Submissions",
+      "onlySubmitted": "Pending Review Only",
+      "onlyGraded": "Graded Only",
+      "onlyLate": "Late Submissions Only",
+      "table": {
+        "student": "Student",
+        "status": "Status",
+        "submittedAt": "Submitted At",
+        "file": "Solution File",
+        "score": "Score",
+        "actions": "Actions",
+        "gradeAction": "Grade",
+        "editGradeAction": "Edit Grade"
+      },
+      "empty": "No submissions received for this assignment yet"
+    }
   }
 }

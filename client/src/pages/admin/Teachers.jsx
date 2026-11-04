@@ -34,19 +34,19 @@ import dayjs from 'dayjs'
 
 const NAME_REGEX = /^[\u0600-\u06FFa-zA-Z\s\-]{3,70}$/
 
-const TITLE_OPTIONS = [
-  { value: 'دكتور', label: 'دكتور' },
-  { value: 'أستاذ دكتور', label: 'أستاذ دكتور' },
-  { value: 'أستاذ مشارك', label: 'أستاذ مشارك' },
-  { value: 'أستاذ مساعد', label: 'أستاذ مساعد' },
-  { value: 'محاضر', label: 'محاضر' },
-  { value: 'معيد', label: 'معيد' },
-  { value: 'أستاذ', label: 'أستاذ' },
-]
-
 export default function Teachers() {
   const { t } = useTranslation('admin')
   const { t: tCommon } = useTranslation('common')
+
+  const TITLE_OPTIONS = [
+    { value: 'دكتور', label: t('titles.dr') },
+    { value: 'أستاذ دكتور', label: t('titles.prof') },
+    { value: 'أستاذ مشارك', label: t('titles.assocProf') },
+    { value: 'أستاذ مساعد', label: t('titles.asstProf') },
+    { value: 'محاضر', label: t('titles.lecturer') },
+    { value: 'معيد', label: t('titles.ta') },
+    { value: 'أستاذ', label: t('titles.teacher') },
+  ]
 
   const validateName = (val) => {
     if (!val?.trim()) return t('users.validation.nameRequired')
@@ -256,7 +256,7 @@ export default function Teachers() {
         title={t('users.tabs.teachers')}
         description={t('users.subtitle')}
         breadcrumbs={[
-          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          { title: tCommon('actions.home'), href: '/' },
           { title: t('users.tabs.teachers') },
         ]}
         action={

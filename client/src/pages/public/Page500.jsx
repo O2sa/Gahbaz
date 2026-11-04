@@ -2,8 +2,11 @@ import React from 'react'
 import { Container, Title, Text, Button, Group, Center, Stack } from '@mantine/core'
 import { Link } from 'react-router-dom'
 import { IconHome, IconRefresh } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 
 export default function Page500() {
+  const { t } = useTranslation('common')
+
   return (
     <Container size="md" py={80}>
       <Center>
@@ -18,9 +21,9 @@ export default function Page500() {
           >
             500
           </Title>
-          <Title order={2}>حدث خطأ غير متوقع في الخادم</Title>
+          <Title order={2}>{t('errorPages.serverErrorTitle')}</Title>
           <Text color="dimmed" size="lg" sx={{ maxWidth: 500 }}>
-            نواجه مشكلة في معالجة طلبك حالياً. تم تسجيل الخطأ وجاري العمل على حله.
+            {t('errorPages.serverErrorDesc')}
           </Text>
           <Group position="center" mt="md">
             <Button
@@ -30,7 +33,7 @@ export default function Page500() {
               leftIcon={<IconRefresh size={18} />}
               onClick={() => window.location.reload()}
             >
-              إعادة تحميل الصفحة
+              {t('actions.reload')}
             </Button>
             <Button
               component={Link}
@@ -39,7 +42,7 @@ export default function Page500() {
               color="brand"
               leftIcon={<IconHome size={18} />}
             >
-              العودة إلى الصفحة الرئيسية
+              {t('actions.backToHome')}
             </Button>
           </Group>
         </Stack>

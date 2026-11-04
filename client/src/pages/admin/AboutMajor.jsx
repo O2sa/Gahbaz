@@ -2,15 +2,17 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 import { Button, Skeleton, Paper, Box, Group, Title, Text, useMantineTheme } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
+import { Helmet } from 'react-helmet'
+import { useTranslation } from 'react-i18next'
 import { useGetElements } from '../crud'
 import EditMajor from './EditMajor'
-import { Helmet } from 'react-helmet'
 
 export default function AboutMajor({ queryClient }) {
   const params = useParams()
   const majorId = params.majorId || params.id
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const { t } = useTranslation(['admin', 'common', 'nav'])
 
   const {
     data: major = null,
@@ -23,7 +25,7 @@ export default function AboutMajor({ queryClient }) {
 
   const editCom = (
     <Button loading={isFetching} type="submit" variant="light" color="brand">
-      تعديل بيانات التخصص
+      {t('majors.editTitle')}
     </Button>
   )
 
@@ -40,7 +42,7 @@ export default function AboutMajor({ queryClient }) {
   return (
     <Box>
       <Helmet>
-        <title>{`منصة جهبذ | ${major?.name || 'تفاصيل التخصص'}`}</title>
+        <title>{`${t('platformTitle', { ns: 'nav', defaultValue: 'منصة جهبذ' })} | ${major?.name || t('majors.breadcrumb')}`}</title>
       </Helmet>
 
       <Paper
@@ -59,13 +61,13 @@ export default function AboutMajor({ queryClient }) {
       >
         <Group position="apart" mb="lg">
           <Title order={3} sx={{ color: isDark ? '#ffffff' : '#0f172a', fontWeight: 800 }}>
-            {major?.name || 'عن التخصص'}
+            {major?.name || t('majors.breadcrumb')}
           </Title>
           <EditMajor component={editCom} data={major} queryClient={queryClient} />
         </Group>
 
         <Text size="md" color={isDark ? 'gray.3' : 'gray.7'} sx={{ lineHeight: 1.8 }}>
-          {major?.describtion || major?.description || 'لا يوجد وصف مضاف لهذا التخصص حالياً.'}
+          {major?.describtion || major?.description || t('common:emptyDescription')}
         </Text>
       </Paper>
     </Box>

@@ -1,11 +1,13 @@
 import React from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { Box, Paper, Group, Text, useMantineTheme, rem } from '@mantine/core'
+import { useTranslation } from 'react-i18next'
 
 export const TabsLinks = ({ tabs = [] }) => {
   const location = useLocation()
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const { t } = useTranslation(['nav', 'admin', 'common'])
 
   if (!tabs.length) return <Outlet />
 
@@ -126,7 +128,9 @@ export const TabsLinks = ({ tabs = [] }) => {
                       }
                     />
                   )}
-                  <Text size="sm">{tab.name}</Text>
+                  <Text size="sm">
+                    {tab.labelKey ? t(tab.labelKey, { defaultValue: tab.name }) : t(tab.name, { defaultValue: tab.name })}
+                  </Text>
                 </Box>
               </Link>
             )

@@ -17,6 +17,7 @@ import {
   IconCheck,
   IconChecks,
 } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 
 const ChatItem = ({
   avatar,
@@ -28,9 +29,15 @@ const ChatItem = ({
   isMe: isMeProp,
   ...others
 }) => {
+  const { t } = useTranslation('chat')
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
-  const isMe = isMeProp !== undefined ? isMeProp : fullName?.trim() === 'أنت'
+  const isMe =
+    isMeProp !== undefined
+      ? isMeProp
+      : fullName?.trim() === 'أنت' ||
+        fullName?.trim() === 'You' ||
+        fullName?.trim() === t('badges.you', { defaultValue: 'أنت' })
 
   const isImageAttachment =
     attachment && /\.(jpg|jpeg|png|webp|gif)$/i.test(attachment)
@@ -71,7 +78,7 @@ const ChatItem = ({
             </Text>
             {isInstructor && (
               <Badge color="yellow" variant="filled" size="xs" radius="sm">
-                أستاذ المقرر
+                {t('badges.instructor', { defaultValue: 'أستاذ المقرر' })}
               </Badge>
             )}
           </Group>
@@ -166,7 +173,7 @@ const ChatItem = ({
                 >
                   <IconFile size={20} />
                   <Text size="xs" fw={500} lineClamp={1} sx={{ flex: 1 }}>
-                    تحميل الملف المرفق
+                    {t('actions.downloadAttachment', { defaultValue: 'تحميل الملف المرفق' })}
                   </Text>
                   <IconDownload size={16} />
                 </Paper>

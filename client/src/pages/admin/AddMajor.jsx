@@ -1,39 +1,31 @@
-import React, { useState } from 'react'
-import PropTypes from 'prop-types'
-// import { SpecialCard } from '../components/Specialcard'
-
+import React from 'react'
+import { useParams } from 'react-router-dom'
 import { useForm } from '@mantine/form'
-import { TextInput, Button, Group, Box, Modal, NumberInput } from '@mantine/core'
-import { modals } from '@mantine/modals'
-import { useMutation } from '@tanstack/react-query'
-import customFetch from '../../utils/customFetch'
+import { TextInput, Button, Group, Modal } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { useDisclosure } from '@mantine/hooks'
+import { useTranslation } from 'react-i18next'
 import { useCreateElement } from '../crud'
-import { useParams } from 'react-router-dom'
 
 export default function AddMajor({ queryClient }) {
   const { id: collageId } = useParams()
+  const { t } = useTranslation(['admin', 'common', 'errors'])
 
-  const { mutateAsync: createCollage, isPending: isCreatingCollage } = useCreateElement(
+  const { mutateAsync: createMajor, isPending: isCreatingMajor } = useCreateElement(
     queryClient,
     ['majors', collageId],
   )
-  // const te = useCreateElement(queryClient)
   const [opened, { open, close }] = useDisclosure(false)
-  // //console.log(isCreatingCollage)
-  // //console.log('isCreatingCollage')
+
   const form = useForm({
     initialValues: {
       name: '',
-      // levels: 0,
       collage: collageId,
     },
-
     validate: (values) => {
       const errors = {}
-      if (!values.name) {
-        errors.name = 'Please enter a name for the collage.'
+      if (!values.name?.trim()) {
+        errors.name = t('majors.validation.nameRequired')
       }
       return errors
     },
@@ -41,28 +33,25 @@ export default function AddMajor({ queryClient }) {
 
   const handleCloseModal = () => {
     close()
-    form.reset() // Reset
+    form.reset()
   }
 
   const handleSubmit = async (values) => {
-    //console.log('values')
-    //console.log(values)
     try {
-      const res = await createCollage(values)
-      //console.log(res)
+      await createMajor(values)
       handleCloseModal()
       notifications.show({
-        id: 'collage-created',
-        title: 'نجحت العملية!',
-        message: 'تم إنشاء الكلية!',
+        id: 'major-created',
+        title: t('common:confirmModalTitle'),
+        message: t('common:createSuccess'),
         variant: 'success',
         autoClose: 5000,
       })
     } catch (error) {
       notifications.show({
-        id: 'collage-creation-error',
-        title: 'خطأ!',
-        message: error?.response?.data?.msg || 'An error occurred while creating the collage.',
+        id: 'major-creation-error',
+        title: t('common:actions.error', { defaultValue: 'خطأ' }),
+        message: error?.response?.data?.msg || t('errors:generic', { defaultValue: 'حدث خطأ أثناء إنشاء التخصص' }),
         variant: 'danger',
         autoClose: 5000,
       })
@@ -71,30 +60,25 @@ export default function AddMajor({ queryClient }) {
 
   return (
     <Group position="center">
-      <Modal centered={true} title="إنشاء تخصص" opened={opened} onClose={close}>
-        <>
-          <form onSubmit={form.onSubmit(handleSubmit)}>
-            {' '}
-            <TextInput
-              withAsterisk
-              label="الأسم"
-              name="name"
-              placeholder="اسم التخصص"
-              error={form.errors.name}
-              // errorMessage={form.errors.name}
-              // onChange={(event) => form.setMajorValue('name', event.currentTarget.value)}
-              {...form.getInputProps('name')}
-            />
-            <Group position="right" mt="md">
-              <Button loading={isCreatingCollage} type="submit">
-              إنشاء
-              </Button>
-            </Group>
-          </form>
-        </>
+      <Modal centered title={t('majors.createTitle')} opened={opened} onClose={close}>
+        <form onSubmit={form.onSubmit(handleSubmit)}>
+          <TextInput
+            withAsterisk
+            label={t('majors.name')}
+            name="name"
+            placeholder={t('majors.namePlaceholder')}
+            error={form.errors.name}
+            {...form.getInputProps('name')}
+          />
+          <Group position="right" mt="md">
+            <Button loading={isCreatingMajor} type="submit">
+              {t('actions.create', { ns: 'common' })}
+            </Button>
+          </Group>
+        </form>
       </Modal>
       <Group onClick={open}>
-        <Button radius="xs">إنشاء </Button>
+        <Button radius="xs">{t('majors.createTitle')}</Button>
       </Group>
     </Group>
   )

@@ -94,7 +94,7 @@ export default function SemestersTemplate() {
   const subjectsList = Array.isArray(subjectsRes) ? subjectsRes : []
   const subjectOptions = subjectsList.map((s) => ({
     value: s._id || s.id,
-    label: `${s.code ? `${s.code} - ` : ''}${s.name} (${s.creditHours || s.credits || 3} ${tCommon('table.creditsShort') || 'س'})`,
+    label: `${s.code ? `${s.code} - ` : ''}${s.name} (${s.creditHours || s.credits || 3} ${tCommon('table.creditsShort')})`,
   }))
 
   // Mutations
@@ -230,7 +230,7 @@ export default function SemestersTemplate() {
               const hours = typeof s === 'object' ? s.creditHours || s.credits : null
               return (
                 <Badge key={idx} color="indigo" variant="light" size="sm">
-                  {name} {hours ? `(${hours} س)` : ''}
+                  {name} {hours ? `(${hours} ${tCommon('table.creditsShort')})` : ''}
                 </Badge>
               )
             })}
@@ -293,7 +293,7 @@ export default function SemestersTemplate() {
         title={majorTitle}
         description={t('semestersTemplate.subtitle')}
         breadcrumbs={[
-          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          { title: tCommon('actions.home'), href: '/' },
           { title: t('majors.breadcrumb'), href: '/majors' },
           { title: major.name || t('majors.breadcrumb'), href: `/majors/${majorId}` },
           { title: t('semestersTemplate.breadcrumb') },

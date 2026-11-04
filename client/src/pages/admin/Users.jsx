@@ -7,7 +7,7 @@ import { Helmet } from 'react-helmet'
 import { useTranslation } from 'react-i18next'
 
 export default function Users() {
-  const { t } = useTranslation('admin')
+  const { t } = useTranslation(['admin', 'nav'])
 
   const tabs = [
     {
@@ -30,7 +30,7 @@ export default function Users() {
   return (
     <>
       <Helmet>
-        <title>{`منصة جهبذ | ${t('users.helmet')}`}</title>
+        <title>{`${t('platformTitle', { ns: 'nav', defaultValue: 'منصة جهبذ' })} | ${t('users.helmet')}`}</title>
       </Helmet>
       <TabsLinks tabs={tabs} />
     </>

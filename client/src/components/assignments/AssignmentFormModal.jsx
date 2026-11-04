@@ -12,7 +12,6 @@ import {
   Paper,
   ActionIcon,
   useMantineTheme,
-  rem,
 } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -24,6 +23,7 @@ import {
   IconTrash,
   IconPaperclip,
 } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 import customFetch from '../../utils/customFetch'
 import { uploadMedia } from '../../utils/mediaUpload'
 
@@ -37,6 +37,7 @@ export default function AssignmentFormModal({
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
   const queryClient = useQueryClient()
+  const { t } = useTranslation(['teacher', 'common', 'errors'])
 
   const isEditing = Boolean(assignment?._id)
 
@@ -97,10 +98,10 @@ export default function AssignmentFormModal({
     },
     onSuccess: () => {
       notifications.show({
-        title: isEditing ? 'تم تحديث التكليف' : 'تم إنشاء التكليف',
+        title: isEditing ? t('assignments.form.editTitle') : t('assignments.form.createTitle'),
         message: isEditing
-          ? 'تم حفظ تعديلات التكليف وموعد التسليم بنجاح.'
-          : 'تم نشر التكليف الدراسي الجديد وإتاحته للطلاب بنجاح.',
+          ? t('assignments.form.updateSuccess')
+          : t('assignments.form.createSuccess'),
         color: 'teal',
         icon: <IconCheck size={16} />,
       })
@@ -112,9 +113,9 @@ export default function AssignmentFormModal({
       const msg =
         err?.response?.data?.error?.message ||
         err?.response?.data?.message ||
-        'حدث خطأ أثناء حفظ التكليف.'
+        t('errors:generic', { defaultValue: 'حدث خطأ أثناء حفظ التكليف.' })
       notifications.show({
-        title: 'تعذر الحفظ',
+        title: t('common:actions.error', { defaultValue: 'خطأ' }),
         message: msg,
         color: 'red',
         icon: <IconAlertCircle size={16} />,
@@ -126,16 +127,16 @@ export default function AssignmentFormModal({
     e.preventDefault()
     if (!title.trim()) {
       notifications.show({
-        title: 'حقل مطلوب',
-        message: 'يرجى إدخال عنوان التكليف.',
+        title: t('common:confirmModalTitle'),
+        message: t('assignments.form.titleLabel'),
         color: 'orange',
       })
       return
     }
     if (!dueDate) {
       notifications.show({
-        title: 'حقل مطلوب',
-        message: 'يرجى تحديد موعد وتاريخ الاستحقاق.',
+        title: t('common:confirmModalTitle'),
+        message: t('assignments.form.dueDateLabel'),
         color: 'orange',
       })
       return
@@ -163,8 +164,8 @@ export default function AssignmentFormModal({
     } catch (uploadErr) {
       setIsUploading(false)
       notifications.show({
-        title: 'فشل رفع الملف',
-        message: uploadErr.message || 'حدث خطأ أثناء رفع ملف التعليمات.',
+        title: t('assignments.form.uploadError'),
+        message: uploadErr.message || t('assignments.form.uploadErrorDesc'),
         color: 'red',
         icon: <IconAlertCircle size={16} />,
       })
@@ -179,7 +180,7 @@ export default function AssignmentFormModal({
         <Group spacing="xs">
           <IconFileText size={20} color={theme.colors.indigo[6]} />
           <Text weight={700} size="lg">
-            {isEditing ? 'تعديل التكليف الدراسي' : 'إنشاء تكليف دراسي جديد'}
+            {isEditing ? t('assignments.form.editTitle') : t('assignments.form.createTitle')}
           </Text>
         </Group>
       }
@@ -189,16 +190,16 @@ export default function AssignmentFormModal({
       <form onSubmit={handleSubmit}>
         <Stack spacing="md">
           <TextInput
-            label="عنوان التكليف"
-            placeholder="مثال: التكليف الأول - تحليل الخوارزميات"
+            label={t('assignments.form.titleLabel')}
+            placeholder={t('assignments.form.titlePlaceholder')}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
           />
 
           <Textarea
-            label="تفاصيل وتعليمات التكليف"
-            placeholder="اكتب تعليمات وشروط حل التكليف هنا..."
+            label={t('assignments.form.descLabel')}
+            placeholder={t('assignments.form.descPlaceholder')}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             minRows={3}
@@ -206,14 +207,14 @@ export default function AssignmentFormModal({
 
           <Group grow>
             <TextInput
-              label="تاريخ ووقت الاستحقاق (Due Date)"
+              label={t('assignments.form.dueDateLabel')}
               type="datetime-local"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               required
             />
             <NumberInput
-              label="الدرجة العظمى (Max Score)"
+              label={t('assignments.form.maxScoreLabel')}
               value={maxScore}
               onChange={(val) => setMaxScore(val)}
               min={1}
@@ -225,7 +226,7 @@ export default function AssignmentFormModal({
           {/* Instruction Attachment */}
           <div>
             <Text size="sm" weight={500} mb={4}>
-              ملف التعليمات أو نموذج الواجب (اختياري)
+              {t('assignments.form.attachmentLabel')}
             </Text>
 
             {fileUrl && !selectedFile && (
@@ -250,7 +251,7 @@ export default function AssignmentFormModal({
                     size="sm"
                     variant="subtle"
                     onClick={() => setFileUrl('')}
-                    title="إزالة المرفق"
+                    title={t('actions.delete', { ns: 'common' })}
                   >
                     <IconTrash size={14} />
                   </ActionIcon>
@@ -276,19 +277,19 @@ export default function AssignmentFormModal({
               leftIcon={<IconUpload size={16} />}
               onClick={() => document.getElementById('assignment-instruction-file').click()}
             >
-              {selectedFile ? selectedFile.name : fileUrl ? 'استبدال الملف' : 'اختيار ملف مرفق'}
+              {selectedFile ? selectedFile.name : fileUrl ? t('actions.edit', { ns: 'common' }) : t('assignments.form.selectFileText')}
             </Button>
 
             {selectedFile && (
               <Text size="xs" color="dimmed" mt={4}>
-                الملف المحدد: {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
               </Text>
             )}
 
             {isUploading && (
               <Stack spacing={4} mt="xs">
                 <Text size="xs" color="indigo">
-                  جارٍ رفع الملف عبر التخزين السحابي... ({uploadProgress}%)
+                  {uploadProgress}%
                 </Text>
                 <Progress value={uploadProgress} size="sm" color="indigo" radius="xl" animated />
               </Stack>
@@ -297,14 +298,14 @@ export default function AssignmentFormModal({
 
           <Group position="right" mt="lg">
             <Button variant="default" onClick={onClose} disabled={saveMutation.isLoading || isUploading}>
-              إلغاء
+              {t('actions.cancel', { ns: 'common' })}
             </Button>
             <Button
               type="submit"
               color="indigo"
               loading={saveMutation.isLoading || isUploading}
             >
-              {isEditing ? 'حفظ التعديلات' : 'نشر التكليف'}
+              {isEditing ? t('assignments.form.saveUpdate') : t('assignments.form.saveCreate')}
             </Button>
           </Group>
         </Stack>

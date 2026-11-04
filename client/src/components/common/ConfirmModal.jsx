@@ -1,20 +1,27 @@
 import React from 'react'
 import { Modal, Text, Group, Button, Stack, ThemeIcon, useMantineTheme } from '@mantine/core'
 import { IconAlertTriangle } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 
 export default function ConfirmModal({
   opened,
   onClose,
   onConfirm,
-  title = 'تأكيد العملية',
-  message = 'هل أنت متأكد من رغبتك في المتابعة؟ لا يمكن التراجع عن هذا الإجراء.',
-  confirmLabel = 'تأكيد',
-  cancelLabel = 'إلغاء',
+  title,
+  message,
+  confirmLabel,
+  cancelLabel,
   confirmColor = 'red',
   isLoading = false,
 }) {
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const { t } = useTranslation('common')
+
+  const resolvedTitle = title || t('actions.confirmModalTitle')
+  const resolvedMessage = message || t('actions.confirmModalMessage')
+  const resolvedConfirmLabel = confirmLabel || t('actions.confirm')
+  const resolvedCancelLabel = cancelLabel || t('actions.cancel')
 
   return (
     <Modal
@@ -26,7 +33,7 @@ export default function ConfirmModal({
             <IconAlertTriangle size={18} />
           </ThemeIcon>
           <Text weight={700} size="md">
-            {title}
+            {resolvedTitle}
           </Text>
         </Group>
       }
@@ -45,11 +52,11 @@ export default function ConfirmModal({
     >
       <Stack spacing="lg" pt="xs">
         <Text size="sm" color="dimmed" sx={{ lineHeight: 1.6 }}>
-          {message}
+          {resolvedMessage}
         </Text>
         <Group position="right" spacing="xs">
           <Button variant="default" radius="md" onClick={onClose} disabled={isLoading}>
-            {cancelLabel}
+            {resolvedCancelLabel}
           </Button>
           <Button
             color={confirmColor}
@@ -58,7 +65,7 @@ export default function ConfirmModal({
             loading={isLoading}
             sx={{ fontWeight: 600 }}
           >
-            {confirmLabel}
+            {resolvedConfirmLabel}
           </Button>
         </Group>
       </Stack>

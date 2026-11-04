@@ -63,8 +63,8 @@ export default function UserMenu({ user }) {
         navigate('/login')
       }
       notifications.show({
-        title: t('logout', { defaultValue: 'تم تسجيل الخروج' }),
-        message: t('common.notifications.success', { defaultValue: 'تم تسجيل خروجك بنجاح من المنصة' }),
+        title: t('logout'),
+        message: t('notifications.success', { ns: 'common' }),
         color: 'blue',
       })
     } catch (err) {
@@ -74,19 +74,21 @@ export default function UserMenu({ user }) {
   }
 
   const roleLabels = {
-    admin: t('roles.admin', { ns: 'common', defaultValue: 'مدير النظام' }),
-    teacher: t('roles.teacher', { ns: 'common', defaultValue: 'عضو هيئة التدريس' }),
-    student: t('roles.student', { ns: 'common', defaultValue: 'طالب جامعي' }),
+    admin: t('roles.admin', { ns: 'common' }),
+    teacher: t('roles.teacher', { ns: 'common' }),
+    student: t('roles.student', { ns: 'common' }),
+    'super-admin': t('roles.superAdmin', { ns: 'common' }),
   }
 
   const roleColors = {
     admin: 'violet',
+    'super-admin': 'red',
     teacher: 'blue',
     student: 'teal',
   }
 
   const role = user?.role || 'admin'
-  const name = user?.name || user?.userName || t('common.roles.user', { defaultValue: 'المستخدم' })
+  const name = user?.name || user?.userName || t('roles.user', { ns: 'common' })
   const email = user?.email || 'admin@gahbaz.edu'
 
   return (

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import 'chart.js/auto'
-import { Line, Bar, Doughnut } from 'react-chartjs-2'
+import { Line } from 'react-chartjs-2'
 import 'chartjs-adapter-date-fns'
 import { useQuery } from '@tanstack/react-query'
 import {
@@ -14,10 +14,7 @@ import {
   Badge,
   Button,
   ThemeIcon,
-  Loader,
-  Center,
   useMantineTheme,
-  rem,
   Progress,
 } from '@mantine/core'
 import {
@@ -30,6 +27,7 @@ import {
   IconCircleCheck,
   IconActivity,
   IconArrowLeft,
+  IconArrowRight,
   IconPlus,
 } from '@tabler/icons-react'
 import { useNavigate } from 'react-router-dom'
@@ -44,10 +42,10 @@ export default function AdminDashboard() {
   const navigate = useNavigate()
   const { user } = useDashboardContext()
   const { t, i18n } = useTranslation(['admin', 'common', 'nav'])
-  const isRtl = !i18n.language?.startsWith('en')
+  const isRtl = i18n.dir() === 'rtl'
 
   // 1. Fetch system dashboard stats
-  const { data: sysData, isLoading: isSysLoading } = useQuery({
+  const { data: sysData } = useQuery({
     queryKey: ['adminDashboardStats'],
     queryFn: async () => {
       try {
@@ -136,7 +134,7 @@ export default function AdminDashboard() {
         labels,
         datasets: [
           {
-            label: 'نشاط الدخول للمنظومة',
+            label: t('dashboard.activityLabel'),
             data,
             borderColor: '#3b82f6',
             backgroundColor: 'rgba(59, 130, 246, 0.15)',
@@ -148,10 +146,18 @@ export default function AdminDashboard() {
     }
 
     return {
-      labels: ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'],
+      labels: [
+        t('dashboard.days.sat'),
+        t('dashboard.days.sun'),
+        t('dashboard.days.mon'),
+        t('dashboard.days.tue'),
+        t('dashboard.days.wed'),
+        t('dashboard.days.thu'),
+        t('dashboard.days.fri'),
+      ],
       datasets: [
         {
-          label: 'نشاط الدخول للمنظومة',
+          label: t('dashboard.activityLabel'),
           data: [65, 89, 120, 105, 95, 40, 25],
           borderColor: '#3b82f6',
           backgroundColor: 'rgba(59, 130, 246, 0.15)',
@@ -160,7 +166,7 @@ export default function AdminDashboard() {
         },
       ],
     }
-  }, [sysData?.loginTimes])
+  }, [sysData?.loginTimes, t])
 
   const chartOptions = {
     responsive: true,
@@ -206,7 +212,7 @@ export default function AdminDashboard() {
           <Box>
             <Group spacing="xs" mb="xs">
               <Badge color="brand" variant="filled" size="sm">
-                {t('dashboard.title', { defaultValue: 'لوحة الإدارة الأكاديمية' })}
+                {t('dashboard.title')}
               </Badge>
               <Text size="xs" color="dimmed">
                 {new Date().toLocaleDateString(isRtl ? 'ar-SA' : 'en-US', {
@@ -225,11 +231,11 @@ export default function AdminDashboard() {
                 fontSize: 26,
               }}
             >
-              {t('dashboard.welcome', { defaultValue: 'مرحباً بك،' })}{' '}
-              {user?.name || user?.userName || t('common.roles.admin', { defaultValue: 'مدير النظام' })} 👋
+              {t('dashboard.welcome')}{' '}
+              {user?.name || user?.userName || t('roles.admin', { ns: 'common' })} 👋
             </Title>
             <Text color="dimmed" size="sm" mt={4} sx={{ maxWidth: 600 }}>
-              {t('dashboard.subtitle', { defaultValue: 'متابعة شاملة ومباشرة للمؤشرات الأكاديمية، الكليات، المستخدمين، والحالة الحية للخوادم.' })}
+              {t('dashboard.subtitle')}
             </Text>
           </Box>
 
@@ -241,17 +247,17 @@ export default function AdminDashboard() {
               onClick={() => navigate('/collages')}
               sx={{ fontWeight: 600 }}
             >
-              {t('colleges.createTitle', { defaultValue: 'إضافة كلية' })}
+              {t('colleges.createTitle')}
             </Button>
             <Button
               variant="gradient"
               gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
               radius="md"
-              leftIcon={<IconArrowLeft size={16} />}
+              leftIcon={isRtl ? <IconArrowLeft size={16} /> : <IconArrowRight size={16} />}
               onClick={() => navigate('/courses')}
               sx={{ fontWeight: 700 }}
             >
-              إدارة المقررات
+              {t('dashboard.manageCourses')}
             </Button>
           </Group>
         </Group>
@@ -268,33 +274,33 @@ export default function AdminDashboard() {
         mb="xl"
       >
         <StatCard
-          title="الكليات والأقسام"
+          title={t('dashboard.stats.totalColleges')}
           value={collegesData || 8}
-          description="إجمالي الكليات النشطة بالنظام"
+          description={t('dashboard.stats.totalCollegesDesc')}
           icon={<IconBuildingSkyscraper size={24} />}
           color="violet"
           diff={12}
         />
         <StatCard
-          title="الطلاب المسجلون"
+          title={t('dashboard.stats.totalStudents')}
           value={studentsData || 1250}
-          description="حسابات الطلاب المعتمدة"
+          description={t('dashboard.stats.totalStudentsDesc')}
           icon={<IconSchool size={24} />}
           color="blue"
           diff={8}
         />
         <StatCard
-          title="أعضاء هيئة التدريس"
+          title={t('dashboard.stats.totalTeachers')}
           value={teachersData || 68}
-          description="الأساتذة والمحاضرون"
+          description={t('dashboard.stats.totalTeachersDesc')}
           icon={<IconUserCheck size={24} />}
           color="teal"
           diff={5}
         />
         <StatCard
-          title="المقررات الأكاديمية"
+          title={t('dashboard.stats.totalCourses')}
           value={coursesData || 94}
-          description="المساقات الدراسية الحالية"
+          description={t('dashboard.stats.totalCoursesDesc')}
           icon={<IconBook size={24} />}
           color="indigo"
           diff={15}
@@ -320,14 +326,14 @@ export default function AdminDashboard() {
             <Group position="apart" mb="lg">
               <Box>
                 <Title order={3} sx={{ fontSize: 18, fontWeight: 700 }}>
-                  نشاط المنظومة الأكاديمية
+                  {t('dashboard.academicActivityTitle')}
                 </Title>
                 <Text size="xs" color="dimmed">
-                  إحصائيات تفاعل المستخدمين وتسجيل الدخول الأكاديمي
+                  {t('dashboard.academicActivityDesc')}
                 </Text>
               </Box>
               <Badge color="teal" variant="light" leftSection={<IconActivity size={12} />}>
-                المنظومة متصلة
+                {t('dashboard.systemOnline')}
               </Badge>
             </Group>
 
@@ -351,10 +357,10 @@ export default function AdminDashboard() {
             }}
           >
             <Title order={3} sx={{ fontSize: 18, fontWeight: 700 }} mb="xs">
-              مؤشرات المنظومة الأكاديمية
+              {t('dashboard.systemMetricsTitle')}
             </Title>
             <Text size="xs" color="dimmed" mb="lg">
-              المعايير والجاهزية التشغيلية للمؤسسة
+              {t('dashboard.systemMetricsDesc')}
             </Text>
 
             <Box mb="lg">
@@ -364,7 +370,7 @@ export default function AdminDashboard() {
                     <IconUsers size={14} />
                   </ThemeIcon>
                   <Text size="sm" weight={600}>
-                    المستخدمون النشطون الآن
+                    {t('dashboard.activeUsersNow')}
                   </Text>
                 </Group>
                 <Text size="sm" weight={700}>
@@ -381,7 +387,7 @@ export default function AdminDashboard() {
                     <IconBuildingSkyscraper size={14} />
                   </ThemeIcon>
                   <Text size="sm" weight={600}>
-                    الكليات والأقسام
+                    {t('dashboard.stats.totalColleges')}
                   </Text>
                 </Group>
                 <Text size="sm" weight={700}>
@@ -398,7 +404,7 @@ export default function AdminDashboard() {
                     <IconTrendingUp size={14} />
                   </ThemeIcon>
                   <Text size="sm" weight={600}>
-                    المقررات الدراسية النشطة
+                    {t('dashboard.activeCourses')}
                   </Text>
                 </Group>
                 <Text size="sm" weight={700}>
@@ -421,7 +427,7 @@ export default function AdminDashboard() {
                   <IconCircleCheck size={12} />
                 </ThemeIcon>
                 <Text size="xs" color="dimmed" weight={600}>
-                  جميع السجلات والجداول الأكاديمية متزامنة ومحدثة.
+                  {t('dashboard.allRecordsSynced')}
                 </Text>
               </Group>
             </Paper>

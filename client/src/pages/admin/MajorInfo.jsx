@@ -1,26 +1,21 @@
-import React, { useEffect } from 'react'
-
-
+import React from 'react'
 import { TabsLinks } from '../../components/TabsLinks'
-
-import { BsStack } from 'react-icons/bs'
-
-import { useParams } from 'react-router-dom'
-import { Tabs } from '@mantine/core'
-import { AboutMajor, SemestersTemplate } from './index'
-import { IconFileAnalytics, IconInfoOctagon } from '@tabler/icons-react'
+import { GrInfo } from 'react-icons/gr'
+import { FaLandmarkDome } from 'react-icons/fa6'
+import { useTranslation } from 'react-i18next'
 
 export default function MajorInfo({ queryClient }) {
+  const { t } = useTranslation('nav')
   const tabs = [
     {
-      name: 'معلومات التخصص',
-      icon: IconInfoOctagon,
+      name: t('tabs.majorInfo'),
+      icon: GrInfo,
       to: '.',
     },
     {
-      name: 'الخطة الدراسية (قوالب الفصول)',
-      icon: IconFileAnalytics,
-      to: 'semesterTemplates',
+      name: t('tabs.studyPlan'),
+      icon: FaLandmarkDome,
+      to: 'semesters',
     },
   ]
 

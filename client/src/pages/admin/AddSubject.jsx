@@ -1,43 +1,33 @@
-import React, { useState } from 'react'
-import PropTypes from 'prop-types'
-// import { SpecialCard } from '../components/Specialcard'
-
+import React from 'react'
+import { useParams } from 'react-router-dom'
 import { useForm } from '@mantine/form'
-import { TextInput, Button, Group, Box, Modal, NumberInput } from '@mantine/core'
-import { modals } from '@mantine/modals'
-import { useMutation } from '@tanstack/react-query'
-import customFetch from '../../utils/customFetch'
+import { TextInput, Button, Group, Modal } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { useDisclosure } from '@mantine/hooks'
+import { useTranslation } from 'react-i18next'
 import { useCreateElement } from '../crud'
-import { useParams } from 'react-router-dom'
 
 export default function AddSubject({ queryClient }) {
   const { id: collageId } = useParams()
+  const { t } = useTranslation(['admin', 'common', 'errors'])
 
-  const { mutateAsync: createCollage, isPending: isCreatingCollage } = useCreateElement(
+  const { mutateAsync: createSubject, isPending: isCreatingSubject } = useCreateElement(
     queryClient,
     ['subjects', collageId],
   )
-
-
-  // const te = useCreateElement(queryClient)
   const [opened, { open, close }] = useDisclosure(false)
-  // //console.log(isCreatingCollage)
-  // //console.log('isCreatingCollage')
+
   const form = useForm({
     initialValues: {
       name: '',
-      levels: 0,
-      subtitle:'',
-      category:'',
-      collage: collageId
+      subtitle: '',
+      category: '',
+      collage: collageId,
     },
-
     validate: (values) => {
       const errors = {}
-      if (!values.name) {
-        errors.name = 'Please enter a name for the collage.'
+      if (!values.name?.trim()) {
+        errors.name = t('subjects.validation.nameRequired')
       }
       return errors
     },
@@ -45,28 +35,25 @@ export default function AddSubject({ queryClient }) {
 
   const handleCloseModal = () => {
     close()
-    form.reset() // Reset
+    form.reset()
   }
 
   const handleSubmit = async (values) => {
-    //console.log('values')
-    //console.log(values)
     try {
-      const res = await createCollage(values)
-      //console.log(res)
+      await createSubject(values)
       handleCloseModal()
       notifications.show({
-        id: 'collage-created',
-        title: 'Success!',
-        message: 'Collage created successfully!',
+        id: 'subject-created',
+        title: t('common:confirmModalTitle'),
+        message: t('common:createSuccess'),
         variant: 'success',
         autoClose: 5000,
       })
     } catch (error) {
       notifications.show({
-        id: 'collage-creation-error',
-        title: 'Error!',
-        message: error?.response?.data?.msg || 'An error occurred while creating the collage.',
+        id: 'subject-creation-error',
+        title: t('common:actions.error', { defaultValue: 'خطأ' }),
+        message: error?.response?.data?.msg || t('errors:generic', { defaultValue: 'حدث خطأ أثناء إنشاء المادة' }),
         variant: 'danger',
         autoClose: 5000,
       })
@@ -75,44 +62,39 @@ export default function AddSubject({ queryClient }) {
 
   return (
     <Group position="center">
-      <Modal centered={true} title="إنشاء المادة" opened={opened} onClose={close}>
-        <>
-          <form onSubmit={form.onSubmit(handleSubmit)}>
-            {' '}
-            <TextInput
-              withAsterisk
-              label="الأسم"
-              name="name"
-              placeholder="اسم المادة"
-              error={form.errors.name}
-            
-              {...form.getInputProps('name')}
-            />       <TextInput
-              withAsterisk
-              label="subtitle"
-              name="subtitle"
-              placeholder="العنوان الفرعي "
-              error={form.errors.name}
-            
-              {...form.getInputProps('subtitle')}
-            />       <TextInput
-              withAsterisk
-              label="category"
-              name="category"
-              placeholder="التصنيف "
-              error={form.errors.category}
-            
-              {...form.getInputProps('category')}
-            />
-        
-            <Group position="right" mt="md">
-              <Button type="submit">{isCreatingCollage ? 'Creating...' : 'إنشاء'}</Button>
-            </Group>
-          </form>
-        </>
+      <Modal centered title={t('subjects.createTitle')} opened={opened} onClose={close}>
+        <form onSubmit={form.onSubmit(handleSubmit)}>
+          <TextInput
+            withAsterisk
+            label={t('subjects.name')}
+            name="name"
+            placeholder={t('subjects.namePlaceholder')}
+            error={form.errors.name}
+            {...form.getInputProps('name')}
+          />
+          <TextInput
+            mt="sm"
+            label={t('subjects.subjectSubtitle')}
+            name="subtitle"
+            placeholder={t('subjects.subtitlePlaceholder')}
+            {...form.getInputProps('subtitle')}
+          />
+          <TextInput
+            mt="sm"
+            label={t('subjects.subjectCategory')}
+            name="category"
+            placeholder={t('subjects.categoryPlaceholder')}
+            {...form.getInputProps('category')}
+          />
+          <Group position="right" mt="md">
+            <Button loading={isCreatingSubject} type="submit">
+              {t('actions.create', { ns: 'common' })}
+            </Button>
+          </Group>
+        </form>
       </Modal>
       <Group onClick={open}>
-        <Button radius="xs">إنشاء الدورة</Button>
+        <Button radius="xs">{t('subjects.createTitle')}</Button>
       </Group>
     </Group>
   )

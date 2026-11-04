@@ -29,6 +29,7 @@ import {
   IconMail,
   IconLock,
   IconArrowLeft,
+  IconArrowRight,
   IconShieldCheck,
   IconUserCheck,
   IconCheck,
@@ -38,10 +39,11 @@ import {
 const Login = () => {
   const navigate = useNavigate()
   const theme = useMantineTheme()
+  const isRtl = theme.dir === 'rtl'
   const queryClient = useQueryClient()
   const isDark = theme.colorScheme === 'dark'
   const [loading, setLoading] = useState(false)
-  const { t } = useTranslation(['auth', 'common'])
+  const { t } = useTranslation(['auth', 'common', 'nav'])
 
   const { data: authStatus } = useQuery({
     queryKey: ['authStatus'],
@@ -118,7 +120,7 @@ const Login = () => {
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Helmet>
-        <title>{t('login.title', { defaultValue: 'منصة جهبذ | تسجيل الدخول' })}</title>
+        <title>{t('login.helmet', { defaultValue: 'منصة جهبذ | تسجيل الدخول' })}</title>
       </Helmet>
 
       <Grid gutter={0} sx={{ flex: 1, minHeight: '100vh' }}>
@@ -152,10 +154,10 @@ const Login = () => {
                 </ActionIcon>
                 <Box>
                   <Text weight={800} size="md">
-                    {t('nav.platformTitle', { defaultValue: 'منصة جَهْبَذ' })}
+                    {t('nav:platformTitle', { defaultValue: 'منصة جَهْبَذ' })}
                   </Text>
                   <Text size={10} color="dimmed">
-                    {t('nav.platformSubtitle', { defaultValue: 'المنظومة الأكاديمية الذكية' })}
+                    {t('nav:platformSubtitle', { defaultValue: 'المنظومة الأكاديمية الذكية' })}
                   </Text>
                 </Box>
               </Group>
@@ -261,7 +263,7 @@ const Login = () => {
                   variant="gradient"
                   gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
                   loading={loading}
-                  leftIcon={<IconArrowLeft size={18} />}
+                  leftIcon={isRtl ? <IconArrowLeft size={18} /> : <IconArrowRight size={18} />}
                   mt="xs"
                   sx={{
                     fontWeight: 700,
@@ -338,7 +340,7 @@ const Login = () => {
                 fontWeight: 700,
               }}
             >
-              منظومة جهبذ التعليمية
+              {t('showcase.loginBadge', { defaultValue: 'منظومة جهبذ التعليمية' })}
             </Badge>
           </Box>
 
@@ -353,10 +355,10 @@ const Login = () => {
                 marginBottom: 16,
               }}
             >
-              البيئة الرقمية المتكاملة للتعليم الجامعي الذكي
+              {t('showcase.loginTitle', { defaultValue: 'البيئة الرقمية المتكاملة للتعليم الجامعي الذكي' })}
             </Title>
             <Text size="lg" sx={{ color: 'rgba(255, 255, 255, 0.85)', lineHeight: 1.7 }} mb="xl">
-              تجمع جهبذ إدارة الكليات والأساتذة والطلاب في فضاء سحابي فائق الأمان لإدارة المساقات، حضور المحاضرات، ورصد الدرجات والتقارير الأكاديمية لحظياً.
+              {t('showcase.loginSubtitle', { defaultValue: 'تجمع جهبذ إدارة الكليات والأساتذة والطلاب في فضاء سحابي فائق الأمان لإدارة المساقات، حضور المحاضرات، ورصد الدرجات والتقارير الأكاديمية لحظياً.' })}
             </Text>
 
             <Stack spacing="md">
@@ -375,7 +377,7 @@ const Login = () => {
                   <IconCheck size={16} color="#34d399" />
                 </Box>
                 <Text size="sm" weight={600} color="gray.2">
-                  هيكلة أكاديمية متكاملة لجميع الكليات والتخصصات
+                  {t('showcase.loginFeature1', { defaultValue: 'هيكلة أكاديمية متكاملة لجميع الكليات والتخصصات' })}
                 </Text>
               </Group>
 
@@ -394,7 +396,7 @@ const Login = () => {
                   <IconCheck size={16} color="#34d399" />
                 </Box>
                 <Text size="sm" weight={600} color="gray.2">
-                  غرف تواصل أكاديمي تفاعلية ومحاضرات سحابية
+                  {t('showcase.loginFeature2', { defaultValue: 'غرف تواصل أكاديمي تفاعلية ومحاضرات سحابية' })}
                 </Text>
               </Group>
 
@@ -413,7 +415,7 @@ const Login = () => {
                   <IconCheck size={16} color="#34d399" />
                 </Box>
                 <Text size="sm" weight={600} color="gray.2">
-                  رصد دقيق لكشوف الدرجات واحتساب المعدلات الأكاديمية
+                  {t('showcase.loginFeature3', { defaultValue: 'رصد دقيق لكشوف الدرجات واحتساب المعدلات الأكاديمية' })}
                 </Text>
               </Group>
             </Stack>
@@ -421,10 +423,10 @@ const Login = () => {
 
           <Group position="apart">
             <Text size="xs" color="gray.4">
-              منصة جهبذ الأكاديمية © {new Date().getFullYear()}
+              {t('showcase.copyright', { year: new Date().getFullYear(), defaultValue: `منصة جهبذ الأكاديمية © ${new Date().getFullYear()}` })}
             </Text>
             <Text size="xs" color="gray.4">
-              إصدار النظام 1.0
+              {t('showcase.version', { defaultValue: 'إصدار النظام 1.0' })}
             </Text>
           </Group>
         </Grid.Col>

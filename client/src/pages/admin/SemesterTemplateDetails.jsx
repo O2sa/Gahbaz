@@ -12,11 +12,13 @@ import {
 import { IconTable, IconTrash, IconPlus, IconPencil } from '@tabler/icons-react'
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { useGetElements } from '../crud.js'
 
 export default function SemesterTemplateDetails({ queryClient }) {
   const { id } = useParams()
   const [isOpen, setIsOpen] = useState(false)
+  const { t } = useTranslation(['admin', 'common'])
 
   const { data: semsterTemp } = useQuery(
     useGetElements(['semesters/semester-template', id])
@@ -47,7 +49,7 @@ export default function SemesterTemplateDetails({ queryClient }) {
         <Group position="apart">
           <Group spacing="sm">
             <IconTable size={24} color="#7c3aed" />
-            <Title order={3}>{semsterTemp?.name || 'تفاصيل خطة الفصل الدراسي'}</Title>
+            <Title order={3}>{semsterTemp?.name || t('semesters.planDetails', { defaultValue: 'تفاصيل خطة الفصل الدراسي' })}</Title>
           </Group>
           <ActionIcon color="brand" variant="light" size="lg">
             <IconPencil size={18} />
@@ -87,7 +89,7 @@ export default function SemesterTemplateDetails({ queryClient }) {
         color="brand"
         leftIcon={<IconPlus size={16} />}
       >
-        {isOpen ? 'إغلاق القائمة' : 'إضافة مادة إلى الخطة'}
+        {isOpen ? t('actions.close', { ns: 'common' }) : t('semesters.addSubject', { defaultValue: 'إضافة مادة إلى الخطة' })}
       </Button>
     </Stack>
   )

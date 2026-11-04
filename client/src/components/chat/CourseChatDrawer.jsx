@@ -176,8 +176,8 @@ export default function CourseChatDrawer({ opened, onClose, courseId, courseName
           console.error('Attachment upload failed:', uploadErr)
           notifications.show({
             color: 'orange',
-            title: 'فشل رفع المرفق',
-            message: 'تعذر رفع الملف، جاري إرسال الرسالة النصية فقط',
+            title: t('actions.uploadWarningTitle', { defaultValue: 'فشل رفع المرفق' }),
+            message: t('actions.uploadWarning', { defaultValue: 'تعذر رفع الملف، جاري إرسال الرسالة النصية فقط' }),
           })
         }
       }
@@ -202,8 +202,8 @@ export default function CourseChatDrawer({ opened, onClose, courseId, courseName
       console.error('Failed to send message in course chat:', err)
       notifications.show({
         color: 'red',
-        title: 'خطأ في الإرسال',
-        message: err?.response?.data?.message || 'تعذر إرسال الرسالة',
+        title: t('actions.sendFailed', { defaultValue: 'خطأ في الإرسال' }),
+        message: err?.response?.data?.message || t('actions.sendFailedMsg', { defaultValue: 'تعذر إرسال الرسالة' }),
       })
     } finally {
       setSending(false)
@@ -350,7 +350,7 @@ export default function CourseChatDrawer({ opened, onClose, courseId, courseName
                           </Text>
                           {isInstructor && (
                             <Badge color="yellow" variant="filled" size="xs">
-                              أستاذ المقرر
+                              {t('badges.instructor', { defaultValue: 'أستاذ المقرر' })}
                             </Badge>
                           )}
                         </Group>
@@ -404,7 +404,7 @@ export default function CourseChatDrawer({ opened, onClose, courseId, courseName
                                 }}
                               >
                                 <IconFile size={14} />
-                                عرض الملف المرفق
+                                {t('actions.viewAttachment', { defaultValue: 'عرض الملف المرفق' })}
                               </Anchor>
                             )}
                           </Box>

@@ -10,6 +10,9 @@ export const authApi = {
   getCurrentUser: async () => {
     return apiClient.get('/users/current-user')
   },
+  getAuthStatus: async () => {
+    return apiClient.get('/auth/status')
+  },
 }
 
 export default authApi

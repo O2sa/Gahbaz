@@ -13,6 +13,7 @@ import {
 } from '@mantine/core'
 import { useMediaQuery } from '@mantine/hooks'
 import { IconBook, IconUsers } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 
 const ChatsList = ({
   avatar,
@@ -25,6 +26,7 @@ const ChatsList = ({
   isSelected = false,
   ...props
 }) => {
+  const { t } = useTranslation('chat')
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
   const tabletMatch = useMediaQuery('(max-width: 768px)')
@@ -78,7 +80,7 @@ const ChatsList = ({
             ? 'rgba(34, 139, 230, 0.15)'
             : 'rgba(231, 245, 255, 0.9)'
           : 'transparent',
-        borderRight: isSelected
+        borderInlineStart: isSelected
           ? `3px solid ${theme.colors.brand[6]}`
           : '3px solid transparent',
         '&:hover': {
@@ -119,15 +121,19 @@ const ChatsList = ({
 
           <Group position="apart" noWrap spacing={4}>
             <Text lineClamp={1} size="xs" c="dimmed" sx={{ flex: 1 }}>
-              {lastMessage || 'لا توجد رسائل سابقة'}
+              {lastMessage || t('empty.noPreviousMessages', { defaultValue: 'لا توجد رسائل سابقة' })}
             </Text>
             {badge && (
               <Badge
                 size="xs"
-                color={badge.includes('مقرر') ? 'teal' : 'blue'}
+                color={badge?.includes('مقرر') || badge?.includes('Course') ? 'teal' : 'blue'}
                 variant="light"
                 leftSection={
-                  badge.includes('مقرر') ? <IconBook size={9} /> : <IconUsers size={9} />
+                  badge?.includes('مقرر') || badge?.includes('Course') ? (
+                    <IconBook size={9} />
+                  ) : (
+                    <IconUsers size={9} />
+                  )
                 }
               >
                 {badge}

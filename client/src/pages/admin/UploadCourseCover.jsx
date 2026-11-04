@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import axios from 'axios'
 import {
   Text,
   Image,
@@ -15,10 +14,12 @@ import { useDisclosure } from '@mantine/hooks'
 import { useParams } from 'react-router-dom'
 import { IconPhoto, IconUpload, IconX } from '@tabler/icons-react'
 import { notifications } from '@mantine/notifications'
+import { useTranslation } from 'react-i18next'
 import { uploadMedia } from '../../utils/mediaUpload'
 
 export default function UploadCourseCover({ children, queryClient }) {
   const { courseId } = useParams()
+  const { t } = useTranslation(['admin', 'common', 'errors'])
   const [opened, { open, close }] = useDisclosure(false)
   const [selectedFile, setSelectedFile] = useState(null)
   const [isUploading, setIsUploading] = useState(false)
@@ -42,16 +43,16 @@ export default function UploadCourseCover({ children, queryClient }) {
           queryClient.invalidateQueries(['courses', courseId])
         }
         notifications.show({
-          title: 'تم بنجاح',
-          message: 'تم تحديث غلاف الدورة بنجاح',
+          title: t('common:confirmModalTitle'),
+          message: t('courseBuilder.uploadCoverSuccess'),
           color: 'green',
         })
         close()
       }
     } catch (error) {
       notifications.show({
-        title: 'خطأ',
-        message: 'فشل تحميل غلاف الدورة',
+        title: t('common:actions.error', { defaultValue: 'خطأ' }),
+        message: error?.response?.data?.msg || t('errors:generic', { defaultValue: 'فشل تحميل غلاف الدورة' }),
         color: 'red',
       })
     } finally {
@@ -76,7 +77,7 @@ export default function UploadCourseCover({ children, queryClient }) {
 
   return (
     <>
-      <Modal opened={opened} size="lg" onClose={close} title="تحميل غلاف الدورة" centered>
+      <Modal opened={opened} size="lg" onClose={close} title={t('courseBuilder.coverUploadTitle')} centered>
         <Dropzone
           onReject={(files) => console.log('rejected files', files)}
           m="md"
@@ -99,10 +100,10 @@ export default function UploadCourseCover({ children, queryClient }) {
 
             <div>
               <Text size="md" align="center">
-                انقر لاختيار صورة أو اسحب الصورة هنا
+                {t('courseBuilder.imageDropzoneTitle')}
               </Text>
               <Text size="xs" color="dimmed" align="center" mt={4}>
-                الحد الأقصى 5 ميجابايت
+                {t('courseBuilder.imageDropzoneHint')}
               </Text>
             </div>
           </Group>
@@ -112,10 +113,10 @@ export default function UploadCourseCover({ children, queryClient }) {
 
         <Group position="apart" mt="lg">
           <Button variant="default" onClick={close}>
-            إلغاء
+            {t('actions.cancel', { ns: 'common' })}
           </Button>
           <Button onClick={handleUpload} loading={isUploading} disabled={!selectedFile}>
-            رفع وحفظ
+            {t('courseBuilder.uploadAndSave')}
           </Button>
         </Group>
       </Modal>

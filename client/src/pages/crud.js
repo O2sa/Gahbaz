@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import customFetch from '../utils/customFetch'
 import { notifications } from '@mantine/notifications'
+import i18n from '../i18n'
 
 export function useDeleteElement(queryClient, collection) {
   return useMutation({
@@ -14,8 +15,8 @@ export function useDeleteElement(queryClient, collection) {
       // console.log(error)
       notifications.show({
         id: 'error-delete',
-        title: 'خطأ!',
-        message: error?.response?.data?.msg||'خطأ',
+        title: i18n.t('notifications.error', { ns: 'common', defaultValue: 'خطأ!' }),
+        message: error?.response?.data?.msg || i18n.t('notifications.error', { ns: 'common', defaultValue: 'خطأ' }),
         variant: 'error',
         color:'red',
         autoClose: 5000,
@@ -58,8 +59,8 @@ export function useUpdateElement(queryClient, collection) {
       // console.log(error)
       notifications.show({
         id: 'error-delete',
-        title: 'خطأ!',
-        message: error?.response?.data?.msg||'خطأ',
+        title: i18n.t('notifications.error', { ns: 'common', defaultValue: 'خطأ!' }),
+        message: error?.response?.data?.msg || i18n.t('notifications.error', { ns: 'common', defaultValue: 'خطأ' }),
         variant: 'error',
         color:'red',
         autoClose: 5000,
@@ -90,8 +91,8 @@ export function useUpdateOneElement(queryClient, collection) {
       // console.log(error)
       notifications.show({
         id: 'error-delete',
-        title: 'خطأ!',
-        message: error?.response?.data?.msg||'خطأ',
+        title: i18n.t('notifications.error', { ns: 'common', defaultValue: 'خطأ!' }),
+        message: error?.response?.data?.msg || i18n.t('notifications.error', { ns: 'common', defaultValue: 'خطأ' }),
         variant: 'error',
         color:'red',
         autoClose: 5000,
@@ -125,8 +126,8 @@ export function useCreateElement(queryClient, collection) {
       // console.log(error)
       notifications.show({
         id: 'error-delete',
-        title: 'خطأ!',
-        message: error?.response?.data?.msg||'خطأ',
+        title: i18n.t('notifications.error', { ns: 'common', defaultValue: 'خطأ!' }),
+        message: error?.response?.data?.msg || i18n.t('notifications.error', { ns: 'common', defaultValue: 'خطأ' }),
         variant: 'error',
         color:'red',
         autoClose: 5000,

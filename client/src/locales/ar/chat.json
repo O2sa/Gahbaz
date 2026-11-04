@@ -22,7 +22,8 @@
     "noDirectYet": "لا توجد محادثات خاصة بعد",
     "startHint": "ابدأ محادثة جديدة عبر البحث بالأعلى",
     "noMessages": "لا توجد رسائل بعد",
-    "beFirst": "كن أول من يفتتح النقاش ويرسل رسالة في هذه المحادثة!"
+    "beFirst": "كن أول من يفتتح النقاش ويرسل رسالة في هذه المحادثة!",
+    "noPreviousMessages": "لا توجد رسائل سابقة"
   },
   "badges": {
     "courseBadge": "مقرر دراسي",
@@ -34,7 +35,8 @@
     "members": "{{count}} عضو",
     "you": "أنت",
     "member": "عضو",
-    "defaultChat": "محادثة"
+    "defaultChat": "محادثة",
+    "instructor": "أستاذ المقرر"
   },
   "welcome": {
     "title": "مرحباً بك في مركز المحادثات، ",
@@ -62,7 +64,9 @@
     "loadFailed": "خطأ في تحميل الرسائل",
     "loadFailedMsg": "تعذر استرجاع رسائل المحادثة",
     "deepLinkFailedTitle": "تعذر فتح المحادثة",
-    "deepLinkFailedMsg": "لم نتمكن من فتح محادثة المقرر المحدد"
+    "deepLinkFailedMsg": "لم نتمكن من فتح محادثة المقرر المحدد",
+    "downloadAttachment": "تحميل الملف المرفق",
+    "viewAttachment": "عرض الملف المرفق"
   },
   "drawer": {
     "title": "غرفة نقاش المقرر",

@@ -1,9 +1,12 @@
 import React from 'react'
 import { Container, Title, Text, Button, Group, Center, Stack } from '@mantine/core'
 import { Link } from 'react-router-dom'
-import { IconHome, IconError404 } from '@tabler/icons-react'
+import { IconHome } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 
 export default function Page404() {
+  const { t } = useTranslation('common')
+
   return (
     <Container size="md" py={80}>
       <Center>
@@ -18,9 +21,9 @@ export default function Page404() {
           >
             404
           </Title>
-          <Title order={2}>الصفحة المطلوبة غير موجودة</Title>
+          <Title order={2}>{t('errorPages.notFoundTitle')}</Title>
           <Text color="dimmed" size="lg" sx={{ maxWidth: 500 }}>
-            ربما تم نقل الصفحة أو حذفها، أو أن الرابط الذي اتبعته غير صحيح.
+            {t('errorPages.notFoundDesc')}
           </Text>
           <Group position="center" mt="md">
             <Button
@@ -30,7 +33,7 @@ export default function Page404() {
               color="brand"
               leftIcon={<IconHome size={18} />}
             >
-              العودة إلى الصفحة الرئيسية
+              {t('actions.backToHome')}
             </Button>
           </Group>
         </Stack>

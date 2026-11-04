@@ -273,7 +273,7 @@ export default function Subjects() {
         title={t('subjects.title')}
         description={t('subjects.subtitle')}
         breadcrumbs={[
-          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          { title: tCommon('actions.home'), href: '/' },
           ...(collegeId ? [{ title: t('colleges.breadcrumb'), href: '/collages' }] : []),
           { title: t('subjects.breadcrumb') },
         ]}

@@ -10,7 +10,6 @@ import {
   Badge,
   Paper,
   Divider,
-  Anchor,
   useMantineTheme,
 } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
@@ -23,6 +22,7 @@ import {
   IconUser,
   IconNote,
 } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 import customFetch from '../../utils/customFetch'
 
 export default function GradeSubmissionModal({
@@ -35,6 +35,7 @@ export default function GradeSubmissionModal({
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
   const queryClient = useQueryClient()
+  const { t, i18n } = useTranslation(['teacher', 'common', 'errors'])
 
   const [grade, setGrade] = useState('')
   const [feedback, setFeedback] = useState('')
@@ -56,8 +57,8 @@ export default function GradeSubmissionModal({
     },
     onSuccess: () => {
       notifications.show({
-        title: 'تم رصد الدرجة بنجاح',
-        message: 'تم حفظ درجة الطالب وإرسال الملاحظات بنجاح.',
+        title: t('common:confirmModalTitle'),
+        message: t('assignments.grading.saveSuccess'),
         color: 'teal',
         icon: <IconCheck size={16} />,
       })
@@ -74,9 +75,9 @@ export default function GradeSubmissionModal({
       const msg =
         err?.response?.data?.error?.message ||
         err?.response?.data?.message ||
-        'حدث خطأ أثناء رصد الدرجة.'
+        t('assignments.grading.saveError')
       notifications.show({
-        title: 'تعذر رصد الدرجة',
+        title: t('common:actions.error', { defaultValue: 'خطأ' }),
         message: msg,
         color: 'red',
         icon: <IconAlertCircle size={16} />,
@@ -90,22 +91,22 @@ export default function GradeSubmissionModal({
     submission.student?.name ||
     `${submission.student?.firstName || ''} ${submission.student?.lastName || ''}`.trim() ||
     submission.student?.email ||
-    'طالب غير محدد'
+    t('common:user')
 
   const isLate = submission.status === 'late'
   const submittedDate = submission.submittedAt
-    ? new Date(submission.submittedAt).toLocaleString('ar-SA', {
+    ? new Date(submission.submittedAt).toLocaleString(i18n.language.startsWith('ar') ? 'ar-SA' : 'en-US', {
         dateStyle: 'medium',
         timeStyle: 'short',
       })
-    : 'غير متوفر'
+    : '—'
 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (grade === '' || grade === null) {
       notifications.show({
-        title: 'حقل مطلوب',
-        message: 'يرجى إدخال درجة التقييم.',
+        title: t('common:confirmModalTitle'),
+        message: t('assignments.grading.scorePlaceholder'),
         color: 'orange',
       })
       return
@@ -114,8 +115,8 @@ export default function GradeSubmissionModal({
     const numGrade = Number(grade)
     if (numGrade < 0 || numGrade > maxScore) {
       notifications.show({
-        title: 'قيمة غير مقبولة',
-        message: `يجب أن تكون الدرجة بين 0 و ${maxScore}.`,
+        title: t('common:actions.error', { defaultValue: 'خطأ' }),
+        message: `${numGrade} (0 - ${maxScore})`,
         color: 'red',
       })
       return
@@ -136,7 +137,7 @@ export default function GradeSubmissionModal({
         <Group spacing="xs">
           <IconUser size={20} color={theme.colors.indigo[6]} />
           <Text weight={700} size="md">
-            تقييم تسليم الطالب: {studentName}
+            {`${t('assignments.grading.modalTitle')}: ${studentName}`}
           </Text>
         </Group>
       }
@@ -157,7 +158,7 @@ export default function GradeSubmissionModal({
             <Stack spacing="xs">
               <Group position="apart">
                 <Text size="xs" color="dimmed">
-                  تاريخ التسليم:
+                  {t('assignments.grading.submittedDate')}
                 </Text>
                 <Group spacing={6}>
                   <IconClock size={14} color={isLate ? theme.colors.red[5] : theme.colors.teal[6]} />
@@ -166,11 +167,11 @@ export default function GradeSubmissionModal({
                   </Text>
                   {isLate ? (
                     <Badge color="red" size="sm" variant="light">
-                      متأخر (Late)
+                      {t('assignments.grading.lateBadge')}
                     </Badge>
                   ) : (
                     <Badge color="teal" size="sm" variant="light">
-                      في الموعد
+                      {t('assignments.grading.onTimeBadge')}
                     </Badge>
                   )}
                 </Group>
@@ -179,7 +180,7 @@ export default function GradeSubmissionModal({
               {submission.fileUrl && (
                 <Group position="apart">
                   <Text size="xs" color="dimmed">
-                    ملف الإجابة:
+                    {t('assignments.grading.attachment')}
                   </Text>
                   <Button
                     component="a"
@@ -191,7 +192,7 @@ export default function GradeSubmissionModal({
                     color="indigo"
                     leftIcon={<IconDownload size={14} />}
                   >
-                    تحميل ملف الحل
+                    {t('assignments.grading.downloadSolution')}
                   </Button>
                 </Group>
               )}
@@ -201,7 +202,7 @@ export default function GradeSubmissionModal({
                   <Group spacing={4} mb={2}>
                     <IconNote size={14} color={theme.colors.gray[6]} />
                     <Text size="xs" weight={600} color="dimmed">
-                      ملاحظات الطالب:
+                      {t('assignments.grading.studentNotes')}
                     </Text>
                   </Group>
                   <Text size="xs" sx={{ whiteSpace: 'pre-wrap' }}>
@@ -216,7 +217,7 @@ export default function GradeSubmissionModal({
 
           {/* Grade Input */}
           <NumberInput
-            label={`الدرجة المستحقة (من أصل ${maxScore})`}
+            label={t('assignments.grading.scoreLabel', { max: maxScore })}
             placeholder={`0 - ${maxScore}`}
             value={grade}
             onChange={(val) => setGrade(val)}
@@ -225,13 +226,12 @@ export default function GradeSubmissionModal({
             precision={1}
             step={0.5}
             required
-            description={`الحد الأقصى للتكليف هو ${maxScore} درجة`}
           />
 
           {/* Feedback Input */}
           <Textarea
-            label="ملاحظات وتوجيهات الأستاذ للطالب"
-            placeholder="اكتب تعليقاتك التوجيهية وتصويب الإجابات هنا..."
+            label={t('assignments.grading.feedbackLabel')}
+            placeholder={t('assignments.grading.feedbackPlaceholder')}
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
             minRows={3}
@@ -239,10 +239,10 @@ export default function GradeSubmissionModal({
 
           <Group position="right" mt="md">
             <Button variant="default" onClick={onClose} disabled={gradeMutation.isLoading}>
-              إلغاء
+              {t('actions.cancel', { ns: 'common' })}
             </Button>
             <Button type="submit" color="indigo" loading={gradeMutation.isLoading}>
-              حفظ واعتماد التقييم
+              {t('assignments.grading.saveGrade')}
             </Button>
           </Group>
         </Stack>

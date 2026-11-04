@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import universitiesApi from '../api/universities.api.js'
 import { notifications } from '@mantine/notifications'
+import i18n from '../i18n'
 
 export function useUniversities(params = {}) {
   return useQuery({
@@ -35,15 +36,15 @@ export function useCreateUniversity() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['universities'] })
       notifications.show({
-        title: 'تم بنجاح',
-        message: 'تمت تهيئة الجامعة والحساب الإداري بنجاح',
+        title: i18n.t('notifications.success', { ns: 'common', defaultValue: 'تم بنجاح' }),
+        message: i18n.t('universities.createSuccess', { ns: 'admin', defaultValue: 'تمت تهيئة الجامعة والحساب الإداري بنجاح' }),
         color: 'teal',
       })
     },
     onError: (err) => {
-      const msg = err?.response?.data?.error?.message || err?.response?.data?.message || err?.message || 'فشلت عملية تهيئة الجامعة'
+      const msg = err?.response?.data?.error?.message || err?.response?.data?.message || err?.message || i18n.t('universities.createFailed', { ns: 'admin', defaultValue: 'فشلت عملية تهيئة الجامعة' })
       notifications.show({
-        title: 'خطأ',
+        title: i18n.t('notifications.error', { ns: 'common', defaultValue: 'خطأ' }),
         message: msg,
         color: 'red',
       })
@@ -58,15 +59,15 @@ export function useUpdateUniversity() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['universities'] })
       notifications.show({
-        title: 'تم بنجاح',
-        message: 'تم تحديث بيانات الجامعة بنجاح',
+        title: i18n.t('notifications.success', { ns: 'common', defaultValue: 'تم بنجاح' }),
+        message: i18n.t('universities.updateSuccess', { ns: 'admin', defaultValue: 'تم تحديث بيانات الجامعة بنجاح' }),
         color: 'teal',
       })
     },
     onError: (err) => {
-      const msg = err?.response?.data?.error?.message || err?.response?.data?.message || err?.message || 'فشل التحديث'
+      const msg = err?.response?.data?.error?.message || err?.response?.data?.message || err?.message || i18n.t('universities.updateFailed', { ns: 'admin', defaultValue: 'فشل التحديث' })
       notifications.show({
-        title: 'خطأ',
+        title: i18n.t('notifications.error', { ns: 'common', defaultValue: 'خطأ' }),
         message: msg,
         color: 'red',
       })
@@ -81,15 +82,17 @@ export function useToggleUniversityStatus() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['universities'] })
       notifications.show({
-        title: 'تم تحديث الحالة',
-        message: variables.active ? 'تم تفعيل حساب الجامعة بنجاح' : 'تم تعليق حساب الجامعة بنجاح',
+        title: i18n.t('universities.statusUpdated', { ns: 'admin', defaultValue: 'تم تحديث الحالة' }),
+        message: variables.active
+          ? i18n.t('universities.activatedSuccess', { ns: 'admin', defaultValue: 'تم تفعيل حساب الجامعة بنجاح' })
+          : i18n.t('universities.suspendedSuccess', { ns: 'admin', defaultValue: 'تم تعليق حساب الجامعة بنجاح' }),
         color: variables.active ? 'teal' : 'orange',
       })
     },
     onError: (err) => {
-      const msg = err?.response?.data?.error?.message || err?.response?.data?.message || err?.message || 'فشل تغيير حالة الجامعة'
+      const msg = err?.response?.data?.error?.message || err?.response?.data?.message || err?.message || i18n.t('universities.statusFailed', { ns: 'admin', defaultValue: 'فشل تغيير حالة الجامعة' })
       notifications.show({
-        title: 'خطأ',
+        title: i18n.t('notifications.error', { ns: 'common', defaultValue: 'خطأ' }),
         message: msg,
         color: 'red',
       })

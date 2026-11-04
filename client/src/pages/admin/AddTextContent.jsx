@@ -13,6 +13,7 @@ import Link from '@tiptap/extension-link'
 import { useParams } from 'react-router-dom'
 import client from '../../api/client'
 import { notifications } from '@mantine/notifications'
+import { useTranslation } from 'react-i18next'
 
 function calculateReadingTimeFromHTML(htmlContent, averageWPM = 200) {
   if (!htmlContent) return 1
@@ -32,6 +33,7 @@ export function AddTextContent({
   const { courseId } = useParams()
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const { t } = useTranslation(['admin', 'common', 'errors'])
   const [internalOpened, { open, close: internalClose }] = useDisclosure(false)
   const isControlled = controlledOpened !== undefined
   const opened = isControlled ? controlledOpened : internalOpened
@@ -64,15 +66,15 @@ export function AddTextContent({
         queryClient.invalidateQueries(['sections', courseId])
       }
       notifications.show({
-        title: 'تم الحفظ',
-        message: 'تم حفظ المحتوى النصي بنجاح',
+        title: t('common:confirmModalTitle'),
+        message: t('courseBuilder.saveTextSuccess'),
         color: 'teal',
       })
       close()
     } catch (error) {
       notifications.show({
-        title: 'خطأ',
-        message: 'فشل حفظ المحتوى النصي',
+        title: t('common:actions.error', { defaultValue: 'خطأ' }),
+        message: error?.response?.data?.msg || t('errors:generic', { defaultValue: 'فشل حفظ المحتوى النصي' }),
         color: 'red',
       })
     }
@@ -86,7 +88,7 @@ export function AddTextContent({
         onClose={close}
         title={
           <Text weight={700} size="md" sx={{ color: isDark ? '#ffffff' : '#0f172a' }}>
-            تحرير المحتوى النصي للدرس
+            {t('courseBuilder.textContentTitle')}
           </Text>
         }
         centered
@@ -106,10 +108,10 @@ export function AddTextContent({
 
         <Group position="apart" mt="lg">
           <Button variant="default" onClick={close}>
-            إلغاء
+            {t('actions.cancel', { ns: 'common' })}
           </Button>
           <Button color="brand" onClick={handleSubmit}>
-            حفظ التغييرات
+            {t('courseBuilder.saveButton')}
           </Button>
         </Group>
       </Modal>

@@ -12,7 +12,6 @@ import {
   ThemeIcon,
   Tooltip,
   useMantineTheme,
-  rem,
 } from '@mantine/core'
 import {
   IconDotsVertical,
@@ -23,6 +22,7 @@ import {
   IconTrash,
   IconVideo,
 } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 import {
   AddLesson,
   AddSection,
@@ -35,6 +35,7 @@ import AddTextContent from './AddTextContent'
 function LessonItem({ lesson, section, queryClient }) {
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const { t } = useTranslation(['admin', 'common'])
   const [videoModalOpen, setVideoModalOpen] = useState(false)
   const [textModalOpen, setTextModalOpen] = useState(false)
 
@@ -69,16 +70,16 @@ function LessonItem({ lesson, section, queryClient }) {
             <Group spacing="xs" mt={2}>
               {lesson.video?.url ? (
                 <Badge size="xs" color="teal" variant="light">
-                  فيديو متاح
+                  {t('courseBuilder.videoAvailable')}
                 </Badge>
               ) : (
                 <Badge size="xs" color="gray" variant="outline">
-                  لا يوجد فيديو
+                  {t('courseBuilder.noVideo')}
                 </Badge>
               )}
               {lesson.topic?.data ? (
                 <Badge size="xs" color="blue" variant="light">
-                  محتوى نصي
+                  {t('courseBuilder.addText')}
                 </Badge>
               ) : null}
             </Group>
@@ -109,24 +110,24 @@ function LessonItem({ lesson, section, queryClient }) {
                 size="xs"
                 rightIcon={<IconDotsVertical size={14} />}
               >
-                المحتوى
+                {t('courseBuilder.contentMenu')}
               </Button>
             </Menu.Target>
             <Menu.Dropdown>
               <Menu.Label sx={{ color: isDark ? theme.colors.dark[2] : undefined }}>
-                إدارة محتوى الدرس
+                {t('courseBuilder.manageContent')}
               </Menu.Label>
               <Menu.Item
                 icon={<IconVideo size={14} />}
                 onClick={() => setVideoModalOpen(true)}
               >
-                رفع / تعديل الفيديو
+                {t('courseBuilder.uploadEditVideo')}
               </Menu.Item>
               <Menu.Item
                 icon={<IconFileText size={14} />}
                 onClick={() => setTextModalOpen(true)}
               >
-                تحرير المحتوى النصي
+                {t('courseBuilder.editTextContent')}
               </Menu.Item>
             </Menu.Dropdown>
           </Menu>
@@ -153,7 +154,7 @@ function LessonItem({ lesson, section, queryClient }) {
             edit={true}
             lesson={lesson}
           >
-            <Tooltip label="تعديل اسم الدرس">
+            <Tooltip label={t('courseBuilder.editLessonTooltip')}>
               <ActionIcon variant="subtle" color="gray" radius="sm">
                 <IconEdit size={16} />
               </ActionIcon>
@@ -165,7 +166,7 @@ function LessonItem({ lesson, section, queryClient }) {
             queryClient={queryClient}
             lessonId={lesson._id}
           >
-            <Tooltip label="حذف الدرس">
+            <Tooltip label={t('courseBuilder.deleteLessonTooltip')}>
               <ActionIcon variant="subtle" color="red" radius="sm">
                 <IconTrash size={16} />
               </ActionIcon>
@@ -184,6 +185,7 @@ export default function EditCourseSection({
 }) {
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const { t } = useTranslation(['admin', 'common'])
 
   return (
     <Paper
@@ -203,17 +205,17 @@ export default function EditCourseSection({
           </ThemeIcon>
           <Box>
             <Text weight={700} size="md" sx={{ color: isDark ? '#ffffff' : '#0f172a' }}>
-              {`القسم ${idx + 1}: ${section.name}`}
+              {`${t('courseBuilder.sectionDefault', { index: idx + 1 })}: ${section.name}`}
             </Text>
             <Text size="xs" color="dimmed">
-              {`${section.lessons?.length || 0} دروس`}
+              {t('courseBuilder.lessonsCount', { count: section.lessons?.length || 0 })}
             </Text>
           </Box>
         </Group>
 
         <Group spacing="xs">
           <AddLesson sectionId={section._id} queryClient={queryClient}>
-            <Tooltip label="إضافة درس لهذا القسم">
+            <Tooltip label={t('courseBuilder.addLessonTooltip')}>
               <ActionIcon variant="light" color="blue" size="lg" radius="md">
                 <IconPlus size={18} />
               </ActionIcon>
@@ -221,7 +223,7 @@ export default function EditCourseSection({
           </AddLesson>
 
           <AddSection queryClient={queryClient} edit={true} section={section}>
-            <Tooltip label="تعديل اسم القسم">
+            <Tooltip label={t('courseBuilder.editSectionTooltip')}>
               <ActionIcon variant="subtle" color="gray" size="lg" radius="md">
                 <IconEdit size={18} />
               </ActionIcon>
@@ -229,7 +231,7 @@ export default function EditCourseSection({
           </AddSection>
 
           <DeleteSection queryClient={queryClient} sectionId={section._id}>
-            <Tooltip label="حذف القسم">
+            <Tooltip label={t('courseBuilder.deleteSectionTooltip')}>
               <ActionIcon variant="subtle" color="red" size="lg" radius="md">
                 <IconTrash size={18} />
               </ActionIcon>
@@ -251,7 +253,7 @@ export default function EditCourseSection({
         </Stack>
       ) : (
         <Text color="dimmed" size="xs" py="xs" pl="md">
-          لا توجد دروس في هذا القسم بعد
+          {t('courseBuilder.noLessonsInSection')}
         </Text>
       )}
     </Paper>

@@ -1,34 +1,27 @@
-import React, { useState } from 'react'
-import PropTypes from 'prop-types'
-// import { SpecialCard } from '../components/Specialcard'
-
+import React from 'react'
 import { useForm } from '@mantine/form'
-import { TextInput, Button, Group, Box, Modal } from '@mantine/core'
-import { modals } from '@mantine/modals'
-import { useMutation } from '@tanstack/react-query'
-import customFetch from '../../utils/customFetch'
+import { TextInput, Button, Group, Modal } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { useDisclosure } from '@mantine/hooks'
-import { useCreateElement, useUpdateElement } from '../crud'
+import { useTranslation } from 'react-i18next'
+import { useUpdateElement } from '../crud'
 
-export default function EditCollage({ queryClient, data, component }) {
-  const { mutateAsync: createCollage, isPending: isCreatingCollage } = useUpdateElement(
+export default function EditCollage({ queryClient, data = {}, component }) {
+  const { t } = useTranslation(['admin', 'common', 'errors'])
+  const { mutateAsync: updateCollage, isPending: isUpdatingCollage } = useUpdateElement(
     queryClient,
     ['collages'],
   )
-  // const te = useCreateElement(queryClient)
   const [opened, { open, close }] = useDisclosure(false)
-  // console.log(isCreatingCollage)
-  // console.log('isCreatingCollage')
+
   const form = useForm({
     initialValues: {
-      name: data.name,
+      name: data.name || '',
     },
-
     validate: (values) => {
       const errors = {}
-      if (!values.name) {
-        errors.name = 'Please enter a name for the collage.'
+      if (!values.name?.trim()) {
+        errors.name = t('colleges.validation.nameRequired')
       }
       return errors
     },
@@ -36,28 +29,25 @@ export default function EditCollage({ queryClient, data, component }) {
 
   const handleCloseModal = () => {
     close()
-    form.reset() // Reset
+    form.reset()
   }
 
   const handleSubmit = async (values) => {
-    console.log('values')
-    console.log(values)
     try {
-      const res = await createCollage({...data, ...values})
-      console.log(res)
+      await updateCollage({ ...data, ...values })
       handleCloseModal()
       notifications.show({
-        id: 'collage-created',
-        title: 'Success!',
-        message: 'Collage created successfully!',
+        id: 'collage-updated',
+        title: t('common:confirmModalTitle'),
+        message: t('common:updateSuccess'),
         variant: 'success',
         autoClose: 5000,
       })
     } catch (error) {
       notifications.show({
-        id: 'collage-creation-error',
-        title: 'Error!',
-        message: error?.response?.data?.msg || 'An error occurred while creating the collage.',
+        id: 'collage-update-error',
+        title: t('common:actions.error', { defaultValue: 'خطأ' }),
+        message: error?.response?.data?.msg || t('errors:generic', { defaultValue: 'حدث خطأ أثناء تعديل الكلية' }),
         variant: 'danger',
         autoClose: 5000,
       })
@@ -66,26 +56,22 @@ export default function EditCollage({ queryClient, data, component }) {
 
   return (
     <Group position="center">
-      <Modal centered={true} title="تعديل الكلية" opened={opened} onClose={close}>
-        <>
-          <form onSubmit={form.onSubmit(handleSubmit)}>
-            {' '}
-            <TextInput
-              withAsterisk
-              label="الأسم"
-              name="name"
-              
-              placeholder="اسم الكلية"
-              error={form.errors.name}
-              // errorMessage={form.errors.name}
-              // onChange={(event) => form.setFieldValue('name', event.currentTarget.value)}
-              {...form.getInputProps('name')}
-            />
-            <Group position="right" mt="md">
-              <Button type="submit">{isCreatingCollage ? 'Creating...' : 'إنشاء'}</Button>
-            </Group>
-          </form>
-        </>
+      <Modal centered title={t('colleges.editTitle')} opened={opened} onClose={close}>
+        <form onSubmit={form.onSubmit(handleSubmit)}>
+          <TextInput
+            withAsterisk
+            label={t('colleges.name')}
+            name="name"
+            placeholder={t('colleges.namePlaceholder')}
+            error={form.errors.name}
+            {...form.getInputProps('name')}
+          />
+          <Group position="right" mt="md">
+            <Button type="submit" loading={isUpdatingCollage}>
+              {t('actions.save', { ns: 'common' })}
+            </Button>
+          </Group>
+        </form>
       </Modal>
       <Group onClick={open}>{component}</Group>
     </Group>

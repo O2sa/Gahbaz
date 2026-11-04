@@ -40,7 +40,7 @@ import LanguageSwitcher from '../../../components/common/LanguageSwitcher.jsx'
 import { IconArrowRight } from '@tabler/icons-react'
 
 const Header = () => {
-  const { t, i18n } = useTranslation('landing')
+  const { t, i18n } = useTranslation(['landing', 'common'])
   const isRtl = i18n.dir() === 'rtl'
   const ForwardArrowIcon = isRtl ? IconArrowLeft : IconArrowRight
 
@@ -132,7 +132,7 @@ const Header = () => {
   }
 
   const role = user?.role || 'admin'
-  const userName = user?.name || user?.firstName || 'المستخدم'
+  const userName = user?.name || user?.firstName || t('roles.user', { ns: 'common' })
   const userInitial = userName.trim().charAt(0).toUpperCase()
 
   return (

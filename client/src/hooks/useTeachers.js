@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import teachersApi from '../api/teachers.api.js'
 import { notifications } from '@mantine/notifications'
+import i18n from '../i18n'
 
 export function useTeachers(params = {}) {
   return useQuery({
@@ -24,8 +25,8 @@ export function useCreateTeacher() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teachers'] })
       notifications.show({
-        title: 'تم بنجاح',
-        message: 'تم إضافة الأستاذ بنجاح',
+        title: i18n.t('notifications.success', { ns: 'common', defaultValue: 'تم بنجاح' }),
+        message: i18n.t('notifications.createSuccess', { ns: 'common', defaultValue: 'تم إضافة الأستاذ بنجاح' }),
         color: 'teal',
       })
     },
@@ -39,8 +40,8 @@ export function useUpdateTeacher() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teachers'] })
       notifications.show({
-        title: 'تم بنجاح',
-        message: 'تم تحديث بيانات الأستاذ بنجاح',
+        title: i18n.t('notifications.success', { ns: 'common', defaultValue: 'تم بنجاح' }),
+        message: i18n.t('notifications.updateSuccess', { ns: 'common', defaultValue: 'تم تحديث بيانات الأستاذ بنجاح' }),
         color: 'teal',
       })
     },
@@ -54,8 +55,8 @@ export function useDeleteTeacher() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['teachers'] })
       notifications.show({
-        title: 'تم بنجاح',
-        message: 'تم حذف الأستاذ بنجاح',
+        title: i18n.t('notifications.success', { ns: 'common', defaultValue: 'تم بنجاح' }),
+        message: i18n.t('notifications.deleteSuccess', { ns: 'common', defaultValue: 'تم حذف الأستاذ بنجاح' }),
         color: 'teal',
       })
     },

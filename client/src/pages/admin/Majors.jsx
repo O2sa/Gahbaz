@@ -235,7 +235,7 @@ export default function Majors() {
         title={t('majors.title')}
         description={t('majors.subtitle')}
         breadcrumbs={[
-          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          { title: tCommon('actions.home'), href: '/' },
           ...(collegeId ? [{ title: t('colleges.breadcrumb'), href: '/collages' }] : []),
           { title: t('majors.breadcrumb') },
         ]}

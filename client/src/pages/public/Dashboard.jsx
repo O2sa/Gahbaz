@@ -5,8 +5,11 @@ import { StudentDashboard } from '../student'
 import { AdminDashboard } from '../admin'
 import { TeacherDashboard } from '../teacher'
 
+import { useTranslation } from 'react-i18next'
+
 const Dashboard = ({ queryClient }) => {
   const { user } = useDashboardContext()
+  const { t } = useTranslation('nav')
 
   const getComponent = () => {
     const role = (user?.role || user?.__t || 'admin').toLowerCase()
@@ -22,7 +25,7 @@ const Dashboard = ({ queryClient }) => {
   return (
     <div>
       <Helmet>
-        <title>منصة جهبذ | لوحة التحكم</title>
+        <title>{`${t('platformTitle')} | ${t('dashboard')}`}</title>
       </Helmet>
       {getComponent()}
     </div>

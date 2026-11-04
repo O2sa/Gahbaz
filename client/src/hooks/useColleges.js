@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import collegesApi from '../api/colleges.api.js'
 import { notifications } from '@mantine/notifications'
+import i18n from '../i18n'
 
 export function useColleges(params = {}) {
   return useQuery({
@@ -24,8 +25,8 @@ export function useCreateCollege() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['colleges'] })
       notifications.show({
-        title: 'تم بنجاح',
-        message: 'تم إضافة الكلية بنجاح',
+        title: i18n.t('notifications.success', { ns: 'common', defaultValue: 'تم بنجاح' }),
+        message: i18n.t('notifications.createSuccess', { ns: 'common', defaultValue: 'تم إضافة الكلية بنجاح' }),
         color: 'teal',
       })
     },
@@ -39,8 +40,8 @@ export function useUpdateCollege() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['colleges'] })
       notifications.show({
-        title: 'تم بنجاح',
-        message: 'تم تحديث الكلية بنجاح',
+        title: i18n.t('notifications.success', { ns: 'common', defaultValue: 'تم بنجاح' }),
+        message: i18n.t('notifications.updateSuccess', { ns: 'common', defaultValue: 'تم تحديث الكلية بنجاح' }),
         color: 'teal',
       })
     },
@@ -54,8 +55,8 @@ export function useDeleteCollege() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['colleges'] })
       notifications.show({
-        title: 'تم بنجاح',
-        message: 'تم حذف الكلية بنجاح',
+        title: i18n.t('notifications.success', { ns: 'common', defaultValue: 'تم بنجاح' }),
+        message: i18n.t('notifications.deleteSuccess', { ns: 'common', defaultValue: 'تم حذف الكلية بنجاح' }),
         color: 'teal',
       })
     },

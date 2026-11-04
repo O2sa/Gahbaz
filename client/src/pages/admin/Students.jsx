@@ -266,7 +266,7 @@ export default function Students() {
         title={t('users.tabs.students')}
         description={t('users.subtitle')}
         breadcrumbs={[
-          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          { title: tCommon('actions.home'), href: '/' },
           { title: t('users.tabs.students') },
         ]}
         action={

@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { useDashboardContext } from '../../layouts/MainLayout.jsx'
 
 export default function CreateCourse() {
-  const { t } = useTranslation('admin')
+  const { t } = useTranslation(['admin', 'nav'])
   const { courseId, id } = useParams()
   const effectiveCourseId = courseId || id
   const { user } = useDashboardContext()
@@ -21,17 +21,17 @@ export default function CreateCourse() {
 
   const tabs = [
     {
-      name: t('courses.basicInfo', 'المعلومات الأساسية'),
+      name: t('courses.basicInfo'),
       icon: BsInfoSquare,
       to: '.',
     },
     {
-      name: t('courses.lessons', 'الدروس'),
+      name: t('courses.lessons'),
       icon: MdOutlinePlayLesson,
       to: 'lessons',
     },
     {
-      name: t('courses.grades', 'درجات الطلاب'),
+      name: t('courses.grades'),
       icon: GiLevelEndFlag,
       to: 'grades',
     },
@@ -40,7 +40,7 @@ export default function CreateCourse() {
   return (
     <>
       <Helmet>
-        <title>{`منصة جهبذ | ${t('courses.editCourse')}`}</title>
+        <title>{`${t('platformTitle', { ns: 'nav', defaultValue: 'منصة جهبذ' })} | ${t('courses.editCourse')}`}</title>
       </Helmet>
       <TabsLinks tabs={tabs} />
     </>

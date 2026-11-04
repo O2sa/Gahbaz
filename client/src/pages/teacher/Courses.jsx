@@ -5,6 +5,7 @@ import {
   ActionIcon,
   Badge,
   Text,
+  useMantineTheme,
 } from '@mantine/core'
 import { Link } from 'react-router-dom'
 import {
@@ -12,6 +13,7 @@ import {
   IconPencil,
   IconBook,
   IconArrowLeft,
+  IconArrowRight,
 } from '@tabler/icons-react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -22,6 +24,8 @@ import { useDebouncedValue } from '@mantine/hooks'
 export default function TeacherCourses() {
   const { t } = useTranslation('teacher')
   const { t: tCommon } = useTranslation('common')
+  const theme = useMantineTheme()
+  const isRtl = theme.dir === 'rtl'
 
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
@@ -125,7 +129,7 @@ export default function TeacherCourses() {
                   ? `${tItem.firstName || ''} ${tItem.lastName || ''}`.trim() || tItem.name
                   : tItem
               )
-              .join('، ')}
+              .join(isRtl ? '، ' : ', ')}
           </Text>
         )
       },
@@ -191,7 +195,7 @@ export default function TeacherCourses() {
         title={t('courses.title')}
         description={t('courses.subtitle')}
         breadcrumbs={[
-          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          { title: tCommon('actions.home'), href: '/' },
           { title: t('courses.title') },
         ]}
       />

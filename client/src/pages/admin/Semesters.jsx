@@ -442,7 +442,7 @@ export default function Semesters() {
         title={t('semesters.title')}
         description={t('semesters.subtitle')}
         breadcrumbs={[
-          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
+          { title: tCommon('actions.home'), href: '/' },
           { title: t('semesters.title') },
         ]}
         action={

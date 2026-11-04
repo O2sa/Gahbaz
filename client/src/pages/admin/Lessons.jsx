@@ -23,11 +23,13 @@ import { useDisclosure } from '@mantine/hooks'
 import { Helmet } from 'react-helmet'
 import {
   IconArrowRight,
+  IconArrowLeft,
   IconFolder,
   IconVideo,
   IconPlayerTrackNext,
   IconMenu2,
 } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 
 export const loader =
   (queryClient) =>
@@ -45,6 +47,8 @@ export default function Lessons() {
   const courseId = useLoaderData()
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const { t, i18n } = useTranslation(['admin', 'common', 'nav'])
+  const isRtl = i18n.dir() === 'rtl'
 
   const {
     data: course = {},
@@ -80,7 +84,7 @@ export default function Lessons() {
   return (
     <Box>
       <Helmet>
-        <title>{`منصة جهبذ | ${courseData?.name || 'الدروس والمحتوى'}`}</title>
+        <title>{`${t('platformTitle', { ns: 'nav', defaultValue: 'منصة جهبذ' })} | ${courseData?.name || t('courseBuilder.lessonsTitle')}`}</title>
       </Helmet>
 
       {/* Top Header Card */}
@@ -108,9 +112,9 @@ export default function Lessons() {
               radius="md"
               variant="light"
               color="brand"
-              title="رجوع لتفاصيل المقرر"
+              title={t('courseBuilder.backToCourse')}
             >
-              <IconArrowRight size={20} />
+              {isRtl ? <IconArrowRight size={20} /> : <IconArrowLeft size={20} />}
             </ActionIcon>
 
             <Box>
@@ -122,7 +126,7 @@ export default function Lessons() {
                   lineHeight: 1.3,
                 }}
               >
-                {courseData?.name || 'فهرس الدروس والمحاضرات'}
+                {courseData?.name || t('courseBuilder.lessonsTitle')}
               </Title>
               <Group spacing="xs" mt={4}>
                 <Badge
@@ -131,7 +135,7 @@ export default function Lessons() {
                   size="sm"
                   leftSection={<IconFolder size={13} />}
                 >
-                  {`${sections.length} أقسام`}
+                  {t('courseBuilder.sectionsBadge', { count: sections.length })}
                 </Badge>
                 <Badge
                   color="violet"
@@ -139,7 +143,7 @@ export default function Lessons() {
                   size="sm"
                   leftSection={<IconVideo size={13} />}
                 >
-                  {`${getLessonsNum} دروس`}
+                  {t('courseBuilder.lessonsBadge', { count: getLessonsNum })}
                 </Badge>
               </Group>
             </Box>
@@ -154,7 +158,7 @@ export default function Lessons() {
                 color="brand"
                 leftIcon={<IconMenu2 size={16} />}
               >
-                فهرس المحتوى
+                {t('courseBuilder.syllabusDrawer')}
               </Button>
             </Box>
 
@@ -165,7 +169,7 @@ export default function Lessons() {
                 color="brand"
                 leftIcon={<IconPlayerTrackNext size={16} />}
               >
-                الدرس التالي
+                {t('courseBuilder.nextLesson')}
               </Button>
             )}
           </Group>
@@ -193,7 +197,7 @@ export default function Lessons() {
             ) : (
               <Center py={80}>
                 <Text color="dimmed" size="md">
-                  لا توجد دروس أو محاضرات مضافة لهذا المقرر بعد.
+                  {t('courseBuilder.noLessonsInCourse')}
                 </Text>
               </Center>
             )}
@@ -223,7 +227,7 @@ export default function Lessons() {
               courseSyllbus
             ) : (
               <Text color="dimmed" size="sm" py="md">
-                لا توجد أقسام دراسية متاحة
+                {t('courseBuilder.noSectionsAvailable')}
               </Text>
             )}
           </Paper>
@@ -237,7 +241,7 @@ export default function Lessons() {
         onClose={close}
         title={
           <Text weight={700} sx={{ color: isDark ? '#ffffff' : '#0f172a' }}>
-            فهرس الدروس والمحاضرات
+            {t('courseBuilder.lessonsTitle')}
           </Text>
         }
         padding="md"

@@ -50,15 +50,15 @@ import { useDashboardContext } from '../../layouts/MainLayout.jsx'
 // Helper: Calculate official letter grade and color
 export const getLetterGrade = (total, t) => {
   const score = Number(total) || 0
-  if (score >= 95) return { grade: 'A+', label: t ? t('grades.letters.aPlus') : 'ممتاز مرتفع', color: 'teal', variant: 'filled' }
-  if (score >= 90) return { grade: 'A', label: t ? t('grades.letters.a') : 'ممتاز', color: 'teal', variant: 'light' }
-  if (score >= 85) return { grade: 'B+', label: t ? t('grades.letters.bPlus') : 'جيد جداً مرتفع', color: 'blue', variant: 'filled' }
-  if (score >= 80) return { grade: 'B', label: t ? t('grades.letters.b') : 'جيد جداً', color: 'blue', variant: 'light' }
-  if (score >= 75) return { grade: 'C+', label: t ? t('grades.letters.cPlus') : 'جيد مرتفع', color: 'cyan', variant: 'filled' }
-  if (score >= 70) return { grade: 'C', label: t ? t('grades.letters.c') : 'جيد', color: 'cyan', variant: 'light' }
-  if (score >= 65) return { grade: 'D+', label: t ? t('grades.letters.dPlus') : 'مقبول مرتفع', color: 'yellow', variant: 'light' }
-  if (score >= 60) return { grade: 'D', label: t ? t('grades.letters.d') : 'مقبول', color: 'orange', variant: 'light' }
-  return { grade: 'F', label: t ? t('grades.letters.f') : 'راسب', color: 'red', variant: 'filled' }
+  if (score >= 95) return { grade: 'A+', label: t ? t('grades.letters.aPlus') : 'A+', color: 'teal', variant: 'filled' }
+  if (score >= 90) return { grade: 'A', label: t ? t('grades.letters.a') : 'A', color: 'teal', variant: 'light' }
+  if (score >= 85) return { grade: 'B+', label: t ? t('grades.letters.bPlus') : 'B+', color: 'blue', variant: 'filled' }
+  if (score >= 80) return { grade: 'B', label: t ? t('grades.letters.b') : 'B', color: 'blue', variant: 'light' }
+  if (score >= 75) return { grade: 'C+', label: t ? t('grades.letters.cPlus') : 'C+', color: 'cyan', variant: 'filled' }
+  if (score >= 70) return { grade: 'C', label: t ? t('grades.letters.c') : 'C', color: 'cyan', variant: 'light' }
+  if (score >= 65) return { grade: 'D+', label: t ? t('grades.letters.dPlus') : 'D+', color: 'yellow', variant: 'light' }
+  if (score >= 60) return { grade: 'D', label: t ? t('grades.letters.d') : 'D', color: 'orange', variant: 'light' }
+  return { grade: 'F', label: t ? t('grades.letters.f') : 'F', color: 'red', variant: 'filled' }
 }
 
 export const loader =
@@ -293,8 +293,8 @@ export default function StudentGrades() {
         title={course?.name ? `${t('grades.title')}: ${course.name}` : t('grades.title')}
         description={t('grades.subtitle')}
         breadcrumbs={[
-          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
-          { title: tNav('courses') || 'المقررات', href: '/courses' },
+          { title: tCommon('actions.home'), href: '/' },
+          { title: tNav('courses'), href: '/courses' },
           { title: course?.name || tNav('courses'), href: `/courses/${courseId}` },
           { title: t('grades.title') },
         ]}

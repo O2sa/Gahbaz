@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import majorsApi from '../api/majors.api.js'
 import { notifications } from '@mantine/notifications'
+import i18n from '../i18n'
 
 export function useMajors(params = {}) {
   return useQuery({
@@ -24,8 +25,8 @@ export function useCreateMajor() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['majors'] })
       notifications.show({
-        title: 'تم بنجاح',
-        message: 'تم إضافة التخصص بنجاح',
+        title: i18n.t('notifications.success', { ns: 'common', defaultValue: 'تم بنجاح' }),
+        message: i18n.t('notifications.createSuccess', { ns: 'common', defaultValue: 'تم إضافة التخصص بنجاح' }),
         color: 'teal',
       })
     },
@@ -39,8 +40,8 @@ export function useUpdateMajor() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['majors'] })
       notifications.show({
-        title: 'تم بنجاح',
-        message: 'تم تحديث التخصص بنجاح',
+        title: i18n.t('notifications.success', { ns: 'common', defaultValue: 'تم بنجاح' }),
+        message: i18n.t('notifications.updateSuccess', { ns: 'common', defaultValue: 'تم تحديث التخصص بنجاح' }),
         color: 'teal',
       })
     },
@@ -54,8 +55,8 @@ export function useDeleteMajor() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['majors'] })
       notifications.show({
-        title: 'تم بنجاح',
-        message: 'تم حذف التخصص بنجاح',
+        title: i18n.t('notifications.success', { ns: 'common', defaultValue: 'تم بنجاح' }),
+        message: i18n.t('notifications.deleteSuccess', { ns: 'common', defaultValue: 'تم حذف التخصص بنجاح' }),
         color: 'teal',
       })
     },

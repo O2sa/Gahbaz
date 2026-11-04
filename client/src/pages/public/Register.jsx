@@ -30,6 +30,7 @@ import {
   IconMail,
   IconLock,
   IconArrowLeft,
+  IconArrowRight,
   IconUser,
   IconPhone,
   IconCheck,
@@ -40,10 +41,11 @@ import {
 export default function Register() {
   const navigate = useNavigate()
   const theme = useMantineTheme()
+  const isRtl = theme.dir === 'rtl'
   const queryClient = useQueryClient()
   const isDark = theme.colorScheme === 'dark'
   const [loading, setLoading] = useState(false)
-  const { t } = useTranslation(['auth', 'common'])
+  const { t } = useTranslation(['auth', 'common', 'nav'])
 
   const { data: authStatus } = useQuery({
     queryKey: ['authStatus'],
@@ -121,7 +123,7 @@ export default function Register() {
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Helmet>
-        <title>{t('register.title', { defaultValue: 'منصة جهبذ | إنشاء حساب جديد' })}</title>
+        <title>{t('register.helmet', { defaultValue: 'منصة جهبذ | إنشاء حساب جديد' })}</title>
       </Helmet>
 
       <Grid gutter={0} sx={{ flex: 1, minHeight: '100vh' }}>
@@ -155,10 +157,10 @@ export default function Register() {
                 </ActionIcon>
                 <Box>
                   <Text weight={800} size="md">
-                    {t('nav.platformTitle', { defaultValue: 'منصة جَهْبَذ' })}
+                    {t('nav:platformTitle', { defaultValue: 'منصة جَهْبَذ' })}
                   </Text>
                   <Text size={10} color="dimmed">
-                    {t('nav.platformSubtitle', { defaultValue: 'المنظومة الأكاديمية الذكية' })}
+                    {t('nav:platformSubtitle', { defaultValue: 'المنظومة الأكاديمية الذكية' })}
                   </Text>
                 </Box>
               </Group>
@@ -205,7 +207,7 @@ export default function Register() {
                     <Grid.Col span={6}>
                       <TextInput
                         label={t('register.firstName', { defaultValue: 'الاسم الأول' })}
-                        placeholder="أحمد"
+                        placeholder={t('register.firstNamePlaceholder', { defaultValue: 'أحمد' })}
                         icon={<IconUser size={16} />}
                         size="sm"
                         radius="md"
@@ -216,7 +218,7 @@ export default function Register() {
                     <Grid.Col span={6}>
                       <TextInput
                         label={t('register.lastName', { defaultValue: 'الاسم الأخير' })}
-                        placeholder="الغامدي"
+                        placeholder={t('register.lastNamePlaceholder', { defaultValue: 'الغامدي' })}
                         icon={<IconUser size={16} />}
                         size="sm"
                         radius="md"
@@ -228,7 +230,7 @@ export default function Register() {
 
                   <TextInput
                     label={t('register.phone', { defaultValue: 'رقم الهاتف' })}
-                    placeholder="05xxxxxxxx"
+                    placeholder={t('register.phonePlaceholder', { defaultValue: '05xxxxxxxx' })}
                     icon={<IconPhone size={16} />}
                     size="sm"
                     radius="md"
@@ -238,7 +240,7 @@ export default function Register() {
 
                   <TextInput
                     label={t('register.email', { defaultValue: 'البريد الإلكتروني' })}
-                    placeholder="name@university.edu"
+                    placeholder={t('register.emailPlaceholder', { defaultValue: 'name@university.edu' })}
                     icon={<IconMail size={16} />}
                     size="sm"
                     radius="md"
@@ -248,7 +250,7 @@ export default function Register() {
 
                   <PasswordInput
                     label={t('register.password', { defaultValue: 'كلمة المرور' })}
-                    placeholder="••••••••"
+                    placeholder={t('register.passwordPlaceholder', { defaultValue: '••••••••' })}
                     icon={<IconLock size={16} />}
                     size="sm"
                     radius="md"
@@ -271,7 +273,7 @@ export default function Register() {
                     variant="gradient"
                     gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
                     loading={loading}
-                    leftIcon={<IconArrowLeft size={18} />}
+                    leftIcon={isRtl ? <IconArrowLeft size={18} /> : <IconArrowRight size={18} />}
                     mt="xs"
                     sx={{
                       fontWeight: 700,
@@ -347,7 +349,7 @@ export default function Register() {
                 fontWeight: 700,
               }}
             >
-              بوابة التسجيل الأكاديمي
+              {t('showcase.registerBadge', { defaultValue: 'بوابة التسجيل الأكاديمي' })}
             </Badge>
           </Box>
 
@@ -362,10 +364,10 @@ export default function Register() {
                 marginBottom: 16,
               }}
             >
-              انضم إلى المنظومة الأكاديمية الأحدث
+              {t('showcase.registerTitle', { defaultValue: 'انضم إلى المنظومة الأكاديمية الأحدث' })}
             </Title>
             <Text size="lg" sx={{ color: 'rgba(255, 255, 255, 0.85)', lineHeight: 1.7 }} mb="xl">
-              تمتع بوصول غير محدود للمساقات الدراسية والمحاضرات الرقمية وتواصل بفاعلية مع الأساتذة والزملاء في مجتمع تعليمي نشط.
+              {t('showcase.registerSubtitle', { defaultValue: 'تمتع بوصول غير محدود للمساقات الدراسية والمحاضرات الرقمية وتواصل بفاعلية مع الأساتذة والزملاء في مجتمع تعليمي نشط.' })}
             </Text>
 
             <Stack spacing="md">
@@ -384,7 +386,7 @@ export default function Register() {
                   <IconCheck size={16} color="#34d399" />
                 </Box>
                 <Text size="sm" weight={600} color="gray.2">
-                  تسجيل سريع وآمن دون أي تعقيدات
+                  {t('showcase.registerFeature1', { defaultValue: 'تسجيل سريع وآمن دون أي تعقيدات' })}
                 </Text>
               </Group>
 
@@ -403,7 +405,7 @@ export default function Register() {
                   <IconCheck size={16} color="#34d399" />
                 </Box>
                 <Text size="sm" weight={600} color="gray.2">
-                  إعداد فوري لجامعتك وكلياتك ومساقاتك
+                  {t('showcase.registerFeature2', { defaultValue: 'إعداد فوري لجامعتك وكلياتك ومساقاتك' })}
                 </Text>
               </Group>
 
@@ -422,7 +424,7 @@ export default function Register() {
                   <IconCheck size={16} color="#34d399" />
                 </Box>
                 <Text size="sm" weight={600} color="gray.2">
-                  إشعارات فورية بكل جديد يخص مقرراتك
+                  {t('showcase.registerFeature3', { defaultValue: 'إشعارات فورية بكل جديد يخص مقرراتك' })}
                 </Text>
               </Group>
             </Stack>
@@ -430,10 +432,10 @@ export default function Register() {
 
           <Group position="apart">
             <Text size="xs" color="gray.4">
-              منصة جهبذ الأكاديمية © {new Date().getFullYear()}
+              {t('showcase.copyright', { year: new Date().getFullYear(), defaultValue: `منصة جهبذ الأكاديمية © ${new Date().getFullYear()}` })}
             </Text>
             <Text size="xs" color="gray.4">
-              إصدار النظام 1.0
+              {t('showcase.version', { defaultValue: 'إصدار النظام 1.0' })}
             </Text>
           </Group>
         </Grid.Col>

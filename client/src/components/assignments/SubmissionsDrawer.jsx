@@ -7,15 +7,12 @@ import {
   Text,
   Badge,
   Button,
-  ActionIcon,
   TextInput,
   Select,
   Paper,
   Center,
   Loader,
   Avatar,
-  Box,
-  Divider,
   useMantineTheme,
   rem,
 } from '@mantine/core'
@@ -24,18 +21,20 @@ import {
   IconSearch,
   IconDownload,
   IconClock,
-  IconCheck,
   IconEdit,
   IconInbox,
   IconFileText,
   IconFilter,
 } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 import customFetch from '../../utils/customFetch'
 import GradeSubmissionModal from './GradeSubmissionModal'
 
 export default function SubmissionsDrawer({ opened, onClose, assignment, courseId }) {
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const { t, i18n } = useTranslation(['teacher', 'common'])
+  const isRtl = i18n.dir() === 'rtl'
 
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
@@ -98,18 +97,17 @@ export default function SubmissionsDrawer({ opened, onClose, assignment, courseI
       <Drawer
         opened={opened}
         onClose={onClose}
-        position="right"
+        position={isRtl ? 'left' : 'right'}
         size="xl"
         title={
           <Group spacing="xs">
             <IconFileText size={22} color={theme.colors.indigo[6]} />
             <div>
               <Text weight={700} size="md">
-                كشف تسليمات التكليف: {assignment?.title}
+                {`${t('assignments.submissions.drawerTitle')}: ${assignment?.title || ''}`}
               </Text>
               <Text size="xs" color="dimmed">
-                الدرجة العظمى: {assignment?.maxScore || 100} نقطة | إجمالي المسلمين:{' '}
-                {submissions.length} طالب
+                {`${t('assignments.form.maxScoreLabel')}: ${assignment?.maxScore || 100} | ${t('assignments.submissions.totalSubmissions', { count: submissions.length })}`}
               </Text>
             </div>
           </Group>
@@ -131,7 +129,7 @@ export default function SubmissionsDrawer({ opened, onClose, assignment, courseI
           <Group grow>
             <Paper p="xs" withBorder radius="md" ta="center">
               <Text size="xs" color="dimmed">
-                إجمالي التسليمات
+                {t('assignments.submissions.totalSubmissions', { count: '' }).replace(': ', '').trim()}
               </Text>
               <Text weight={700} size="lg" color="indigo">
                 {submissions.length}
@@ -139,7 +137,7 @@ export default function SubmissionsDrawer({ opened, onClose, assignment, courseI
             </Paper>
             <Paper p="xs" withBorder radius="md" ta="center">
               <Text size="xs" color="dimmed">
-                تم التقييم
+                {t('assignments.submissions.graded')}
               </Text>
               <Text weight={700} size="lg" color="teal">
                 {gradedCount}
@@ -147,7 +145,7 @@ export default function SubmissionsDrawer({ opened, onClose, assignment, courseI
             </Paper>
             <Paper p="xs" withBorder radius="md" ta="center">
               <Text size="xs" color="dimmed">
-                بانتظار التقييم
+                {t('assignments.submissions.pending')}
               </Text>
               <Text weight={700} size="lg" color="orange">
                 {pendingCount}
@@ -155,7 +153,7 @@ export default function SubmissionsDrawer({ opened, onClose, assignment, courseI
             </Paper>
             <Paper p="xs" withBorder radius="md" ta="center">
               <Text size="xs" color="dimmed">
-                تسليمات متأخرة
+                {t('assignments.submissions.late')}
               </Text>
               <Text weight={700} size="lg" color="red">
                 {lateCount}
@@ -166,7 +164,7 @@ export default function SubmissionsDrawer({ opened, onClose, assignment, courseI
           {/* Search & Filter Toolbar */}
           <Group spacing="sm">
             <TextInput
-              placeholder="البحث باسم الطالب أو بريده الإلكتروني..."
+              placeholder={t('assignments.submissions.searchPlaceholder')}
               icon={<IconSearch size={16} />}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -177,10 +175,10 @@ export default function SubmissionsDrawer({ opened, onClose, assignment, courseI
               value={statusFilter}
               onChange={(val) => setStatusFilter(val || 'all')}
               data={[
-                { value: 'all', label: 'كافة الحالات' },
-                { value: 'submitted', label: 'بانتظار التقييم' },
-                { value: 'graded', label: 'تم تقييمها' },
-                { value: 'late', label: 'متأخرة فقط' },
+                { value: 'all', label: t('assignments.submissions.allStatuses') },
+                { value: 'submitted', label: t('assignments.submissions.onlySubmitted') },
+                { value: 'graded', label: t('assignments.submissions.onlyGraded') },
+                { value: 'late', label: t('assignments.submissions.onlyLate') },
               ]}
               icon={<IconFilter size={16} />}
               size="sm"
@@ -199,12 +197,12 @@ export default function SubmissionsDrawer({ opened, onClose, assignment, courseI
                 <IconInbox size={42} stroke={1.4} color={theme.colors.gray[5]} />
               </Center>
               <Text weight={600} size="sm">
-                لا توجد تسليمات مسجلة
+                {t('common:emptyTitle')}
               </Text>
               <Text size="xs" color="dimmed" mt={4}>
                 {searchQuery || statusFilter !== 'all'
-                  ? 'لم يتم العثور على طلاب مطابقين لشروط البحث الحالية.'
-                  : 'لم يقم أي طالب برفع حل هذا التكليف حتى الآن.'}
+                  ? t('common:emptyDescription')
+                  : t('common:noData')}
               </Text>
             </Paper>
           ) : (
@@ -218,11 +216,11 @@ export default function SubmissionsDrawer({ opened, onClose, assignment, courseI
                         : theme.colors.gray[0],
                     }}
                   >
-                    <th>الطالب</th>
-                    <th>توقيت التسليم</th>
-                    <th>ملف الحل</th>
-                    <th>الدرجة المرصودة</th>
-                    <th style={{ textAlign: 'center' }}>الإجراء</th>
+                    <th>{t('assignments.submissions.table.student')}</th>
+                    <th>{t('assignments.submissions.table.submittedAt')}</th>
+                    <th>{t('assignments.submissions.table.file')}</th>
+                    <th>{t('assignments.submissions.table.score')}</th>
+                    <th style={{ textAlign: 'center' }}>{t('assignments.submissions.table.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -231,13 +229,13 @@ export default function SubmissionsDrawer({ opened, onClose, assignment, courseI
                       sub.student?.name ||
                       `${sub.student?.firstName || ''} ${sub.student?.lastName || ''}`.trim() ||
                       sub.student?.email ||
-                      'طالب غير محدد'
+                      t('common:user')
                     const studentAvatar = sub.student?.avatar
                     const isLate = sub.status === 'late'
                     const isGraded = sub.status === 'graded'
 
                     const submitDate = sub.submittedAt
-                      ? new Date(sub.submittedAt).toLocaleString('ar-SA', {
+                      ? new Date(sub.submittedAt).toLocaleString(i18n.language.startsWith('ar') ? 'ar-SA' : 'en-US', {
                           month: 'short',
                           day: 'numeric',
                           hour: '2-digit',
@@ -269,11 +267,11 @@ export default function SubmissionsDrawer({ opened, onClose, assignment, courseI
                             <Text size="xs">{submitDate}</Text>
                             {isLate ? (
                               <Badge color="red" size="xs" variant="light">
-                                متأخر
+                                {t('assignments.grading.lateBadge')}
                               </Badge>
                             ) : (
                               <Badge color="teal" size="xs" variant="light">
-                                في الموعد
+                                {t('assignments.grading.onTimeBadge')}
                               </Badge>
                             )}
                           </Group>
@@ -291,11 +289,11 @@ export default function SubmissionsDrawer({ opened, onClose, assignment, courseI
                               color="indigo"
                               leftIcon={<IconDownload size={14} />}
                             >
-                              تحميل الملف
+                              {t('assignments.grading.downloadSolution')}
                             </Button>
                           ) : (
                             <Text size="xs" color="dimmed">
-                              لا يوجد ملف
+                              —
                             </Text>
                           )}
                         </td>
@@ -307,7 +305,7 @@ export default function SubmissionsDrawer({ opened, onClose, assignment, courseI
                             </Badge>
                           ) : (
                             <Badge color="orange" size="sm" variant="light">
-                              بانتظار الرصد
+                              {t('assignments.submissions.pending')}
                             </Badge>
                           )}
                         </td>
@@ -320,7 +318,7 @@ export default function SubmissionsDrawer({ opened, onClose, assignment, courseI
                             leftIcon={<IconEdit size={14} />}
                             onClick={() => handleOpenGrade(sub)}
                           >
-                            {isGraded ? 'تعديل الدرجة' : 'رصد الدرجة'}
+                            {isGraded ? t('assignments.submissions.table.editGradeAction') : t('assignments.submissions.table.gradeAction')}
                           </Button>
                         </td>
                       </tr>

@@ -1,13 +1,10 @@
 import React, { useState } from 'react'
-import axios from 'axios'
-
-import { Text, Image, SimpleGrid, Group, Progress, Button, Modal, rem, Center } from '@mantine/core'
+import { Text, Image, Group, Button, Modal, rem, Center } from '@mantine/core'
 import { Dropzone } from '@mantine/dropzone'
 import customFetch from '../../utils/customFetch'
 import { useDisclosure } from '@mantine/hooks'
-import { useParams } from 'react-router-dom'
 import { IconPhoto, IconUpload, IconX } from '@tabler/icons-react'
-
+import { useTranslation } from 'react-i18next'
 import { uploadMedia } from '../../utils/mediaUpload'
 
 export default function UploadProfile({ children, queryClient, user }) {
@@ -15,6 +12,7 @@ export default function UploadProfile({ children, queryClient, user }) {
   const [selectedFile, setSelectedFile] = useState(null)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [isUploading, setIsUploading] = useState(false)
+  const { t } = useTranslation(['auth', 'common'])
 
   const handleFileChange = (e) => {
     const file = e[0]
@@ -64,43 +62,48 @@ export default function UploadProfile({ children, queryClient, user }) {
 
   return (
     <>
-      <Modal opened={opened} size={'xl'} onClose={close} title="Authentication" centered>
+      <Modal
+        opened={opened}
+        size="lg"
+        onClose={close}
+        title={t('profile.avatarUploadModal', { ns: 'auth' })}
+        centered
+      >
         <Dropzone
           onReject={(files) => console.log('rejected files', files)}
-          m={'md'}
+          m="md"
           maxFiles={1}
-          // maxSize={2 * 1024 * 1024}
           accept={{ 'image/*': [] }}
           onDrop={handleFileChange}
         >
-          <Group justify="center" gap="xl" mih={220} style={{ pointerEvents: 'none' }}>
+          <Group position="center" spacing="xl" mih={180} style={{ pointerEvents: 'none' }}>
             <Dropzone.Accept>
               <IconUpload
-                style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-blue-6)' }}
+                style={{ width: rem(48), height: rem(48), color: 'var(--mantine-color-blue-6)' }}
                 stroke={1.5}
               />
             </Dropzone.Accept>
             <Dropzone.Reject>
               <IconX
-                style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-red-6)' }}
+                style={{ width: rem(48), height: rem(48), color: 'var(--mantine-color-red-6)' }}
                 stroke={1.5}
               />
             </Dropzone.Reject>
             <Dropzone.Idle>
-              <Center display={'block'}>
+              <Center display="block">
                 <IconPhoto
-                  style={{ width: rem(52), height: rem(52), color: 'var(--mantine-color-dimmed)' }}
+                  style={{ width: rem(48), height: rem(48), color: 'var(--mantine-color-dimmed)' }}
                   stroke={1.5}
                 />
               </Center>
             </Dropzone.Idle>
 
             <div>
-              <Text size="xl" inline>
-                انقر لاختير مقطع من القرص المحلي أو قم بسحب وافلات الملف المراد رفعه
+              <Text size="md" weight={600} inline>
+                {t('profile.avatarDropzoneText', { ns: 'auth' })}
               </Text>
-              <Text size="sm" c="dimmed" inline mt={7}>
-                Attach as many files as you like, each file should not exceed 5mb
+              <Text size="xs" color="dimmed" inline mt={7}>
+                {t('profile.avatarDropzoneHint', { ns: 'auth' })}
               </Text>
             </div>
           </Group>
@@ -108,17 +111,16 @@ export default function UploadProfile({ children, queryClient, user }) {
           {selectedFile && previews()}
         </Dropzone>
         <Group>
-          <Button fullWidth m={'md'} type="button" onClick={handleUpload} loading={isUploading} disabled={!selectedFile}>
-            رفع الصورة
+          <Button fullWidth m="md" type="button" onClick={handleUpload} loading={isUploading} disabled={!selectedFile}>
+            {t('profile.uploadAvatar', { ns: 'auth' })}
           </Button>
         </Group>
-        <Group align="flex-end" mt={'lg'}>
-          <Button onClick={close}>حفظ</Button>
-          <Button onClick={close}>إلغاء</Button>
+        <Group position="right" mt="lg">
+          <Button variant="default" onClick={close}>{t('actions.cancel', { ns: 'common' })}</Button>
         </Group>
       </Modal>
       <Group onClick={open} position="center">
-        {children}{' '}
+        {children}
       </Group>
     </>
   )

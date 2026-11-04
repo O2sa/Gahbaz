@@ -22,7 +22,8 @@
     "noDirectYet": "No direct messages yet",
     "startHint": "Start a new conversation using search above",
     "noMessages": "No messages yet",
-    "beFirst": "Be the first to start the discussion and send a message!"
+    "beFirst": "Be the first to start the discussion and send a message!",
+    "noPreviousMessages": "No previous messages"
   },
   "badges": {
     "courseBadge": "Course",
@@ -34,7 +35,8 @@
     "members": "{{count}} members",
     "you": "You",
     "member": "Member",
-    "defaultChat": "Conversation"
+    "defaultChat": "Conversation",
+    "instructor": "Course Instructor"
   },
   "welcome": {
     "title": "Welcome to Chat Hub, ",
@@ -62,7 +64,9 @@
     "loadFailed": "Error Loading Messages",
     "loadFailedMsg": "Could not retrieve chat messages",
     "deepLinkFailedTitle": "Could not open chat",
-    "deepLinkFailedMsg": "Unable to open chat for the specified course"
+    "deepLinkFailedMsg": "Unable to open chat for the specified course",
+    "downloadAttachment": "Download Attachment",
+    "viewAttachment": "View Attached File"
   },
   "drawer": {
     "title": "Course Discussion Room",

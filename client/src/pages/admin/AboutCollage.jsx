@@ -2,14 +2,16 @@ import React from 'react'
 import { useParams } from 'react-router-dom'
 import { Button, Skeleton, Paper, Box, Group, Title, Text, useMantineTheme } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
+import { Helmet } from 'react-helmet'
+import { useTranslation } from 'react-i18next'
 import { useGetElements } from '../crud'
 import EditCollage from './EditCollage'
-import { Helmet } from 'react-helmet'
 
 export default function AboutCollage({ queryClient }) {
   const { id: collageId } = useParams()
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const { t } = useTranslation(['admin', 'common', 'nav'])
 
   const {
     data: data = null,
@@ -19,7 +21,7 @@ export default function AboutCollage({ queryClient }) {
 
   const editCom = (
     <Button loading={isFetching} type="submit" variant="light" color="brand">
-      تعديل بيانات الكلية
+      {t('colleges.editTitle')}
     </Button>
   )
 
@@ -36,7 +38,7 @@ export default function AboutCollage({ queryClient }) {
   return (
     <Box>
       <Helmet>
-        <title>{`منصة جهبذ | ${data?.name || 'تفاصيل الكلية'}`}</title>
+        <title>{`${t('platformTitle', { ns: 'nav', defaultValue: 'منصة جهبذ' })} | ${data?.name || t('colleges.breadcrumb')}`}</title>
       </Helmet>
 
       <Paper
@@ -55,13 +57,13 @@ export default function AboutCollage({ queryClient }) {
       >
         <Group position="apart" mb="lg">
           <Title order={3} sx={{ color: isDark ? '#ffffff' : '#0f172a', fontWeight: 800 }}>
-            {data?.name || 'عن الكلية'}
+            {data?.name || t('colleges.breadcrumb')}
           </Title>
           <EditCollage component={editCom} data={data} queryClient={queryClient} />
         </Group>
 
         <Text size="md" color={isDark ? 'gray.3' : 'gray.7'} sx={{ lineHeight: 1.8 }}>
-          {data?.describtion || data?.description || 'لا يوجد وصف مضاف لهذه الكلية حالياً.'}
+          {data?.describtion || data?.description || t('common:emptyDescription')}
         </Text>
       </Paper>
     </Box>

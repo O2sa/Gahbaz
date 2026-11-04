@@ -2,11 +2,13 @@ import React from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Accordion, Box, Group, NavLink, Text, Title, Badge, useMantineTheme, rem } from '@mantine/core'
 import { IconNotes, IconVideo, IconClock, IconBook2 } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 
 export const CourseContent = ({ sections = [], setNextLesson, close, to = '' }) => {
   const { lessonId } = useParams()
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const { t } = useTranslation(['admin', 'common'])
 
   const calSectionTime = (section) => {
     let time = 0
@@ -26,7 +28,7 @@ export const CourseContent = ({ sections = [], setNextLesson, close, to = '' }) 
       <Group spacing="xs" mb="md">
         <IconBook2 size={20} color={isDark ? '#60a5fa' : theme.colors.brand[6]} />
         <Title order={4} sx={{ color: isDark ? '#ffffff' : '#0f172a', fontWeight: 800 }}>
-          محتويات الدورة
+          {t('courseBuilder.sectionsTitle')}
         </Title>
       </Group>
 
@@ -66,7 +68,7 @@ export const CourseContent = ({ sections = [], setNextLesson, close, to = '' }) 
                   size="sm"
                   sx={{ color: isDark ? '#f8fafc' : '#0f172a' }}
                 >
-                  {`القسم ${idx + 1}: ${section.name}`}
+                  {`${t('courseBuilder.sectionDefault', { index: idx + 1 })}: ${section.name}`}
                 </Text>
                 <Group spacing={6}>
                   <Badge
@@ -75,7 +77,7 @@ export const CourseContent = ({ sections = [], setNextLesson, close, to = '' }) 
                     size="sm"
                     leftSection={<IconVideo size={13} />}
                   >
-                    {`${section.lessons?.length || 0} دروس`}
+                    {t('courseBuilder.lessonsBadge', { count: section.lessons?.length || 0 })}
                   </Badge>
                   <Badge
                     variant="light"
@@ -83,7 +85,7 @@ export const CourseContent = ({ sections = [], setNextLesson, close, to = '' }) 
                     size="sm"
                     leftSection={<IconClock size={13} />}
                   >
-                    {`${calSectionTime(section)} د`}
+                    {t('courseBuilder.videoDuration', { count: calSectionTime(section) })}
                   </Badge>
                 </Group>
               </Group>
@@ -137,13 +139,13 @@ export const CourseContent = ({ sections = [], setNextLesson, close, to = '' }) 
                         <Group spacing={4}>
                           <IconClock size={13} color="#f59f00" />
                           <Text size="xs" color="dimmed">
-                            {Math.floor(item.video?.duration || 0) + (item.topic?.readingTime || 0)} د
+                            {t('courseBuilder.videoDuration', { count: Math.floor(item.video?.duration || 0) + (item.topic?.readingTime || 0) })}
                           </Text>
                         </Group>
                       }
                       sx={{
                         transition: 'all 140ms ease',
-                        borderRight: active
+                        borderInlineStart: active
                           ? `3px solid ${isDark ? '#3b82f6' : theme.colors.brand[6]}`
                           : '3px solid transparent',
                         backgroundColor: active

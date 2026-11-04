@@ -4,8 +4,11 @@ import { useDashboardContext } from '../../layouts/MainLayout.jsx'
 import { StudentCourses } from '../student'
 import { TeacherCourses } from '../teacher'
 
+import { useTranslation } from 'react-i18next'
+
 const Courses = ({ queryClient }) => {
   const { user } = useDashboardContext()
+  const { t } = useTranslation('nav')
 
   const role = (user?.role || user?.__t || '').toLowerCase()
   const isStudent = role === 'student'
@@ -13,7 +16,7 @@ const Courses = ({ queryClient }) => {
   return (
     <div>
       <Helmet>
-        <title>منصة جهبذ | المقررات الدراسية</title>
+        <title>{`${t('platformTitle')} | ${t('courses')}`}</title>
       </Helmet>
       {isStudent ? (
         <StudentCourses queryClient={queryClient} />

@@ -63,7 +63,7 @@ export default function DataTable({
         <Group spacing="sm" sx={{ flex: 1 }}>
           {onSearchChange && (
             <TextInput
-              placeholder={t('actions.search', { defaultValue: 'البحث...' })}
+              placeholder={t('actions.search')}
               icon={<IconSearch size={16} stroke={1.5} />}
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
@@ -83,7 +83,7 @@ export default function DataTable({
             radius="md"
             sx={{ fontWeight: 700 }}
           >
-            {t('table.recordsFound', { count: total, defaultValue: `إجمالي: ${total}` })}
+            {t('table.recordsFound', { count: total })}
           </Badge>
           {actions}
         </Group>
@@ -168,7 +168,7 @@ export default function DataTable({
               <tr>
                 <td colSpan={columns.length} style={{ textAlign: 'center', padding: '48px 0' }}>
                   <EmptyState
-                    title={emptyTitle || t('table.noRecords', { defaultValue: 'لا توجد سجلات متاحة' })}
+                    title={emptyTitle || t('table.noRecords')}
                     description={emptyDescription}
                   />
                 </td>
@@ -185,7 +185,7 @@ export default function DataTable({
           <Group position="apart" pt="xs">
             <Group spacing="xs">
               <Text size="xs" color="dimmed">
-                {t('table.display', { defaultValue: 'عرض:' })}
+                {t('table.display')}
               </Text>
               {onLimitChange && (
                 <Select
@@ -202,7 +202,7 @@ export default function DataTable({
                 />
               )}
               <Text size="xs" color="dimmed">
-                {t('table.pageOf', { page, totalPages, defaultValue: `الصفحة ${page} من ${totalPages}` })}
+                {t('table.pageOf', { page, totalPages })}
               </Text>
             </Group>
 

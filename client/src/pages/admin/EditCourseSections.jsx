@@ -19,6 +19,7 @@ import { useDisclosure } from '@mantine/hooks'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { IconPlus } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 import {
   useGetElements,
   useCreateElement,
@@ -27,20 +28,32 @@ import {
 } from '../crud'
 import client from '../../api/client'
 import EditCourseSection from './EditCourseSection'
+import { useDashboardContext } from '../../layouts/MainLayout.jsx'
 
 export const EditCourseSections = ({ queryClient }) => {
+  const { user } = useDashboardContext()
+  const role = user?.role || user?.__t
+  const isFaculty = role === 'admin' || role === 'super-admin' || role === 'teacher'
+  const { t } = useTranslation(['admin', 'common'])
+
   const params = useParams()
   const courseId = params.courseId || params.id
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
 
   const {
-    data: sections = [],
+    data: rawSections = [],
     isLoading,
   } = useQuery({
     ...useGetElements(['sections', courseId]),
     enabled: Boolean(courseId),
   })
+
+  const sections = Array.isArray(rawSections)
+    ? rawSections
+    : Array.isArray(rawSections?.data)
+    ? rawSections.data
+    : []
 
   if (isLoading) {
     return (
@@ -64,13 +77,15 @@ export const EditCourseSections = ({ queryClient }) => {
       >
         <Group position="apart" mb="lg">
           <Title order={3} sx={{ color: isDark ? '#ffffff' : '#0f172a', fontWeight: 800 }}>
-            أقسام ودروس الدورة
+            {t('courseBuilder.sectionsTitle')}
           </Title>
-          <AddSection queryClient={queryClient}>
-            <Button color="brand" leftIcon={<IconPlus size={16} />}>
-              إضافة قسم جديد
-            </Button>
-          </AddSection>
+          {isFaculty && (
+            <AddSection queryClient={queryClient}>
+              <Button color="brand" leftIcon={<IconPlus size={16} />}>
+                {t('courseBuilder.addSection')}
+              </Button>
+            </AddSection>
+          )}
         </Group>
 
         {sections.length > 0 ? (
@@ -96,7 +111,7 @@ export const EditCourseSections = ({ queryClient }) => {
             }}
           >
             <Text color="dimmed" size="md">
-              لا توجد أقسام بعد. انقر على "إضافة قسم جديد" للبدء.
+              {t('courseBuilder.noSectionsText')}
             </Text>
           </Paper>
         )}
@@ -107,6 +122,7 @@ export const EditCourseSections = ({ queryClient }) => {
 
 export function AddSection({ children, queryClient, edit = false, section = {} }) {
   const { courseId } = useParams()
+  const { t } = useTranslation(['admin', 'common'])
   const { mutateAsync: createSection, isPending: isCreating } = useCreateElement(
     queryClient,
     ['sections', courseId],
@@ -124,7 +140,7 @@ export function AddSection({ children, queryClient, edit = false, section = {} }
       course: courseId,
     },
     validate: {
-      name: (val) => (!val?.trim() ? 'اسم القسم مطلوب' : null),
+      name: (val) => (!val?.trim() ? t('courseBuilder.sectionNamePlaceholder') : null),
     },
   })
 
@@ -138,14 +154,14 @@ export function AddSection({ children, queryClient, edit = false, section = {} }
       close()
       form.reset()
       notifications.show({
-        title: 'تم بنجاح',
-        message: edit ? 'تم تعديل القسم بنجاح' : 'تم إنشاء القسم بنجاح',
+        title: t('common:confirmModalTitle'),
+        message: edit ? t('courseBuilder.saveSuccess') : t('common:createSuccess'),
         color: 'green',
       })
     } catch (error) {
       notifications.show({
-        title: 'خطأ',
-        message: error?.response?.data?.msg || 'حدث خطأ أثناء حفظ القسم',
+        title: t('common:actions.error', { defaultValue: 'خطأ' }),
+        message: error?.response?.data?.msg || t('errors:generic', { defaultValue: 'حدث خطأ أثناء حفظ القسم' }),
         color: 'red',
       })
     }
@@ -155,23 +171,23 @@ export function AddSection({ children, queryClient, edit = false, section = {} }
     <>
       <Modal
         centered
-        title={edit ? 'تعديل القسم' : 'إنشاء قسم جديد'}
+        title={edit ? t('courseBuilder.editSectionTitle') : t('courseBuilder.createSectionTitle')}
         opened={opened}
         onClose={close}
       >
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <TextInput
             withAsterisk
-            label="اسم القسم"
-            placeholder="مثال: مقدمة في علوم البيانات"
+            label={t('courseBuilder.sectionName')}
+            placeholder={t('courseBuilder.sectionNamePlaceholder')}
             {...form.getInputProps('name')}
           />
           <Group position="apart" mt="lg">
             <Button variant="default" onClick={close}>
-              إلغاء
+              {t('actions.cancel', { ns: 'common' })}
             </Button>
             <Button type="submit" loading={isCreating || isUpdating}>
-              {edit ? 'حفظ التعديل' : 'إنشاء القسم'}
+              {edit ? t('courseBuilder.saveEdit') : t('courseBuilder.createSectionBtn')}
             </Button>
           </Group>
         </form>
@@ -186,6 +202,7 @@ export function AddSection({ children, queryClient, edit = false, section = {} }
 
 export function DeleteSection({ children, sectionId, queryClient }) {
   const { courseId } = useParams()
+  const { t } = useTranslation(['admin', 'common', 'errors'])
   const { mutateAsync: deleteSection, isPending: isDeleting } = useDeleteElement(
     queryClient,
     ['sections', courseId],
@@ -195,14 +212,14 @@ export function DeleteSection({ children, sectionId, queryClient }) {
     try {
       await deleteSection(sectionId)
       notifications.show({
-        title: 'تم الحذف',
-        message: 'تم حذف القسم بنجاح',
+        title: t('common:confirmModalTitle'),
+        message: t('common:deleteSuccess'),
         color: 'green',
       })
     } catch (error) {
       notifications.show({
-        title: 'خطأ',
-        message: error?.response?.data?.msg || 'فشل حذف القسم',
+        title: t('common:actions.error', { defaultValue: 'خطأ' }),
+        message: error?.response?.data?.msg || t('errors:generic', { defaultValue: 'فشل حذف القسم' }),
         color: 'red',
       })
     }
@@ -217,6 +234,7 @@ export function DeleteSection({ children, sectionId, queryClient }) {
 
 export function AddLesson({ children, sectionId, queryClient, edit = false, lesson = {} }) {
   const { courseId } = useParams()
+  const { t } = useTranslation(['admin', 'common', 'errors'])
   const [opened, { open, close }] = useDisclosure(false)
 
   const form = useForm({
@@ -224,7 +242,7 @@ export function AddLesson({ children, sectionId, queryClient, edit = false, less
       name: edit ? lesson.name || '' : '',
     },
     validate: {
-      name: (val) => (!val?.trim() ? 'اسم الدرس مطلوب' : null),
+      name: (val) => (!val?.trim() ? t('courseBuilder.lessonNamePlaceholder') : null),
     },
   })
 
@@ -242,14 +260,14 @@ export function AddLesson({ children, sectionId, queryClient, edit = false, less
       close()
       form.reset()
       notifications.show({
-        title: 'تم بنجاح',
-        message: edit ? 'تم تعديل الدرس بنجاح' : 'تم إضافة الدرس بنجاح',
+        title: t('common:confirmModalTitle'),
+        message: edit ? t('common:updateSuccess') : t('common:createSuccess'),
         color: 'green',
       })
     } catch (error) {
       notifications.show({
-        title: 'خطأ',
-        message: error?.response?.data?.msg || 'فشل حفظ الدرس',
+        title: t('common:actions.error', { defaultValue: 'خطأ' }),
+        message: error?.response?.data?.msg || t('errors:generic', { defaultValue: 'فشل حفظ الدرس' }),
         color: 'red',
       })
     }
@@ -259,23 +277,23 @@ export function AddLesson({ children, sectionId, queryClient, edit = false, less
     <>
       <Modal
         centered
-        title={edit ? 'تعديل الدرس' : 'إضافة درس جديد'}
+        title={edit ? t('courseBuilder.editLessonTitle') : t('courseBuilder.createLessonTitle')}
         opened={opened}
         onClose={close}
       >
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <TextInput
             withAsterisk
-            label="اسم الدرس"
-            placeholder="مثال: الدرس الأول: المفاهيم الأساسية"
+            label={t('courseBuilder.lessonName')}
+            placeholder={t('courseBuilder.lessonNamePlaceholder')}
             {...form.getInputProps('name')}
           />
           <Group position="apart" mt="lg">
             <Button variant="default" onClick={close}>
-              إلغاء
+              {t('actions.cancel', { ns: 'common' })}
             </Button>
             <Button type="submit">
-              {edit ? 'حفظ التعديل' : 'إضافة الدرس'}
+              {edit ? t('courseBuilder.saveEdit') : t('courseBuilder.addLessonBtn')}
             </Button>
           </Group>
         </form>
@@ -290,6 +308,7 @@ export function AddLesson({ children, sectionId, queryClient, edit = false, less
 
 export function DeleteLesson({ children, sectionId, queryClient, lessonId }) {
   const { courseId } = useParams()
+  const { t } = useTranslation(['admin', 'common', 'errors'])
 
   const handleDelete = async () => {
     try {
@@ -298,14 +317,14 @@ export function DeleteLesson({ children, sectionId, queryClient, lessonId }) {
         queryClient.invalidateQueries(['sections', courseId])
       }
       notifications.show({
-        title: 'تم الحذف',
-        message: 'تم حذف الدرس بنجاح',
+        title: t('common:confirmModalTitle'),
+        message: t('common:deleteSuccess'),
         color: 'green',
       })
     } catch (error) {
       notifications.show({
-        title: 'خطأ',
-        message: error?.response?.data?.msg || 'فشل حذف الدرس',
+        title: t('common:actions.error', { defaultValue: 'خطأ' }),
+        message: error?.response?.data?.msg || t('errors:generic', { defaultValue: 'فشل حذف الدرس' }),
         color: 'red',
       })
     }

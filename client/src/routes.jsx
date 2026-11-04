@@ -28,6 +28,7 @@ import {
   UserProfile,
   CourseAssignments,
   Universities,
+  UniversityOnboarding,
 } from './pages/admin'
 
 import { EditCourseInfo, loader as courseInfoEditLoader } from './pages/admin/EditCourseInfo'
@@ -52,136 +53,141 @@ import {
 
 import { loader as lessonsLoader } from './pages/admin/Lessons'
 import { RootLayout } from './layouts/RootLayout'
+import i18n from './i18n'
+
+const tRoute = (key, fallback) => i18n.t(`routes.${key}`, { ns: 'nav', defaultValue: fallback })
+
 export default function getRoutes(queryClient, user) {
   // const { user } = useDashboardContext()
 
-  const routes =[
+  const routes = [
     {
       path: '/',
-      name: 'الرئيسية',
+      name: tRoute('home', 'الرئيسية'),
       element: <RootLayout queryClient={queryClient} />,
       errorElement: <Error />,
       children: [
-        { index: true, name: 'صفحة البدء', element: <Landing /> },
-        { path: 'landing', name: 'صفحة البدء', element: <Landing /> },
-        { path: 'login', name: 'تسجيل الدخول', element: <Login /> },
-        { path: 'register', name: 'إنشاء حساب', element: <Register /> },
-        { path: '404', name: 'غير موجود', element: <Page404 /> },
-        { path: '500', name: 'خطأ!', element: <Page500 /> },
+        { index: true, name: tRoute('landing', 'صفحة البدء'), element: <Landing /> },
+        { path: 'landing', name: tRoute('landing', 'صفحة البدء'), element: <Landing /> },
+        { path: 'login', name: tRoute('login', 'تسجيل الدخول'), element: <Login /> },
+        { path: 'register', name: tRoute('register', 'إنشاء حساب'), element: <Register /> },
+        { path: 'onboarding/university', name: tRoute('onboarding', 'إعداد الجامعة'), element: <UniversityOnboarding /> },
+        { path: '404', name: tRoute('notFound', 'غير موجود'), element: <Page404 /> },
+        { path: '500', name: tRoute('serverError', 'خطأ!'), element: <Page500 /> },
 
         {
-          name: 'المنظومة الأكاديمية',
+          name: tRoute('academicSystem', 'المنظومة الأكاديمية'),
           element: <DefaultLayout queryClient={queryClient} />,
           errorElement: <Error />,
           children: [
             // Authenticated Dashboard
-            { path: 'dashboard', name: 'لوحة التحكم', element: <Dashboard queryClient={queryClient} /> },
+            { path: 'dashboard', name: tRoute('dashboard', 'لوحة التحكم'), element: <Dashboard queryClient={queryClient} /> },
             {
               path: 'universities',
-              name: 'إدارة الجامعات والمؤسسات',
+              name: tRoute('universities', 'إدارة الجامعات والمؤسسات'),
               element: <Universities queryClient={queryClient} />,
             },
             {
               path: 'profile',
-              name: 'الملف الشخصي',
+              name: tRoute('profile', 'الملف الشخصي'),
               element: <Profile queryClient={queryClient} />,
             },
         
             {
               path: 'chat',
-              name: 'المحادثات',
+              name: tRoute('chat', 'المحادثات'),
               element: <ChatRoom queryClient={queryClient} />,
             },
             {
               path: 'collages',
-              name: 'إدارة الكليات',
+              name: tRoute('colleges', 'إدارة الكليات'),
               element: <Collages queryClient={queryClient} />,
             },
             {
               path: 'collages/:id',
-              name: 'الكلية',
+              name: tRoute('college', 'الكلية'),
               element: <CollageInfo queryClient={queryClient} />,
               children: [
                 {
                   index: true,
-                  name: 'عن الكلية',
+                  name: tRoute('aboutCollege', 'عن الكلية'),
                   element: <AboutCollage queryClient={queryClient} />,
                 },
                 {
                   path: 'majors',
-                  name: 'التخصصات',
+                  name: tRoute('majors', 'التخصصات'),
                   element: <Majors queryClient={queryClient} />,
                 },
                 {
                   path: 'subjects',
-                  name: 'المواد',
+                  name: tRoute('subjects', 'المواد'),
                   element: <Subjects queryClient={queryClient} />,
                 },
               ],
             },
             {
               path: 'collages/:collageId/majors/:majorId',
-              name: 'التخصص',
+              name: tRoute('major', 'التخصص'),
               element: <MajorInfo queryClient={queryClient} />,
               children: [
                 {
                   index: true,
-                  name: 'عن التخصص',
+                  name: tRoute('aboutMajor', 'عن التخصص'),
                   element: <AboutMajor queryClient={queryClient} />,
                 },
                 {
                   path: 'semesterTemplates',
-                  name: 'الخطة الدراسية',
+                  name: tRoute('studyPlan', 'الخطة الدراسية'),
                   element: <SemestersTemplate queryClient={queryClient} />,
                 },
               ],
             },
             {
               path: 'majors',
-              name: 'إدارة التخصصات',
+              name: tRoute('majors', 'إدارة التخصصات'),
               element: <Majors queryClient={queryClient} />,
             },
             {
               path: 'majors/:majorId',
-              name: 'التخصص',
+              name: tRoute('major', 'التخصص'),
               element: <MajorInfo queryClient={queryClient} />,
               children: [
                 {
                   index: true,
-                  name: 'عن التخصص',
+                  name: tRoute('aboutMajor', 'عن التخصص'),
                   element: <AboutMajor queryClient={queryClient} />,
                 },
                 {
                   path: 'semesterTemplates',
-                  name: 'الخطة الدراسية',
+                  name: tRoute('studyPlan', 'الخطة الدراسية'),
                   element: <SemestersTemplate queryClient={queryClient} />,
                 },
               ],
             },
             {
               path: 'subjects',
-              name: 'دليل المواد الأكاديمية',
+              name: tRoute('subjects', 'دليل المواد الأكاديمية'),
               element: <Subjects queryClient={queryClient} />,
             },
             {
               path: '/users',
-              name: 'المستخدمون',
+              name: tRoute('users', 'المستخدمون'),
               element: <Users queryClient={queryClient} />,
               children: [
                 {
                   // path: 'admins',
                   index: true,
-                  name: 'المدراء',
+                  name: tRoute('admins', 'المدراء'),
                   element: <Admins queryClient={queryClient} />,
                 },
                 {
                   path: 'teachers',
-                  name: 'المعلمون',
+                  name: tRoute('teachers', 'المعلمون'),
                   element: <Teachers queryClient={queryClient} />,
                 },
                 {
                   path: 'students',
-                  name: 'الطلاب',
+                  name: tRoute('students', 'الطلاب'),
                   element: <Students queryClient={queryClient} />,
                   children: [],
                 },
@@ -190,66 +196,66 @@ export default function getRoutes(queryClient, user) {
     
             {
               path: '/users/:userId',
-              name: 'معلومات المستخدم',
+              name: tRoute('userInfo', 'معلومات المستخدم'),
               element: <UserProfile queryClient={queryClient} />,
             },
     
             {
               path: 'semesters',
-              name: 'الفصول الدراسية',
+              name: tRoute('semesters', 'الفصول الدراسية'),
               element: <Semesters queryClient={queryClient} />,
             },
             {
               path: 'semesters/:semesterId',
-              name: 'الفصل الحالي',
+              name: tRoute('currentSemester', 'الفصل الحالي'),
               element: <Semester queryClient={queryClient} />,
             },
     
-            { path: 'courses', name: 'الدورات', element: <Courses queryClient={queryClient} /> },
+            { path: 'courses', name: tRoute('courses', 'الدورات'), element: <Courses queryClient={queryClient} /> },
     
             {
               path: 'courses/:courseId',
-              name: 'الدورة',
+              name: tRoute('course', 'الدورة'),
               element: <Course queryClient={queryClient} />,
             },
             {
               path: 'courses/:courseId/grades',
-              name: 'سجل الدرجات',
+              name: tRoute('gradesRecord', 'سجل الدرجات'),
               element: <StudentGrades queryClient={queryClient} />,
               loader: studentGradesLoader(queryClient),
             },
             {
               path: 'courses/:courseId/assignments',
-              name: 'التكليفات والواجبات',
+              name: tRoute('assignments', 'التكليفات والواجبات'),
               element: <CourseAssignments queryClient={queryClient} />,
             },
             {
               path: 'courses/:courseId/edit',
-              name: 'تعديل الدورة',
+              name: tRoute('editCourse', 'تعديل الدورة'),
               element: <CreateCourse queryClient={queryClient} />,
               children: [
                 {
                   index: true,
-                  name: 'المعلومات الأساسية',
+                  name: tRoute('basicInfo', 'المعلومات الأساسية'),
                   element: <EditCourseInfo queryClient={queryClient} />,
                   loader: courseInfoEditLoader(queryClient),
                 },
                 {
                   path: 'grades',
-                  name: 'الدرجات',
+                  name: tRoute('grades', 'الدرجات'),
                   element: <StudentGrades queryClient={queryClient} />,
                   loader: studentGradesLoader(queryClient),
                 },
                 {
                   path: 'lessons',
-                  name: 'فهرس الدروس',
+                  name: tRoute('lessonsIndex', 'فهرس الدروس'),
                   element: <EditCourseSections queryClient={queryClient} />,
                 },
               ],
             },
             {
               path: 'courses/:courseId/lessons',
-              name: 'الدروس',
+              name: tRoute('lessons', 'الدروس'),
               element: <Lessons queryClient={queryClient} />,
               loader: lessonsLoader(queryClient),
     
@@ -257,7 +263,7 @@ export default function getRoutes(queryClient, user) {
                 {
                   path: ':sectionId/:lessonId',
                   // index: true,
-                  name: 'الدرس',
+                  name: tRoute('lesson', 'الدرس'),
                   element: <CourseLesson queryClient={queryClient} />,
                 },
               ],
@@ -266,9 +272,9 @@ export default function getRoutes(queryClient, user) {
             //teacher
     
             //student
-            { path: 'grades', name: 'الدرجات', element: <StudentGrade /> },
-            { path: 'enrollment', name: 'المقررات والحذف', element: <CourseRegistration /> },
-            { path: 'transcript', name: 'السجل الأكاديمي', element: <Transcript /> },
+            { path: 'grades', name: tRoute('grades', 'الدرجات'), element: <StudentGrade /> },
+            { path: 'enrollment', name: tRoute('enrollmentPortal', 'المقررات والحذف'), element: <CourseRegistration /> },
+            { path: 'transcript', name: tRoute('transcript', 'السجل الأكاديمي'), element: <Transcript /> },
           ],
           
         },

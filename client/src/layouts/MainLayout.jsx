@@ -51,6 +51,17 @@ export default function MainLayout() {
     }
   }, [isUserLoading, isError, userData, navigate, queryClient])
 
+  // Force admin whose university needs setup to complete university onboarding
+  useEffect(() => {
+    if (!isUserLoading && userData) {
+      const isUnivAdmin = userData.role === 'admin'
+      const needsSetup = userData.university && userData.university.needsSetup
+      if (isUnivAdmin && needsSetup) {
+        navigate('/onboarding/university', { replace: true })
+      }
+    }
+  }, [isUserLoading, userData, navigate])
+
   const user = userData || null
 
   const logoutUser = async () => {

@@ -3,8 +3,6 @@ import {
   Avatar,
   Box,
   Button,
-  Container,
-  Divider,
   Grid,
   Group,
   Skeleton,
@@ -14,11 +12,11 @@ import {
   Paper,
   Badge,
   useMantineTheme,
-  rem,
 } from '@mantine/core'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   IconArrowRight,
+  IconArrowLeft,
   IconMail,
   IconPhone,
   IconShieldCheck,
@@ -30,8 +28,11 @@ import {
 import { useGetElements } from '../crud'
 import { useQuery } from '@tanstack/react-query'
 import { MantineReactTable } from 'mantine-react-table'
+import { MRT_Localization_AR } from 'mantine-react-table/locales/ar'
+import { MRT_Localization_EN } from 'mantine-react-table/locales/en'
 import { Helmet } from 'react-helmet'
 import { PageHeader } from '../../components/common/index.js'
+import { useTranslation } from 'react-i18next'
 import dayjs from 'dayjs'
 
 export default function UserProfile({ queryClient }) {
@@ -39,6 +40,9 @@ export default function UserProfile({ queryClient }) {
   const navigate = useNavigate()
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const { t, i18n } = useTranslation(['admin', 'common', 'nav'])
+  const isRtl = i18n.dir() === 'rtl'
+  const BackArrowIcon = isRtl ? IconArrowRight : IconArrowLeft
 
   const {
     data: user = null,
@@ -59,7 +63,6 @@ export default function UserProfile({ queryClient }) {
   const roleName = user?.__t || user?.role || user?.kind || 'User'
   const isStudent = roleName === 'Student' || user?.role === 'student'
   const isTeacher = roleName === 'Teacher' || roleName === 'Teatcher' || user?.role === 'teacher'
-  const isAdmin = roleName === 'Admin' || user?.role === 'admin'
 
   const getRoleBadge = () => {
     if (isStudent) {
@@ -70,7 +73,7 @@ export default function UserProfile({ queryClient }) {
           size="md"
           leftSection={<IconSchool size={14} />}
         >
-          طالب جامعي
+          {t('roles.student', { ns: 'common' })}
         </Badge>
       )
     }
@@ -82,7 +85,7 @@ export default function UserProfile({ queryClient }) {
           size="md"
           leftSection={<IconUserCheck size={14} />}
         >
-          عضو هيئة تدريس
+          {t('roles.teacher', { ns: 'common' })}
         </Badge>
       )
     }
@@ -93,34 +96,37 @@ export default function UserProfile({ queryClient }) {
         size="md"
         leftSection={<IconShieldCheck size={14} />}
       >
-        مدير نظام
+        {t('roles.admin', { ns: 'common' })}
       </Badge>
     )
   }
 
-  const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || user?.name || 'مستخدم'
+  const fullName =
+    `${user?.firstName || ''} ${user?.lastName || ''}`.trim() ||
+    user?.name ||
+    t('roles.user', { ns: 'common' })
 
   return (
     <Box>
       <Helmet>
-        <title>{`منصة جهبذ | ${fullName}`}</title>
+        <title>{`${t('platformTitle', { ns: 'nav' })} | ${fullName}`}</title>
       </Helmet>
 
       <PageHeader
-        title="الملف التعريفي للمستخدم"
-        description="عرض البيانات الشخصية، الانتماء الأكاديمي، وسجل الدرجات والأنشطة"
+        title={t('users.profileTitle', { defaultValue: 'الملف التعريفي للمستخدم' })}
+        description={t('users.profileSubtitle', { defaultValue: 'عرض البيانات الشخصية، الانتماء الأكاديمي، وسجل الدرجات والأنشطة' })}
         breadcrumbs={[
-          { title: 'الرئيسية', href: '/' },
-          { title: 'المستخدمون', href: '/users' },
+          { title: t('actions.home', { ns: 'common' }), href: '/' },
+          { title: t('users.title'), href: '/users' },
           { title: fullName },
         ]}
         action={
           <Button
             variant="default"
-            leftIcon={<IconArrowRight size={16} />}
+            leftIcon={<BackArrowIcon size={16} />}
             onClick={() => navigate(-1)}
           >
-            رجوع
+            {t('actions.back', { ns: 'common' })}
           </Button>
         }
       />
@@ -173,12 +179,12 @@ export default function UserProfile({ queryClient }) {
               {user?.major?.name && (
                 <Text size="sm" color="dimmed" mb={4}>
                   {user.major.name}
-                  {user?.comingSemester ? ` • المستوى ${user.comingSemester}` : ''}
+                  {user?.comingSemester ? ` • ${t('users.fields.academicLevel')}: ${user.comingSemester}` : ''}
                 </Text>
               )}
 
               <Text size="xs" color="dimmed">
-                معرف المستخدم: {user?._id || userId}
+                ID: {user?._id || userId}
               </Text>
             </Box>
           </Group>
@@ -226,7 +232,7 @@ export default function UserProfile({ queryClient }) {
             }}
           >
             <IconAward size={20} color={isDark ? '#60a5fa' : '#2563eb'} />
-            السجل الأكاديمي والدرجات
+            {t('grades.title')}
           </Title>
           <StudentGradesSection queryClient={queryClient} userId={userId} />
         </Box>
@@ -238,6 +244,7 @@ export default function UserProfile({ queryClient }) {
 function StudentGradesSection({ queryClient, userId }) {
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const { t } = useTranslation('admin')
 
   const {
     data: grades = [],
@@ -269,7 +276,7 @@ function StudentGradesSection({ queryClient, userId }) {
         }}
       >
         <Text color="dimmed" size="sm">
-          لا توجد سجلات درجات مرصودة لهذا الطالب حالياً.
+          {t('grades.noGradesYet', { defaultValue: 'لا توجد سجلات درجات مرصودة لهذا الطالب حالياً.' })}
         </Text>
       </Paper>
     )
@@ -278,7 +285,7 @@ function StudentGradesSection({ queryClient, userId }) {
   return (
     <Stack spacing="xl">
       {grades.map((gr, idx) => {
-        const semesterName = gr?.semester?.name || `الفصل الدراسي ${idx + 1}`
+        const semesterName = gr?.semester?.name || `${t('semesters.title')} ${idx + 1}`
         const dateRange = gr?.semester?.startDate
           ? `${dayjs(gr.semester.startDate).format('YYYY/MM/DD')} - ${dayjs(gr.semester.endDate).format('YYYY/MM/DD')}`
           : ''
@@ -322,6 +329,9 @@ function StudentGradesSection({ queryClient, userId }) {
 }
 
 const GradesTable = ({ grades, isDark, theme }) => {
+  const { t, i18n } = useTranslation(['admin', 'common'])
+  const localization = i18n.language?.startsWith('en') ? MRT_Localization_EN : MRT_Localization_AR
+
   const columns = useMemo(() => {
     if (!grades || grades.length === 0) return []
 
@@ -335,12 +345,12 @@ const GradesTable = ({ grades, isDark, theme }) => {
     return [
       {
         id: 'course',
-        header: 'المقرر الدراسي',
-        accessorFn: (row) => row?.course?.name || 'مقرر',
-        Cell: ({ cell, row }) => (
+        header: t('courses.title'),
+        accessorFn: (row) => row?.course?.name || t('courses.title'),
+        Cell: ({ row }) => (
           <Group spacing="xs">
             <Text weight={600} size="sm" color={isDark ? 'gray.1' : 'gray.9'}>
-              {row.original?.course?.name || 'مقرر'}
+              {row.original?.course?.name || t('courses.title')}
             </Text>
             {row.original?.course?.code && (
               <Badge size="xs" variant="outline" color="brand">
@@ -353,7 +363,7 @@ const GradesTable = ({ grades, isDark, theme }) => {
       ...dynamicCols,
       {
         id: 'total',
-        header: 'المجموع الكلي',
+        header: t('grades.table.total'),
         accessorKey: 'total',
         Cell: ({ cell }) => (
           <Badge
@@ -366,12 +376,12 @@ const GradesTable = ({ grades, isDark, theme }) => {
         ),
       },
     ]
-  }, [grades, isDark])
+  }, [grades, isDark, t])
 
   if (!grades || grades.length === 0) {
     return (
       <Text size="sm" color="dimmed" p="md">
-        لا توجد درجات مسجلة.
+        {t('table.noRecords', { ns: 'common' })}
       </Text>
     )
   }
@@ -380,6 +390,7 @@ const GradesTable = ({ grades, isDark, theme }) => {
     <MantineReactTable
       columns={columns}
       data={grades}
+      localization={localization}
       getRowId={(row) => row._id || row.id}
       enableTopToolbar={false}
       enableBottomToolbar={false}

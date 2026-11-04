@@ -17,7 +17,11 @@
     "viewDetails": "عرض التفاصيل",
     "print": "طباعة",
     "refresh": "تحديث",
-    "home": "الرئيسية"
+    "home": "الرئيسية",
+    "confirmModalTitle": "تأكيد العملية",
+    "confirmModalMessage": "هل أنت متأكد من رغبتك في المتابعة؟ لا يمكن التراجع عن هذا الإجراء.",
+    "reload": "إعادة تحميل الصفحة",
+    "backToHome": "العودة إلى الصفحة الرئيسية"
   },
   "status": {
     "active": "نشط",
@@ -32,23 +36,40 @@
   },
   "roles": {
     "admin": "مشرف النظام",
+    "superAdmin": "مشرف عام",
     "teacher": "عضو هيئة تدريس",
-    "student": "طالب"
+    "student": "طالب",
+    "user": "مستخدم"
   },
   "table": {
     "noRecords": "لا توجد سجلات متاحة",
     "recordsFound": "{{count}} سجل",
     "actions": "الإجراءات",
-    "loading": "جاري تحميل البيانات..."
+    "loading": "جاري تحميل البيانات...",
+    "emptyDescription": "لم يتم العثور على أي عناصر لعرضها في الوقت الحالي",
+    "display": "عرض:",
+    "pageOf": "الصفحة {{page}} من {{totalPages}}",
+    "creditsShort": "س"
   },
   "notifications": {
     "success": "تم بنجاح",
     "error": "حدث خطأ",
     "warning": "تنبيه",
-    "info": "معلومة"
+    "info": "معلومة",
+    "createSuccess": "تمت الإضافة بنجاح",
+    "updateSuccess": "تم التحديث بنجاح",
+    "deleteSuccess": "تم الحذف بنجاح"
   },
   "dialogs": {
     "confirmDeleteTitle": "تأكيد الحذف",
     "confirmDeleteMessage": "هل أنت متأكد من رغبتك في حذف هذا العنصر؟ لا يمكن التراجع عن هذا الإجراء."
+  },
+  "errorPages": {
+    "unexpectedTitle": "حدث خطأ غير متوقع",
+    "unexpectedDesc": "نعتذر، حدث خطأ أثناء معالجة طلبك. يمكنك المحاولة مرة أخرى أو العودة إلى الصفحة الرئيسية.",
+    "notFoundTitle": "الصفحة المطلوبة غير موجودة",
+    "notFoundDesc": "ربما تم نقل الصفحة أو حذفها، أو أن الرابط الذي اتبعته غير صحيح.",
+    "serverErrorTitle": "حدث خطأ غير متوقع في الخادم",
+    "serverErrorDesc": "نواجه مشكلة في معالجة طلبك حالياً. تم تسجيل الخطأ وجاري العمل على حله."
   }
 }

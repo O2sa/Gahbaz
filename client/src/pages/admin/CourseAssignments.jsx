@@ -245,8 +245,8 @@ export default function CourseAssignments() {
             : t('assignmentsData.subtitle')
         }
         breadcrumbs={[
-          { title: tCommon('actions.home') || 'الرئيسية', href: '/' },
-          { title: tNav('courses') || 'المقررات', href: '/courses' },
+          { title: tCommon('actions.home'), href: '/' },
+          { title: tNav('courses'), href: '/courses' },
           {
             title: courseData?.name || tNav('courses'),
             href: `/courses/${courseId}`,
