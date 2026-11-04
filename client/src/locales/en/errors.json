@@ -1,0 +1,33 @@
+{
+  "generic": "An unexpected error occurred. Please try again.",
+  "forbidden": "You do not have permission to perform this action.",
+  "unauthorized": "Your session has expired. Please sign in again.",
+  "notFound": "The requested item was not found.",
+  "titles": {
+    "error": "Error",
+    "forbidden": "Forbidden",
+    "unauthorized": "Session Expired",
+    "warning": "Warning"
+  },
+  "codes": {
+    "BAD_REQUEST": "Invalid request. Please verify the submitted data.",
+    "AUTH_INVALID_CREDENTIALS": "Invalid credentials. Please verify your email and password.",
+    "AUTH_REGISTRATION_DISABLED": "Self-registration is currently disabled by system policy.",
+    "AUTH_UNAUTHORIZED": "Session expired or invalid authentication.",
+    "UNAUTHENTICATED": "Your session has expired. Please log in.",
+    "FORBIDDEN": "You do not have the required permissions for this resource.",
+    "NOT_FOUND": "The requested resource was not found.",
+    "CONFLICT": "This record already exists in the system.",
+    "SEMESTER_ALREADY_ACTIVE": "An active semester already exists for this university.",
+    "COURSE_MAX_CAPACITY": "Sorry, this course section has reached its maximum capacity.",
+    "PREREQUISITE_NOT_MET": "You have not completed the required prerequisite for this course.",
+    "CREDIT_LIMIT_EXCEEDED": "You have exceeded the maximum allowed credit hours for this semester.",
+    "VALIDATION_ERROR": "Please check the entered fields and correct any errors."
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Invalid email address format",
+    "invalidPhone": "Invalid phone number",
+    "passwordTooShort": "Password must be at least 8 characters"
+  }
+}

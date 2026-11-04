@@ -52,6 +52,7 @@ const errorHandlerMiddleware: ErrorRequestHandler = (
 
   return res.status(statusCode).json({
     success: false,
+    message,
     error: errorPayload,
   });
 };

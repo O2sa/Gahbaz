@@ -18,6 +18,8 @@ import arChat from '../locales/ar/chat.json'
 import enChat from '../locales/en/chat.json'
 import arLanding from '../locales/ar/landing.json'
 import enLanding from '../locales/en/landing.json'
+import arErrors from '../locales/ar/errors.json'
+import enErrors from '../locales/en/errors.json'
 
 const resources = {
   ar: {
@@ -29,6 +31,7 @@ const resources = {
     student: arStudent,
     chat: arChat,
     landing: arLanding,
+    errors: arErrors,
   },
   en: {
     common: enCommon,
@@ -39,6 +42,7 @@ const resources = {
     student: enStudent,
     chat: enChat,
     landing: enLanding,
+    errors: enErrors,
   },
 }
 
@@ -50,7 +54,7 @@ i18n
     fallbackLng: 'ar',
     supportedLngs: ['ar', 'en'],
     defaultNS: 'common',
-    ns: ['common', 'nav', 'auth', 'admin', 'teacher', 'student', 'chat', 'landing'],
+    ns: ['common', 'nav', 'auth', 'admin', 'teacher', 'student', 'chat', 'landing', 'errors'],
     detection: {
       order: ['localStorage', 'navigator'],
       lookupLocalStorage: 'gahbaz-language',

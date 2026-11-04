@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { notifications } from '@mantine/notifications'
+import i18n from '../i18n'
 
 export const getBaseUrl = () => {
   const envUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL
@@ -18,7 +19,7 @@ const apiClient = axios.create({
   },
 })
 
-// Attach Bearer token from localStorage for cross-domain requests (Netlify -> Render)
+// Attach Bearer token and Accept-Language header from localStorage
 apiClient.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('token')
@@ -30,6 +31,9 @@ apiClient.interceptors.request.use((config) => {
     if (activeUnivId && activeUnivId.trim() !== '') {
       config.headers['x-university-id'] = activeUnivId.trim()
     }
+
+    const activeLanguage = localStorage.getItem('gahbaz-language') || 'ar'
+    config.headers['Accept-Language'] = activeLanguage
   }
   return config
 })
@@ -40,11 +44,26 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     const status = error?.response?.status
-    const message =
-      error?.response?.data?.message ||
-      error?.response?.data?.msg ||
-      error?.response?.data?.error?.message ||
-      'حدث خطأ غير متوقع'
+    const errorCode = error?.response?.data?.error?.code || error?.response?.data?.code
+
+    let localizedMessage = ''
+    if (errorCode && i18n.exists(`errors.codes.${errorCode}`)) {
+      localizedMessage = i18n.t(`errors.codes.${errorCode}`)
+    } else if (status === 401) {
+      localizedMessage = i18n.t('errors.unauthorized')
+    } else if (status === 403) {
+      localizedMessage = i18n.t('errors.forbidden')
+    } else if (status === 404) {
+      localizedMessage = i18n.t('errors.notFound')
+    } else {
+      localizedMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.msg ||
+        error?.response?.data?.error?.message ||
+        i18n.t('errors.generic')
+    }
+
+    error.localizedMessage = localizedMessage
 
     const publicPaths = ['/', '/landing', '/login', '/register', '/404', '/500']
     const isPublicPath = typeof window !== 'undefined' && publicPaths.includes(window.location.pathname)
@@ -60,16 +79,16 @@ apiClient.interceptors.response.use(
       notifications.show({
         id: 'forbidden-error',
         color: 'red',
-        title: 'غير مصرح',
-        message: 'ليس لديك الصلاحية لتنفيذ هذا الإجراء',
+        title: i18n.t('errors.titles.forbidden'),
+        message: localizedMessage,
         autoClose: 4000,
       })
     } else if (status >= 400 && !error?.config?.skipErrorNotification) {
       notifications.show({
         id: 'api-error',
         color: 'red',
-        title: 'خطأ',
-        message: message,
+        title: i18n.t('errors.titles.error'),
+        message: localizedMessage,
         autoClose: 5000,
       })
     }
