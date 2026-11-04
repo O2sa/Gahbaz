@@ -12,6 +12,8 @@ import arAdmin from '../locales/ar/admin.json'
 import enAdmin from '../locales/en/admin.json'
 import arTeacher from '../locales/ar/teacher.json'
 import enTeacher from '../locales/en/teacher.json'
+import arStudent from '../locales/ar/student.json'
+import enStudent from '../locales/en/student.json'
 
 const resources = {
   ar: {
@@ -20,6 +22,7 @@ const resources = {
     auth: arAuth,
     admin: arAdmin,
     teacher: arTeacher,
+    student: arStudent,
   },
   en: {
     common: enCommon,
@@ -27,6 +30,7 @@ const resources = {
     auth: enAuth,
     admin: enAdmin,
     teacher: enTeacher,
+    student: enStudent,
   },
 }
 
@@ -38,7 +42,7 @@ i18n
     fallbackLng: 'ar',
     supportedLngs: ['ar', 'en'],
     defaultNS: 'common',
-    ns: ['common', 'nav', 'auth', 'admin', 'teacher'],
+    ns: ['common', 'nav', 'auth', 'admin', 'teacher', 'student'],
     detection: {
       order: ['localStorage', 'navigator'],
       lookupLocalStorage: 'gahbaz-language',

@@ -17,18 +17,24 @@ import {
   IconSchool,
   IconCertificate,
   IconArrowLeft,
+  IconArrowRight,
   IconMessageDots,
   IconPlayerPlay,
 } from '@tabler/icons-react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { StatCard } from '../../components/common'
 import { useDashboardContext } from '../../layouts/MainLayout.jsx'
 
 export default function StudentDashboard() {
+  const { t, i18n } = useTranslation('student')
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const isRtl = i18n.dir() === 'rtl'
   const navigate = useNavigate()
   const { user } = useDashboardContext()
+
+  const ArrowIcon = isRtl ? IconArrowLeft : IconArrowRight
 
   return (
     <Box p={{ base: 'xs', sm: 'md' }}>
@@ -48,10 +54,10 @@ export default function StudentDashboard() {
           <Box>
             <Group spacing="xs" mb="xs">
               <Badge color="teal" variant="filled" size="sm">
-                بوابة الطالب
+                {t('dashboard.portalBadge')}
               </Badge>
               <Text size="xs" color="dimmed">
-                الفصل الدراسي الأول 2026/2027
+                {t('dashboard.semesterLabel')}
               </Text>
             </Group>
             <Title
@@ -62,10 +68,10 @@ export default function StudentDashboard() {
                 fontSize: 26,
               }}
             >
-              أهلاً بك، {user?.name || 'الطالب'} 🎓
+              {t('dashboard.welcome', { name: user?.name || t('dashboard.defaultStudent') })}
             </Title>
             <Text color="dimmed" size="sm" mt={4} sx={{ maxWidth: 600 }}>
-              تابع محاضراتك المسجلة، تقدمك في المساقات، واطلع على درجاتك الفصلية أولاً بأول.
+              {t('dashboard.subtitle')}
             </Text>
           </Box>
 
@@ -73,11 +79,11 @@ export default function StudentDashboard() {
             variant="gradient"
             gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
             radius="md"
-            leftIcon={<IconArrowLeft size={16} />}
+            leftIcon={<ArrowIcon size={16} />}
             onClick={() => navigate('/courses')}
             sx={{ fontWeight: 700 }}
           >
-            تصفح مقرراتي
+            {t('dashboard.browseMyCourses')}
           </Button>
         </Group>
       </Paper>
@@ -93,23 +99,23 @@ export default function StudentDashboard() {
         mb="xl"
       >
         <StatCard
-          title="المقررات المسجلة"
+          title={t('dashboard.stats.enrolledCourses')}
           value={6}
-          description="مساقات دراسية هذا الفصل"
+          description={t('dashboard.stats.enrolledCoursesDesc')}
           icon={<IconBook size={24} />}
           color="blue"
         />
         <StatCard
-          title="السجل الأكاديمي"
-          value="كشف الدرجات"
-          description="متابعة نتائج الاختبارات"
+          title={t('dashboard.stats.transcript')}
+          value={t('dashboard.stats.transcriptValue')}
+          description={t('dashboard.stats.transcriptDesc')}
           icon={<IconCertificate size={24} />}
           color="teal"
         />
         <StatCard
-          title="الوضع الأكاديمي"
-          value="منتظم"
-          description="حالة القيد: مستمر بالدراسة"
+          title={t('dashboard.stats.academicStanding')}
+          value={t('dashboard.stats.academicStandingValue')}
+          description={t('dashboard.stats.academicStandingDesc')}
           icon={<IconSchool size={24} />}
           color="indigo"
         />
@@ -117,7 +123,7 @@ export default function StudentDashboard() {
 
       {/* Quick Access Cards */}
       <Title order={3} sx={{ fontSize: 18, fontWeight: 700 }} mb="md">
-        الوصول السريع
+        {t('dashboard.quickAccess')}
       </Title>
 
       <SimpleGrid
@@ -147,10 +153,10 @@ export default function StudentDashboard() {
             <IconPlayerPlay size={24} />
           </ThemeIcon>
           <Text weight={700} size="md" mb={4}>
-            المحاضرات الرقمية
+            {t('dashboard.digitalLectures')}
           </Text>
           <Text size="xs" color="dimmed">
-            مشاهدة الدروس المسجلة وتحميل المرفقات الأكاديمية.
+            {t('dashboard.digitalLecturesDesc')}
           </Text>
         </Card>
 
@@ -173,10 +179,10 @@ export default function StudentDashboard() {
             <IconCertificate size={24} />
           </ThemeIcon>
           <Text weight={700} size="md" mb={4}>
-            كشف الدرجات والنتائج
+            {t('dashboard.gradesCard')}
           </Text>
           <Text size="xs" color="dimmed">
-            استعراض نتائج المقررات وتقديرات الامتحانات.
+            {t('dashboard.gradesCardDesc')}
           </Text>
         </Card>
 
@@ -199,13 +205,14 @@ export default function StudentDashboard() {
             <IconMessageDots size={24} />
           </ThemeIcon>
           <Text weight={700} size="md" mb={4}>
-            غرف النقاش والدردشة
+            {t('dashboard.chatCard')}
           </Text>
           <Text size="xs" color="dimmed">
-            التواصل مع أساتذة المساقات والزملاء للمناقشة الأكاديمية.
+            {t('dashboard.chatCardDesc')}
           </Text>
         </Card>
       </SimpleGrid>
     </Box>
   )
 }
+

@@ -13,11 +13,16 @@ import {
 } from '@mantine/core'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import { useGetElements } from '../crud.js'
 import { PageHeader, EmptyState } from '../../components/common/index.js'
-import { IconBook, IconArrowLeft } from '@tabler/icons-react'
+import { IconBook, IconArrowLeft, IconArrowRight } from '@tabler/icons-react'
 
 export default function StudentCourses() {
+  const { t, i18n } = useTranslation('student')
+  const isRtl = i18n.dir() === 'rtl'
+  const ArrowIcon = isRtl ? IconArrowLeft : IconArrowRight
+
   const {
     data: courses = [],
     isLoading,
@@ -40,11 +45,11 @@ export default function StudentCourses() {
   return (
     <>
       <PageHeader
-        title="المقررات المسجلة"
-        description="استعراض المقررات الدراسية والمحاضرات والمصادر التعليمية"
+        title={t('courses.title')}
+        description={t('courses.description')}
         breadcrumbs={[
-          { title: 'الرئيسية', href: '/' },
-          { title: 'مقرراتي الدراسية' },
+          { title: t('courses.breadcrumbsHome'), href: '/' },
+          { title: t('courses.breadcrumbsMyCourses') },
         ]}
         action={
           <Button
@@ -54,15 +59,15 @@ export default function StudentCourses() {
             color="brand"
             radius="md"
           >
-            بوابة الحذف والإضافة
+            {t('courses.registrationPortalBtn')}
           </Button>
         }
       />
 
       {courseList.length === 0 ? (
         <EmptyState
-          title="لا توجد مقررات دراسية مسجلة"
-          description="لم يتم تسجيلك في أي مقررات دراسية للفصل الحالي."
+          title={t('courses.emptyTitle')}
+          description={t('courses.emptyDesc')}
         />
       ) : (
         <SimpleGrid
@@ -83,13 +88,13 @@ export default function StudentCourses() {
             >
               <Group position="apart" mb="xs">
                 <Badge color="brand" variant="light">
-                  {course.category || 'مقرر دراسي'}
+                  {course.category || t('courses.defaultCategory')}
                 </Badge>
                 <Badge
                   color={course.completed ? 'teal' : 'blue'}
                   variant="dot"
                 >
-                  {course.completed ? 'مكتمل' : 'مستمر'}
+                  {course.completed ? t('courses.statusCompleted') : t('courses.statusActive')}
                 </Badge>
               </Group>
 
@@ -102,7 +107,9 @@ export default function StudentCourses() {
 
               {course.teacher && (
                 <Text size="xs" color="dimmed" mb="md">
-                  الأستاذ: {typeof course.teacher === 'object' ? course.teacher.name : course.teacher}
+                  {t('courses.instructorPrefix', {
+                    name: typeof course.teacher === 'object' ? course.teacher.name : course.teacher,
+                  })}
                 </Text>
               )}
 
@@ -114,9 +121,9 @@ export default function StudentCourses() {
                 fullWidth
                 mt="md"
                 radius="md"
-                rightIcon={<IconArrowLeft size={16} />}
+                rightIcon={<ArrowIcon size={16} />}
               >
-                الدخول للمقرر
+                {t('courses.enterCourse')}
               </Button>
             </Card>
           ))}
@@ -125,3 +132,4 @@ export default function StudentCourses() {
     </>
   )
 }
+

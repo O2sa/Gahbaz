@@ -16,6 +16,7 @@ import {
   Box,
 } from '@mantine/core'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import {
   IconPrinter,
   IconCertificate,
@@ -29,6 +30,9 @@ import customFetch from '../../utils/customFetch'
 import { PageHeader, EmptyState } from '../../components/common'
 
 export default function Transcript() {
+  const { t, i18n } = useTranslation('student')
+  const isRtl = i18n.dir() === 'rtl'
+
   const {
     data: transcriptResponse,
     isLoading,
@@ -53,14 +57,14 @@ export default function Transcript() {
     return (
       <Alert
         icon={<IconAlertCircle size={16} />}
-        title="تنبيه"
+        title={t('transcript.alertTitle')}
         color="red"
         radius="md"
         my="xl"
       >
         {error.response?.data?.error?.message ||
           error.response?.data?.message ||
-          'تعذر تحميل السجل الأكاديمي حالياً.'}
+          t('transcript.errorDefault')}
       </Alert>
     )
   }
@@ -72,9 +76,11 @@ export default function Transcript() {
   }
 
   const getStandingColor = (standing) => {
-    if (standing === 'امتياز') return 'teal'
-    if (standing === 'جيد جداً') return 'blue'
-    if (standing === 'جيد') return 'cyan'
+    if (!standing) return 'gray'
+    const s = String(standing).toLowerCase()
+    if (s.includes('امتياز') || s.includes('excellent')) return 'teal'
+    if (s.includes('جيد جداً') || s.includes('very good')) return 'blue'
+    if (s.includes('جيد') || s.includes('good')) return 'cyan'
     return 'red'
   }
 
@@ -83,12 +89,12 @@ export default function Transcript() {
       {/* Hide on print */}
       <Box className="no-print">
         <PageHeader
-          title="السجل الأكاديمي الرسمي"
-          description="كشف الدرجات الأكاديمية الشامل والمعدل التراكمي الموزون بالساعات المعتمدة"
+          title={t('transcript.title')}
+          description={t('transcript.description')}
           breadcrumbs={[
-            { title: 'الرئيسية', href: '/' },
-            { title: 'الدرجات', href: '/grades' },
-            { title: 'السجل الأكاديمي' },
+            { title: t('transcript.breadcrumbsHome'), href: '/' },
+            { title: t('transcript.breadcrumbsGrades'), href: '/grades' },
+            { title: t('transcript.breadcrumbsTranscript') },
           ]}
           action={
             <Button
@@ -98,7 +104,7 @@ export default function Transcript() {
               radius="md"
               leftIcon={<IconPrinter size={16} />}
             >
-              طباعة السجل الأكاديمي
+              {t('transcript.printBtn')}
             </Button>
           }
         />
@@ -128,20 +134,20 @@ export default function Transcript() {
             <IconSchool size={40} color="#7c3aed" />
             <div>
               <Title order={2} weight={800}>
-                {student?.university || 'جامعة جهبذ الإلكترونية'}
+                {student?.university || t('transcript.defaultUniversity')}
               </Title>
               <Text size="sm" color="dimmed">
-                عمادة القبول والتسجيل والشؤون الأكاديمية
+                {t('transcript.deanship')}
               </Text>
             </div>
           </Group>
 
           <Stack spacing={2} align="flex-end">
             <Badge size="lg" variant="outline" color="brand">
-              سجل أكاديمي رسمي
+              {t('transcript.officialBadge')}
             </Badge>
             <Text size="xs" color="dimmed">
-              تاريخ الطباعة: {new Date().toLocaleDateString('ar-EG')}
+              {t('transcript.printDate', { date: new Date().toLocaleDateString(isRtl ? 'ar-EG' : 'en-US') })}
             </Text>
           </Stack>
         </Group>
@@ -159,7 +165,7 @@ export default function Transcript() {
         >
           <Box>
             <Text size="xs" color="dimmed">
-              اسم الطالب:
+              {t('transcript.studentName')}
             </Text>
             <Text weight={700} size="sm">
               {student?.name || '---'}
@@ -167,7 +173,7 @@ export default function Transcript() {
           </Box>
           <Box>
             <Text size="xs" color="dimmed">
-              الكلية:
+              {t('transcript.college')}
             </Text>
             <Text weight={600} size="sm">
               {student?.college || '---'}
@@ -175,7 +181,7 @@ export default function Transcript() {
           </Box>
           <Box>
             <Text size="xs" color="dimmed">
-              التخصص:
+              {t('transcript.major')}
             </Text>
             <Text weight={600} size="sm">
               {student?.major || '---'}
@@ -183,22 +189,22 @@ export default function Transcript() {
           </Box>
           <Box>
             <Text size="xs" color="dimmed">
-              البريد الأكاديمي:
+              {t('transcript.academicEmail')}
             </Text>
             <Text size="sm">{student?.email || '---'}</Text>
           </Box>
           <Box>
             <Text size="xs" color="dimmed">
-              الدرجة العلمية:
+              {t('transcript.degree')}
             </Text>
-            <Text size="sm">بكالوريوس</Text>
+            <Text size="sm">{t('transcript.degreeValue')}</Text>
           </Box>
           <Box>
             <Text size="xs" color="dimmed">
-              الحالة الأكاديمية:
+              {t('transcript.academicStanding')}
             </Text>
             <Badge color={getStandingColor(summary?.academicStanding)} variant="light">
-              {summary?.academicStanding || 'جيد'}
+              {summary?.academicStanding || t('transcript.standings.good')}
             </Badge>
           </Box>
         </SimpleGrid>
@@ -220,7 +226,7 @@ export default function Transcript() {
             <Group spacing="xl">
               <div>
                 <Text size="xs" color="dimmed">
-                  إجمالي الساعات المسجلة
+                  {t('transcript.totalAttemptedCredits')}
                 </Text>
                 <Text weight={700} size="lg">
                   {summary?.totalCreditsAttempted || 0}
@@ -228,7 +234,7 @@ export default function Transcript() {
               </div>
               <div>
                 <Text size="xs" color="dimmed">
-                  إجمالي الساعات المجتازة
+                  {t('transcript.totalEarnedCredits')}
                 </Text>
                 <Text weight={700} size="lg" color="teal">
                   {summary?.totalCreditsEarned || 0}
@@ -236,7 +242,7 @@ export default function Transcript() {
               </div>
               <div>
                 <Text size="xs" color="dimmed">
-                  المعدل التراكمي (GPA)
+                  {t('transcript.cumulativeGPA')}
                 </Text>
                 <Text weight={800} size="xl" color="brand">
                   {(summary?.cumulativeGPA ?? 0).toFixed(2)} / 4.00
@@ -248,7 +254,7 @@ export default function Transcript() {
               <IconAward size={24} color="#7c3aed" />
               <div>
                 <Text size="xs" color="dimmed">
-                  التقدير العام
+                  {t('transcript.overallEvaluation')}
                 </Text>
                 <Text weight={700} size="md">
                   {summary?.academicStanding || '---'}
@@ -261,8 +267,8 @@ export default function Transcript() {
         {/* Semesters Records */}
         {semesters.length === 0 ? (
           <EmptyState
-            title="لا توجد فصول دراسية مرصودة"
-            description="لم يتم رصد نتائج فصول دراسية في سجلك الأكاديمي بعد."
+            title={t('transcript.emptyTitle')}
+            description={t('transcript.emptyDesc')}
           />
         ) : (
           <Stack spacing="xl">
@@ -270,15 +276,17 @@ export default function Transcript() {
               <Box key={sem.semesterId || sIdx}>
                 <Group position="apart" mb="xs">
                   <Text weight={700} size="md">
-                    {sem.name || `الفصل الدراسي ${sIdx + 1}`}
+                    {sem.name || t('grades.defaultSemester', { index: sIdx + 1 })}
                   </Text>
                   <Group spacing="md">
                     <Badge variant="dot" color="brand">
-                      ساعات الفصل: {sem.creditsAttempted || 0} (مجتازة:{' '}
-                      {sem.creditsEarned || 0})
+                      {t('transcript.semesterHours', {
+                        attempted: sem.creditsAttempted || 0,
+                        earned: sem.creditsEarned || 0,
+                      })}
                     </Badge>
                     <Badge variant="filled" color="brand">
-                      معدل الفصل: {(sem.semesterGPA ?? 0).toFixed(2)}
+                      {t('transcript.semesterGPA', { gpa: (sem.semesterGPA ?? 0).toFixed(2) })}
                     </Badge>
                   </Group>
                 </Group>
@@ -286,13 +294,13 @@ export default function Transcript() {
                 <Table striped highlightOnHover withBorder withColumnBorders fontSize="xs">
                   <thead>
                     <tr>
-                      <th style={{ width: '12%' }}>رمز المقرر</th>
-                      <th style={{ width: '38%' }}>اسم المقرر</th>
-                      <th style={{ width: '10%' }}>الساعات</th>
-                      <th style={{ width: '10%' }}>الدرجة (%)</th>
-                      <th style={{ width: '10%' }}>التقدير</th>
-                      <th style={{ width: '10%' }}>نقاط التقدير</th>
-                      <th style={{ width: '10%' }}>النقاط المكتسبة</th>
+                      <th style={{ width: '12%' }}>{t('transcript.table.courseCode')}</th>
+                      <th style={{ width: '38%' }}>{t('transcript.table.courseName')}</th>
+                      <th style={{ width: '10%' }}>{t('transcript.table.credits')}</th>
+                      <th style={{ width: '10%' }}>{t('transcript.table.percentage')}</th>
+                      <th style={{ width: '10%' }}>{t('transcript.table.grade')}</th>
+                      <th style={{ width: '10%' }}>{t('transcript.table.gradePoints')}</th>
+                      <th style={{ width: '10%' }}>{t('transcript.table.qualityPoints')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -340,7 +348,7 @@ export default function Transcript() {
           <Group position="apart" align="flex-end">
             <Stack spacing={4} align="center">
               <Text size="xs" weight={600}>
-                المسجل الأكاديمي
+                {t('transcript.printFooter.registrar')}
               </Text>
               <Text size="xs" color="dimmed">
                 ............................
@@ -349,7 +357,7 @@ export default function Transcript() {
 
             <Stack spacing={4} align="center">
               <Text size="xs" weight={600}>
-                ختم عمادة القبول والتسجيل
+                {t('transcript.printFooter.seal')}
               </Text>
               <Box
                 sx={{
@@ -363,14 +371,14 @@ export default function Transcript() {
                 }}
               >
                 <Text size="10px" color="dimmed">
-                  الختم الرسمي
+                  {t('transcript.printFooter.sealText')}
                 </Text>
               </Box>
             </Stack>
 
             <Stack spacing={4} align="center">
               <Text size="xs" weight={600}>
-                عميد الكلية
+                {t('transcript.printFooter.dean')}
               </Text>
               <Text size="xs" color="dimmed">
                 ............................
@@ -382,3 +390,4 @@ export default function Transcript() {
     </>
   )
 }
+

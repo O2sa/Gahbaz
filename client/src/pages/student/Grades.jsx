@@ -29,11 +29,14 @@ import {
   IconSchool,
 } from '@tabler/icons-react'
 import customFetch from '../../utils/customFetch'
+import { useTranslation } from 'react-i18next'
 import { useDashboardContext } from '../../layouts/MainLayout.jsx'
 import { PageHeader, EmptyState } from '../../components/common'
 import { getLetterGrade } from '../admin/StudentGrades.jsx'
 
 export default function StudentGrades() {
+  const { t, i18n } = useTranslation('student')
+  const isRtl = i18n.dir() === 'rtl'
   const { user } = useDashboardContext()
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
@@ -87,7 +90,7 @@ export default function StudentGrades() {
         <Stack align="center" spacing="md">
           <Loader size="xl" color="brand" />
           <Text size="sm" color="dimmed">
-            جاري تحميل كشف درجاتك الأكاديمية...
+            {t('grades.loading')}
           </Text>
         </Stack>
       </Center>
@@ -97,8 +100,8 @@ export default function StudentGrades() {
   if (error) {
     return (
       <EmptyState
-        title="تعذر تحميل كشف الدرجات"
-        description="حدث خطأ أثناء جلب السجل الأكاديمي. يرجى المحاولة مرة أخرى."
+        title={t('grades.errorTitle')}
+        description={t('grades.errorDesc')}
       />
     )
   }
@@ -106,11 +109,11 @@ export default function StudentGrades() {
   return (
     <>
       <PageHeader
-        title="كشف الدرجات الأكاديمية"
-        description="استعراض درجات الفصول الدراسية وتقييمات المقررات والتقديرات الرسمية"
+        title={t('grades.title')}
+        description={t('grades.description')}
         breadcrumbs={[
-          { title: 'الرئيسية', href: '/' },
-          { title: 'كشف الدرجات' },
+          { title: t('grades.breadcrumbsHome'), href: '/' },
+          { title: t('grades.breadcrumbsGrades') },
         ]}
         action={
           <Button
@@ -121,7 +124,7 @@ export default function StudentGrades() {
             radius="md"
             leftIcon={<IconCertificate size={18} />}
           >
-            السجل الأكاديمي والمعدل التراكمي
+            {t('grades.viewTranscriptBtn')}
           </Button>
         }
       />
@@ -140,7 +143,7 @@ export default function StudentGrades() {
           <Group position="apart">
             <div>
               <Text size="xs" color="dimmed" weight={700}>
-                الفصول المسجلة
+                {t('grades.stats.registeredSemesters')}
               </Text>
               <Title order={2} mt={4}>
                 {stats.totalSemesters}
@@ -156,7 +159,7 @@ export default function StudentGrades() {
           <Group position="apart">
             <div>
               <Text size="xs" color="dimmed" weight={700}>
-                إجمالي المقررات
+                {t('grades.stats.totalCourses')}
               </Text>
               <Title order={2} mt={4}>
                 {stats.totalCourses}
@@ -172,7 +175,7 @@ export default function StudentGrades() {
           <Group position="apart">
             <div>
               <Text size="xs" color="dimmed" weight={700}>
-                المقررات المجتازة بنجاح
+                {t('grades.stats.passedCourses')}
               </Text>
               <Title order={2} mt={4} color="teal">
                 {stats.passedCourses}
@@ -188,7 +191,7 @@ export default function StudentGrades() {
           <Group position="apart">
             <div>
               <Text size="xs" color="dimmed" weight={700}>
-                المعدل المئوي العام
+                {t('grades.stats.overallAverage')}
               </Text>
               <Title order={2} mt={4}>
                 {stats.average}%
@@ -204,8 +207,8 @@ export default function StudentGrades() {
       {/* Semesters & Courses Breakdown */}
       {semesterGrades.length === 0 ? (
         <EmptyState
-          title="لا توجد درجات مسجلة بعد"
-          description="لم يتم رصد درجات أكاديمية لك في أي فصل دراسي حتى الآن."
+          title={t('grades.emptySemestersTitle')}
+          description={t('grades.emptySemestersDesc')}
         />
       ) : (
         <Stack spacing="xl">
@@ -242,12 +245,12 @@ export default function StudentGrades() {
                     </ThemeIcon>
                     <div>
                       <Title order={3} sx={{ color: isDark ? '#ffffff' : '#0f172a' }}>
-                        {semester.name || `الفصل الدراسي ${idx + 1}`}
+                        {semester.name || t('grades.defaultSemester', { index: idx + 1 })}
                       </Title>
                       {semester.startDate && semester.endDate && (
                         <Text size="xs" color="dimmed">
-                          {new Date(semester.startDate).toLocaleDateString('ar-SA')} -{' '}
-                          {new Date(semester.endDate).toLocaleDateString('ar-SA')}
+                          {new Date(semester.startDate).toLocaleDateString(isRtl ? 'ar-SA' : 'en-US')} -{' '}
+                          {new Date(semester.endDate).toLocaleDateString(isRtl ? 'ar-SA' : 'en-US')}
                         </Text>
                       )}
                     </div>
@@ -255,10 +258,10 @@ export default function StudentGrades() {
 
                   <Group spacing="xs">
                     <Badge color="brand" variant="light" size="md">
-                      {semCreditsSum} ساعات معتمدة
+                      {t('grades.creditHours', { count: semCreditsSum })}
                     </Badge>
                     <Badge color="teal" variant="filled" size="md">
-                      متوسط الفصل: {semAvg}%
+                      {t('grades.semesterAverage', { avg: semAvg })}
                     </Badge>
                   </Group>
                 </Group>
@@ -267,7 +270,7 @@ export default function StudentGrades() {
 
                 {gradesList.length === 0 ? (
                   <Text size="sm" color="dimmed" py="md">
-                    لا توجد درجات مرصودة لمقررات هذا الفصل بعد.
+                    {t('grades.emptyCourseGrades')}
                   </Text>
                 ) : (
                   <Table verticalSpacing="sm" horizontalSpacing="md" highlightOnHover>
@@ -277,21 +280,21 @@ export default function StudentGrades() {
                           backgroundColor: isDark ? theme.colors.dark[6] : theme.colors.gray[1],
                         }}
                       >
-                        <th>المقرر الدراسي</th>
-                        <th style={{ textAlign: 'center' }}>الساعات</th>
-                        <th style={{ textAlign: 'center' }}>أعمال السنة</th>
-                        <th style={{ textAlign: 'center' }}>الامتحان النصفي</th>
-                        <th style={{ textAlign: 'center' }}>الامتحان النهائي</th>
-                        <th style={{ textAlign: 'center' }}>المجموع</th>
-                        <th style={{ textAlign: 'center' }}>التقدير</th>
-                        <th style={{ textAlign: 'center' }}>الحالة</th>
+                        <th>{t('grades.table.course')}</th>
+                        <th style={{ textAlign: 'center' }}>{t('grades.table.hours')}</th>
+                        <th style={{ textAlign: 'center' }}>{t('grades.table.coursework')}</th>
+                        <th style={{ textAlign: 'center' }}>{t('grades.table.midterm')}</th>
+                        <th style={{ textAlign: 'center' }}>{t('grades.table.final')}</th>
+                        <th style={{ textAlign: 'center' }}>{t('grades.table.total')}</th>
+                        <th style={{ textAlign: 'center' }}>{t('grades.table.grade')}</th>
+                        <th style={{ textAlign: 'center' }}>{t('grades.table.status')}</th>
                       </tr>
                     </thead>
                     <tbody>
                       {gradesList.map((g) => {
                         const course = g.course || {}
                         const total = Number(g.total || 0)
-                        const letter = getLetterGrade(total)
+                        const letter = getLetterGrade(total, t)
 
                         const coursework = g.grade?.['0']?.value ?? g.grade?.assignments?.value ?? '—'
                         const midterm = g.grade?.['1']?.value ?? g.grade?.midterm?.value ?? '—'
@@ -306,7 +309,7 @@ export default function StudentGrades() {
                                 </ThemeIcon>
                                 <div>
                                   <Text weight={700} size="sm" sx={{ color: isDark ? '#ffffff' : '#0f172a' }}>
-                                    {course.name || 'مقرر دراسي'}
+                                    {course.name || t('courses.defaultCategory')}
                                   </Text>
                                   {course.code && (
                                     <Text size="xs" color="dimmed">
@@ -319,7 +322,7 @@ export default function StudentGrades() {
 
                             <td style={{ textAlign: 'center' }}>
                               <Badge size="sm" variant="outline" color="gray">
-                                {course.creditHours || 3} س
+                                {t('grades.creditHoursAbbr', { count: course.creditHours || 3 })}
                               </Badge>
                             </td>
 
@@ -363,7 +366,7 @@ export default function StudentGrades() {
                                 color={total >= 60 ? 'teal' : 'red'}
                                 variant="outline"
                               >
-                                {total >= 60 ? 'ناجح' : 'راسب'}
+                                {total >= 60 ? t('grades.table.passed') : t('grades.table.failed')}
                               </Badge>
                             </td>
                           </tr>
@@ -380,3 +383,4 @@ export default function StudentGrades() {
     </>
   )
 }
+

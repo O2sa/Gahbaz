@@ -28,6 +28,7 @@ import {
   IconClock,
   IconSchool,
 } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 
 export default function CoursePreviewDrawer({
   opened,
@@ -38,8 +39,10 @@ export default function CoursePreviewDrawer({
   canAddCredits = true,
   isLoading = false,
 }) {
+  const { t, i18n } = useTranslation('student')
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+  const isRtl = i18n.dir() === 'rtl'
 
   if (!course) return null
 
@@ -51,7 +54,7 @@ export default function CoursePreviewDrawer({
     <Drawer
       opened={opened}
       onClose={onClose}
-      position="right"
+      position={isRtl ? 'left' : 'right'}
       size="lg"
       padding="xl"
       title={
@@ -61,11 +64,11 @@ export default function CoursePreviewDrawer({
           </ThemeIcon>
           <Box>
             <Text weight={700} size="md" sx={{ color: isDark ? '#ffffff' : '#0f172a' }}>
-              تفاصيل المقرر الدراسي
+              {t('previewDrawer.title')}
             </Text>
             {course.code && (
               <Text size="xs" color="dimmed">
-                رمز المقرر: {course.code}
+                {t('previewDrawer.courseCode', { code: course.code })}
               </Text>
             )}
           </Box>
@@ -99,7 +102,7 @@ export default function CoursePreviewDrawer({
 
           <Group spacing="xs" mt="xs">
             <Badge color="brand" variant="filled" size="sm">
-              {courseCredits} ساعات معتمدة
+              {t('previewDrawer.creditHours', { count: courseCredits })}
             </Badge>
 
             {course.category && (
@@ -114,10 +117,10 @@ export default function CoursePreviewDrawer({
               size="sm"
             >
               {course.isEnrolled
-                ? 'مسجل حالياً'
+                ? t('previewDrawer.alreadyEnrolled')
                 : course.eligible
-                ? 'مؤهل للتسجيل'
-                : 'متطلب غير مكتمل'}
+                ? t('registration.eligibleBadge')
+                : t('registration.ineligibleBadge')}
             </Badge>
           </Group>
         </Paper>
@@ -125,16 +128,16 @@ export default function CoursePreviewDrawer({
         {/* Teachers / Instructors */}
         <Box>
           <Text size="sm" weight={700} mb="xs" sx={{ color: isDark ? '#f1f5f9' : '#0f172a' }}>
-            هيئة التدريس:
+            {t('previewDrawer.instructors')}
           </Text>
           {teachers.length > 0 ? (
             <Stack spacing="xs">
-              {teachers.map((t, idx) => {
-                const name = typeof t === 'object' ? t.name || `${t.firstName || ''} ${t.lastName || ''}`.trim() : 'أستاذ المقرر'
-                const title = typeof t === 'object' ? t.title : ''
-                const avatar = typeof t === 'object' ? t.avatar : undefined
+              {teachers.map((tItem, idx) => {
+                const name = typeof tItem === 'object' ? tItem.name || `${tItem.firstName || ''} ${tItem.lastName || ''}`.trim() : t('previewDrawer.defaultInstructor')
+                const title = typeof tItem === 'object' ? tItem.title : ''
+                const avatar = typeof tItem === 'object' ? tItem.avatar : undefined
                 return (
-                  <Group key={t._id || idx} spacing="sm">
+                  <Group key={tItem._id || idx} spacing="sm">
                     <Avatar src={avatar} radius="xl" color="brand" size="md">
                       {name.charAt(0)}
                     </Avatar>
@@ -149,9 +152,9 @@ export default function CoursePreviewDrawer({
                           {name}
                         </Text>
                       </Group>
-                      {t.email && (
+                      {tItem.email && (
                         <Text size="xs" color="dimmed">
-                          {t.email}
+                          {tItem.email}
                         </Text>
                       )}
                     </Box>
@@ -161,7 +164,7 @@ export default function CoursePreviewDrawer({
             </Stack>
           ) : (
             <Text size="xs" color="dimmed">
-              لم يتم تعيين عضو هيئة تدريس محدد حتى الآن
+              {t('previewDrawer.noInstructorAssigned')}
             </Text>
           )}
         </Box>
@@ -171,10 +174,10 @@ export default function CoursePreviewDrawer({
         {/* Description */}
         <Box>
           <Text size="sm" weight={700} mb="xs" sx={{ color: isDark ? '#f1f5f9' : '#0f172a' }}>
-            نبذة عن المقرر:
+            {t('previewDrawer.aboutCourse')}
           </Text>
           <Text size="sm" color={isDark ? 'gray.3' : 'gray.7'} sx={{ lineHeight: 1.75 }}>
-            {course.description || course.subtitle || 'لا يوجد وصف تفصيلي متوفر لهذا المقرر.'}
+            {course.description || course.subtitle || t('previewDrawer.noDescription')}
           </Text>
         </Box>
 
@@ -190,7 +193,7 @@ export default function CoursePreviewDrawer({
             }}
           >
             <Text size="sm" weight={700} color={isDark ? 'teal.3' : 'teal.9'} mb="xs">
-              أهداف ومخرجات التعلم:
+              {t('previewDrawer.learningOutcomes')}
             </Text>
             <List
               spacing="xs"
@@ -213,7 +216,7 @@ export default function CoursePreviewDrawer({
         {/* Prerequisites Information */}
         <Box>
           <Text size="sm" weight={700} mb="xs" sx={{ color: isDark ? '#f1f5f9' : '#0f172a' }}>
-            المتطلبات السابقة للمقرر:
+            {t('previewDrawer.prerequisites')}
           </Text>
           {course.missingPrerequisites && course.missingPrerequisites.length > 0 ? (
             <Alert
@@ -221,10 +224,10 @@ export default function CoursePreviewDrawer({
               color="red"
               variant="light"
               radius="md"
-              title="متطلبات سابقة غير مستوفاة"
+              title={t('previewDrawer.unmetPrereqsTitle')}
             >
               <Text size="xs" weight={500}>
-                يجب اجتياز المقررات التالية بنسبة 60% على الأقل قبل التمكن من التسجيل:
+                {t('previewDrawer.unmetPrereqsText')}
               </Text>
               <List size="xs" mt={6} spacing={2}>
                 {course.missingPrerequisites.map((p, idx) => (
@@ -242,12 +245,12 @@ export default function CoursePreviewDrawer({
               radius="md"
             >
               <Text size="xs" weight={600}>
-                تم استيفاء كافة المتطلبات السابقة بنجاح. أنت مؤهل أكاديمياً للتسجيل.
+                {t('previewDrawer.prereqsMet')}
               </Text>
             </Alert>
           ) : (
             <Text size="xs" color="dimmed">
-              لا توجد متطلبات سابقة لهذا المقرر، وهو متاح للتسجيل المباشر.
+              {t('previewDrawer.noPrereqs')}
             </Text>
           )}
         </Box>
@@ -256,18 +259,18 @@ export default function CoursePreviewDrawer({
         <Box pt="md" sx={{ marginTop: 'auto' }}>
           {course.isEnrolled ? (
             <Button fullWidth size="md" color="teal" variant="light" disabled>
-              أنت مسجل بالفعل في هذا المقرر لهذا الفصل
+              {t('previewDrawer.alreadyEnrolled')}
             </Button>
           ) : (
             <Stack spacing="xs">
               {!isAddDropOpen && (
                 <Text size="xs" color="red" align="center" weight={500}>
-                  فترة الحذف والإضافة مغلقة حالياً. لا يمكن إضافة مقررات جديدة.
+                  {t('previewDrawer.addDropClosed')}
                 </Text>
               )}
               {!canAddCredits && (
                 <Text size="xs" color="red" align="center" weight={500}>
-                  تسجيل هذا المقرر سيتجاوز الحد الأقصى المسموح (19 ساعة معتمدة).
+                  {t('previewDrawer.exceedsMaxCredits', { max: 19 })}
                 </Text>
               )}
               <Button
@@ -283,7 +286,7 @@ export default function CoursePreviewDrawer({
                   onClose()
                 }}
               >
-                تسجيل في هذا المقرر ({courseCredits} ساعات)
+                {t('previewDrawer.registerBtn', { credits: courseCredits })}
               </Button>
             </Stack>
           )}
@@ -292,3 +295,4 @@ export default function CoursePreviewDrawer({
     </Drawer>
   )
 }
+

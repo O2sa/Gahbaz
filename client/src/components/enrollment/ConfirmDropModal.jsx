@@ -18,6 +18,7 @@ import {
   IconArrowLeft,
   IconInfoCircle,
 } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 
 export default function ConfirmDropModal({
   opened,
@@ -28,6 +29,7 @@ export default function ConfirmDropModal({
   minCredits = 12,
   isLoading = false,
 }) {
+  const { t } = useTranslation('student')
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
 
@@ -47,7 +49,7 @@ export default function ConfirmDropModal({
             <IconAlertTriangle size={18} />
           </ThemeIcon>
           <Text weight={700} size="md" color="red">
-            تأكيد حذف المقرر الدراسي
+            {t('dropModal.title')}
           </Text>
         </Group>
       }
@@ -62,30 +64,26 @@ export default function ConfirmDropModal({
     >
       <Stack spacing="md">
         <Text size="sm">
-          هل أنت متأكد من رغبتك في حذف مقرر{' '}
-          <Text component="span" weight={700} color={isDark ? 'brand.3' : 'brand.7'}>
-            "{course.name}"
-          </Text>{' '}
-          من جدولك الدراسي لهذا الفصل؟
+          {t('dropModal.confirmMessage', { name: course.name })}
         </Text>
 
         <Paper withBorder p="md" radius="md" bg={isDark ? 'rgba(0, 0, 0, 0.25)' : 'gray.0'}>
           <Stack spacing="xs">
             <Group position="apart">
               <Text size="xs" color="dimmed">
-                إجمالي الساعات المسجلة حالياً:
+                {t('dropModal.currentCredits')}
               </Text>
               <Badge variant="outline" color="blue" size="sm">
-                {currentCredits} ساعات
+                {t('dropModal.creditsBadge', { count: currentCredits })}
               </Badge>
             </Group>
 
             <Group position="apart">
               <Text size="xs" color="dimmed">
-                ساعات المقرر المراد حذفه:
+                {t('dropModal.courseCredits')}
               </Text>
               <Badge variant="filled" color="red" size="sm">
-                -{courseCredits} ساعات
+                {t('dropModal.creditsNegativeBadge', { count: courseCredits })}
               </Badge>
             </Group>
 
@@ -93,14 +91,14 @@ export default function ConfirmDropModal({
 
             <Group position="apart">
               <Text size="sm" weight={700}>
-                إجمالي الساعات المتبقية:
+                {t('dropModal.remainingCredits')}
               </Text>
               <Badge
                 variant="filled"
                 color={remainingCredits < minCredits ? 'red' : 'teal'}
                 size="md"
               >
-                {remainingCredits} ساعة معتمدة
+                {t('dropModal.remainingCreditsBadge', { count: remainingCredits })}
               </Badge>
             </Group>
           </Stack>
@@ -112,10 +110,10 @@ export default function ConfirmDropModal({
             color="red"
             variant="filled"
             radius="md"
-            title="تعذر الحذف"
+            title={t('dropModal.cannotDropTitle')}
           >
             <Text size="xs">
-              لا يمكن حذف هذا المقرر لأن إجمالي ساعاتك سيصبح أقل من الحد الأدنى الأكاديمي المطلوب ({minCredits} ساعة معتمدة).
+              {t('dropModal.cannotDropAlert', { min: minCredits })}
             </Text>
           </Alert>
         ) : remainingCredits === minCredits ? (
@@ -126,18 +124,18 @@ export default function ConfirmDropModal({
             radius="md"
           >
             <Text size="xs" weight={500}>
-              تنبيه: سيصل رصيد ساعاتك بعد هذا الحذف إلى الحد الأدنى تماماً ({minCredits} ساعات). لن تتمكن من حذف أي مقررات إضافية.
+              {t('dropModal.minCreditsWarning', { min: minCredits })}
             </Text>
           </Alert>
         ) : (
           <Text size="xs" color="dimmed">
-            سيتم إزالة المقرر من قائمة مقرراتك وقناة المحادثات الأكاديمية فوراً.
+            {t('dropModal.instantRemovalNotice')}
           </Text>
         )}
 
         <Group position="right" mt="md">
           <Button variant="default" onClick={onClose} disabled={isLoading}>
-            تراجع
+            {t('dropModal.cancel')}
           </Button>
           <Button
             color="red"
@@ -146,10 +144,11 @@ export default function ConfirmDropModal({
             loading={isLoading}
             disabled={!canDrop}
           >
-            تأكيد الحذف
+            {t('dropModal.confirmDrop')}
           </Button>
         </Group>
       </Stack>
     </Modal>
   )
 }
+

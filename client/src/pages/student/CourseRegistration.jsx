@@ -39,17 +39,21 @@ import {
   IconFilter,
   IconArrowsExchange,
   IconUser,
+  IconInfoCircle,
 } from '@tabler/icons-react'
 import customFetch from '../../utils/customFetch'
+import { useTranslation } from 'react-i18next'
 import { PageHeader, EmptyState } from '../../components/common'
 import { CoursePreviewDrawer, ConfirmDropModal } from '../../components/enrollment'
 
 export default function CourseRegistration() {
+  const { t, i18n } = useTranslation('student')
+  const isRtl = i18n.dir() === 'rtl'
   const queryClient = useQueryClient()
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
 
-  const [activeTab, setActiveTab] = useState('available')
+  const [activeTab, setActiveTab] = useState('enrolled')
   const [loadingCourseId, setLoadingCourseId] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [eligibleOnly, setEligibleOnly] = useState(false)
@@ -78,8 +82,8 @@ export default function CourseRegistration() {
     },
     onSuccess: () => {
       notifications.show({
-        title: 'تم التسجيل بنجاح',
-        message: 'تم تسجيل المقرر بنجاح وإضافتك لقناة المحادثة الدراسية.',
+        title: t('registration.notifications.registerSuccessTitle'),
+        message: t('registration.notifications.registerSuccessMsg'),
         color: 'teal',
         icon: <IconCheck size={16} />,
       })
@@ -90,9 +94,9 @@ export default function CourseRegistration() {
       const errorMsg =
         err.response?.data?.error?.message ||
         err.response?.data?.message ||
-        'حدث خطأ أثناء محاولة تسجيل المقرر.'
+        t('registration.errorLoading')
       notifications.show({
-        title: 'تعذر التسجيل',
+        title: t('registration.notifications.registerFailTitle'),
         message: errorMsg,
         color: 'red',
         icon: <IconAlertCircle size={16} />,
@@ -112,8 +116,8 @@ export default function CourseRegistration() {
     },
     onSuccess: () => {
       notifications.show({
-        title: 'تم حذف المقرر',
-        message: 'تم حذف المقرر بنجاح وتحديث خطتك الدراسية.',
+        title: t('registration.notifications.dropSuccessTitle'),
+        message: t('registration.notifications.dropSuccessMsg'),
         color: 'orange',
         icon: <IconCheck size={16} />,
       })
@@ -124,9 +128,9 @@ export default function CourseRegistration() {
       const errorMsg =
         err.response?.data?.error?.message ||
         err.response?.data?.message ||
-        'حدث خطأ أثناء محاولة حذف المقرر.'
+        t('registration.errorLoading')
       notifications.show({
-        title: 'تعذر الحذف',
+        title: t('registration.notifications.dropFailTitle'),
         message: errorMsg,
         color: 'red',
         icon: <IconAlertCircle size={16} />,
@@ -195,7 +199,7 @@ export default function CourseRegistration() {
         <Stack align="center" spacing="md">
           <Loader size="xl" color="brand" />
           <Text size="sm" color="dimmed">
-            جاري تحميل بيانات التسجيل والمقررات المتاحة...
+            {t('registration.loadingData')}
           </Text>
         </Stack>
       </Center>
@@ -206,14 +210,14 @@ export default function CourseRegistration() {
     return (
       <Alert
         icon={<IconAlertCircle size={18} />}
-        title="تنبيه الأكاديميا"
+        title={t('transcript.alertTitle')}
         color="red"
         radius="md"
         my="xl"
       >
         {error.response?.data?.error?.message ||
           error.response?.data?.message ||
-          'لا يتوفر فصل دراسي نشط حالياً للتسجيل أو تعذر جلب المقررات.'}
+          t('registration.errorLoading')}
       </Alert>
     )
   }
@@ -232,12 +236,12 @@ export default function CourseRegistration() {
   return (
     <>
       <PageHeader
-        title="بوابة تسجيل المقررات والحذف والإضافة"
-        description="إدارة الخطة الدراسية الفردية للفصل الدراسي الحالي وفق الساعات المعتمدة والمتطلبات الأكاديمية"
+        title={t('registration.title')}
+        description={t('registration.description')}
         breadcrumbs={[
-          { title: 'الرئيسية', href: '/' },
-          { title: 'مقرراتي الدراسية', href: '/courses' },
-          { title: 'الحذف والإضافة' },
+          { title: t('registration.breadcrumbsHome'), href: '/' },
+          { title: t('registration.breadcrumbsCourses'), href: '/courses' },
+          { title: t('registration.breadcrumbsRegistration') },
         ]}
       />
 
@@ -264,15 +268,15 @@ export default function CourseRegistration() {
             </ThemeIcon>
             <Box>
               <Text weight={800} size="lg" sx={{ color: isDark ? '#ffffff' : '#0f172a' }}>
-                {semester?.name || 'الفصل الدراسي النشط'}
+                {semester?.name || t('registration.activeSemester')}
               </Text>
               <Text size="xs" color="dimmed">
-                فترة الحذف والإضافة:{' '}
+                {t('registration.addDropPeriod')}
                 <Text component="span" weight={600} color={isAddDropOpen ? 'teal' : 'gray'}>
-                  {isAddDropOpen ? 'مفتوحة حالياً' : 'مغلقة'}
+                  {isAddDropOpen ? t('registration.statusOpen') : t('registration.statusClosed')}
                 </Text>
                 {semester?.addDropDeadline && (
-                  <> (الموعد النهائي: {new Date(semester.addDropDeadline).toLocaleDateString('ar-SA')})</>
+                  <>{t('registration.deadline', { date: new Date(semester.addDropDeadline).toLocaleDateString(isRtl ? 'ar-SA' : 'en-US') })}</>
                 )}
               </Text>
             </Box>
@@ -284,7 +288,7 @@ export default function CourseRegistration() {
             variant="filled"
             color={isAddDropOpen ? 'teal' : 'gray'}
           >
-            {isAddDropOpen ? 'فترة التسجيل نشطة' : 'فترة التسجيل مغلقة'}
+            {isAddDropOpen ? t('registration.registrationActive') : t('registration.registrationClosed')}
           </Badge>
         </Group>
 
@@ -293,13 +297,13 @@ export default function CourseRegistration() {
         <Stack spacing="xs">
           <Group position="apart">
             <Text size="sm" weight={700} sx={{ color: isDark ? '#f1f5f9' : '#1e293b' }}>
-              إجمالي الساعات المسجلة: {currentCreditHours} من {maxCreditHours} ساعة معتمدة
+              {t('registration.creditsSummary', { current: currentCreditHours, max: maxCreditHours })}
             </Text>
             <Badge
               variant="outline"
               color={currentCreditHours >= minCreditHours ? 'teal' : 'orange'}
             >
-              الحد الأدنى: {minCreditHours} ساعات | الأقصى: {maxCreditHours} ساعات
+              {t('registration.creditsLimits', { min: minCreditHours, max: maxCreditHours })}
             </Badge>
           </Group>
 
@@ -322,14 +326,14 @@ export default function CourseRegistration() {
               radius="md"
             >
               <Text size="xs" weight={600}>
-                تنبيه: يجب تسجيل ما لا يقل عن {minCreditHours} ساعة معتمدة لاعتماد الفصل الدراسي بنجاح.
+                {t('registration.minCreditsWarning', { min: minCreditHours })}
               </Text>
             </Alert>
           )}
 
           {currentCreditHours >= minCreditHours && currentCreditHours <= maxCreditHours && (
             <Text size="xs" color="teal" weight={600}>
-              ✓ عبء الساعات المسجلة ضمن النطاق الأكاديمي المسموح ({minCreditHours} إلى {maxCreditHours} ساعة).
+              {t('registration.creditsWithinRange', { min: minCreditHours, max: maxCreditHours })}
             </Text>
           )}
         </Stack>
@@ -350,17 +354,6 @@ export default function CourseRegistration() {
       >
         <Tabs.List mb="lg">
           <Tabs.Tab
-            value="available"
-            icon={<IconBook size={18} />}
-            rightSection={
-              <Badge size="xs" variant="filled" color="brand">
-                {availableCourses.length}
-              </Badge>
-            }
-          >
-            المقررات المتاحة للتسجيل
-          </Tabs.Tab>
-          <Tabs.Tab
             value="enrolled"
             icon={<IconCheck size={18} />}
             rightSection={
@@ -369,12 +362,34 @@ export default function CourseRegistration() {
               </Badge>
             }
           >
-            المقررات المسجلة حالياً
+            {t('registration.tabs.enrolled')}
+          </Tabs.Tab>
+          <Tabs.Tab
+            value="available"
+            icon={<IconBook size={18} />}
+            rightSection={
+              <Badge size="xs" variant="filled" color="brand">
+                {availableCourses.length}
+              </Badge>
+            }
+          >
+            {t('registration.tabs.available')}
           </Tabs.Tab>
         </Tabs.List>
 
-        {/* Tab 1: Available Courses */}
+        {/* Tab 1: Available Courses (Browse Only) */}
         <Tabs.Panel value="available">
+          <Alert
+            icon={<IconInfoCircle size={20} />}
+            color="blue"
+            variant="light"
+            radius="md"
+            mb="lg"
+          >
+            <Text size="sm" weight={600}>
+              {t('registration.autoEnrollmentNotice')}
+            </Text>
+          </Alert>
           {/* Search & Filter Toolbar */}
           <Paper
             withBorder
@@ -388,7 +403,7 @@ export default function CourseRegistration() {
           >
             <Group position="apart" align="center">
               <TextInput
-                placeholder="ابحث باسم المقرر أو الرمز مثل CS101..."
+                placeholder={t('registration.searchPlaceholder')}
                 icon={<IconSearch size={16} />}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.currentTarget.value)}
@@ -398,14 +413,17 @@ export default function CourseRegistration() {
 
               <Group spacing="md">
                 <Switch
-                  label="المؤهل لها فقط"
+                  label={t('registration.eligibleOnly')}
                   checked={eligibleOnly}
                   onChange={(e) => setEligibleOnly(e.currentTarget.checked)}
                   color="teal"
                   size="sm"
                 />
                 <Text size="xs" color="dimmed">
-                  عرض {filteredAvailableCourses.length} من أصل {availableCourses.length} مقرر
+                  {t('registration.showingCourses', {
+                    filtered: filteredAvailableCourses.length,
+                    total: availableCourses.length,
+                  })}
                 </Text>
               </Group>
             </Group>
@@ -413,11 +431,11 @@ export default function CourseRegistration() {
 
           {filteredAvailableCourses.length === 0 ? (
             <EmptyState
-              title="لا توجد مقررات مطابقة للبحث"
+              title={t('registration.emptySearchTitle')}
               description={
                 eligibleOnly
-                  ? 'لا توجد مقررات إضافية مؤهل للتسجيل فيها حالياً. تحقق من المتطلبات السابقة أو رصيد الساعات.'
-                  : 'لم يتم العثور على مقررات مطابقة لكلمة البحث الحالية.'
+                  ? t('registration.emptySearchEligibleDesc')
+                  : t('registration.emptySearchDesc')
               }
             />
           ) : (
@@ -460,14 +478,14 @@ export default function CourseRegistration() {
                   >
                     <Group position="apart" mb="xs">
                       <Badge color="brand" variant="light" size="sm">
-                        {courseCredits} ساعات معتمدة
+                        {t('registration.creditHours', { count: courseCredits })}
                       </Badge>
                       <Badge
                         color={course.eligible ? 'teal' : 'red'}
                         variant="dot"
                         size="sm"
                       >
-                        {course.eligible ? 'مؤهل للتسجيل' : 'متطلب غير مكتمل'}
+                        {course.eligible ? t('registration.eligibleBadge') : t('registration.ineligibleBadge')}
                       </Badge>
                     </Group>
 
@@ -483,7 +501,7 @@ export default function CourseRegistration() {
 
                     {course.code && (
                       <Text size="xs" color="dimmed" mb="xs">
-                        رمز المقرر: <strong>{course.code}</strong>
+                        {t('registration.courseCode', { code: course.code })}
                       </Text>
                     )}
 
@@ -493,13 +511,13 @@ export default function CourseRegistration() {
                         <IconUser size={14} color="#64748b" />
                         <Text size="xs" color="dimmed" lineClamp={1}>
                           {teachers
-                            .map((t) =>
-                              typeof t === 'object'
-                                ? t.name || `${t.firstName || ''} ${t.lastName || ''}`.trim()
+                            .map((tItem) =>
+                              typeof tItem === 'object'
+                                ? tItem.name || `${tItem.firstName || ''} ${tItem.lastName || ''}`.trim()
                                 : ''
                             )
                             .filter(Boolean)
-                            .join('، ') || 'هيئة التدريس'}
+                            .join(isRtl ? '، ' : ', ') || t('registration.faculty')}
                         </Text>
                       </Group>
                     )}
@@ -516,15 +534,16 @@ export default function CourseRegistration() {
                         radius="md"
                       >
                         <Text size="xs" weight={600}>
-                          يتطلب اجتياز:{' '}
-                          {course.missingPrerequisites.map((p) => p.name).join('، ')}
+                          {t('registration.requiresPassing', {
+                            prereqs: course.missingPrerequisites.map((p) => p.name).join(isRtl ? '، ' : ', '),
+                          })}
                         </Text>
                       </Alert>
                     )}
 
                     {!canAddCredits && (
                       <Text size="xs" color="red" mb="xs" weight={500}>
-                        يتجاوز الحد الأقصى للساعات المعتمدة ({maxCreditHours} س)
+                        {t('registration.exceedsMaxCredits', { max: maxCreditHours })}
                       </Text>
                     )}
 
@@ -537,18 +556,15 @@ export default function CourseRegistration() {
                           leftIcon={<IconEye size={15} />}
                           onClick={() => setPreviewCourse(course)}
                         >
-                          التفاصيل
+                          {t('registration.details')}
                         </Button>
                         <Button
-                          variant="filled"
-                          color="brand"
+                          variant="light"
+                          color="gray"
                           radius="md"
-                          leftIcon={<IconPlus size={16} />}
-                          loading={isLoadingThis}
-                          disabled={!isEligible}
-                          onClick={() => registerMutation.mutate(course._id)}
+                          disabled
                         >
-                          تسجيل
+                          {t('registration.enrollmentViaAdminOnly')}
                         </Button>
                       </Group>
                     </Box>
@@ -565,13 +581,13 @@ export default function CourseRegistration() {
             <EmptyState
               title={
                 searchQuery
-                  ? 'لا توجد نتائج مطابقة لبحثك في المقررات المسجلة'
-                  : 'لم تقم بتسجيل أي مقررات بعد'
+                  ? t('registration.emptyEnrolledSearchTitle')
+                  : t('registration.emptyEnrolledTitle')
               }
               description={
                 searchQuery
-                  ? 'جرب البحث بكلمة أخرى أو مسح حقل البحث.'
-                  : 'يمكنك استعراض المقررات المتاحة في التبويب الآخر وتسجيل موادك الدراسية.'
+                  ? t('registration.emptyEnrolledSearchDesc')
+                  : t('registration.emptyEnrolledDesc')
               }
             />
           ) : (
@@ -605,10 +621,10 @@ export default function CourseRegistration() {
                   >
                     <Group position="apart" mb="xs">
                       <Badge color="brand" variant="light" size="sm">
-                        {courseCredits} ساعات معتمدة
+                        {t('registration.creditHours', { count: courseCredits })}
                       </Badge>
                       <Badge color="teal" variant="filled" size="sm">
-                        مسجل حالياً
+                        {t('registration.currentlyEnrolled')}
                       </Badge>
                     </Group>
 
@@ -624,7 +640,7 @@ export default function CourseRegistration() {
 
                     {course.code && (
                       <Text size="xs" color="dimmed" mb="xs">
-                        رمز المقرر: <strong>{course.code}</strong>
+                        {t('registration.courseCode', { code: course.code })}
                       </Text>
                     )}
 
@@ -633,20 +649,20 @@ export default function CourseRegistration() {
                         <IconUser size={14} color="#64748b" />
                         <Text size="xs" color="dimmed" lineClamp={1}>
                           {teachers
-                            .map((t) =>
-                              typeof t === 'object'
-                                ? t.name || `${t.firstName || ''} ${t.lastName || ''}`.trim()
+                            .map((tItem) =>
+                              typeof tItem === 'object'
+                                ? tItem.name || `${tItem.firstName || ''} ${tItem.lastName || ''}`.trim()
                                 : ''
                             )
                             .filter(Boolean)
-                            .join('، ') || 'هيئة التدريس'}
+                            .join(isRtl ? '، ' : ', ') || t('registration.faculty')}
                         </Text>
                       </Group>
                     )}
 
                     {!canDropCredits && (
                       <Text size="xs" color="orange" mb="xs" weight={500}>
-                        لا يمكن حذف المقرر لأن الساعات ستصبح أقل من {minCreditHours} س
+                        {t('registration.cannotDropBelowMin', { min: minCreditHours })}
                       </Text>
                     )}
 
@@ -659,7 +675,7 @@ export default function CourseRegistration() {
                           leftIcon={<IconEye size={15} />}
                           onClick={() => setPreviewCourse(course)}
                         >
-                          التفاصيل
+                          {t('registration.details')}
                         </Button>
                         <Button
                           variant="light"
@@ -669,7 +685,7 @@ export default function CourseRegistration() {
                           disabled={!canDrop}
                           onClick={() => setDropTarget(course)}
                         >
-                          حذف (Drop)
+                          {t('registration.dropBtn')}
                         </Button>
                       </Group>
                     </Box>
@@ -714,3 +730,4 @@ export default function CourseRegistration() {
     </>
   )
 }
+
