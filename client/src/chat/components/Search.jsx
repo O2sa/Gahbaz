@@ -1,11 +1,13 @@
 import React from 'react'
 import { notifications } from '@mantine/notifications'
 import { Center, Stack, Text } from '@mantine/core'
+import { useTranslation } from 'react-i18next'
 import { ChatState } from '../context/ChatProvider'
 import customFetch from '../../utils/customFetch'
 import UserListItem from './Aux/UserListItem'
 
 function Search({ searchResults }) {
+  const { t } = useTranslation('chat')
   const { setSelectedChat, chats, setChats } = ChatState()
 
   const accessChat = async (userId) => {
@@ -26,8 +28,8 @@ function Search({ searchResults }) {
       console.error('Error accessing chat:', error)
       notifications.show({
         color: 'red',
-        title: 'خطأ',
-        message: error?.response?.data?.message || 'تعذر فتح المحادثة مع هذا المستخدم',
+        title: t('search.errorTitle'),
+        message: error?.response?.data?.message || t('search.accessError'),
       })
     }
   }
@@ -47,7 +49,7 @@ function Search({ searchResults }) {
       ) : (
         <Center py="xl">
           <Text size="sm" c="dimmed">
-            لم يتم العثور على مستخدمين
+            {t('search.notFound')}
           </Text>
         </Center>
       )}

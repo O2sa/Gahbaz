@@ -19,10 +19,33 @@ import {
   IconCircleCheck,
 } from '@tabler/icons-react'
 import { Link as RouterLink } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
+import customFetch from '../../../utils/customFetch.js'
 
 const Footer = () => {
+  const { t } = useTranslation('landing')
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
+
+  const { data: authStatus } = useQuery({
+    queryKey: ['authStatus'],
+    queryFn: async () => {
+      try {
+        const res = await customFetch.get('/auth/status', {
+          skipAuthRedirect: true,
+          skipErrorNotification: true,
+        })
+        return res?.data || res
+      } catch {
+        return { registrationEnabled: true }
+      }
+    },
+    staleTime: 1000 * 60 * 5,
+    retry: false,
+  })
+
+  const registrationEnabled = authStatus?.registrationEnabled !== false
 
   return (
     <footer
@@ -49,15 +72,15 @@ const Footer = () => {
               </ActionIcon>
               <Box>
                 <Text weight={800} size="md" color="white">
-                  منصة جَهْبَذ
+                  {t('footer.brandTitle')}
                 </Text>
                 <Text size={10} color="dimmed">
-                  المنظومة الأكاديمية الذكية
+                  {t('footer.brandSubtitle')}
                 </Text>
               </Box>
             </Group>
             <Text size="sm" color="gray.4" sx={{ maxWidth: 360, lineHeight: 1.7 }} mb="md">
-              نظام متكامل لإدارة التعليم الجامعي والعملية الأكاديمية، صُمم بأحدث المعايير السحابية لربط الكليات بالأساتذة والطلاب في بيئة رقمية آمنة وموثوقة.
+              {t('footer.brandDesc')}
             </Text>
             <Group spacing="xs">
               <Badge
@@ -66,7 +89,7 @@ const Footer = () => {
                 variant="filled"
                 size="sm"
               >
-                النظام يعمل بكفاءة 99.9%
+                {t('footer.uptimeBadge')}
               </Badge>
             </Group>
           </Grid.Col>
@@ -74,7 +97,7 @@ const Footer = () => {
           {/* Platform Links */}
           <Grid.Col xs={6} sm={6} md={3}>
             <Text weight={700} size="sm" mb="md" color="white">
-              روابط المنصة
+              {t('footer.platformLinks')}
             </Text>
             <Stack spacing="xs">
               <Text
@@ -84,7 +107,7 @@ const Footer = () => {
                 color="gray.4"
                 sx={{ textDecoration: 'none', '&:hover': { color: '#ffffff' } }}
               >
-                المقررات المتاحة
+                {t('footer.courses')}
               </Text>
               <Text
                 component={RouterLink}
@@ -93,37 +116,39 @@ const Footer = () => {
                 color="gray.4"
                 sx={{ textDecoration: 'none', '&:hover': { color: '#ffffff' } }}
               >
-                تسجيل الدخول
+                {t('footer.login')}
               </Text>
-              <Text
-                component={RouterLink}
-                to="/register"
-                size="sm"
-                color="gray.4"
-                sx={{ textDecoration: 'none', '&:hover': { color: '#ffffff' } }}
-              >
-                إنشاء حساب جديد
-              </Text>
+              {registrationEnabled && (
+                <Text
+                  component={RouterLink}
+                  to="/register"
+                  size="sm"
+                  color="gray.4"
+                  sx={{ textDecoration: 'none', '&:hover': { color: '#ffffff' } }}
+                >
+                  {t('footer.register')}
+                </Text>
+              )}
             </Stack>
           </Grid.Col>
 
           {/* Contact / Developer */}
           <Grid.Col xs={6} sm={6} md={4}>
             <Text weight={700} size="sm" mb="md" color="white">
-              التواصل والدعم الفني
+              {t('footer.contactTitle')}
             </Text>
             <Stack spacing="xs">
               <Group spacing="xs">
                 <IconMail size={16} color="#94a3b8" />
                 <Text size="sm" color="gray.4">
-                  support@gahbaz.edu.sa
+                  {t('footer.supportEmail')}
                 </Text>
               </Group>
               <Text size="xs" color="gray.5" mt="xs">
-                تطوير وهندسة المنظومة الأكاديمية:
+                {t('footer.devTitle')}
               </Text>
               <Text size="sm" weight={600} color="gray.2">
-                أسامة مبخوت (Gahbaz Core Team)
+                {t('footer.devName')}
               </Text>
               <Group spacing="sm" mt="xs">
                 <ActionIcon
@@ -154,10 +179,10 @@ const Footer = () => {
 
         <Group position="apart" sx={{ '@media (max-width: 600px)': { flexDirection: 'column', gap: 10 } }}>
           <Text size="xs" color="gray.5">
-            جميع الحقوق محفوظة © {new Date().getFullYear()} منصة جهبذ الأكاديمية الذكية
+            {t('footer.copyright', { year: new Date().getFullYear() })}
           </Text>
           <Text size="xs" color="gray.5">
-            صُمم بأعلى معايير تجربة المستخدم والأمان الأكاديمي
+            {t('footer.rights')}
           </Text>
         </Group>
       </Container>

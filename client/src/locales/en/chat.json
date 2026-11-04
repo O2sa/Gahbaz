@@ -1,0 +1,75 @@
+{
+  "meta": {
+    "title": "Gahbaz | Chat & Discussions"
+  },
+  "search": {
+    "placeholder": "Search for a student or teacher...",
+    "validationEmpty": "Please enter a name to search for",
+    "alertTitle": "Notice",
+    "errorTitle": "Error",
+    "errorDesc": "Failed to search for user",
+    "notFound": "No users found",
+    "accessError": "Could not open chat with this user"
+  },
+  "tabs": {
+    "all": "All",
+    "courses": "Courses",
+    "direct": "Direct"
+  },
+  "empty": {
+    "noChats": "No conversations",
+    "noCoursesYet": "No course channels yet",
+    "noDirectYet": "No direct messages yet",
+    "startHint": "Start a new conversation using search above",
+    "noMessages": "No messages yet",
+    "beFirst": "Be the first to start the discussion and send a message!"
+  },
+  "badges": {
+    "courseBadge": "Course",
+    "groupBadge": "Group",
+    "discussionGroup": "Discussion Group",
+    "directChat": "Direct Message",
+    "coursePrefix": "Course {{name}}",
+    "participants": "{{count}} participants in channel",
+    "members": "{{count}} members",
+    "you": "You",
+    "member": "Member",
+    "defaultChat": "Conversation"
+  },
+  "welcome": {
+    "title": "Welcome to Chat Hub, ",
+    "subtitle": "Select a conversation from the sidebar to begin, or join official course discussion rooms to communicate directly with professors and peers.",
+    "courseRooms": "Course Rooms",
+    "courseRoomsDesc": "Official academic discussions",
+    "attachments": "Share Attachments",
+    "attachmentsDesc": "Files, homework & images",
+    "secure": "Secure Connection",
+    "secureDesc": "Protected real-time chat"
+  },
+  "actions": {
+    "backToList": "Back to list",
+    "closeChat": "Close conversation",
+    "inputPlaceholder": "Type your message here... (Press Enter to send, Shift + Enter for new line)",
+    "attachFile": "Attach file or image",
+    "removeAttachment": "Remove attachment",
+    "addEmoji": "Add emoji",
+    "emojiSearch": "Search emoji...",
+    "send": "Send",
+    "uploadWarningTitle": "Attachment Warning",
+    "uploadWarning": "Failed to upload file, sending text message only",
+    "sendFailed": "Sending Failed",
+    "sendFailedMsg": "Could not send message",
+    "loadFailed": "Error Loading Messages",
+    "loadFailedMsg": "Could not retrieve chat messages",
+    "deepLinkFailedTitle": "Could not open chat",
+    "deepLinkFailedMsg": "Unable to open chat for the specified course"
+  },
+  "drawer": {
+    "title": "Course Discussion Room",
+    "viewFull": "Open in Chat Hub",
+    "emptyCourse": "No messages in this course yet",
+    "beFirstCourse": "Share your inquiries or notes with your instructor and classmates.",
+    "cantOpen": "Unable to open discussion room",
+    "ensureEnrolled": "Ensure you are enrolled in this course"
+  }
+}

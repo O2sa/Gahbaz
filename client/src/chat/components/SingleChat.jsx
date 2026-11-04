@@ -16,8 +16,10 @@ import { uploadMedia } from '../../utils/mediaUpload'
 import { ChatState } from '../context/ChatProvider'
 import ChatInput from './ChatInput'
 import ChatItem from '../NewChat/components/ChatItem/ChatItem'
+import { useTranslation } from 'react-i18next'
 
 function SingleChat({ fetchAgain, socket, setFetchAgain, selectedChat }) {
+  const { t } = useTranslation('chat')
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
 
@@ -49,8 +51,8 @@ function SingleChat({ fetchAgain, socket, setFetchAgain, selectedChat }) {
       console.error('Failed to load chat messages:', error)
       notifications.show({
         color: 'red',
-        title: 'خطأ في تحميل الرسائل',
-        message: error?.response?.data?.message || 'تعذر استرجاع رسائل المحادثة',
+        title: t('actions.loadFailed'),
+        message: error?.response?.data?.message || t('actions.loadFailedMsg'),
       })
     } finally {
       setLoading(false)
@@ -74,8 +76,8 @@ function SingleChat({ fetchAgain, socket, setFetchAgain, selectedChat }) {
           console.error('Failed to upload attachment:', uploadErr)
           notifications.show({
             color: 'orange',
-            title: 'تحذير المرفقات',
-            message: 'تعذر رفع الملف، جاري إرسال الرسالة النصية فقط',
+            title: t('actions.uploadWarningTitle'),
+            message: t('actions.uploadWarning'),
           })
         }
       }
@@ -102,8 +104,8 @@ function SingleChat({ fetchAgain, socket, setFetchAgain, selectedChat }) {
       console.error('Failed to send message:', error)
       notifications.show({
         color: 'red',
-        title: 'فشل الإرسال',
-        message: error?.response?.data?.message || 'تعذر إرسال الرسالة',
+        title: t('actions.sendFailed'),
+        message: error?.response?.data?.message || t('actions.sendFailedMsg'),
       })
     } finally {
       setSending(false)
@@ -175,10 +177,10 @@ function SingleChat({ fetchAgain, socket, setFetchAgain, selectedChat }) {
                 senderObj?.role === 'admin'
 
               const senderName = isMe
-                ? 'أنت'
+                ? t('badges.you')
                 : `${senderObj?.firstName || ''} ${senderObj?.lastName || ''}`.trim() ||
                   senderObj?.name ||
-                  'عضو'
+                  t('badges.member')
 
               const avatar = isMe ? user?.avatar : senderObj?.avatar
 
@@ -221,10 +223,10 @@ function SingleChat({ fetchAgain, socket, setFetchAgain, selectedChat }) {
               <IconMessages size={32} color={theme.colors.brand[6]} />
             </Box>
             <Text fw={600} size="sm">
-              لا توجد رسائل بعد
+              {t('empty.noMessages')}
             </Text>
             <Text size="xs" c="dimmed" mt={4}>
-              كن أول من يفتتح النقاش ويرسل رسالة في هذه المحادثة!
+              {t('empty.beFirst')}
             </Text>
           </Center>
         )}

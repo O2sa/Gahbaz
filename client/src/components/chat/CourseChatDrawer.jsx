@@ -38,8 +38,11 @@ import customFetch from '../../utils/customFetch'
 import { uploadMedia } from '../../utils/mediaUpload'
 import { host } from '../../chat/utils/APIRoutes'
 import { useDashboardContext } from '../../layouts/MainLayout.jsx'
+import { useTranslation } from 'react-i18next'
 
 export default function CourseChatDrawer({ opened, onClose, courseId, courseName }) {
+  const { t, i18n } = useTranslation('chat')
+  const isRtl = i18n.dir() === 'rtl'
   const theme = useMantineTheme()
   const navigate = useNavigate()
   const { user } = useDashboardContext()
@@ -78,8 +81,8 @@ export default function CourseChatDrawer({ opened, onClose, courseId, courseName
         console.error('Failed to resolve course chat:', err)
         notifications.show({
           color: 'red',
-          title: 'تعذر فتح غرفة المحادثة',
-          message: err?.response?.data?.message || 'تأكد من تسجيلك في هذا المقرر',
+          title: t('drawer.cantOpen'),
+          message: err?.response?.data?.message || t('drawer.ensureEnrolled'),
         })
       } finally {
         if (isMounted) setLoadingChat(false)
@@ -230,10 +233,10 @@ export default function CourseChatDrawer({ opened, onClose, courseId, courseName
           <IconMessageDots size={22} color={theme.colors.brand[6]} />
           <Box>
             <Title order={5} sx={{ lineHeight: 1.2 }}>
-              غرفة المناقشة الأكاديمية
+              {t('drawer.title')}
             </Title>
             <Text size="xs" c="dimmed">
-              {courseName || chat?.course?.name || 'المقرر الدراسي'}
+              {courseName || chat?.course?.name || t('badges.courseBadge')}
             </Text>
           </Box>
         </Group>
@@ -273,10 +276,10 @@ export default function CourseChatDrawer({ opened, onClose, courseId, courseName
               variant="light"
               size="sm"
             >
-              {chat?.users?.length || 0} مشارك
+              {t('badges.participants', { count: chat?.users?.length || 0 })}
             </Badge>
             <Badge leftSection={<IconBook size={12} />} color="gray" variant="outline" size="sm">
-              قناة رسمية
+              {t('badges.courseBadge')}
             </Badge>
           </Group>
 
@@ -287,7 +290,7 @@ export default function CourseChatDrawer({ opened, onClose, courseId, courseName
             rightIcon={<IconExternalLink size={14} />}
             onClick={handleOpenFullChat}
           >
-            فتح الشاشة الكاملة
+            {t('drawer.viewFull')}
           </Button>
         </Group>
       </Paper>
@@ -310,10 +313,10 @@ export default function CourseChatDrawer({ opened, onClose, courseId, courseName
                 senderObj?.role === 'admin'
 
               const senderName = isMe
-                ? 'أنت'
+                ? t('badges.you')
                 : `${senderObj?.firstName || ''} ${senderObj?.lastName || ''}`.trim() ||
                   senderObj?.name ||
-                  'مشارك'
+                  t('badges.member')
 
               return (
                 <Box
@@ -432,10 +435,10 @@ export default function CourseChatDrawer({ opened, onClose, courseId, courseName
           <Center py="xl" sx={{ height: '100%', flexDirection: 'column' }}>
             <IconMessageDots size={40} color={theme.colors.gray[4]} />
             <Text c="dimmed" size="sm" mt="sm">
-              لا توجد رسائل سابقة في غرفة المناقشة.
+              {t('drawer.emptyCourse')}
             </Text>
             <Text c="dimmed" size="xs">
-              اطرح أسئلتك أو شارك معلوماتك الأكاديمية مع زملائك وأستاذ المقرر!
+              {t('drawer.beFirstCourse')}
             </Text>
           </Center>
         )}
@@ -481,7 +484,7 @@ export default function CourseChatDrawer({ opened, onClose, courseId, courseName
             accept="image/png,image/jpeg,image/webp,application/pdf,.doc,.docx,.zip"
           >
             {(props) => (
-              <Tooltip label="إرفاق ملف أو صورة">
+              <Tooltip label={t('actions.attachFile')}>
                 <ActionIcon {...props} size="lg" variant="light" color="gray" radius="md">
                   <IconPaperclip size={18} />
                 </ActionIcon>
@@ -490,7 +493,7 @@ export default function CourseChatDrawer({ opened, onClose, courseId, courseName
           </FileButton>
 
           <Textarea
-            placeholder="اكتب استفسارك أو رسالتك الأكاديمية... (اضغط Enter للإرسال)"
+            placeholder={t('actions.inputPlaceholder')}
             autosize
             minRows={1}
             maxRows={4}
@@ -508,6 +511,9 @@ export default function CourseChatDrawer({ opened, onClose, courseId, courseName
             loading={sending}
             disabled={!messageText.trim() && !selectedFile}
             onClick={handleSendMessage}
+            sx={{
+              transform: isRtl ? 'scaleX(-1)' : 'none',
+            }}
           >
             <IconSend size={18} />
           </ActionIcon>

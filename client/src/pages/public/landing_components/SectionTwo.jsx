@@ -18,10 +18,16 @@ import {
   IconShieldLock,
   IconBolt,
   IconArrowLeft,
+  IconArrowRight,
 } from '@tabler/icons-react'
 import { Link as RouterLink } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const SectionTwo = () => {
+  const { t, i18n } = useTranslation('landing')
+  const isRtl = i18n.dir() === 'rtl'
+  const ForwardArrowIcon = isRtl ? IconArrowLeft : IconArrowRight
+
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
 
@@ -46,7 +52,7 @@ const SectionTwo = () => {
                 color="brand"
                 sx={{ textTransform: 'uppercase', letterSpacing: '1px' }}
               >
-                البنية السحابية
+                {t('cloud.tag')}
               </Text>
               <Title
                 order={2}
@@ -56,10 +62,10 @@ const SectionTwo = () => {
                   color: isDark ? '#ffffff' : '#0f172a',
                 }}
               >
-                بنية تحتية سحابية موثوقة تلائم متطلبات الجامعات
+                {t('cloud.title')}
               </Title>
               <Text color="dimmed" size="md" sx={{ lineHeight: 1.7 }}>
-                يعمل نظام جهبذ على خوادم سحابية ذات كفاءة تشغيلية مستمرة، مما يتيح للكوادر التعليمية والطلاب الوصول إلى المساقات وقاعات المحاضرات وسجلات التقييم من أي جهاز وفي أي وقت.
+                {t('cloud.subtitle')}
               </Text>
 
               <List
@@ -71,9 +77,9 @@ const SectionTwo = () => {
                   </ThemeIcon>
                 }
               >
-                <List.Item>استجابة فورية وزمن تحميل سريع للمحتوى والدروس</List.Item>
-                <List.Item>تأمين مشدد للبيانات الحساسة وحفظ نسخ احتياطية دورية</List.Item>
-                <List.Item>إمكانية التوسع لاستيعاب آلاف الطلاب المتزامنين دون انقطاع</List.Item>
+                <List.Item>{t('cloud.bullet1')}</List.Item>
+                <List.Item>{t('cloud.bullet2')}</List.Item>
+                <List.Item>{t('cloud.bullet3')}</List.Item>
               </List>
 
               <Box pt="xs">
@@ -84,10 +90,10 @@ const SectionTwo = () => {
                   gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
                   size="md"
                   radius="md"
-                  leftIcon={<IconArrowLeft size={18} />}
+                  leftIcon={<ForwardArrowIcon size={18} />}
                   sx={{ fontWeight: 700 }}
                 >
-                  استكشف لوحة التحكم
+                  {t('cloud.cta')}
                 </Button>
               </Box>
             </Stack>
@@ -121,8 +127,8 @@ const SectionTwo = () => {
                   <ThemeIcon size={38} radius="md" color="blue" variant="light" mb="xs">
                     <IconCloudCheck size={22} />
                   </ThemeIcon>
-                  <Text weight={700} size="sm">مزامنة سحابية لحظية</Text>
-                  <Text size="xs" color="dimmed">تحديث فوري لبيانات الطلاب والحضور والدرجات.</Text>
+                  <Text weight={700} size="sm">{t('cloud.cards.syncTitle')}</Text>
+                  <Text size="xs" color="dimmed">{t('cloud.cards.syncDesc')}</Text>
                 </Paper>
 
                 <Paper
@@ -136,8 +142,8 @@ const SectionTwo = () => {
                   <ThemeIcon size={38} radius="md" color="teal" variant="light" mb="xs">
                     <IconShieldLock size={22} />
                   </ThemeIcon>
-                  <Text weight={700} size="sm">حماية البيانات والأمان</Text>
-                  <Text size="xs" color="dimmed">صلاحيات وصول دقيقة مبنية على الأدوار الأكاديمية.</Text>
+                  <Text weight={700} size="sm">{t('cloud.cards.securityTitle')}</Text>
+                  <Text size="xs" color="dimmed">{t('cloud.cards.securityDesc')}</Text>
                 </Paper>
 
                 <Paper
@@ -151,8 +157,8 @@ const SectionTwo = () => {
                   <ThemeIcon size={38} radius="md" color="indigo" variant="light" mb="xs">
                     <IconBolt size={22} />
                   </ThemeIcon>
-                  <Text weight={700} size="sm">كفاءة تشغيلية مستمرة</Text>
-                  <Text size="xs" color="dimmed">مراقبة حية للموارد وأداء الخوادم على مدار الساعة.</Text>
+                  <Text weight={700} size="sm">{t('cloud.cards.opsTitle')}</Text>
+                  <Text size="xs" color="dimmed">{t('cloud.cards.opsDesc')}</Text>
                 </Paper>
               </Stack>
             </Paper>

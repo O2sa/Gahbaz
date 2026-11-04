@@ -15,8 +15,10 @@ import {
   IconMessageDots,
   IconDeviceMobile,
 } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 
 const SectionFive = () => {
+  const { t } = useTranslation('landing')
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
 
@@ -24,30 +26,26 @@ const SectionFive = () => {
     {
       value: 'colleges',
       icon: IconBuildingSkyscraper,
-      question: 'هل تتيح المنصة تنظيم كليات وأقسام متعددة تحت مظلة جامعية واحدة؟',
-      answer:
-        'نعم بكل تأكيد. تتيح جهبذ إنشاء وإدارة شجرة أكاديمية متكاملة تضم الكليات، الأقسام، التخصصات، وخطط الفصول الدراسية مع إسناد الصلاحيات بدقة عالية لكل قسم.',
+      question: t('faq.q1'),
+      answer: t('faq.a1'),
     },
     {
       value: 'grades',
       icon: IconCertificate,
-      question: 'كيف يتم رصد درجات الطلاب واحتساب المعدلات الأكاديمية؟',
-      answer:
-        'يرصد أعضاء هيئة التدريس الدرجات مباشرة عبر كشوف رقمية منظمة لكل مقرر دراسي، ويتم احتساب التقديرات والمعدلات الفردية تلقائياً وحفظها في قاعدة بيانات مشفرة.',
+      question: t('faq.q2'),
+      answer: t('faq.a2'),
     },
     {
       value: 'chat',
       icon: IconMessageDots,
-      question: 'هل تدعم المنصة التواصل المباشر بين الطلاب والأساتذة؟',
-      answer:
-        'نعم، تحتوي المنصة على نظام محادثات تفاعلية لحظية مدعومة بتقنية WebSockets، تتيح للطلاب التفاعل مع أساتذة المساقات وطرح الأسئلة واستلام الإشعارات بصورة فورية.',
+      question: t('faq.q3'),
+      answer: t('faq.a3'),
     },
     {
       value: 'devices',
       icon: IconDeviceMobile,
-      question: 'هل تعمل المنصة بسلاسة على الهواتف والأجهزة الذكية؟',
-      answer:
-        'نعم، صُممت كافة واجهات جهبذ لتكون متجاوبة 100% مع شاشات الهواتف المحمولة والأجهزة اللوحية، مع دعم أصيل للغة العربية والوضعين النهاري والليلي لراحة العين.',
+      question: t('faq.q4'),
+      answer: t('faq.a4'),
     },
   ]
 
@@ -68,7 +66,7 @@ const SectionFive = () => {
             color="brand"
             sx={{ fontWeight: 700 }}
           >
-            الأسئلة المتكررة
+            {t('faq.badge')}
           </Badge>
           <Title
             order={2}
@@ -78,10 +76,10 @@ const SectionFive = () => {
               color: isDark ? '#ffffff' : '#0f172a',
             }}
           >
-            كل ما تود معرفته عن منصة جهبذ
+            {t('faq.title')}
           </Title>
           <Text color="dimmed" size="md">
-            إجابات واضحة لأبرز التساؤلات المتعلقة بالنظام الأكاديمي وإدارته
+            {t('faq.subtitle')}
           </Text>
         </Stack>
 

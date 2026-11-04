@@ -34,10 +34,16 @@ import {
 } from '@tabler/icons-react'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import customFetch from '../../../utils/customFetch'
 import LanguageSwitcher from '../../../components/common/LanguageSwitcher.jsx'
+import { IconArrowRight } from '@tabler/icons-react'
 
 const Header = () => {
+  const { t, i18n } = useTranslation('landing')
+  const isRtl = i18n.dir() === 'rtl'
+  const ForwardArrowIcon = isRtl ? IconArrowLeft : IconArrowRight
+
   const [opened, setOpened] = useState(false)
   const { colorScheme, toggleColorScheme } = useMantineColorScheme()
   const theme = useMantineTheme()
@@ -114,9 +120,9 @@ const Header = () => {
   }
 
   const roleLabels = {
-    admin: 'مدير النظام',
-    teacher: 'عضو هيئة التدريس',
-    student: 'طالب جامعي',
+    admin: t('header.roles.admin'),
+    teacher: t('header.roles.teacher'),
+    student: t('header.roles.student'),
   }
 
   const roleColors = {
@@ -175,10 +181,10 @@ const Header = () => {
                 WebkitTextFillColor: 'transparent',
               }}
             >
-              منصة جَهْبَذ
+              {t('header.brandTitle')}
             </Text>
             <Text size={10} color="dimmed" weight={600} sx={{ lineHeight: 1 }}>
-              المنظومة الأكاديمية الذكية
+              {t('header.brandSubtitle')}
             </Text>
           </Box>
         </Group>
@@ -186,16 +192,16 @@ const Header = () => {
         {/* Desktop Nav Anchors */}
         <Group spacing="xl" sx={{ '@media (max-width: 860px)': { display: 'none' } }}>
           <Button variant="subtle" color="gray" onClick={() => scrollTo('about')} sx={{ fontWeight: 600 }}>
-            عن المنصة
+            {t('header.about')}
           </Button>
           <Button variant="subtle" color="gray" onClick={() => scrollTo('section-one')} sx={{ fontWeight: 600 }}>
-            الخدمات
+            {t('header.services')}
           </Button>
           <Button variant="subtle" color="gray" onClick={() => scrollTo('section-four')} sx={{ fontWeight: 600 }}>
-            الميزات
+            {t('header.features')}
           </Button>
           <Button variant="subtle" color="gray" onClick={() => scrollTo('section-five')} sx={{ fontWeight: 600 }}>
-            الأسئلة الشائعة
+            {t('header.faq')}
           </Button>
         </Group>
 
@@ -218,7 +224,7 @@ const Header = () => {
                     : '0 4px 14px rgba(30, 64, 175, 0.25)',
                 }}
               >
-                لوحة التحكم
+                {t('header.dashboard')}
               </Button>
 
               <Menu position="bottom-end" shadow="md" radius="md" width={220}>
@@ -268,22 +274,22 @@ const Header = () => {
                   <Menu.Divider />
 
                   <Menu.Item icon={<IconDashboard size={16} stroke={1.6} />} onClick={() => navigate('/dashboard')}>
-                    لوحة التحكم
+                    {t('header.dashboard')}
                   </Menu.Item>
                   <Menu.Item icon={<IconBook size={16} stroke={1.6} />} onClick={() => navigate('/courses')}>
-                    المقررات الدراسية
+                    {t('header.courses')}
                   </Menu.Item>
                   <Menu.Item icon={<IconMessageDots size={16} stroke={1.6} />} onClick={() => navigate('/chat')}>
-                    المحادثات الأكاديمية
+                    {t('header.chat')}
                   </Menu.Item>
                   <Menu.Item icon={<IconUser size={16} stroke={1.6} />} onClick={() => navigate('/profile')}>
-                    الملف الشخصي
+                    {t('header.profile')}
                   </Menu.Item>
 
                   <Menu.Divider />
 
                   <Menu.Item color="red" icon={<IconLogout size={16} stroke={1.8} />} onClick={handleLogout}>
-                    تسجيل الخروج
+                    {t('header.logout')}
                   </Menu.Item>
                 </Menu.Dropdown>
               </Menu>
@@ -299,7 +305,7 @@ const Header = () => {
                 leftIcon={<IconLogin size={16} />}
                 sx={{ fontWeight: 600 }}
               >
-                تسجيل الدخول
+                {t('header.login')}
               </Button>
               {registrationEnabled && (
                 <Button
@@ -308,10 +314,10 @@ const Header = () => {
                   variant="gradient"
                   gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
                   radius="md"
-                  leftIcon={<IconArrowLeft size={16} />}
+                  leftIcon={<ForwardArrowIcon size={16} />}
                   sx={{ fontWeight: 700 }}
                 >
-                  إنشاء حساب
+                  {t('header.register')}
                 </Button>
               )}
             </>
@@ -322,7 +328,7 @@ const Header = () => {
 
           {/* Desktop Theme Mode Toggle */}
           <Tooltip
-            label={isDark ? 'التبديل إلى الوضع النهاري' : 'التبديل إلى الوضع الليلي'}
+            label={isDark ? t('header.themeLight') : t('header.themeDark')}
             withArrow
             position="bottom"
           >
@@ -374,14 +380,14 @@ const Header = () => {
           opened={opened}
           onClose={() => setOpened(false)}
           padding="lg"
-          position="right"
+          position={isRtl ? 'right' : 'left'}
           size="xs"
           title={
             <Group spacing="xs">
               <ActionIcon size={32} radius="md" variant="gradient" gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}>
                 <IconSchool size={18} color="white" />
               </ActionIcon>
-              <Text weight={700}>منصة جَهْبَذ</Text>
+              <Text weight={700}>{t('header.brandTitle')}</Text>
             </Group>
           }
         >
@@ -418,22 +424,22 @@ const Header = () => {
                   mt="sm"
                   onClick={() => setOpened(false)}
                 >
-                  الانتقال للوحة التحكم
+                  {t('header.goToDashboard')}
                 </Button>
               </Box>
             )}
 
             <Button variant="light" onClick={() => scrollTo('about')} fullWidth>
-              عن المنصة
+              {t('header.about')}
             </Button>
             <Button variant="light" onClick={() => scrollTo('section-one')} fullWidth>
-              الخدمات
+              {t('header.services')}
             </Button>
             <Button variant="light" onClick={() => scrollTo('section-four')} fullWidth>
-              الميزات
+              {t('header.features')}
             </Button>
             <Button variant="light" onClick={() => scrollTo('section-five')} fullWidth>
-              الأسئلة الشائعة
+              {t('header.faq')}
             </Button>
 
             <Button
@@ -442,7 +448,7 @@ const Header = () => {
               fullWidth
               onClick={() => toggleColorScheme()}
             >
-              {isDark ? 'التبديل إلى الوضع النهاري' : 'التبديل إلى الوضع الليلي'}
+              {isDark ? t('header.themeLight') : t('header.themeDark')}
             </Button>
 
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
@@ -454,19 +460,19 @@ const Header = () => {
             {user ? (
               <>
                 <Button component={RouterLink} to="/courses" variant="default" fullWidth onClick={() => setOpened(false)}>
-                  المقررات الدراسية
+                  {t('header.courses')}
                 </Button>
                 <Button component={RouterLink} to="/chat" variant="default" fullWidth onClick={() => setOpened(false)}>
-                  المحادثات الأكاديمية
+                  {t('header.chat')}
                 </Button>
                 <Button color="red" variant="subtle" leftIcon={<IconLogout size={16} />} fullWidth onClick={handleLogout}>
-                  تسجيل الخروج
+                  {t('header.logout')}
                 </Button>
               </>
             ) : (
               <>
                 <Button component={RouterLink} to="/login" variant="default" fullWidth onClick={() => setOpened(false)}>
-                  تسجيل الدخول
+                  {t('header.login')}
                 </Button>
                 {registrationEnabled && (
                   <Button
@@ -477,7 +483,7 @@ const Header = () => {
                     fullWidth
                     onClick={() => setOpened(false)}
                   >
-                    إنشاء حساب جديد
+                    {t('header.registerNew')}
                   </Button>
                 )}
               </>

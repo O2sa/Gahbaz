@@ -20,6 +20,7 @@ import {
   IconMoodSmile,
 } from '@tabler/icons-react'
 import Picker from 'emoji-picker-react'
+import { useTranslation } from 'react-i18next'
 
 function formatFileSize(bytes) {
   if (!bytes || bytes === 0) return '0 B'
@@ -30,6 +31,8 @@ function formatFileSize(bytes) {
 }
 
 function ChatInput({ handleSendMsg, setNewAttach, newAttach, loading = false }) {
+  const { t, i18n } = useTranslation('chat')
+  const isRtl = i18n.dir() === 'rtl'
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
   const [msg, setMsg] = useState('')
@@ -109,7 +112,7 @@ function ChatInput({ handleSendMsg, setNewAttach, newAttach, loading = false }) 
               color="red"
               variant="subtle"
               onClick={() => setNewAttach(null)}
-              title="إلغاء المرفق"
+              title={t('actions.removeAttachment')}
             >
               <IconX size={16} />
             </ActionIcon>
@@ -125,7 +128,7 @@ function ChatInput({ handleSendMsg, setNewAttach, newAttach, loading = false }) 
           accept="image/*,application/pdf,.doc,.docx,.zip,.txt"
         >
           {(props) => (
-            <Tooltip label="إرفاق ملف أو صورة" position="top" withArrow>
+            <Tooltip label={t('actions.attachFile')} position="top" withArrow>
               <ActionIcon
                 {...props}
                 size="lg"
@@ -155,7 +158,7 @@ function ChatInput({ handleSendMsg, setNewAttach, newAttach, loading = false }) 
           shadow="md"
         >
           <Popover.Target>
-            <Tooltip label="إضافة رمز تعبيري" position="top" withArrow>
+            <Tooltip label={t('actions.addEmoji')} position="top" withArrow>
               <ActionIcon
                 size="lg"
                 variant="subtle"
@@ -171,7 +174,7 @@ function ChatInput({ handleSendMsg, setNewAttach, newAttach, loading = false }) 
             <Picker
               onEmojiClick={onEmojiClick}
               theme={isDark ? 'dark' : 'light'}
-              searchPlaceHolder="ابحث عن رمز تعبيري..."
+              searchPlaceHolder={t('actions.emojiSearch')}
               width={320}
               height={380}
             />
@@ -180,7 +183,7 @@ function ChatInput({ handleSendMsg, setNewAttach, newAttach, loading = false }) 
 
         {/* Text Input Area */}
         <Textarea
-          placeholder="اكتب رسالتك هنا... (اضغط Enter للإرسال، Shift + Enter لسطر جديد)"
+          placeholder={t('actions.inputPlaceholder')}
           autosize
           minRows={1}
           maxRows={5}
@@ -203,7 +206,7 @@ function ChatInput({ handleSendMsg, setNewAttach, newAttach, loading = false }) 
         />
 
         {/* Send Button */}
-        <Tooltip label="إرسال" position="top" withArrow>
+        <Tooltip label={t('actions.send')} position="top" withArrow>
           <ActionIcon
             size="lg"
             color="brand"
@@ -217,7 +220,8 @@ function ChatInput({ handleSendMsg, setNewAttach, newAttach, loading = false }) 
               width: 42,
               boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
               transition: 'transform 0.15s ease',
-              '&:active': { transform: 'scale(0.94)' },
+              transform: isRtl ? 'scaleX(-1)' : 'none',
+              '&:active': { transform: isRtl ? 'scaleX(-1) scale(0.94)' : 'scale(0.94)' },
             }}
           >
             <IconSend size={18} />

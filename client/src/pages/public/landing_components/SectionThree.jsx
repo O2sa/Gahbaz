@@ -18,10 +18,16 @@ import {
   IconDeviceLaptop,
   IconSparkles,
   IconArrowLeft,
+  IconArrowRight,
 } from '@tabler/icons-react'
 import { Link as RouterLink } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const SectionThree = () => {
+  const { t, i18n } = useTranslation('landing')
+  const isRtl = i18n.dir() === 'rtl'
+  const ForwardArrowIcon = isRtl ? IconArrowLeft : IconArrowRight
+
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
 
@@ -63,8 +69,8 @@ const SectionThree = () => {
                   <ThemeIcon size={38} radius="md" color="indigo" variant="light" mb="xs">
                     <IconMoonStars size={22} />
                   </ThemeIcon>
-                  <Text weight={700} size="sm">الوضع الليلي والنهاري</Text>
-                  <Text size="xs" color="dimmed">تبديل سلس ومريح للعين لتسهيل الدراسة والمطالعة ليلاً.</Text>
+                  <Text weight={700} size="sm">{t('experience.cards.themeTitle')}</Text>
+                  <Text size="xs" color="dimmed">{t('experience.cards.themeDesc')}</Text>
                 </Paper>
 
                 <Paper
@@ -78,8 +84,8 @@ const SectionThree = () => {
                   <ThemeIcon size={38} radius="md" color="cyan" variant="light" mb="xs">
                     <IconDeviceLaptop size={22} />
                   </ThemeIcon>
-                  <Text weight={700} size="sm">تجاوب فائق مع الشاشات</Text>
-                  <Text size="xs" color="dimmed">تصميم متكيف بدقة مع شاشات الحواسيب، الأجهزة اللوحية، والهواتف.</Text>
+                  <Text weight={700} size="sm">{t('experience.cards.responsiveTitle')}</Text>
+                  <Text size="xs" color="dimmed">{t('experience.cards.responsiveDesc')}</Text>
                 </Paper>
 
                 <Paper
@@ -93,8 +99,8 @@ const SectionThree = () => {
                   <ThemeIcon size={38} radius="md" color="violet" variant="light" mb="xs">
                     <IconSparkles size={22} />
                   </ThemeIcon>
-                  <Text weight={700} size="sm">طباعة عربية مريحة</Text>
-                  <Text size="xs" color="dimmed">استخدام خط Cairo الأصيل مع مراعاة دقيقة لاتجاه القراءة العربي RTL.</Text>
+                  <Text weight={700} size="sm">{t('experience.cards.typographyTitle')}</Text>
+                  <Text size="xs" color="dimmed">{t('experience.cards.typographyDesc')}</Text>
                 </Paper>
               </Stack>
             </Paper>
@@ -108,7 +114,7 @@ const SectionThree = () => {
                 color="brand"
                 sx={{ textTransform: 'uppercase', letterSpacing: '1px' }}
               >
-                تجربة المستخدم
+                {t('experience.tag')}
               </Text>
               <Title
                 order={2}
@@ -118,10 +124,10 @@ const SectionThree = () => {
                   color: isDark ? '#ffffff' : '#0f172a',
                 }}
               >
-                واجهات عصرية صُممت لتسهيل التعلم والتدريس
+                {t('experience.title')}
               </Title>
               <Text color="dimmed" size="md" sx={{ lineHeight: 1.7 }}>
-                نهتم بأدق التفاصيل البصرية والتفاعلية لنضمن ألا يقف التعقيد التقني عائقاً أمام التحصيل الأكاديمي. كل صفحة وأداة في النظام مصممة للوصول إليها بأقل عدد من النقرات.
+                {t('experience.subtitle')}
               </Text>
 
               <List
@@ -133,9 +139,9 @@ const SectionThree = () => {
                   </ThemeIcon>
                 }
               >
-                <List.Item>مؤشرات تقدم واضحة وكشوف درجات تفاعلية</List.Item>
-                <List.Item>لوحة إشعارات وتنبيهات بأحدث المستجدات الأكاديمية</List.Item>
-                <List.Item>فلاتر بحث سريعة لفرز المواد والمقررات والطلاب</List.Item>
+                <List.Item>{t('experience.bullet1')}</List.Item>
+                <List.Item>{t('experience.bullet2')}</List.Item>
+                <List.Item>{t('experience.bullet3')}</List.Item>
               </List>
 
               <Box pt="xs">
@@ -145,10 +151,10 @@ const SectionThree = () => {
                   variant="outline"
                   size="md"
                   radius="md"
-                  leftIcon={<IconArrowLeft size={18} />}
+                  leftIcon={<ForwardArrowIcon size={18} />}
                   sx={{ fontWeight: 700 }}
                 >
-                  تصفح المساقات المتاحة
+                  {t('experience.cta')}
                 </Button>
               </Box>
             </Stack>

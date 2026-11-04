@@ -14,6 +14,7 @@ import {
 } from '@mantine/core'
 import {
   IconArrowLeft,
+  IconArrowRight,
   IconLogin,
   IconUsers,
   IconBook,
@@ -23,9 +24,14 @@ import {
 } from '@tabler/icons-react'
 import { Link as RouterLink } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import customFetch from '../../../utils/customFetch'
 
 const About = () => {
+  const { t, i18n } = useTranslation('landing')
+  const isRtl = i18n.dir() === 'rtl'
+  const ForwardArrowIcon = isRtl ? IconArrowLeft : IconArrowRight
+
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
 
@@ -52,10 +58,10 @@ const About = () => {
   })
 
   const stats = [
-    { icon: IconUsers, value: '+15,000', label: 'طالب وطالبة مسجلين' },
-    { icon: IconBook, value: '+350', label: 'مقرر ومساق أكاديمي' },
-    { icon: IconServer, value: '99.9%', label: 'جاهزية واستقرار سحابي' },
-    { icon: IconDeviceMobile, value: '100%', label: 'توافق كامل مع الهواتف' },
+    { icon: IconUsers, value: t('hero.stats.studentsValue'), label: t('hero.stats.studentsLabel') },
+    { icon: IconBook, value: t('hero.stats.coursesValue'), label: t('hero.stats.coursesLabel') },
+    { icon: IconServer, value: t('hero.stats.uptimeValue'), label: t('hero.stats.uptimeLabel') },
+    { icon: IconDeviceMobile, value: t('hero.stats.mobileValue'), label: t('hero.stats.mobileLabel') },
   ]
 
   return (
@@ -85,7 +91,7 @@ const About = () => {
                 : '0 4px 16px rgba(30, 64, 175, 0.2)',
             }}
           >
-            ✨ المنظومة الأكاديمية الذكية الأولى
+            {t('hero.badge')}
           </Badge>
 
           {/* Main Title */}
@@ -100,7 +106,7 @@ const About = () => {
               color: isDark ? '#ffffff' : '#0f172a',
             }}
           >
-            منظومة رقمية رائدة لإدارة{' '}
+            {t('hero.titlePrefix')}
             <Text
               component="span"
               inherit
@@ -112,9 +118,9 @@ const About = () => {
                 WebkitTextFillColor: 'transparent',
               }}
             >
-              التعليم الجامعي
+              {t('hero.titleHighlight')}
             </Text>{' '}
-            بذكاء ومرونة
+            {t('hero.titleSuffix')}
           </Title>
 
           {/* Subtitle */}
@@ -128,7 +134,7 @@ const About = () => {
               fontWeight: 500,
             }}
           >
-            منصة سحابية متكاملة تجمع إدارات الكليات، هيئة التدريس، والطلاب في فضاء تعليمي متطور يشمل إدارة المقررات، قاعات المحاضرات، رصد الدرجات، والتواصل الفوري.
+            {t('hero.subtitle')}
           </Text>
 
           {/* Action Buttons */}
@@ -155,7 +161,7 @@ const About = () => {
                     },
                   }}
                 >
-                  الانتقال إلى لوحة التحكم
+                  {t('hero.ctaDashboard')}
                 </Button>
                 <Button
                   component={RouterLink}
@@ -174,7 +180,7 @@ const About = () => {
                     },
                   }}
                 >
-                  استعراض المقررات
+                  {t('hero.ctaBrowseCourses')}
                 </Button>
               </>
             ) : (
@@ -186,7 +192,7 @@ const About = () => {
                   radius="md"
                   variant="gradient"
                   gradient={{ from: '#1e40af', to: '#3b82f6', deg: 135 }}
-                  leftIcon={<IconArrowLeft size={20} />}
+                  leftIcon={<ForwardArrowIcon size={20} />}
                   sx={{
                     fontWeight: 700,
                     padding: '0 28px',
@@ -199,7 +205,7 @@ const About = () => {
                     },
                   }}
                 >
-                  تجربة المنصة الآن
+                  {t('hero.ctaTryNow')}
                 </Button>
                 <Button
                   component={RouterLink}
@@ -218,7 +224,7 @@ const About = () => {
                     },
                   }}
                 >
-                  بوابة تسجيل الدخول
+                  {t('hero.ctaLoginPortal')}
                 </Button>
               </>
             )}

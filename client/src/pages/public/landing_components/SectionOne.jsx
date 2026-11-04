@@ -16,34 +16,36 @@ import {
   IconCertificate,
   IconMessageDots,
 } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 
 const SectionOne = () => {
+  const { t } = useTranslation('landing')
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
 
   const services = [
     {
       icon: IconBuildingSkyscraper,
-      title: 'الهيكلة الأكاديمية الشاملة',
-      desc: 'بناء وتنسيق الهيكل الجامعي من كليات وأقسام وتخصصات وفصول دراسية مع خطط أكاديمية مرنة.',
+      title: t('pillars.items.structureTitle'),
+      desc: t('pillars.items.structureDesc'),
       gradient: { from: '#1e40af', to: '#3b82f6' },
     },
     {
       icon: IconBook,
-      title: 'إدارة المساقات والمحاضرات',
-      desc: 'تنظيم الوحدات الدراسية، رفع المحاضرات التفاعلية، وملفات الوسائط مع تجربة تصفح سريعة.',
+      title: t('pillars.items.coursesTitle'),
+      desc: t('pillars.items.coursesDesc'),
       gradient: { from: '#2563eb', to: '#60a5fa' },
     },
     {
       icon: IconCertificate,
-      title: 'رصد الدرجات وكشوف الطلاب',
-      desc: 'نظام متقدم لرصد نتائج الاختبارات، تقييم الأنشطة، وتوليد كشوفات أكاديمية فورية ودقيقة.',
+      title: t('pillars.items.gradesTitle'),
+      desc: t('pillars.items.gradesDesc'),
       gradient: { from: '#0284c7', to: '#38bdf8' },
     },
     {
       icon: IconMessageDots,
-      title: 'التواصل الأكاديمي المباشر',
-      desc: 'قاعات محادثة رقمية تفاعلية تجمع الأساتذة بطلابهم لتبادل المعرفة والاستفسارات لحظياً.',
+      title: t('pillars.items.chatTitle'),
+      desc: t('pillars.items.chatDesc'),
       gradient: { from: '#4f46e5', to: '#818cf8' },
     },
   ]
@@ -64,7 +66,7 @@ const SectionOne = () => {
             color="brand"
             sx={{ textTransform: 'uppercase', letterSpacing: '1px' }}
           >
-            ركائز المنظومة
+            {t('pillars.tag')}
           </Text>
           <Title
             order={2}
@@ -74,10 +76,10 @@ const SectionOne = () => {
               color: isDark ? '#ffffff' : '#0f172a',
             }}
           >
-            حلول تعليمية متكاملة لبيئة أكاديمية ذكية
+            {t('pillars.title')}
           </Title>
           <Text color="dimmed" size="md" sx={{ maxWidth: 600 }}>
-            صُممت منصة جهبذ لتغطي كافة متطلبات المنظومة الجامعية بكفاءة عالية وأمان فائق
+            {t('pillars.subtitle')}
           </Text>
         </Stack>
 

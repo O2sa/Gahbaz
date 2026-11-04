@@ -35,12 +35,14 @@ import {
 import { ChatState } from '../context/ChatProvider'
 import { allUsersRoute, host } from '../utils/APIRoutes'
 import customFetch from '../../utils/customFetch'
+import { useTranslation } from 'react-i18next'
 
 import ChatContainer from '../components/ChatContainer'
 import Contacts from '../components/Contacts'
 import Search from '../components/Search'
 
 function Chat() {
+  const { t } = useTranslation('chat')
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
   const tabletMatch = useMediaQuery('(max-width: 768px)')
@@ -74,8 +76,8 @@ function Chat() {
         console.error('Failed to resolve course chat for deep-link:', err)
         notifications.show({
           color: 'red',
-          title: 'تعذر فتح المحادثة',
-          message: err?.response?.data?.message || 'لم نتمكن من فتح محادثة المقرر المحدد',
+          title: t('actions.deepLinkFailedTitle'),
+          message: err?.response?.data?.message || t('actions.deepLinkFailedMsg'),
         })
       } finally {
         if (isMounted) setLoading(false)
@@ -95,8 +97,8 @@ function Chat() {
     if (!search?.trim()) {
       notifications.show({
         color: 'yellow',
-        title: 'تنبيه',
-        message: 'يرجى إدخال اسم للبحث عنه',
+        title: t('search.alertTitle'),
+        message: t('search.validationEmpty'),
       })
       return
     }
@@ -112,8 +114,8 @@ function Chat() {
       console.error('Error searching user:', error)
       notifications.show({
         color: 'red',
-        title: 'خطأ',
-        message: 'تعذر إتمام البحث عن المستخدم',
+        title: t('search.errorTitle'),
+        message: t('search.errorDesc'),
       })
     } finally {
       setLoading(false)
@@ -169,7 +171,7 @@ function Chat() {
                 lg={3.5}
                 sx={{
                   height: '100%',
-                  borderLeft: `1px solid ${
+                  borderInlineEnd: `1px solid ${
                     isDark ? theme.colors.dark[5] : theme.colors.gray[2]
                   }`,
                   display: 'flex',
@@ -197,7 +199,7 @@ function Chat() {
                           </ActionIcon>
                         ) : null
                       }
-                      placeholder="ابحث عن طالب أو أستاذ..."
+                      placeholder={t('search.placeholder')}
                       radius="md"
                       size="sm"
                       value={search}
@@ -283,15 +285,14 @@ function Chat() {
                       {/* Welcome Titles */}
                       <Box>
                         <Title order={2} sx={{ fontWeight: 800 }}>
-                          مرحباً بك في مركز المحادثات،{' '}
+                          {t('welcome.title')}
                           <Text component="span" color="brand">
                             {user.firstName || user.name || ''}
                           </Text>{' '}
                           👋
                         </Title>
                         <Text size="sm" c="dimmed" mt="xs" lh={1.6}>
-                          اختر محادثة من القائمة الجانبية للبدء، أو انضم إلى غرف المناقشة الرسمية
-                          للمقررات الدراسية للتواصل المباشر مع الأساتذة والزملاء.
+                          {t('welcome.subtitle')}
                         </Text>
                       </Box>
 
@@ -316,10 +317,10 @@ function Chat() {
                             <IconBook size={20} />
                           </ThemeIcon>
                           <Text size="xs" fw={700}>
-                            غرف المقررات
+                            {t('welcome.courseRooms')}
                           </Text>
                           <Text size="10px" c="dimmed" mt={2}>
-                            مناقشة أكاديمية معتمدة
+                            {t('welcome.courseRoomsDesc')}
                           </Text>
                         </Paper>
 
@@ -342,10 +343,10 @@ function Chat() {
                             <IconPaperclip size={20} />
                           </ThemeIcon>
                           <Text size="xs" fw={700}>
-                            مشاركة المرفقات
+                            {t('welcome.attachments')}
                           </Text>
                           <Text size="10px" c="dimmed" mt={2}>
-                            ملفات وواجبات وصور
+                            {t('welcome.attachmentsDesc')}
                           </Text>
                         </Paper>
 
@@ -368,10 +369,10 @@ function Chat() {
                             <IconShieldCheck size={20} />
                           </ThemeIcon>
                           <Text size="xs" fw={700}>
-                            اتصال موثوق
+                            {t('welcome.secure')}
                           </Text>
                           <Text size="10px" c="dimmed" mt={2}>
-                            تواصل لحظي محمي
+                            {t('welcome.secureDesc')}
                           </Text>
                         </Paper>
                       </SimpleGrid>

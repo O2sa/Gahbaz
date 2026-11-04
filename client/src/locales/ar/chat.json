@@ -1,0 +1,75 @@
+{
+  "meta": {
+    "title": "منصة جهبذ | المحادثات"
+  },
+  "search": {
+    "placeholder": "ابحث عن طالب أو أستاذ...",
+    "validationEmpty": "يرجى إدخال اسم للبحث عنه",
+    "alertTitle": "تنبيه",
+    "errorTitle": "خطأ",
+    "errorDesc": "تعذر إتمام البحث عن المستخدم",
+    "notFound": "لم يتم العثور على مستخدمين",
+    "accessError": "تعذر فتح المحادثة مع هذا المستخدم"
+  },
+  "tabs": {
+    "all": "الكل",
+    "courses": "المقررات",
+    "direct": "الخاص"
+  },
+  "empty": {
+    "noChats": "لا توجد محادثات",
+    "noCoursesYet": "لا توجد مقررات دراسية بعد",
+    "noDirectYet": "لا توجد محادثات خاصة بعد",
+    "startHint": "ابدأ محادثة جديدة عبر البحث بالأعلى",
+    "noMessages": "لا توجد رسائل بعد",
+    "beFirst": "كن أول من يفتتح النقاش ويرسل رسالة في هذه المحادثة!"
+  },
+  "badges": {
+    "courseBadge": "مقرر دراسي",
+    "groupBadge": "مجموعة",
+    "discussionGroup": "مجموعة مناقشة",
+    "directChat": "محادثة مباشرة",
+    "coursePrefix": "مقرر {{name}}",
+    "participants": "{{count}} مشارك في القناة",
+    "members": "{{count}} عضو",
+    "you": "أنت",
+    "member": "عضو",
+    "defaultChat": "محادثة"
+  },
+  "welcome": {
+    "title": "مرحباً بك في مركز المحادثات، ",
+    "subtitle": "اختر محادثة من القائمة الجانبية للبدء، أو انضم إلى غرف المناقشة الرسمية للمقررات الدراسية للتواصل المباشر مع الأساتذة والزملاء.",
+    "courseRooms": "غرف المقررات",
+    "courseRoomsDesc": "مناقشة أكاديمية معتمدة",
+    "attachments": "مشاركة المرفقات",
+    "attachmentsDesc": "ملفات وواجبات وصور",
+    "secure": "اتصال موثوق",
+    "secureDesc": "تواصل لحظي محمي"
+  },
+  "actions": {
+    "backToList": "الرجوع للقائمة",
+    "closeChat": "إغلاق المحادثة",
+    "inputPlaceholder": "اكتب رسالتك هنا... (اضغط Enter للإرسال، Shift + Enter لسطر جديد)",
+    "attachFile": "إرفاق ملف أو صورة",
+    "removeAttachment": "إلغاء المرفق",
+    "addEmoji": "إضافة رمز تعبيري",
+    "emojiSearch": "ابحث عن رمز تعبيري...",
+    "send": "إرسال",
+    "uploadWarningTitle": "تحذير المرفقات",
+    "uploadWarning": "تعذر رفع الملف، جاري إرسال الرسالة النصية فقط",
+    "sendFailed": "فشل الإرسال",
+    "sendFailedMsg": "تعذر إرسال الرسالة",
+    "loadFailed": "خطأ في تحميل الرسائل",
+    "loadFailedMsg": "تعذر استرجاع رسائل المحادثة",
+    "deepLinkFailedTitle": "تعذر فتح المحادثة",
+    "deepLinkFailedMsg": "لم نتمكن من فتح محادثة المقرر المحدد"
+  },
+  "drawer": {
+    "title": "غرفة نقاش المقرر",
+    "viewFull": "فتح في صفحة المحادثات",
+    "emptyCourse": "لا توجد رسائل في هذا المقرر بعد",
+    "beFirstCourse": "شارك استفساراتك أو ملاحظاتك الأكاديمية مع أستاذ وطلاب المساق.",
+    "cantOpen": "تعذر فتح غرفة المحادثة",
+    "ensureEnrolled": "تأكد من تسجيلك في هذا المقرر"
+  }
+}

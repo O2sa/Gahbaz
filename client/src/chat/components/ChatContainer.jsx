@@ -12,12 +12,14 @@ import {
 } from '@mantine/core'
 import {
   IconArrowRight,
+  IconArrowLeft,
   IconDotsVertical,
   IconBook,
   IconUsers,
   IconLogout,
   IconTrash,
 } from '@tabler/icons-react'
+import { useTranslation } from 'react-i18next'
 import { ChatState } from '../context/ChatProvider'
 import { getSender, getSenderProfilePic, getSenderFull } from '../config/ChatLogics'
 import SingleChat from './SingleChat'
@@ -25,6 +27,10 @@ import customFetch from '../../utils/customFetch'
 import { notifications } from '@mantine/notifications'
 
 function ChatContainer({ socket, fetchAgain, setFetchAgain }) {
+  const { t, i18n } = useTranslation('chat')
+  const isRtl = i18n.dir() === 'rtl'
+  const BackArrowIcon = isRtl ? IconArrowRight : IconArrowLeft
+
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
   const { setSelectedChat, selectedChat, user } = ChatState()
@@ -37,10 +43,10 @@ function ChatContainer({ socket, fetchAgain, setFetchAgain }) {
   const chatTitle = selectedChat.chatName
     ? selectedChat.chatName
     : selectedChat.course?.name
-    ? `مقرر ${selectedChat.course.name}`
+    ? t('badges.coursePrefix', { name: selectedChat.course.name })
     : selectedChat.users && selectedChat.users.length >= 2
     ? getSender(user, selectedChat.users)
-    : 'المحادثة'
+    : t('badges.defaultChat')
 
   const chatAvatar = selectedChat.course?.cover
     ? selectedChat.course.cover
@@ -56,12 +62,12 @@ function ChatContainer({ socket, fetchAgain, setFetchAgain }) {
       : null
 
   const subtitle = isCourseChat
-    ? `${selectedChat.course?.code ? selectedChat.course.code + ' • ' : ''}${
-        selectedChat.users?.length || 0
-      } مشارك في القناة`
+    ? `${selectedChat.course?.code ? selectedChat.course.code + ' • ' : ''}${t('badges.participants', {
+        count: selectedChat.users?.length || 0,
+      })}`
     : selectedChat.isGroupChat
-    ? `${selectedChat.users?.length || 0} عضو`
-    : peerUser?.email || 'محادثة مباشرة'
+    ? t('badges.members', { count: selectedChat.users?.length || 0 })
+    : peerUser?.email || t('badges.directChat')
 
   const handleLeaveOrClose = () => {
     setSelectedChat(null)
@@ -90,7 +96,7 @@ function ChatContainer({ socket, fetchAgain, setFetchAgain }) {
         <Group position="apart">
           <Group spacing="sm">
             {/* Back button for mobile / tablet view */}
-            <Tooltip label="الرجوع للقائمة">
+            <Tooltip label={t('actions.backToList')}>
               <ActionIcon
                 variant="subtle"
                 color="gray"
@@ -98,7 +104,7 @@ function ChatContainer({ socket, fetchAgain, setFetchAgain }) {
                 onClick={handleLeaveOrClose}
                 sx={{ display: 'none', '@media (max-width: 768px)': { display: 'inline-flex' } }}
               >
-                <IconArrowRight size={20} />
+                <BackArrowIcon size={20} />
               </ActionIcon>
             </Tooltip>
 
@@ -134,7 +140,7 @@ function ChatContainer({ socket, fetchAgain, setFetchAgain }) {
                     variant="light"
                     leftSection={<IconBook size={10} />}
                   >
-                    مقرر دراسي
+                    {t('badges.courseBadge')}
                   </Badge>
                 )}
                 {!isCourseChat && isGroup && (
@@ -144,7 +150,7 @@ function ChatContainer({ socket, fetchAgain, setFetchAgain }) {
                     variant="light"
                     leftSection={<IconUsers size={10} />}
                   >
-                    مجموعة
+                    {t('badges.groupBadge')}
                   </Badge>
                 )}
               </Group>
@@ -164,10 +170,10 @@ function ChatContainer({ socket, fetchAgain, setFetchAgain }) {
               </Menu.Target>
               <Menu.Dropdown>
                 <Menu.Item
-                  icon={<IconArrowRight size={14} />}
+                  icon={<BackArrowIcon size={14} />}
                   onClick={() => setSelectedChat(null)}
                 >
-                  إغلاق المحادثة
+                  {t('actions.closeChat')}
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>

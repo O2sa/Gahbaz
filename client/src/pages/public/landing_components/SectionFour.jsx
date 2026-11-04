@@ -21,64 +21,70 @@ import {
   IconUserCheck,
   IconSchool,
   IconArrowLeft,
+  IconArrowRight,
   IconDashboard,
   IconBook,
   IconCertificate,
   IconMessageDots,
 } from '@tabler/icons-react'
 import { Link as RouterLink } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const SectionFour = () => {
+  const { t, i18n } = useTranslation('landing')
+  const isRtl = i18n.dir() === 'rtl'
+  const ForwardArrowIcon = isRtl ? IconArrowLeft : IconArrowRight
+
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
 
   const roles = [
     {
       value: 'admin',
-      label: 'إداريو النظام والجامعة',
+      label: t('roles.admin.label'),
       icon: IconShieldCheck,
-      badge: 'إدارة متكاملة',
-      title: 'تحكم شامل في البنية الأكاديمية والعمليات',
-      desc: 'تمكّن لوحة تحكم المسؤول من إدارة شجرة الكليات، الفصول الدراسية، وصلاحيات المستخدمين، ومراقبة أداء الخوادم في الوقت الفعلي.',
+      badge: t('roles.admin.badge'),
+      title: t('roles.admin.title'),
+      desc: t('roles.admin.desc'),
       features: [
-        'إدارة وتنسيق الكليات والأقسام والتخصصات الأكاديمية',
-        'مراقبة فورية لأداء النظام (المعالج، الذاكرة، وحركة الشبكة)',
-        'إدارة حسابات الطلاب وأعضاء هيئة التدريس والإداريين',
-        'جدولة الفصول والخطط الدراسية بمرونة فائقة',
+        t('roles.admin.f1'),
+        t('roles.admin.f2'),
+        t('roles.admin.f3'),
+        t('roles.admin.f4'),
       ],
-      cta: 'دخول المسؤولين',
+      cta: t('roles.admin.cta'),
       color: 'violet',
     },
     {
       value: 'teacher',
-      label: 'أعضاء هيئة التدريس',
+      label: t('roles.teacher.label'),
       icon: IconUserCheck,
-      badge: 'تعليم تفاعلي',
-      title: 'أدوات قوية لإعداد وتدريس المساقات الجامعية',
-      desc: 'بيئة عمل تمكّن الأساتذة من بناء المقررات وتقسيمها إلى وحدات ودروس تفاعلية، ورصد الدرجات والتقييمات بكل سلاسة.',
+      badge: t('roles.teacher.badge'),
+      title: t('roles.teacher.title'),
+      desc: t('roles.teacher.desc'),
       features: [
-        'إنشاء وتحديث محتوى المقررات والوحدات والدروس',
-        'رفع المحاضرات المرئية والملفات التعليمية المتنوعة',
-        'رصد درجات الاختبارات والأنشطة في كشوفات منظمة',
-        'التواصل المباشر مع طلاب المساق عبر غرف الدردشة',
+        t('roles.teacher.f1'),
+        t('roles.teacher.f2'),
+        t('roles.teacher.f3'),
+        t('roles.teacher.f4'),
       ],
-      cta: 'دخول هيئة التدريس',
+      cta: t('roles.teacher.cta'),
       color: 'blue',
     },
     {
       value: 'student',
-      label: 'الطلاب والدارسون',
+      label: t('roles.student.label'),
       icon: IconSchool,
-      badge: 'تجربة طالب ذكية',
-      title: 'مساحة رقمية محفزة للتعلم والمتابعة الأكاديمية',
-      desc: 'يحصل الطالب على تجربة سلسة تمكنه من الوصول إلى محاضراته، متابعة واجباته، واستعراض درجاته أولاً بأول.',
+      badge: t('roles.student.badge'),
+      title: t('roles.student.title'),
+      desc: t('roles.student.desc'),
       features: [
-        'استعراض المحاضرات والدروس الرقمية في أي وقت ومن أي جهاز',
-        'الاطلاع على كشوف الدرجات والمعدل الأكاديمي بشكل فوري',
-        'المشاركة في النقاشات الأكاديمية مع المعلمين والزملاء',
-        'واجهة مريحة تدعم الوضع الليلي والنهاري للمذاكرة',
+        t('roles.student.f1'),
+        t('roles.student.f2'),
+        t('roles.student.f3'),
+        t('roles.student.f4'),
       ],
-      cta: 'بوابة الطلاب',
+      cta: t('roles.student.cta'),
       color: 'teal',
     },
   ]
@@ -102,7 +108,7 @@ const SectionFour = () => {
             color="brand"
             sx={{ textTransform: 'uppercase', letterSpacing: '1px' }}
           >
-            الأدوار الأكاديمية
+            {t('roles.tag')}
           </Text>
           <Title
             order={2}
@@ -112,10 +118,10 @@ const SectionFour = () => {
               color: isDark ? '#ffffff' : '#0f172a',
             }}
           >
-            مصمم خصيصاً لتلبية احتياجات جميع أطراف التعليم
+            {t('roles.title')}
           </Title>
           <Text color="dimmed" size="md" sx={{ maxWidth: 640 }}>
-            تمنح جهبذ كلاً من الإداريين والأساتذة والطلاب تجربة مخصصة بأدوات متطورة تتناسب مع مسؤولياتهم
+            {t('roles.subtitle')}
           </Text>
         </Stack>
 
@@ -193,7 +199,7 @@ const SectionFour = () => {
                           color={role.color}
                           size="md"
                           radius="md"
-                          leftIcon={<IconArrowLeft size={16} />}
+                          leftIcon={<ForwardArrowIcon size={16} />}
                           sx={{ fontWeight: 700 }}
                         >
                           {role.cta}
@@ -216,8 +222,8 @@ const SectionFour = () => {
                         <ThemeIcon size={40} radius="md" color={role.color} variant="light" mx="auto" mb="xs">
                           <IconDashboard size={20} />
                         </ThemeIcon>
-                        <Text weight={700} size="sm">تحكم مرن</Text>
-                        <Text size="xs" color="dimmed">واجهة سهلة وسريعة</Text>
+                        <Text weight={700} size="sm">{t('roles.cardHighlights.c1Title')}</Text>
+                        <Text size="xs" color="dimmed">{t('roles.cardHighlights.c1Desc')}</Text>
                       </Card>
 
                       <Card
@@ -232,8 +238,8 @@ const SectionFour = () => {
                         <ThemeIcon size={40} radius="md" color={role.color} variant="light" mx="auto" mb="xs">
                           <IconBook size={20} />
                         </ThemeIcon>
-                        <Text weight={700} size="sm">محتوى رقمي</Text>
-                        <Text size="xs" color="dimmed">تنظيم متسلسل للدروس</Text>
+                        <Text weight={700} size="sm">{t('roles.cardHighlights.c2Title')}</Text>
+                        <Text size="xs" color="dimmed">{t('roles.cardHighlights.c2Desc')}</Text>
                       </Card>
 
                       <Card
@@ -248,8 +254,8 @@ const SectionFour = () => {
                         <ThemeIcon size={40} radius="md" color={role.color} variant="light" mx="auto" mb="xs">
                           <IconCertificate size={20} />
                         </ThemeIcon>
-                        <Text weight={700} size="sm">رصد دقيق</Text>
-                        <Text size="xs" color="dimmed">حساب فوري للمعدلات</Text>
+                        <Text weight={700} size="sm">{t('roles.cardHighlights.c3Title')}</Text>
+                        <Text size="xs" color="dimmed">{t('roles.cardHighlights.c3Desc')}</Text>
                       </Card>
 
                       <Card
@@ -264,8 +270,8 @@ const SectionFour = () => {
                         <ThemeIcon size={40} radius="md" color={role.color} variant="light" mx="auto" mb="xs">
                           <IconMessageDots size={20} />
                         </ThemeIcon>
-                        <Text weight={700} size="sm">تواصل لحظي</Text>
-                        <Text size="xs" color="dimmed">محادثات فورية آمنة</Text>
+                        <Text weight={700} size="sm">{t('roles.cardHighlights.c4Title')}</Text>
+                        <Text size="xs" color="dimmed">{t('roles.cardHighlights.c4Desc')}</Text>
                       </Card>
                     </SimpleGrid>
                   </Grid.Col>

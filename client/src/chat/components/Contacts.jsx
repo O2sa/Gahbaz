@@ -19,6 +19,7 @@ import { ChatState } from '../context/ChatProvider'
 import { getSender, getSenderProfilePic } from '../config/ChatLogics'
 import customFetch from '../../utils/customFetch'
 import ChatsList from '../NewChat/components/ChatsList/ChatsList'
+import { useTranslation } from 'react-i18next'
 
 const replaceHTML = (html) => (html ? String(html).replace(/<[^>]*>?/gm, '').trim() : '')
 
@@ -39,6 +40,7 @@ function formatChatTime(dateString) {
 }
 
 function Contacts({ fetchAgain, selectedChat, socket }) {
+  const { t } = useTranslation('chat')
   const theme = useMantineTheme()
   const isDark = theme.colorScheme === 'dark'
   const tabletMatch = useMediaQuery('(max-width: 768px)')
@@ -109,12 +111,12 @@ function Contacts({ fetchAgain, selectedChat, socket }) {
 
   const getChatTitle = (chat) => {
     if (chat.chatName) return chat.chatName
-    if (chat.course?.name) return `مقرر ${chat.course.name}`
-    if (chat.isGroupChat) return 'مجموعة مناقشة'
+    if (chat.course?.name) return t('badges.coursePrefix', { name: chat.course.name })
+    if (chat.isGroupChat) return t('badges.discussionGroup')
     if (Array.isArray(chat.users) && chat.users.length >= 2) {
       return getSender(user, chat.users)
     }
-    return 'محادثة'
+    return t('badges.defaultChat')
   }
 
   const getChatAvatar = (chat) => {
@@ -127,8 +129,8 @@ function Contacts({ fetchAgain, selectedChat, socket }) {
   }
 
   const getChatBadge = (chat) => {
-    if (chat.course) return 'مقرر دراسي'
-    if (chat.isGroupChat) return 'مجموعة'
+    if (chat.course) return t('badges.courseBadge')
+    if (chat.isGroupChat) return t('badges.groupBadge')
     return null
   }
 
@@ -143,9 +145,9 @@ function Contacts({ fetchAgain, selectedChat, socket }) {
           size="xs"
           radius="md"
           data={[
-            { label: 'الكل', value: 'all' },
-            { label: 'المقررات', value: 'courses' },
-            { label: 'الخاص', value: 'direct' },
+            { label: t('tabs.all'), value: 'all' },
+            { label: t('tabs.courses'), value: 'courses' },
+            { label: t('tabs.direct'), value: 'direct' },
           ]}
           styles={{
             root: {
@@ -196,7 +198,7 @@ function Contacts({ fetchAgain, selectedChat, socket }) {
             ) : (
               <Center p="md">
                 <Text size="xs" c="dimmed">
-                  لا توجد محادثات
+                  {t('empty.noChats')}
                 </Text>
               </Center>
             )}
@@ -231,13 +233,13 @@ function Contacts({ fetchAgain, selectedChat, socket }) {
                 <IconMessages size={36} color={theme.colors.gray[4]} />
                 <Text size="sm" c="dimmed" mt="xs" fw={500}>
                   {activeTab === 'courses'
-                    ? 'لا توجد مقررات دراسية بعد'
+                    ? t('empty.noCoursesYet')
                     : activeTab === 'direct'
-                    ? 'لا توجد محادثات خاصة بعد'
-                    : 'لا توجد محادثات'}
+                    ? t('empty.noDirectYet')
+                    : t('empty.noChats')}
                 </Text>
                 <Text size="xs" c="dimmed" mt={2}>
-                  ابدأ محادثة جديدة عبر البحث بالأعلى
+                  {t('empty.startHint')}
                 </Text>
               </Center>
             )}

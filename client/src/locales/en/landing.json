@@ -1,0 +1,173 @@
+{
+  "header": {
+    "brandTitle": "Gahbaz",
+    "brandSubtitle": "Smart Academic Ecosystem",
+    "about": "About",
+    "services": "Services",
+    "features": "Features",
+    "faq": "FAQ",
+    "dashboard": "Dashboard",
+    "courses": "Courses",
+    "chat": "Academic Chat",
+    "profile": "Profile",
+    "logout": "Sign Out",
+    "login": "Sign In",
+    "register": "Register",
+    "registerNew": "Create an Account",
+    "goToDashboard": "Go to Dashboard",
+    "themeLight": "Switch to light mode",
+    "themeDark": "Switch to dark mode",
+    "roles": {
+      "admin": "System Admin",
+      "teacher": "Faculty Member",
+      "student": "Student"
+    }
+  },
+  "hero": {
+    "badge": "✨ Next-Generation Academic Platform",
+    "titlePrefix": "Pioneering Digital System for ",
+    "titleHighlight": "Higher Education",
+    "titleSuffix": " with Intelligence & Agility",
+    "subtitle": "An integrated cloud platform uniting college leadership, faculty, and students in an advanced educational workspace covering course delivery, lecture rooms, gradebook, and instant messaging.",
+    "ctaDashboard": "Go to Dashboard",
+    "ctaBrowseCourses": "Browse Courses",
+    "ctaTryNow": "Try Gahbaz Now",
+    "ctaLoginPortal": "Sign In Portal",
+    "stats": {
+      "studentsValue": "+15,000",
+      "studentsLabel": "Enrolled Students",
+      "coursesValue": "+350",
+      "coursesLabel": "Academic Courses",
+      "uptimeValue": "99.9%",
+      "uptimeLabel": "Cloud Uptime SLA",
+      "mobileValue": "100%",
+      "mobileLabel": "Mobile Responsive"
+    }
+  },
+  "pillars": {
+    "tag": "Core Pillars",
+    "title": "Integrated Educational Solutions for Smart Campuses",
+    "subtitle": "Gahbaz was engineered to cover all higher-education campus needs with high efficiency and robust security",
+    "items": {
+      "structureTitle": "Comprehensive Academic Structure",
+      "structureDesc": "Build and organize campus hierarchy across colleges, departments, majors, and semester templates with flexible curricula.",
+      "coursesTitle": "Course & Lecture Delivery",
+      "coursesDesc": "Organize course modules, stream interactive video lectures, and manage files with high-speed delivery.",
+      "gradesTitle": "Gradebook & Student Records",
+      "gradesDesc": "Advanced faculty gradebook for exam scoring, activity evaluation, and official transcripts.",
+      "chatTitle": "Direct Academic Communication",
+      "chatDesc": "Interactive real-time chat channels connecting professors and students for instant academic collaboration."
+    }
+  },
+  "cloud": {
+    "tag": "Cloud Infrastructure",
+    "title": "Reliable Cloud Infrastructure Built for Universities",
+    "subtitle": "Gahbaz runs on continuous high-availability cloud servers, enabling faculty and students to access coursework, lectures, and transcripts from any device at any time.",
+    "bullet1": "Instant responsiveness and rapid lesson loading times",
+    "bullet2": "Rigorous security for sensitive records with automated backups",
+    "bullet3": "Elastic scalability supporting thousands of concurrent learners",
+    "cta": "Explore Dashboard",
+    "cards": {
+      "syncTitle": "Real-Time Cloud Sync",
+      "syncDesc": "Instant updates across enrollment, attendance, and grades.",
+      "securityTitle": "Security & Data Protection",
+      "securityDesc": "Role-based access controls and encrypted storage.",
+      "opsTitle": "Operational Reliability",
+      "opsDesc": "24/7 proactive health monitoring and telemetry."
+    }
+  },
+  "experience": {
+    "tag": "User Experience",
+    "title": "Modern Interfaces Crafted for Frictionless Learning",
+    "subtitle": "We meticulously craft visual and interactive details so technology never obstructs academic excellence. Every tool is accessible in minimal clicks.",
+    "bullet1": "Intuitive progress tracking and interactive gradebooks",
+    "bullet2": "Real-time notification center for announcements and deadlines",
+    "bullet3": "Instant search and filtering across subjects, sections, and users",
+    "cta": "Browse Available Courses",
+    "cards": {
+      "themeTitle": "Light & Dark Modes",
+      "themeDesc": "Seamless eye-friendly theme switching for late-night study.",
+      "responsiveTitle": "Flawless Responsive Layout",
+      "responsiveDesc": "Adaptive layouts tailored for desktops, tablets, and phones.",
+      "typographyTitle": "Refined Typography",
+      "typographyDesc": "Carefully typeset fonts with native RTL and LTR bidirectional layouts."
+    }
+  },
+  "roles": {
+    "tag": "Academic Roles",
+    "title": "Tailored to Every Stakeholder in Higher Education",
+    "subtitle": "Gahbaz provides admins, faculty, and students with specialized tools matching their daily workflows",
+    "admin": {
+      "label": "System & University Admins",
+      "badge": "Comprehensive Admin",
+      "title": "Full Governance over Academic Operations",
+      "desc": "Admin dashboard enables institutional tree management, semesters, role permissions, and live server metrics.",
+      "f1": "Manage colleges, departments, and academic majors",
+      "f2": "Live telemetry of CPU, memory, and system load",
+      "f3": "Directory management for students, faculty, and staff",
+      "f4": "Flexible semester rollout and curriculum planning",
+      "cta": "Admin Portal"
+    },
+    "teacher": {
+      "label": "Faculty Members",
+      "badge": "Interactive Teaching",
+      "title": "Empowering Tools for Curriculum Delivery",
+      "desc": "An authoring workspace enabling instructors to build modules, interactive lessons, and evaluate student work.",
+      "f1": "Publish and organize modular lesson syllabi",
+      "f2": "Upload video lectures, slides, and learning resources",
+      "f3": "Record grades for exams and assignments in organized gradebooks",
+      "f4": "Engage in direct class discussions via dedicated rooms",
+      "cta": "Faculty Portal"
+    },
+    "student": {
+      "label": "Students & Learners",
+      "badge": "Smart Student Journey",
+      "title": "A Digital Hub for Academic Success",
+      "desc": "Students enjoy seamless access to lecture streams, assignment submissions, and instant grade updates.",
+      "f1": "Stream lectures and study materials anytime, anywhere",
+      "f2": "Track grades, earned credits, and GPA continuously",
+      "f3": "Collaborate in academic channels with professors and peers",
+      "f4": "Comfortable dark and light UI built for focused study",
+      "cta": "Student Portal"
+    },
+    "cardHighlights": {
+      "c1Title": "Agile Control",
+      "c1Desc": "Intuitive & fast interface",
+      "c2Title": "Digital Content",
+      "c2Desc": "Structured lesson index",
+      "c3Title": "Precise Grading",
+      "c3Desc": "Instant GPA calculation",
+      "c4Title": "Real-Time Chat",
+      "c4Desc": "Secure instant messaging"
+    }
+  },
+  "faq": {
+    "badge": "Frequently Asked Questions",
+    "title": "Everything You Need to Know About Gahbaz",
+    "subtitle": "Clear answers to the most common questions about the academic platform",
+    "q1": "Can the platform handle multiple colleges and departments under one university?",
+    "a1": "Yes, absolutely. Gahbaz manages complete university hierarchies including colleges, departments, majors, and semester templates with granular permissions.",
+    "q2": "How are student grades recorded and GPAs computed?",
+    "a2": "Faculty enter scores directly into digital gradebooks, and letter grades and cumulative GPAs are automatically computed and securely archived.",
+    "q3": "Does the platform support real-time communication between students and faculty?",
+    "a3": "Yes, Gahbaz features a WebSocket-powered real-time chat system enabling students to interact with course professors and receive instant notifications.",
+    "q4": "Does the platform work seamlessly on smartphones and tablets?",
+    "a4": "Yes, all interfaces are 100% mobile-responsive, with native Arabic/English bilingual support and light/dark modes."
+  },
+  "footer": {
+    "brandTitle": "Gahbaz",
+    "brandSubtitle": "Smart Academic Ecosystem",
+    "brandDesc": "An integrated higher-education platform designed to cloud standards, uniting faculties, teachers, and students in a secure digital environment.",
+    "uptimeBadge": "99.9% Operational Uptime",
+    "platformLinks": "Quick Links",
+    "courses": "Available Courses",
+    "login": "Sign In",
+    "register": "Register Account",
+    "contactTitle": "Contact & Support",
+    "supportEmail": "support@gahbaz.edu.sa",
+    "devTitle": "Engineered & Developed by:",
+    "devName": "Osama Mabkhout (Gahbaz Core Team)",
+    "copyright": "All rights reserved © {{year}} Gahbaz Academic Platform",
+    "rights": "Smart University Learning Management System"
+  }
+}
