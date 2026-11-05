@@ -1,4 +1,36 @@
-/node_modules
+# ========================================================
+# Gahbaz Backend GitIgnore
+# ========================================================
+
+# Dependencies
+node_modules/
+
+# Build & Reproducible Outputs
+dist/
+build/
+
+# Environment Variables & Secrets
 .env
-/uploads
-dist/
+.env.*
+!.env.example
+!.env.sample
+
+# Uploads & Media Storage
+uploads/
+
+# Testing & Coverage
+coverage/
+.nyc_output/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Caches & Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
