@@ -6,10 +6,12 @@ import { NotFoundError } from "../../core/errors/customErrors.js";
 import { paginateQuery, parsePagination } from "../../core/utils/pagination.utils.js";
 import { CreateMajorInput, UpdateMajorInput } from "./majors.validator.js";
 
-export const createMajorService = async (data: CreateMajorInput, _universityId?: string) => {
-  const newMajor = await Major.create(data);
-  const collegeId = newMajor.college || (newMajor as any).collage;
+export const createMajorService = async (data: CreateMajorInput, universityId?: string) => {
+  const collegeId = data.college || (data as any).collage;
   const college = await College.findById(collegeId);
+  const effectiveUnivId = universityId || college?.university;
+
+  const newMajor = await Major.create({ ...data, university: effectiveUnivId });
   if (college) {
     const templatePromises = [];
     for (let s = 0; s < college.numberOfSemesters; s++) {
@@ -40,22 +42,39 @@ export const getMajorsService = async (
   });
 };
 
-export const getMajorByIdService = async (id: string) => {
+export const getMajorByIdService = async (id: string, universityId?: string | null) => {
   if (!id || !mongoose.Types.ObjectId.isValid(id)) {
     throw new NotFoundError("Major not found");
   }
   const major = await Major.findById(id).populate(["semesterTemplates", "college"]);
   if (!major) throw new NotFoundError("Major not found");
+  if (universityId) {
+    const college: any = major.college;
+    const majorUniv = major.university?.toString() || (college && (college.university?._id || college.university)?.toString());
+    if (majorUniv && majorUniv !== universityId.toString()) {
+      throw new NotFoundError("Major not found");
+    }
+  }
   return major;
 };
 
-export const updateMajorService = async (id: string, data: UpdateMajorInput) => {
+export const updateMajorService = async (
+  id: string,
+  data: UpdateMajorInput,
+  universityId?: string | null
+) => {
+  if (universityId) {
+    await getMajorByIdService(id, universityId);
+  }
   const major = await Major.findByIdAndUpdate(id, data, { new: true });
   if (!major) throw new NotFoundError("Major not found");
   return major;
 };
 
-export const deleteMajorService = async (id: string) => {
+export const deleteMajorService = async (id: string, universityId?: string | null) => {
+  if (universityId) {
+    await getMajorByIdService(id, universityId);
+  }
   const major = await Major.findByIdAndDelete(id);
   if (!major) throw new NotFoundError("Major not found");
   await SemesterTemplate.deleteMany({ major: major._id });

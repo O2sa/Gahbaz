@@ -10,6 +10,7 @@ export const createStudentSchema = z
     major: z.string().optional().nullable(),
     studentId: z.string().optional(),
     phone: z.union([z.number(), z.string()]).optional(),
+    comingSemester: z.number().int().min(1, "يجب أن يبدأ المستوى الدراسي القادم من 1 على الأقل").optional().default(1),
     password: z.string().min(6, "Password must be at least 6 characters").optional(),
   })
   .refine(
@@ -32,7 +33,7 @@ export const updateStudentSchema = z.object({
   major: z.string().optional().nullable(),
   studentId: z.string().optional(),
   phone: z.union([z.number(), z.string()]).optional(),
-  comingSemester: z.number().optional(),
+  comingSemester: z.number().int().min(1, "يجب أن يبدأ المستوى الدراسي القادم من 1 على الأقل").optional(),
 });
 
 export type UpdateStudentInput = z.infer<typeof updateStudentSchema>;

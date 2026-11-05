@@ -26,6 +26,22 @@ export const envSchema = z.object({
   WASABI_REGION: z.string().optional().default("us-east-1"),
   WASABI_BUCKET_NAME: z.string().optional().default(""),
   WASABI_ENDPOINT: z.string().optional().default("https://s3.wasabisys.com"),
+  ENABLE_REGISTRATION: z
+    .preprocess((val) => {
+      if (val === undefined || val === null || val === "") return true;
+      if (typeof val === "boolean") return val;
+      const str = String(val).trim().toLowerCase();
+      return str !== "false" && str !== "0" && str !== "no";
+    }, z.boolean())
+    .default(true),
+  AUTO_SEED: z
+    .preprocess((val) => {
+      if (val === undefined || val === null || val === "") return false;
+      if (typeof val === "boolean") return val;
+      const str = String(val).trim().toLowerCase();
+      return str === "true" || str === "1" || str === "yes";
+    }, z.boolean())
+    .default(false),
 });
 
 export type Env = z.infer<typeof envSchema>;

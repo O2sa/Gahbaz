@@ -6,6 +6,11 @@ export const createSubjectSchema = z.object({
   collage: z.string().optional(),
   subtitle: z.string().optional(),
   category: z.string().optional(),
+  code: z.string().optional(),
+  creditHours: z.number().optional(),
+  credits: z.number().optional(),
+  teachers: z.array(z.string()).optional(),
+  prerequisites: z.array(z.string()).optional(),
 });
 
 export type CreateSubjectInput = z.infer<typeof createSubjectSchema>;
@@ -16,6 +21,11 @@ export const updateSubjectSchema = z.object({
   collage: z.string().optional(),
   subtitle: z.string().optional(),
   category: z.string().optional(),
+  code: z.string().optional(),
+  creditHours: z.number().optional(),
+  credits: z.number().optional(),
+  teachers: z.array(z.string()).optional(),
+  prerequisites: z.array(z.string()).optional(),
 });
 
 export type UpdateSubjectInput = z.infer<typeof updateSubjectSchema>;

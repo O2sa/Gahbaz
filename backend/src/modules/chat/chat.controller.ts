@@ -17,7 +17,7 @@ export const fetchChats = async (req: Request, res: Response): Promise<void> => 
 
 export const getChat = async (req: Request, res: Response): Promise<void> => {
   const currentUserId = req.user!.userId;
-  const chat = await svc.getChatByIdService(req.params.id, currentUserId);
+  const chat = await svc.getChatByIdService(req.params.id as string, currentUserId, req.user?.role);
   sendSuccess(res, chat);
 };
 
@@ -34,7 +34,7 @@ export const createGroupChat = async (req: Request, res: Response): Promise<void
 
 export const sendMessage = async (req: Request, res: Response): Promise<void> => {
   const currentUserId = req.user!.userId;
-  const chatId = req.params.chatId || req.body.chatId;
+  const chatId = (req.params.chatId || req.body.chatId) as string;
   const message = await svc.sendMessageService({
     senderId: currentUserId,
     chatId,
@@ -46,17 +46,18 @@ export const sendMessage = async (req: Request, res: Response): Promise<void> =>
 
 export const getMessages = async (req: Request, res: Response): Promise<void> => {
   const currentUserId = req.user!.userId;
-  const chatId = req.params.chatId || req.params.id;
-  const { data, meta } = await svc.getChatMessagesService(chatId, currentUserId, req.query);
+  const chatId = (req.params.chatId || req.params.id) as string;
+  const { data, meta } = await svc.getChatMessagesService(chatId, currentUserId, req.query, req.user?.role);
   sendPaginated(res, data, meta);
 };
 
 export const getCourseChat = async (req: Request, res: Response): Promise<void> => {
   const currentUserId = req.user!.userId;
   const chat = await svc.getCourseChatService(
-    req.params.courseId,
+    req.params.courseId as string,
     currentUserId,
-    req.user!.universityId
+    req.user!.universityId,
+    req.user?.role
   );
   sendSuccess(res, chat);
 };

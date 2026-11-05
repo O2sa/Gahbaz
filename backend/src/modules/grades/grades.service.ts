@@ -1,7 +1,7 @@
 import Grade, { IGrade } from "../../models/Grade.js";
 import Course from "../../models/Course.js";
 import Student from "../../models/Student.js";
-import { NotFoundError, BadRequestError } from "../../core/errors/customErrors.js";
+import { NotFoundError, BadRequestError, UnauthorizedError } from "../../core/errors/customErrors.js";
 import { parsePagination } from "../../core/utils/pagination.utils.js";
 
 export const getGradesByCourseService = async (courseId: string, query: Record<string, any> = {}) => {
@@ -63,20 +63,29 @@ export const getGradesByCourseService = async (courseId: string, query: Record<s
   };
 };
 
-export const getGradeByIdService = async (id: string) => {
+export const getGradeByIdService = async (id: string, user?: any) => {
   const isCourse = await Course.exists({ _id: id });
   if (isCourse) {
+    if (user?.role === "student") {
+      throw new UnauthorizedError("Students cannot access the course gradebook");
+    }
     const grades = await Grade.find({ course: id }).populate("student");
     return grades;
   }
 
-  const grade = await Grade.findById(id);
+  const grade: any = await Grade.findById(id);
   if (grade) {
+    if (user?.role === "student" && grade.student?.toString() !== (user.id || user.userId)) {
+      throw new UnauthorizedError("Cannot access another student's grade");
+    }
     return grade;
   }
 
   const courseGrades = await Grade.find({ course: id }).populate("student");
   if (courseGrades && courseGrades.length > 0) {
+    if (user?.role === "student") {
+      throw new UnauthorizedError("Students cannot access the course gradebook");
+    }
     return courseGrades;
   }
 
@@ -112,10 +121,26 @@ export const updateGradeService = async (gradeId: string, gradeData: any) => {
     },
   };
 
-  const payload = gradeData.grade || gradeData;
+  let rawPayload = gradeData;
+  if (rawPayload && typeof rawPayload === "object") {
+    if (rawPayload.grade && typeof rawPayload.grade === "object") {
+      rawPayload = rawPayload.grade;
+    }
+  }
+
+  const payload: Record<string, any> = {};
+  for (const key in rawPayload) {
+    if (["total", "percent", "_id", "id", "course", "student", "createdAt", "updatedAt"].includes(key)) {
+      continue;
+    }
+    payload[key] = rawPayload[key];
+  }
 
   for (const key in payload) {
-    const val = typeof payload[key] === "object" ? Number(payload[key].value) : Number(payload[key]);
+    const val =
+      typeof payload[key] === "object" && payload[key] !== null
+        ? Number(payload[key].value)
+        : Number(payload[key]);
     if (isNaN(val)) continue;
 
     const maxAllowed = gradeSchema.grade?.[key]?.value ?? 100;
@@ -124,6 +149,6 @@ export const updateGradeService = async (gradeId: string, gradeData: any) => {
     }
   }
 
-  await gradeDoc.updateGrade(payload, gradeSchema);
-  return gradeDoc;
+  const updatedDoc = await gradeDoc.updateGrade(payload, gradeSchema);
+  return updatedDoc || gradeDoc;
 };

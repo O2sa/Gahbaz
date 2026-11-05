@@ -3,6 +3,7 @@ import mongoose, { Document, Model, Schema, Types } from "mongoose";
 export interface IMajor extends Document {
   name: string;
   college: Types.ObjectId;
+  university?: Types.ObjectId;
   students?: any[];
   semesterTemplates?: any[];
   semesters?: any[];
@@ -25,6 +26,11 @@ const MajorSchema = new Schema<IMajor>(
       required: [true, "College is required"],
       index: true,
       alias: "collage",
+    },
+    university: {
+      type: Schema.Types.ObjectId,
+      ref: "University",
+      index: true,
     },
   },
   {

@@ -4,7 +4,6 @@ import College from "../../models/College.js";
 import Major from "../../models/Major.js";
 import Course from "../../models/Course.js";
 import AuditLog from "../../models/AuditLog.js";
-import PerformanceMetric from "../../models/PerformanceMetric.js";
 
 export const calculateThreeMonthsAgo = (from: Date = new Date()): Date => {
   const d = new Date(from);
@@ -75,9 +74,7 @@ export const getAdminDashboardStatsService = async (universityId?: string) => {
   ]);
 
   const systemHealth = getSystemHealthService();
-  const metrics = await PerformanceMetric.find().sort({ timestamp: -1 }).limit(50);
-
-  return { activeUsers, loginTimes, systemHealth, metrics };
+  return { activeUsers, loginTimes, systemHealth };
 };
 
 export const searchEntitiesService = async (query: any, user: any) => {

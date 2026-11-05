@@ -14,8 +14,8 @@ export type UpdateUserInput = z.infer<typeof updateUserSchema>;
 export const changePasswordSchema = z
   .object({
     oldPassword: z.string().min(1, "Old password is required"),
-    password: z.string().min(8, "New password must be at least 8 characters"),
-    confirmPassword: z.string().min(8),
+    password: z.string().min(6, "New password must be at least 6 characters"),
+    confirmPassword: z.string().min(6),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",

@@ -12,11 +12,16 @@ export const createCollegeService = async (data: CreateCollegeInput, universityI
 
 export const getCollegesService = async (universityId?: string, query: Record<string, any> = {}) => {
   const { page, limit } = parsePagination(query);
-  return paginateQuery<ICollege>(College, { university: universityId }, { page, limit });
+  const filter: Record<string, any> = universityId ? { university: universityId } : {};
+  if (query.search) {
+    filter.name = { $regex: query.search as string, $options: "i" };
+  }
+  return paginateQuery<ICollege>(College, filter, { page, limit });
 };
 
 export const getCollegeByIdService = async (id: string, universityId?: string) => {
-  const college = await College.findOne({ _id: id, university: universityId }).populate("majors");
+  const query = universityId ? { _id: id, university: universityId } : { _id: id };
+  const college = await College.findOne(query).populate("majors");
   if (!college) throw new NotFoundError("College not found");
   return college;
 };
@@ -26,8 +31,9 @@ export const updateCollegeService = async (
   data: UpdateCollegeInput,
   universityId?: string
 ) => {
+  const query = universityId ? { _id: id, university: universityId } : { _id: id };
   const college = await College.findOneAndUpdate(
-    { _id: id, university: universityId },
+    query,
     data,
     { new: true, runValidators: true }
   );
@@ -36,7 +42,8 @@ export const updateCollegeService = async (
 };
 
 export const deleteCollegeService = async (id: string, universityId?: string) => {
-  const college = await College.findOneAndDelete({ _id: id, university: universityId });
+  const query = universityId ? { _id: id, university: universityId } : { _id: id };
+  const college = await College.findOneAndDelete(query);
   if (!college) throw new NotFoundError("College not found");
 
   const majors = await Major.find({ college: college._id });

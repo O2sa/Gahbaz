@@ -56,7 +56,7 @@ export type StartSemesterInput = z.infer<typeof startSemesterSchema>;
 export const createSemesterTemplateSchema = z.object({
   name: z.string().min(2, "Template name must be at least 2 characters").optional(),
   major: z.string().min(1, "Major ID is required"),
-  index: z.coerce.number().int().min(0).optional(),
+  index: z.coerce.number().int().min(1, "يجب أن يبدأ ترتيب الفصل الدراسي من 1 على الأقل").optional(),
   subjects: z.array(z.string()).optional(),
 });
 
@@ -64,7 +64,7 @@ export type CreateSemesterTemplateInput = z.infer<typeof createSemesterTemplateS
 
 export const updateSemesterTemplateSchema = z.object({
   name: z.string().min(2).optional(),
-  index: z.coerce.number().int().min(0).optional(),
+  index: z.coerce.number().int().min(1, "يجب أن يبدأ ترتيب الفصل الدراسي من 1 على الأقل").optional(),
   active: z.boolean().optional(),
   subjects: z.array(z.string()).optional(),
 });

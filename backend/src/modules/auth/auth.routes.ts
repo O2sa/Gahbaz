@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { register, login, logout, getMe } from "./auth.controller.js";
+import { register, login, logout, getMe, getAuthStatus } from "./auth.controller.js";
 import { validateRequest } from "../../core/middleware/validate.middleware.js";
 import { authenticateUser } from "../../core/middleware/auth.middleware.js";
 import { registerSchema, loginSchema } from "./auth.validator.js";
@@ -7,6 +7,7 @@ import { authLimiter } from "../../core/middleware/rateLimit.middleware.js";
 
 const router = Router();
 
+router.get("/status", getAuthStatus);
 router.post("/register", authLimiter, validateRequest({ body: registerSchema }), register);
 router.post("/login", authLimiter, validateRequest({ body: loginSchema }), login);
 router.post("/logout", logout);

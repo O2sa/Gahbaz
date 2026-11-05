@@ -20,7 +20,6 @@ import Assignment from "../models/Assignment.js";
 import Submission from "../models/Submission.js";
 import Chat from "../models/Chat.js";
 import Message from "../models/Message.js";
-import PerformanceMetric from "../models/PerformanceMetric.js";
 import AuditLog from "../models/AuditLog.js";
 
 export const seedFullDemoData = async () => {
@@ -46,7 +45,6 @@ export const seedFullDemoData = async () => {
     Submission.deleteMany({}),
     Chat.deleteMany({}),
     Message.deleteMany({}),
-    PerformanceMetric.deleteMany({}),
     AuditLog.deleteMany({}),
   ]);
 
@@ -1040,31 +1038,10 @@ export const seedFullDemoData = async () => {
   teacherStudentDirectChat.latestMessage = tsMsg2._id as any;
   await teacherStudentDirectChat.save();
 
-  // 17. Real-Time Performance Metrics
-  console.log("📈 [Seed] Generating Real-Time Server Performance Metrics...");
-  const metricsDocs = [];
-  const now = Date.now();
-  for (let i = 24; i >= 0; i--) {
-    const timestamp = new Date(now - i * 60 * 60 * 1000);
-    const cpuBase = 22 + Math.sin(i / 3) * 8 + (Math.random() * 4 - 2);
-    const memBase = 44 + Math.cos(i / 4) * 6 + (Math.random() * 3 - 1.5);
-
-    metricsDocs.push({
-      timestamp,
-      cpuUsage: Math.round(cpuBase * 10) / 10,
-      memoryUsage: {
-        total: 16384,
-        used: Math.round((memBase / 100) * 16384),
-        percent: Math.round(memBase * 10) / 10,
-      },
-      uptime: 3600 * (48 - i),
-    });
-  }
-  await PerformanceMetric.insertMany(metricsDocs);
-
-  // 18. Audit Logs for Login Activity
+  // 17. Audit Logs for Login Activity
   console.log("🔒 [Seed] Generating Audit Logs for Login Analytics...");
   const auditDocs = [];
+  const now = Date.now();
   for (let day = 6; day >= 0; day--) {
     const logCount = 20 + Math.floor(Math.random() * 25);
     for (let j = 0; j < logCount; j++) {

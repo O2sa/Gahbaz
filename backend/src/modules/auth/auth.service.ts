@@ -1,49 +1,65 @@
 import mongoose from "mongoose";
+import crypto from "crypto";
 import User from "../../models/User.js";
 import University from "../../models/University.js";
+import env from "../../config/env.js";
 import { hashPassword, comparePassword } from "../../core/utils/password.utils.js";
 import { createJWT } from "../../core/utils/token.utils.js";
 import {
   BadRequestError,
   UnauthenticatedError,
   NotFoundError,
+  ForbiddenError,
 } from "../../core/errors/customErrors.js";
 import { RegisterInput } from "./auth.validator.js";
 
 export const registerUser = async (data: RegisterInput) => {
+  if (!env.ENABLE_REGISTRATION) {
+    throw new ForbiddenError("التسجيل مغلق حالياً من قِبل إدارة النظام / Registration is currently disabled");
+  }
+
   const existingUser = await User.findOne({ email: data.email });
   if (existingUser) {
     throw new BadRequestError("Email already registered");
   }
 
   const hashedPassword = await hashPassword(data.password);
-  let universityId = data.university;
 
-  if (!universityId) {
-    let defaultUniv = await University.findOne();
-    if (!defaultUniv) {
-      defaultUniv = await University.create({ name: "Default University" });
-    }
-    universityId = String((defaultUniv as any)._id);
-  }
+  // Generate dedicated placeholder University with needsSetup flag
+  const tempCode = `U${crypto.randomBytes(3).toString("hex").toUpperCase()}`;
+  const university = await University.create({
+    name: "جامعة جديدة قيد الإعداد",
+    code: tempCode,
+    active: true,
+    needsSetup: true,
+  });
 
-  // Prevent privilege escalation: public registration always creates regular student
+  const name =
+    (data as any).name ||
+    `${(data as any).firstName || ""} ${(data as any).lastName || ""}`.trim() ||
+    "مسؤول النظام";
+
   const sanitizedData = {
     ...data,
-    role: "student",
+    name,
+    role: "admin",
+    kind: "Admin",
     password: hashedPassword,
-    university: universityId,
+    university: university._id,
   };
 
   const user = await User.create(sanitizedData);
+  university.admin = user._id as any;
+  await university.save();
+
   const token = createJWT({
     userId: String((user as any)._id),
     email: user.email,
-    role: "student",
-    universityId: String(universityId),
+    role: "admin",
+    universityId: String(university._id),
   });
 
-  return { user, token };
+  return { user, token, needsOnboarding: true, university };
 };
 
 export const loginUser = async (email: string, password?: string) => {

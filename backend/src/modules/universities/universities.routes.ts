@@ -11,6 +11,20 @@ import {
 
 const router = Router();
 
+// Accessible by admin and super-admin to view and setup/update their assigned university
+router.get(
+  "/my-university",
+  authenticateUser,
+  requireRoles("admin", "super-admin"),
+  ctrl.getMyUniversity
+);
+router.patch(
+  "/my-university",
+  authenticateUser,
+  requireRoles("admin", "super-admin"),
+  ctrl.updateMyUniversity
+);
+
 // Strictly restricted to super-admin
 router.use(authenticateUser, requireRoles("super-admin"));
 

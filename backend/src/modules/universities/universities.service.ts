@@ -249,3 +249,60 @@ export const updateUniversityService = async (id: string, data: UpdateUniversity
 
   return updated;
 };
+
+export const updateMyUniversityService = async (
+  id: string,
+  data: { name?: string; code?: string }
+) => {
+  const university = await University.findById(id);
+  if (!university) {
+    throw new NotFoundError("University not found");
+  }
+
+  const updatePayload: any = {};
+
+  if (data.name) {
+    const trimmedName = data.name.trim();
+    if (trimmedName.length < 3 || trimmedName.length > 100) {
+      throw new BadRequestError("University name must be between 3 and 100 characters");
+    }
+    if (trimmedName !== university.name) {
+      const exists = await University.findOne({
+        name: { $regex: `^${trimmedName}$`, $options: "i" },
+        _id: { $ne: id },
+      });
+      if (exists) {
+        throw new BadRequestError("A university with this name already exists");
+      }
+    }
+    updatePayload.name = trimmedName;
+  }
+
+  if (data.code) {
+    const trimmedCode = data.code.trim().toUpperCase();
+    if (trimmedCode.length < 2 || trimmedCode.length > 10) {
+      throw new BadRequestError("University code must be between 2 and 10 characters");
+    }
+    if (trimmedCode !== university.code) {
+      const exists = await University.findOne({
+        code: trimmedCode,
+        _id: { $ne: id },
+      });
+      if (exists) {
+        throw new BadRequestError("A university with this code already exists");
+      }
+    }
+    updatePayload.code = trimmedCode;
+  }
+
+  updatePayload.needsSetup = false;
+
+  const updated = await University.findByIdAndUpdate(id, updatePayload, {
+    new: true,
+    runValidators: true,
+  })
+    .populate("admin", "name email")
+    .lean();
+
+  return updated;
+};

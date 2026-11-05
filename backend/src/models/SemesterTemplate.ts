@@ -28,6 +28,7 @@ const SemesterTemplateSchema = new Schema<ISemesterTemplate>(
     index: {
       type: Number,
       default: 1,
+      min: [1, "يجب أن يبدأ ترتيب المستوى من 1 على الأقل"],
     },
     active: {
       type: Boolean,
@@ -45,6 +46,8 @@ const SemesterTemplateSchema = new Schema<ISemesterTemplate>(
     collection: "semester_templates",
   }
 );
+
+SemesterTemplateSchema.index({ major: 1, index: 1 }, { unique: true });
 
 export default (mongoose.models.SemesterTemplate as Model<ISemesterTemplate>) ||
   mongoose.model<ISemesterTemplate>("SemesterTemplate", SemesterTemplateSchema, "semester_templates");

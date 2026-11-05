@@ -5,6 +5,7 @@ export interface IUniversity extends Document {
   code: string;
   admin?: Types.ObjectId;
   active: boolean;
+  needsSetup?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,6 +34,10 @@ const UniversitySchema = new Schema<IUniversity>(
     active: {
       type: Boolean,
       default: true,
+    },
+    needsSetup: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

@@ -6,8 +6,8 @@ import { paginationQuerySchema } from "../../core/utils/pagination.utils.js";
 
 const router = Router();
 
-router.get("/course/:courseId", validateRequest({ query: paginationQuerySchema }), ctrl.getCourseGrades);
-router.get("/courses/:courseId", validateRequest({ query: paginationQuerySchema }), ctrl.getCourseGrades);
+router.get("/course/:courseId", requireRoles("teacher", "admin", "super-admin"), validateRequest({ query: paginationQuerySchema }), ctrl.getCourseGrades);
+router.get("/courses/:courseId", requireRoles("teacher", "admin", "super-admin"), validateRequest({ query: paginationQuerySchema }), ctrl.getCourseGrades);
 router.get("/student/:studentId?", ctrl.getStudentGrades);
 router.get("/students/:studentId?", ctrl.getStudentGrades);
 router.get("/student-grades/:studentId?", ctrl.getStudentGrades);

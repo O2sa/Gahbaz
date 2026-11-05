@@ -29,6 +29,23 @@ const start = async () => {
     console.log("[Database] Connecting to MongoDB...");
     await mongoose.connect(env.MONGO_URL, { serverSelectionTimeoutMS: 5000 });
     console.log("[Database] Connected successfully to MongoDB");
+
+    if (env.AUTO_SEED) {
+      try {
+        const User = (await import("./models/User.js")).default;
+        const count = await User.countDocuments();
+        if (count === 0) {
+          console.log("🌱 [Seed] Database is empty and AUTO_SEED is enabled. Seeding demo data...");
+          const { seedFullDemoData } = await import("./seeds/seedFullDemoData.js");
+          await seedFullDemoData();
+          console.log("✅ [Seed] Auto-seeding completed successfully!");
+        } else {
+          console.log(`ℹ️ [Seed] Database already initialized with ${count} users. Skipping auto-seed.`);
+        }
+      } catch (seedErr: any) {
+        console.error("⚠️ [Seed] Auto-seed error:", seedErr?.message || seedErr);
+      }
+    }
   } catch (dbError: any) {
     console.warn(`[Database] MongoDB connection notice: ${dbError?.message || dbError}`);
     console.warn(

@@ -50,6 +50,32 @@ export const updateCourseService = async (
   const query = universityId ? { _id: id, university: universityId } : { _id: id };
   const course = await Course.findOneAndUpdate(query, data, { new: true });
   if (!course) throw new NotFoundError("Course not found");
+  if (typeof (course as any).populate === "function") {
+    await (course as any).populate(["teachers", "sections"]);
+  }
+
+  if (data.teachers && Array.isArray(data.teachers)) {
+    try {
+      const courseChat = await Chat.findOne({ course: course._id, isGroupChat: true });
+      if (courseChat) {
+        const existingUsers = (courseChat.users || []).map((u: any) => u.toString());
+        for (const tid of data.teachers) {
+          const tStr = (tid._id || tid).toString();
+          if (!existingUsers.includes(tStr)) {
+            courseChat.users.push(new mongoose.Types.ObjectId(tStr) as any);
+          }
+        }
+        if (data.teachers.length > 0) {
+          const adminId = (data.teachers[0]._id || data.teachers[0]).toString();
+          courseChat.groupAdmin = new mongoose.Types.ObjectId(adminId) as any;
+        }
+        await courseChat.save();
+      }
+    } catch (err) {
+      // Non-fatal if chat sync encounters issues
+    }
+  }
+
   return course;
 };
 

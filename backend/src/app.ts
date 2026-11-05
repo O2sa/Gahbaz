@@ -112,7 +112,7 @@ app.use("/api/v1/transcripts", authGuard, transcriptsRouter);
 app.use("/api/v1/students", authGuard, studentsRouter);
 app.use("/api/v1/teachers", authGuard, teachersRouter);
 app.use("/api/v1/admins", authGuard, adminsRouter);
-app.use("/api/v1/chats", authGuard, chatRouter);
+app.use(["/api/v1/chats", "/api/v1/chat"], authGuard, chatRouter);
 app.use("/api/v1/messages", authGuard, messagesRouter);
 app.use("/api/v1/system", authGuard, systemRouter);
 app.use("/api/v1/media", mediaRouter);

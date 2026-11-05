@@ -70,11 +70,24 @@ export const fetchUserChatsService = async (userId: string, query: Record<string
   return result;
 };
 
-export const getChatByIdService = async (chatId: string, currentUserId: string) => {
-  const chat = await Chat.findOne({ _id: chatId, users: { $elemMatch: { $eq: currentUserId } } })
+export const getChatByIdService = async (
+  chatId: string,
+  currentUserId: string,
+  userRole?: string
+) => {
+  const isElevated = userRole === "admin" || userRole === "super-admin";
+  let chat = await Chat.findOne({ _id: chatId, users: { $elemMatch: { $eq: currentUserId } } })
     .populate("users", "-password")
     .populate("groupAdmin", "-password")
     .populate("latestMessage");
+
+  if (!chat && isElevated) {
+    chat = await Chat.findById(chatId)
+      .populate("users", "-password")
+      .populate("groupAdmin", "-password")
+      .populate("latestMessage");
+  }
+
   if (!chat) throw new NotFoundError("Chat not found or access denied");
   return chat;
 };
@@ -147,9 +160,15 @@ export const sendMessageService = async ({
 export const getChatMessagesService = async (
   chatId: string,
   currentUserId: string,
-  query: Record<string, any> = {}
+  query: Record<string, any> = {},
+  userRole?: string
 ) => {
-  const chat = await Chat.findOne({ _id: chatId, users: { $elemMatch: { $eq: currentUserId } } });
+  const isElevated = userRole === "admin" || userRole === "super-admin";
+  let chat = await Chat.findOne({ _id: chatId, users: { $elemMatch: { $eq: currentUserId } } });
+  if (!chat && isElevated) {
+    chat = await Chat.findById(chatId);
+  }
+
   if (!chat) {
     throw new UnauthorizedError("You are not a member of this chat");
   }
@@ -237,10 +256,28 @@ export const syncCourseStudentRoster = async ({
 
 export const getCourseChatService = async (
   courseId: string,
-  _userId?: string,
-  _universityId: string | null = null
+  userId?: string,
+  _universityId: string | null = null,
+  userRole?: string
 ) => {
   const channel = await ensureCourseChatChannel(courseId);
+
+  // Gating per Role Matrix:
+  // Super Admin / University Admin: Full Control / Campus Moderation (allowed)
+  // Faculty Member: Assigned Rooms only
+  // Student: Enrolled Rooms only
+  if (userRole === "student" || userRole === "teacher") {
+    const isMember = channel.users.some(
+      (u: any) => (u._id || u).toString() === userId?.toString()
+    );
+    if (!isMember) {
+      throw new UnauthorizedError(
+        userRole === "student"
+          ? "You are not enrolled in this course channel"
+          : "You are not assigned to teach this course channel"
+      );
+    }
+  }
 
   const chat = await Chat.findById(channel._id)
     .populate("course", "name code cover")

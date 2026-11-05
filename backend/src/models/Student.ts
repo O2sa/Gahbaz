@@ -22,7 +22,8 @@ const StudentSchema = new Schema<IStudent>({
   },
   comingSemester: {
     type: Number,
-    default: 0,
+    default: 1,
+    min: [1, "يجب أن يبدأ المستوى الدراسي القادم من 1 على الأقل"],
   },
   semesters: [
     {

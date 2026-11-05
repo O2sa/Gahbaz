@@ -115,12 +115,40 @@ Gahbaz/
 
 ---
 
-## 🚀 Getting Started Locally
+## 🐳 Instant Docker Setup (Recommended)
+
+Run the entire platform (Frontend, Backend, and MongoDB) with **zero manual configuration** and **automatic demo database seeding**:
+
+```bash
+git clone https://github.com/O2sa/Gahbaz.git
+cd Gahbaz
+docker compose up --build
+```
+
+- **Frontend Client**: Open [http://localhost:3000](http://localhost:3000)
+- **Backend API & Swagger**: [http://localhost:5000](http://localhost:5000) / [http://localhost:5000/api/docs](http://localhost:5000/api/docs)
+- **Auto-Seeding**: Enabled by default (`AUTO_SEED=true`). When launching against an empty database, the full demo institutional hierarchy, courses, teachers, and students are seeded automatically on first boot!
+
+### 🔑 Pre-Seeded Demo Accounts
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **System Admin** | `admin@test.com` | `admin@test.com` |
+| **Faculty / Teacher** | `teacher@tech.com` | `teacher@tech.com` |
+| **Student** | `student@test.com` | `student@test.com` |
+
+To re-seed demo data on demand at any time:
+```bash
+docker compose --profile seed run --rm seeder
+```
+
+---
+
+## 🚀 Getting Started Locally (Manual Setup)
 
 ### Prerequisites
 - [Node.js](https://nodejs.org/) (v18.x or v20.x recommended)
 - [pnpm](https://pnpm.io/) (or `npm`)
-- [MongoDB](https://www.mongodb.com/) (v6+ replica set required for multi-document transaction support)
+- [MongoDB](https://www.mongodb.com/) (v6+ replica set recommended for multi-document transactions)
 
 ### 1. Clone the Repository
 ```bash

@@ -7,7 +7,7 @@ export interface IGradeItem {
 
 export interface IGradeMethods {
   updateGrade(
-    gradeToUpdate: Record<string, { name?: string; value: number | string }>,
+    gradeToUpdate: Record<string, { name?: string; value: number | string } | number>,
     gradeSchema?: { total?: number; grade?: Record<string, { name?: string; value: number }> }
   ): Promise<IGrade>;
 }
@@ -54,23 +54,46 @@ const GradeSchema = new Schema<IGrade, GradeModel, IGradeMethods>(
 
 GradeSchema.methods.updateGrade = function (
   this: IGrade,
-  gradeToUpdate: Record<string, { name?: string; value: number | string }>,
+  gradeToUpdate: Record<string, { name?: string; value: number | string } | number>,
   gradeSchema?: any
 ) {
-  this.total = 0;
+  if (!this.grade || typeof this.grade !== "object") {
+    this.grade = {};
+  }
 
   for (const gr in gradeToUpdate) {
-    const currField = Number(gradeToUpdate[gr].value);
+    const item = gradeToUpdate[gr];
+    const rawVal = typeof item === "object" && item !== null ? item.value : item;
+    const currField = Number(rawVal);
+
+    if (isNaN(currField)) continue;
+
     const maxAllowed = gradeSchema?.grade?.[gr]?.value ?? 100;
 
     if (currField > maxAllowed || currField < 0) {
       throw new Error(`Grade value cannot exceed maximum allowed score of ${maxAllowed}`);
-    } else {
-      if (this.grade && this.grade[gr]) {
-        this.grade[gr].value = currField;
-      }
-      this.total += currField;
     }
+
+    const itemName =
+      (typeof item === "object" && item !== null && item.name) ||
+      this.grade[gr]?.name ||
+      gradeSchema?.grade?.[gr]?.name ||
+      `بند ${gr}`;
+
+    this.grade[gr] = {
+      name: itemName,
+      value: currField,
+    };
+  }
+
+  // Recalculate total across all items in this.grade
+  this.total = 0;
+  for (const gr in this.grade) {
+    const itemVal =
+      typeof this.grade[gr] === "object" && this.grade[gr] !== null
+        ? Number(this.grade[gr].value)
+        : Number(this.grade[gr]);
+    this.total += isNaN(itemVal) ? 0 : itemVal;
   }
 
   const schemaTotal = gradeSchema?.total || 100;
@@ -78,7 +101,13 @@ GradeSchema.methods.updateGrade = function (
     throw new Error(`Total grade cannot exceed ${schemaTotal}`);
   }
 
-  this.percent = (this.total / schemaTotal) * 100;
+  this.percent = schemaTotal > 0 ? (this.total / schemaTotal) * 100 : 0;
+
+  // Crucial: Mark Mixed type as modified so Mongoose saves changes to MongoDB!
+  if (typeof this.markModified === "function") {
+    this.markModified("grade");
+  }
+
   return this.save();
 };
 

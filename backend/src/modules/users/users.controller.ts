@@ -12,6 +12,7 @@ import {
   sendPaginated,
   sendNoContent,
 } from "../../core/utils/response.utils.js";
+import { UnauthorizedError } from "../../core/errors/customErrors.js";
 
 export const listUsers = async (req: Request, res: Response): Promise<void> => {
   const result = await listUsersService({
@@ -27,19 +28,24 @@ export const listUsers = async (req: Request, res: Response): Promise<void> => {
 export const getCurrentUser = async (req: Request, res: Response): Promise<void> => {
   const currentUserId = req.user!.userId;
   const user = await getCurrentUserProfile(currentUserId);
-  sendSuccess(res, user);
+  res.status(200).json({
+    success: true,
+    data: user,
+    user,
+  });
 };
 
 export const getUser = async (req: Request, res: Response): Promise<void> => {
-  const user = await getUserById(req.params.id, req.user);
+  const user = await getUserById(req.params.id as string, req.user);
   sendSuccess(res, user);
 };
 
 export const updateUser = async (req: Request, res: Response): Promise<void> => {
   const currentUserId = req.user!.userId;
+  const targetUserId = (req.params.id as string) || currentUserId;
   const isRequesterAdmin = req.user!.role === "admin" || req.user!.role === "super-admin";
   const updatedUser = await updateUserProfile(
-    req.params.id,
+    targetUserId,
     currentUserId,
     req.body,
     isRequesterAdmin
@@ -50,12 +56,19 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
 export const deleteUser = async (req: Request, res: Response): Promise<void> => {
   const currentUserId = req.user!.userId;
   const isRequesterAdmin = req.user!.role === "admin" || req.user!.role === "super-admin";
-  await deleteUserService(req.params.id, currentUserId, isRequesterAdmin);
+  await deleteUserService(req.params.id as string, currentUserId, isRequesterAdmin);
   sendNoContent(res);
 };
 
 export const changePassword = async (req: Request, res: Response): Promise<void> => {
   const currentUserId = req.user!.userId;
+  const targetUserId = (req.params.id as string) || currentUserId;
+
+  // Enforce Self Only for password change across all roles per Capability Matrix
+  if (targetUserId !== currentUserId) {
+    throw new UnauthorizedError("Forbidden: You can only change your own password");
+  }
+
   await changeUserPassword(currentUserId, req.body);
   res.cookie("token", "logout", { httpOnly: true, expires: new Date(Date.now()) });
   sendSuccess(res, { message: "Password changed successfully" });

@@ -26,13 +26,18 @@ export const getCourse = async (req: Request, res: Response): Promise<void> => {
 
 export const updateCourse = async (req: Request, res: Response): Promise<void> => {
   const universityId = req.user?.universityId || null;
-  const data = await svc.updateCourseService(req.params.id, req.body, universityId);
+  const isRequesterAdmin = req.user?.role === "admin" || req.user?.role === "super-admin";
+  const body = { ...req.body };
+  if (!isRequesterAdmin && body.teachers !== undefined) {
+    delete body.teachers;
+  }
+  const data = await svc.updateCourseService(req.params.id as string, body, universityId);
   sendSuccess(res, data);
 };
 
 export const deleteCourse = async (req: Request, res: Response): Promise<void> => {
   const universityId = req.user?.universityId || null;
-  await svc.deleteCourseService(req.params.id, universityId);
+  await svc.deleteCourseService(req.params.id as string, universityId);
   sendNoContent(res);
 };
 
@@ -42,7 +47,7 @@ export const getUserCourses = async (req: Request, res: Response): Promise<void>
 };
 
 export const getSemesterCourses = async (req: Request, res: Response): Promise<void> => {
-  const data = await svc.getCoursesBySemesterService(req.params.semesterId);
+  const data = await svc.getCoursesBySemesterService(req.params.semesterId as string);
   sendSuccess(res, data);
 };
 
@@ -80,35 +85,35 @@ export const getSection = async (req: Request, res: Response): Promise<void> => 
 };
 
 export const updateSection = async (req: Request, res: Response): Promise<void> => {
-  const data = await svc.updateSectionService(req.params.id, req.body);
+  const data = await svc.updateSectionService(req.params.id as string, req.body);
   sendSuccess(res, data);
 };
 
 export const deleteSection = async (req: Request, res: Response): Promise<void> => {
-  await svc.deleteSectionService(req.params.id);
+  await svc.deleteSectionService(req.params.id as string);
   sendNoContent(res);
 };
 
 export const getLesson = async (req: Request, res: Response): Promise<void> => {
-  const data = await svc.getLessonService(req.params.sectionId, req.params.lessonId);
+  const data = await svc.getLessonService(req.params.sectionId as string, req.params.lessonId as string);
   sendSuccess(res, data);
 };
 
 export const addLesson = async (req: Request, res: Response): Promise<void> => {
-  const data = await svc.addLessonService(req.params.sectionId, req.body);
+  const data = await svc.addLessonService(req.params.sectionId as string, req.body);
   sendCreated(res, data);
 };
 
 export const updateLesson = async (req: Request, res: Response): Promise<void> => {
   const data = await svc.updateLessonService(
-    req.params.sectionId,
-    req.params.lessonId,
+    req.params.sectionId as string,
+    req.params.lessonId as string,
     req.body
   );
   sendSuccess(res, data);
 };
 
 export const deleteLesson = async (req: Request, res: Response): Promise<void> => {
-  await svc.deleteLessonService(req.params.sectionId, req.params.lessonId);
+  await svc.deleteLessonService(req.params.sectionId as string, req.params.lessonId as string);
   sendNoContent(res);
 };

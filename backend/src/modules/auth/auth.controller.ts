@@ -1,10 +1,31 @@
 import { Request, Response } from "express";
 import { registerUser, loginUser, getCurrentUserService } from "./auth.service.js";
 import { sendSuccess, sendCreated } from "../../core/utils/response.utils.js";
+import env from "../../config/env.js";
+
+export const getAuthStatus = async (_req: Request, res: Response): Promise<void> => {
+  sendSuccess(res, {
+    registrationEnabled: env.ENABLE_REGISTRATION,
+  });
+};
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   const result = await registerUser(req.body);
-  sendCreated(res, { user: result.user, token: result.token });
+  const isProduction = process.env.NODE_ENV === "production";
+  const oneDay = 1000 * 60 * 60 * 24;
+  res.cookie("token", result.token, {
+    httpOnly: true,
+    expires: new Date(Date.now() + oneDay),
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+  });
+  sendCreated(res, {
+    user: result.user,
+    token: result.token,
+    role: "admin",
+    needsOnboarding: result.needsOnboarding,
+    university: result.university,
+  });
 };
 
 export const login = async (req: Request, res: Response): Promise<void> => {

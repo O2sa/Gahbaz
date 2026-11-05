@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { ForbiddenError } from "../../core/errors/customErrors.js";
 import {
   getAvailableCoursesService,
   getMyEnrolledCoursesService,
@@ -46,7 +47,12 @@ export const registerCourse = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const studentId = req.user!.userId;
+    if (req.user?.role === "student") {
+      throw new ForbiddenError(
+        "Course self-registration by students is disabled. Courses are assigned automatically upon semester launch."
+      );
+    }
+    const studentId = req.body.studentId || req.user!.userId;
     const { courseId } = req.body;
     const data = await registerCourseService(studentId, courseId);
     res.status(200).json({
