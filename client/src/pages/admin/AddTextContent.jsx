@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useDisclosure } from '@mantine/hooks'
 import { Modal, Group, Button, Box, Text, useMantineTheme } from '@mantine/core'
 import { Editor } from '../../components/Editor'
@@ -9,7 +9,7 @@ import Underline from '@tiptap/extension-underline'
 import TextAlign from '@tiptap/extension-text-align'
 import Superscript from '@tiptap/extension-superscript'
 import SubScript from '@tiptap/extension-subscript'
-import Link from '@tiptap/extension-link'
+import { Link } from '@mantine/tiptap'
 import { useParams } from 'react-router-dom'
 import client from '../../api/client'
 import { notifications } from '@mantine/notifications'
@@ -50,7 +50,23 @@ export function AddTextContent({
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
     ],
     content: lesson.topic?.data || '',
+    editable: true,
+    autofocus: false,
   })
+
+  useEffect(() => {
+    if (editor && opened) {
+      const currentContent = editor.getHTML()
+      const newContent = lesson.topic?.data || ''
+      if (newContent !== currentContent) {
+        editor.commands.setContent(newContent, false)
+      }
+      const timer = setTimeout(() => {
+        editor.commands.focus('end')
+      }, 50)
+      return () => clearTimeout(timer)
+    }
+  }, [opened, lesson.topic?.data, editor])
 
   const handleSubmit = async () => {
     try {
@@ -86,6 +102,9 @@ export function AddTextContent({
         opened={opened}
         size="xl"
         onClose={close}
+        trapFocus={false}
+        closeOnClickOutside={true}
+        zIndex={300}
         title={
           <Text weight={700} size="md" sx={{ color: isDark ? '#ffffff' : '#0f172a' }}>
             {t('courseBuilder.textContentTitle')}
@@ -100,9 +119,19 @@ export function AddTextContent({
             backgroundColor: isDark ? '#1a1b1e' : '#ffffff',
             borderBottom: `1px solid ${isDark ? theme.colors.dark[4] : theme.colors.gray[2]}`,
           },
+          body: {
+            padding: '16px 20px 24px',
+          },
         }}
       >
-        <Box sx={{ minHeight: 350, paddingTop: 10 }}>
+        <Box
+          sx={{ minHeight: 350, paddingTop: 10, cursor: 'text' }}
+          onClick={() => {
+            if (editor && !editor.isFocused) {
+              editor.commands.focus()
+            }
+          }}
+        >
           <Editor editor={editor} />
         </Box>
 
