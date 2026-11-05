@@ -104,11 +104,11 @@ Gahbaz/
 │   │   ├── theme/                  # Theme tokens, Cairo font, and RTL cache
 │   │   └── routes.jsx              # Pathless layout architecture & route definitions
 │   └── public/                     # Static assets and Netlify SPA _redirects
-├── docs/                           # Technical documentation, specs, and execution plans
+├── docs/                           # Technical documentation, specs, and requirements
 │   ├── ARCHITECTURE.md             # In-depth architectural specification
 │   ├── DEPLOYMENT.md               # Decoupled Netlify + Render deployment guide
 │   ├── API.md                      # REST endpoints and WebSocket events reference
-│   └── superpowers/                # Feature specifications and implementation plans
+│   └── SRS.md                      # Software Requirements Specification (SRS)
 ├── netlify.toml                    # Netlify production build & redirect configuration
 └── render.yaml                     # Render Infrastructure-as-Code service blueprint
 ```
