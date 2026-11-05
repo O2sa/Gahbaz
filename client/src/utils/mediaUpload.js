@@ -1,5 +1,5 @@
 import axios from 'axios';
-import client from '../api/client';
+import client, { getBaseUrl } from '../api/client';
 
 /**
  * Universal media uploader supporting:
@@ -109,7 +109,9 @@ export async function uploadMedia(file, { folder = 'general', isPrivate = false,
     folder,
     isPrivate: String(isPrivate),
   }).toString();
-  const res = await axios.post(`/api/v1/media/upload?${queryParams}`, formData, {
+  const baseUrl = getBaseUrl();
+  const uploadUrl = `${baseUrl.replace(/\/+$/, '')}/media/upload?${queryParams}`;
+  const res = await axios.post(uploadUrl, formData, {
     withCredentials: true,
     headers: { 'Content-Type': 'multipart/form-data' },
     onUploadProgress: (evt) => {

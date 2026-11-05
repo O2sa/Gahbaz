@@ -1,53 +1,101 @@
-
 services:
-  server:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    ports:
-      - "5000:5000"
-    # env_file:
-    #   - ./backend/.env
-    environment:
-      - NODE_ENV=production
-      - JWT_LIFETIME=30d
-      - JWT_SECRET=IcGuR0dBKg5PAdfdreaY9Sqz1VlQw6yFjMv
-      - MONGO_URL=mongodb://mongo:27017/jahbd
-      - PORT=5000
-    depends_on:
-      - mongo
-    networks:
-      - app-net
-
-  client:
-    build:
-      context: ./client
-      dockerfile: Dockerfile
-      args:
-        VITE_API_URL: http://server:5000
-    ports:
-      - "3000:80"
-    env_file:
-      - ./client/.env
-    networks:
-      - app-net
-    depends_on:
-      - server
-    # environment:
-      # - VITE_API_URL=http://server:5000
-
+  # ==========================================
+  # 1. MongoDB Database
+  # ==========================================
   mongo:
     image: mongo:7
+    container_name: gahbaz-mongo
     restart: always
     ports:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
     networks:
       - app-net
 
+  # ==========================================
+  # 2. Gahbaz Backend API & Real-time Server
+  # ==========================================
+  server:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gahbaz-server
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - MONGO_URL=mongodb://mongo:27017/gahbaz
+      - JWT_SECRET=IcGuR0dBKg5PAdfdreaY9Sqz1VlQw6yFjMv_gahbaz_prod_key
+      - JWT_LIFETIME=30d
+      - ENABLE_REGISTRATION=true
+      - AUTO_SEED=true
+      - CLIENT_URL=http://localhost:3000
+      - PUBLIC_URL=http://localhost:5000
+      - STORAGE_PROVIDER=local
+      - UPLOAD_DIR=uploads
+    volumes:
+      - server-uploads:/app/uploads
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - app-net
+
+  # ==========================================
+  # 3. Gahbaz Frontend Web Client (NGINX)
+  # ==========================================
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:5000}
+        VITE_BACKEND_URL: ${VITE_BACKEND_URL:-http://localhost:5000}
+        VITE_SOCKET_URL: ${VITE_SOCKET_URL:-http://localhost:5000}
+    container_name: gahbaz-client
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+    networks:
+      - app-net
+
+  # ==========================================
+  # 4. On-Demand Seeder (Optional Profile)
+  # Run manually with:
+  #   docker compose --profile seed run --rm seeder
+  # ==========================================
+  seeder:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gahbaz-seeder
+    command: ["node", "dist/seeds/seedFullDemoData.js"]
+    environment:
+      - NODE_ENV=production
+      - MONGO_URL=mongodb://mongo:27017/gahbaz
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - app-net
+    profiles:
+      - seed
+
 volumes:
   mongo-data:
+  server-uploads:
 
 networks:
   app-net:
+    driver: bridge
