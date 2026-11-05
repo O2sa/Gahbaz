@@ -1,5 +1,6 @@
 import axios from 'axios';
-import client, { getBaseUrl } from '../api/client';
+import client from '../api/client';
+import { getBaseUrl } from './env';
 
 /**
  * Universal media uploader supporting:

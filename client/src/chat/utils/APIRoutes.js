@@ -1,37 +1,7 @@
-export const getBackendHost = () => {
-  const runtimeConfig = typeof window !== 'undefined' ? (window.__GAHBAZ_CONFIG__ || window.__ENV__) : null;
-  const runtimeUrl =
-    runtimeConfig?.VITE_SOCKET_URL ||
-    runtimeConfig?.SOCKET_URL ||
-    runtimeConfig?.VITE_BACKEND_URL ||
-    runtimeConfig?.BACKEND_URL ||
-    runtimeConfig?.VITE_API_URL ||
-    runtimeConfig?.API_URL;
+import { getBackendHost, getSocketUrl } from '../../utils/env.js'
 
-  const envUrl =
-    runtimeUrl ||
-    import.meta.env.VITE_SOCKET_URL ||
-    import.meta.env.VITE_BACKEND_URL ||
-    import.meta.env.VITE_API_URL;
-
-  if (envUrl && typeof envUrl === 'string' && envUrl.trim().length > 0) {
-    return envUrl.trim().replace(/\/api\/v1\/?$/, '').replace(/\/+$/, '');
-  }
-
-  if (typeof window !== 'undefined') {
-    const isLocal =
-      window.location.hostname === 'localhost' ||
-      window.location.hostname === '127.0.0.1' ||
-      window.location.hostname === '0.0.0.0';
-    if (isLocal && window.location.port !== '5000') {
-      return `${window.location.protocol}//${window.location.hostname}:5000`;
-    }
-    return window.location.origin;
-  }
-  return 'http://localhost:5000';
-};
-
-export const host = getBackendHost();
+export { getBackendHost, getSocketUrl }
+export const host = getBackendHost()
 
 export const loginRoute = `/api/v1/auth/login`;
 export const registerRoute = `/api/v1/auth/register`;

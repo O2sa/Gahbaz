@@ -2,37 +2,9 @@ import axios from 'axios'
 import { notifications } from '@mantine/notifications'
 import i18n from '../i18n'
 
-export const getBaseUrl = () => {
-  // 1. Check runtime configuration (injected via window.__GAHBAZ_CONFIG__ or window.__ENV__)
-  const runtimeConfig = typeof window !== 'undefined' ? (window.__GAHBAZ_CONFIG__ || window.__ENV__) : null
-  const runtimeUrl =
-    runtimeConfig?.VITE_API_URL ||
-    runtimeConfig?.API_URL ||
-    runtimeConfig?.VITE_BACKEND_URL ||
-    runtimeConfig?.BACKEND_URL
+import { getBaseUrl } from '../utils/env.js'
 
-  // 2. Check build-time Vite environment variables
-  const envUrl = runtimeUrl || import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL
-
-  if (envUrl && typeof envUrl === 'string' && envUrl.trim().length > 0) {
-    const clean = envUrl.trim().replace(/\/+$/, '')
-    return clean.endsWith('/api/v1') ? clean : `${clean}/api/v1`
-  }
-
-  // 3. Fallback for local testing / production container:
-  // If running on localhost and no env var was passed, point directly to backend at port 5000
-  if (typeof window !== 'undefined') {
-    const isLocal =
-      window.location.hostname === 'localhost' ||
-      window.location.hostname === '127.0.0.1' ||
-      window.location.hostname === '0.0.0.0'
-    if (isLocal && window.location.port !== '5000') {
-      return `${window.location.protocol}//${window.location.hostname}:5000/api/v1`
-    }
-  }
-
-  return '/api/v1'
-}
+export { getBaseUrl }
 
 const apiClient = axios.create({
   baseURL: getBaseUrl(),
